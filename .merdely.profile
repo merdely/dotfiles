@@ -224,6 +224,7 @@ alias cdp='cd $(pwd -P)'
 [ -e /dev/pf ] && alias pflog='doas tcpdump -n -e -ttt -i pflog0'
 [ -e $HOME/bin/nohist ] && alias nohist='. $HOME/bin/nohist'
 alias pcp='rsync --progress -a'
+alias utcdate='TZ=UTC date "+%a %b %d %H:%M:%S %Z %Y"'
 # Common typos
 alias Grep=grep
 alias Less=less
