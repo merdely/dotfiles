@@ -1,0 +1,4 @@
+#!/bin/sh
+
+xset s $((15*60)) $((15*60))
+xset s blank

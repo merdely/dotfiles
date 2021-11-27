@@ -1,0 +1,22 @@
+# ~/.logout_ssh: called from ~/.bash_logout
+
+# Check if we're an SSH connection
+if [ -n "$SSH_TTY" ]; then
+  # Count the number of connections
+  count=$(pgrep -u $LOGNAME -af "sshd: $LOGNAME@.*,?${SSH_TTY#/dev/}" | awk -F@ '{n=split($2,a,",");print n}')
+
+  # If there is another pty using this SSH connection, don't clean up
+  if [ $count = 1 ]; then
+    # See what ~/.ssh/ssh-auth-sock points to now
+    if [ $(uname -s) = Darwin ]; then
+      sock=$(python -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' $HOME/.ssh/ssh-auth-sock)
+    else
+      sock=$(readlink -f $HOME/.ssh/ssh-auth-sock)
+    fi
+
+    # If this shell's connection is the one linked in ~/.ssh/ssh-auth-sock restore the old sock file
+    if [ -n "$SSH_AUTH_SOCK_FILE_ORIG" ] && [ -n "$SSH_AUTH_SOCK_ORIG" ] && [ "$sock" = $SSH_AUTH_SOCK_ORIG ]; then
+      ln -sf $SSH_AUTH_SOCK_FILE_ORIG $HOME/.ssh/ssh-auth-sock
+    fi
+  fi
+fi

@@ -1,0 +1,13 @@
+#!/bin/sh
+
+[ $1 ] && { which $1 > /dev/null 2>&1 && { { $1 & } && exit; } || { echo "Warning: $1 not found">/dev/stderr; }; }
+
+for term in kitty alacritty st urxvtc urxvt xfce4-terminal gnome-terminal xterm; do
+  if [ $term = urxvtc ]; then
+    which urxvtc > /dev/null 2>&1 && pgrep -u $LOGNAME -x urxvtd && { urxvtc & } && exit
+  else
+    which $term > /dev/null 2>&1 && { $term & } && exit
+  fi
+done
+
+echo "Error: Cannot determine terminal" && exit 1

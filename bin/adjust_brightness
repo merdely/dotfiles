@@ -1,0 +1,25 @@
+#!/bin/sh
+
+[ "$1" = "-h" ] && echo "usage: $(basename $0 .sh) [-h] [up|down|qtile|status]" && exit 0
+
+print_brightness() {
+  xrandr --prop --verbose | awk '$2=="connected"{d=$1}$1=="Brightness:"{printf "%s: %0.1f\n",d,$2}'
+}
+quiet=0
+[ "$1" = "-q" ] && quiet=1 && shift
+case "$1" in
+  "up")
+    xrandr --prop --verbose | awk '$2=="connected"{d=$1}$1=="Brightness:"&&$2<1.0{system(sprintf("xrandr --output %s --brightness %0.1f",d,$2+0.1))}'
+    [ $quiet = 0 ] && print_brightness
+    ;;
+  "down")
+    xrandr --prop --verbose | awk '$2=="connected"{d=$1}$1=="Brightness:"&&$2>0.0{system(sprintf("xrandr --output %s --brightness %0.1f",d,$2-0.1))}'
+    [ $quiet = 0 ] && print_brightness
+    ;;
+  "qtile")
+    print_brightness | awk '{printf "🔅 %0.0f%%",$2*100;exit 0}'
+    ;;
+  *)
+    print_brightness
+    ;;
+esac

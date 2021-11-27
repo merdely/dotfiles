@@ -1,0 +1,4 @@
+#!/bin/sh
+
+xset fp+ /usr/share/fonts/100dpi,/usr/share/fonts/misc
+xset fp rehash

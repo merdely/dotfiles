@@ -1,0 +1,66 @@
+XTerm.letterSpace: -1
+XTerm.color12: rgb:5c/5c/ff
+XTerm.scrollBar: false
+XTerm.font: xft:DejaVu Sans Mono:style=Regular:size=10:antialias=true:autohint=true
+XTerm.boldFont: xft:DejaVu Sans Mono:bold:style=Bold:size=10:antialias=true:autohint=true
+XTerm.italicFont: xft:DejaVu Sans Mono:italic:style=Italic:size=10:antialias=true:autohint=true
+XTerm.background: Black
+XTerm.foreground: White
+XTerm.colorUL: yellow
+XTerm.underlineColor: yellow
+
+UXTerm.letterSpace: -1
+UXTerm.color12: rgb:5c/5c/ff
+UXTerm.scrollBar: false
+UXTerm.font: xft:DejaVu Sans Mono:style=Regular:size=10:antialias=true:autohint=true
+UXTerm.boldFont: xft:DejaVu Sans Mono:bold:style=Bold:size=10:antialias=true:autohint=true
+UXTerm.italicFont: xft:DejaVu Sans Mono:italic:style=Italic:size=10:antialias=true:autohint=true
+UXTerm.background: Black
+UXTerm.foreground: White
+UXTerm.colorUL: yellow
+UXTerm.underlineColor: yellow
+
+URxvt.color12: rgb:5c/5c/ff
+URxvt.font: xft:DejaVu Sans Mono for Powerline:size=10,xft:JoyPixels:size=10
+URxvt.intensityStyles:   false
+URxvt.scrollBar:         false;
+URxvt.internalBorder:    1
+URxvt.urgentOnBell:      true
+URxvt.visualBell:        false
+URxvt.mapAlert:          true
+URxvt.skipBuiltinGlyphs: true
+URxvt.background: Black
+URxvt.foreground: White
+URxvt.colorUL: yellow
+URxvt.underlineColor: yellow
+
+!URxvt.perl-ext-common:      default,clipboard,url-select,keyboard-select,resize-font
+!URxvt.url-select.launcher:  xdg-open
+!URxvt.url-select.underline: true
+!URxvt.keysym.M-u:           perl:url-select:select_next
+URxvt.perl-ext-common:      default,clipboard,keyboard-select,resize-font
+URxvt.keysym.M-Escape:      perl:keyboard-select:activate
+URxvt.keysym.M-s:           perl:keyboard-select:search
+URxvt.resize-font.step:     0.5
+
+! Disable ISO 14755 unicode input so we can use Ctrl-Shift bindings
+URxvt.iso14755:        false
+URxvt.iso14755_52:     false
+
+! Disable Ctrl-Alt-c & Ctrl-Alt-v bindings (optional)
+URxvt.keysym.C-M-c:    builtin-string:
+URxvt.keysym.C-M-v:    builtin-string:
+
+! Bind Ctrl-Shift-c & Ctrl-Shift-v to copy and paste
+! I dont know why, but I needed to use hex keysym values to get it to work
+URxvt.keysym.C-S-0x43: eval:selection_to_clipboard
+URxvt.keysym.C-S-0x56: eval:paste_clipboard
+
+! SSH Ask Pass customization
+SshAskpass*Dialog.font:	-adobe-helvetica-bold-r-normal-*-*-120-*-*-*-*-iso8859-1
+SshAskpass*Dialog.label:	Please enter your authentication passphrase:
+SshAskpass*Dialog.title:
+SshAskpass*background:	#000000
+SshAskpass*foreground:	#cccccc
+SshAskpass.Button*background:	#000000
+SshAskpass.Button*foreground:	#cccccc

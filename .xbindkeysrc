@@ -1,0 +1,156 @@
+# ~/.xbindkeysrc
+# Version: 1.8.7
+#
+# To specify a key, you can use 'xbindkeys --key' or
+# 'xbindkeys --multikey' and put one of the two lines in this file.
+#
+# The format of a command line is:
+#    "command to start"
+#       associated key
+#
+# A list of keys is in /usr/include/X11/keysym.h and in
+# /usr/include/X11/keysymdef.h
+# The XK_ is not needed.
+#
+# List of modifier:
+#   Release, Control, Shift, Mod1 (Alt), Mod2 (NumLock),
+#   Mod3 (CapsLock), Mod4, Mod5 (Scroll).
+#
+# The release modifier is not a standard X modifier, but you can
+# use it if you want to catch release events instead of press events
+#
+# By defaults, xbindkeys does not pay attention with the modifiers
+# NumLock, CapsLock and ScrollLock.
+# Uncomment the lines above if you want to pay attention to them.
+#
+#keystate_numlock = enable
+#keystate_capslock = enable
+#keystate_scrolllock= enable
+
+# Launch default terminal
+"$HOME/bin/term"
+  Mod4 + Return
+
+# Launch Rofo program launcher with desktop files and programs in PATH
+"rofi -combi-modi drun,run -modi combi -show combi -display-combi launch"
+  Mod4 + p
+
+# Activate screenlocker script with xset s activate (logging how it was activated)
+"sleep .5;touch /run/user/1000/.screenlocker_force;echo alt+shift+l>/run/user/1000/.screenlocker_method;xset s activate"
+  Alt + Shift + l
+
+# Activate screenlocker script with xset s activate (logging how it was activated)
+"sleep .5;touch /run/user/1000/.screenlocker_force;echo alt+shift+s>/run/user/1000/.screenlocker_method;xset s activate"
+  Alt + Shift + s
+
+# Close all notifications
+"/usr/bin/dunstctl close-all"
+  Control+Mod2 + space
+
+# Show qutebrowser cheatsheet
+"/usr/bin/feh $HOME/.config/qutebrowser/cheatsheet.png"
+  Shift + Alt + w
+
+# Show phonetic alphabet
+"cat $HOME/.notes/alpha | rofi -dmenu -p 'phonetic alphabet'"
+  Shift + Alt + a
+
+# Show Linkding bookmarks chooser
+"rofi -show linkding -modi linkding:rofi-linkding"
+  Shift + Alt + k
+
+# Show Rofi calculator
+"rofi -show calc -modi calc -no-show-match -no-sort"
+  Shift + Alt + c
+
+# Show Rofi power menu
+"rofi -show p -modi p:~/bin/rofi-power-menu"
+  Shift + Alt + p
+
+# Show Rofi power menu
+"rofi -show p -modi p:~/bin/rofi-power-menu"
+  Control + Alt + Delete
+
+# Take a screenshot
+"flameshot gui"
+  Print
+
+"flameshot gui"
+  Shift + Print
+
+"flameshot gui"
+  Control + Print
+
+"flameshot gui"
+  Mod4 + Print
+
+"flameshot gui"
+  Mod4 + Shift + s
+
+# Show Emoji picker
+"rofi -modi 'emoji:/usr/bin/rofimoji' -show emoji"
+  Shift + Alt + e
+
+# Rofi bitwarden chooser - auto lock after 2 hours
+"$HOME/bin/bwmenu --auto-lock 7200"
+  Shift + Alt + b
+
+# Adjust brightness
+"$HOME/bin/adjust_brightness up"
+  m:0x10 + c:233
+  Mod2 + XF86MonBrightnessUp
+
+"$HOME/bin/adjust_brightness up"
+  Mod4 + Up
+
+"$HOME/bin/adjust_brightness down"
+  m:0x10 + c:232
+  Mod2 + XF86MonBrightnessDown
+
+"$HOME/bin/adjust_brightness down"
+  Mod4 + Down
+
+# Mute speaker volume
+"pactl set-sink-mute @DEFAULT_SINK@ toggle;pkill -RTMIN+11 dwmblocks"
+  m:0x10 + c:121
+  Mod2 + XF86AudioMute
+
+# Mute mic volume
+"amixer -q -D pulse sset Capture toggle;pkill -RTMIN+12 dwmblocks"
+  Shift + Mod2 + XF86AudioMute
+
+# Adjust volume
+"pactl set-source-volume @DEFAULT_SOURCE@ -2%;pkill -RTMIN+12 dwmblocks"
+  Shift + Mod2 + XF86AudioLowerVolume
+
+"pactl set-source-volume @DEFAULT_SOURCE@ -2%;pkill -RTMIN+12 dwmblocks"
+  Mod4 + Left
+
+"pactl set-source-volume @DEFAULT_SOURCE@ +2%;pkill -RTMIN+12 dwmblocks"
+  Shift + Mod2 + XF86AudioRaiseVolume
+
+"pactl set-source-volume @DEFAULT_SOURCE@ +2%;pkill -RTMIN+12 dwmblocks"
+  Mod4 + Right
+
+"pactl set-sink-volume @DEFAULT_SINK@ -2%;pkill -RTMIN+11 dwmblocks"
+  m:0x10 + c:122
+  Mod2 + XF86AudioLowerVolume
+
+"pactl set-sink-volume @DEFAULT_SINK@ +2%;pkill -RTMIN+11 dwmblocks"
+  m:0x10 + c:123
+  Mod2 + XF86AudioRaiseVolume
+
+# Previous track
+"playerctl previous"
+  m:0x10 + c:173
+  Mod2 + XF86AudioPrev
+
+# Pause player
+"playerctl play-pause"
+  m:0x10 + c:172
+  Mod2 + XF86AudioPlay
+
+# Next track
+"playerctl next"
+  m:0x10 + c:171
+  Mod2 + XF86AudioNext
