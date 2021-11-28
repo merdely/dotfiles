@@ -53,10 +53,10 @@ if [ -n "$SSH_CONNECTION" ]; then
   export SSH_AUTH_SOCK_ORIG=$SSH_AUTH_SOCK
 
   # Link SSH_AUTH_SOCK for this connection to $HOME/.ssh/ssh-auth-sock
-  ln -sf $SSH_AUTH_SOCK $HOME/.ssh/ssh-auth-sock
+  [ -r $SSH_AUTH_SOCK ] && ln -sf $SSH_AUTH_SOCK $HOME/.ssh/ssh-auth-sock
 else
   # Link to the ssh-agent socket file
-  ln -sf $XDG_RUNTIME_DIR/ssh-agent.socket $HOME/.ssh/ssh-auth-sock
+  [ -r $XDG_RUNTIME_DIR/ssh-agent.socket ] && ln -sf $XDG_RUNTIME_DIR/ssh-agent.socket $HOME/.ssh/ssh-auth-sock
 fi
 export SSH_AUTH_SOCK=$HOME/.ssh/ssh-auth-sock
 
@@ -254,6 +254,10 @@ if [ -e $HOME/src/ansible/system-setup/roles/system/files/dot_merdely.profile ];
   alias ep='vi $HOME/src/ansible/system-setup/roles/system/files/dot_merdely.profile; cp $HOME/src/ansible/system-setup/roles/system/files/dot_merdely.profile $HOME/.merdely.profile'
   alias sp='cp $HOME/.merdely.profile $HOME/src/ansible/system-setup/roles/system/files/dot_merdely.profile'
 fi
+if [ -e $HOME/src/ansible/system-setup/roles/system/files/dot_tmux.conf ]; then
+  alias etm='vi $HOME/src/ansible/system-setup/roles/system/files/dot_tmux.conf; cp $HOME/src/ansible/system-setup/roles/system/files/dot_tmux.conf $HOME/.tmux.conf'
+  alias stm='cp $HOME/.tmux.conf $HOME/src/ansible/system-setup/roles/system/files/dot_tmux.conf'
+fi
 if [ -e $HOME/src/ansible/system-setup/roles/system/files/dot_vimrc ]; then
   alias ev='vi $HOME/src/ansible/system-setup/roles/system/files/dot_vimrc; cp $HOME/src/ansible/system-setup/roles/system/files/dot_vimrc $HOME/.vimrc'
   alias sv='cp $HOME/.vimrc $HOME/src/ansible/system-setup/roles/system/files/dot_vimrc'
@@ -303,7 +307,7 @@ case "$HOSTNAME" in
     sync_dotfiles() {
       DST=$HOME/git/dotfiles
       mkdir -vp $DST
-      cp -v $HOME/{.bash_logout,.bashrc,.logout_ssh,.merdely.profile,.vimrc,.Xresources,.xbindkeysrc,.xprofile} $DST
+      cp -v $HOME/{.bash_logout,.bashrc,.logout_ssh,.merdely.profile,.tmux.conf,.vimrc,.Xresources,.xbindkeysrc,.xprofile} $DST
       mkdir -vp $DST/bin $DST/.config/{dunst,fittstool,kitty,qtile,rofi,xset}
       cp -v $HOME/bin/{adjust_brightness,qtile_*.sh,term} $DST/bin
       cp -v $HOME/.config/{mimeapps.list,picom.conf,rofimoji.rc} $DST/.config/
