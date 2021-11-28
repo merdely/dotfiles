@@ -8,6 +8,7 @@ Configuration files for my laptop
 | .bashrc | Bash config file for interactive non-login shells |
 | .logout_ssh | Called from ~/.bash_logout to clean up SSH auth files |
 | .merdely.profile | Called from ~/.bashrc for my personal shell config |
+| .tmux.conf | Tmux config file |
 | .vimrc | Vim config file |
 | .Xresources | X-Windows client application configuration parameters |
 | .xbindkeysrc | X-Windows hot-key daemon |
