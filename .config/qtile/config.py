@@ -321,12 +321,19 @@ shared_widgets += [ widget.Volume(**widget_defaults, channel="Capture") ]
 shared_widgets += [ widget.Sep(**widget_defaults, size_percent=sep_size) ]
 shared_widgets += [ widget.GenPollText(**widget_defaults, name='brightness', update_interval=brightness_interval, func=lambda: subprocess.check_output(home + "/bin/qtile_brightness.sh").decode()) ]
 shared_widgets += [ widget.Sep(**widget_defaults, size_percent=sep_size) ]
-shared_widgets += [ widget.GenPollText(**widget_defaults, name='battery', update_interval=battery_interval, func=lambda: subprocess.check_output(home + "/bin/qtile_battery.sh").decode()) ]
+shared_widgets += [ widget.GenPollText(**widget_defaults, background="ff0000", foreground="ffffff", name='battery_c', update_interval=battery_interval, func=lambda: subprocess.check_output([home + "/bin/qtile_battery.sh", "-c"]).decode()) ]
+shared_widgets += [ widget.GenPollText(**widget_defaults, background="ffff00", foreground="000000", name='battery_w', update_interval=battery_interval, func=lambda: subprocess.check_output([home + "/bin/qtile_battery.sh", "-w"]).decode()) ]
+shared_widgets += [ widget.GenPollText(**widget_defaults, name='battery_o', update_interval=battery_interval, func=lambda: subprocess.check_output([home + "/bin/qtile_battery.sh", "-o"]).decode()) ]
 
-# Mercury has a UPS
+# Mercury has a UPS and a battery powered mouse
 if hostname == "mercury":
     shared_widgets += [ widget.Sep(**widget_defaults, size_percent=sep_size) ]
-    shared_widgets += [ widget.GenPollText(**widget_defaults, name='ups', update_interval=battery_interval, func=lambda: subprocess.check_output(home + "/bin/qtile_ups.sh").decode()) ]
+    shared_widgets += [ widget.GenPollText(**widget_defaults, background="ff0000", foreground="ffffff", name='ups_c', update_interval=battery_interval, func=lambda: subprocess.check_output([home + "/bin/qtile_ups.sh", "-c"]).decode()) ]
+    shared_widgets += [ widget.GenPollText(**widget_defaults, background="ffff00", foreground="000000", name='ups_w', update_interval=battery_interval, func=lambda: subprocess.check_output([home + "/bin/qtile_ups.sh", "-w"]).decode()) ]
+    shared_widgets += [ widget.GenPollText(**widget_defaults, name='ups', update_interval=battery_interval, func=lambda: subprocess.check_output([home + "/bin/qtile_ups.sh", "-o"]).decode()) ]
+
+    shared_widgets += [ widget.Sep(**widget_defaults, size_percent=sep_size) ]
+    shared_widgets += [ widget.GenPollText(**widget_defaults, name='mousebatt', update_interval=battery_interval, func=lambda: subprocess.check_output(home + "/bin/qtile_mouse_battery.sh").decode()) ]
 
 shared_widgets += [ widget.Sep(**widget_defaults, size_percent=sep_size) ]
 shared_widgets += [ widget.GenPollText(**widget_defaults, name='df', update_interval=df_interval, func=lambda: subprocess.check_output(home + "/bin/qtile_df.sh").decode()) ]
