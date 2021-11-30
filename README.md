@@ -25,12 +25,5 @@ Configuration files for my laptop
 | .config/rofimoji.rc | Rofi Emoji picker configuration |
 | .config/fittstool/fittstoolrc | Hot corners daemon configuration |
 | bin/adjust_brightness | Script to adjust the screen brightness |
-| bin/qtile_battery.sh | Qtile Widget script to show battery percentage |
-| bin/qtile_brightness.sh | Qtile Widget script to show screen brightness |
-| bin/qtile_df.sh | Qtile Widget script to show free disk space |
-| bin/qtile_keyboard.sh | Qtile Widget script to launch On-Screen keyboard |
-| bin/qtile_sshauth.sh | Qtile Widget script to show status of SSH Agent |
-| bin/qtile_ups.sh | Qtile Widget script to show UPS battery percentage |
-| bin/qtile_volumecontrol.sh | Qtile Widget script to control volume |
-| bin/qtile_weather.sh | Qtile Widget script to show weather information |
+| bin/qtile_bar.sh | Qtile Widget script
 | bin/term | Default Terminal launcher |
