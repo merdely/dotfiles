@@ -309,7 +309,7 @@ case "$HOSTNAME" in
       mkdir -vp $DST
       cp -v $HOME/{.bash_logout,.bashrc,.logout_ssh,.merdely.profile,.tmux.conf,.vimrc,.Xresources,.xbindkeysrc,.xprofile} $DST
       mkdir -vp $DST/bin $DST/.config/{dunst,fittstool,kitty,qtile,rofi,xset}
-      cp -v $HOME/bin/{adjust_brightness,qtile_*.sh,term} $DST/bin
+      cp -v $HOME/bin/{adjust_brightness,qtile_bar.sh,term} $DST/bin
       cp -v $HOME/.config/{mimeapps.list,picom.conf,rofimoji.rc} $DST/.config/
       cp -v $HOME/.config/dunst/dunstrc $DST/.config/dunst/
       cp -v $HOME/.config/fittstool/fittstoolrc $DST/.config/fittstool/

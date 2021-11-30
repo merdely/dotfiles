@@ -27,130 +27,158 @@
 #keystate_capslock = enable
 #keystate_scrolllock= enable
 
-# Launch default terminal
+# Title: Launch default terminal
 "$HOME/bin/term"
   Mod4 + Return
 
-# Launch Rofo program launcher with desktop files and programs in PATH
+# Title: Rofi - Program Launcher
 "rofi -combi-modi drun,run -modi combi -show combi -display-combi launch"
   Mod4 + p
 
-# Activate screenlocker script with xset s activate (logging how it was activated)
+# Title: Lock Screen
 "sleep .5;touch /run/user/1000/.screenlocker_force;echo alt+shift+l>/run/user/1000/.screenlocker_method;xset s activate"
   Alt + Shift + l
 
-# Activate screenlocker script with xset s activate (logging how it was activated)
+# Title: Lock Screen
 "sleep .5;touch /run/user/1000/.screenlocker_force;echo alt+shift+s>/run/user/1000/.screenlocker_method;xset s activate"
   Alt + Shift + s
 
-# Close all notifications
+# Title: Close all notifications
 "/usr/bin/dunstctl close-all"
   Control+Mod2 + space
 
-# Show qutebrowser cheatsheet
+# Title: Cheatsheet - Qutebrowser
 "/usr/bin/feh $HOME/.config/qutebrowser/cheatsheet.png"
-  Shift + Alt + w
+  Alt + Shift + w
 
-# Show phonetic alphabet
+# Title: Cheatsheet - XBindKeys
+"IFS=$(printf '\n\b');unset next skip;for line in $(cat ~/.xbindkeysrc); do [ $next ] && unset next && echo $(echo $line|sed -r 's/^ +//;s/Mod2 \+ //'): $title; [ $skip ] && unset skip && next=1; echo $line|grep -q '^# Title: ' && title=$(echo $line | sed 's/^# Title: //') && skip=1; done | sort -t: -k2 | column -s: -t | yad --text-info --height 780 --width 700"
+  Alt + Shift + x
+
+# Title: Rofi - Phonetic Alphabet
 "cat $HOME/.notes/alpha | rofi -dmenu -p 'phonetic alphabet'"
-  Shift + Alt + a
+  Alt + Shift + a
 
-# Show Linkding bookmarks chooser
+# Title: Rofi - Linkding Bookmarks
 "rofi -show linkding -modi linkding:rofi-linkding"
-  Shift + Alt + k
+  Alt + Shift + k
 
-# Show Rofi calculator
+# Title: Rofi - Calculator
 "rofi -show calc -modi calc -no-show-match -no-sort"
-  Shift + Alt + c
+  Alt + Shift + c
 
-# Show Rofi power menu
+# Title: Rofi - Power Menu
 "rofi -show p -modi p:~/bin/rofi-power-menu"
-  Shift + Alt + p
+  Alt + Shift + p
 
-# Show Rofi power menu
+# Title: Rofi - Power Menu
 "rofi -show p -modi p:~/bin/rofi-power-menu"
   Control + Alt + Delete
 
-# Take a screenshot
-"flameshot gui"
-  Print
-
-"flameshot gui"
-  Shift + Print
-
-"flameshot gui"
-  Control + Print
-
-"flameshot gui"
-  Mod4 + Print
-
+# Title: Screenshot - GUI
 "flameshot gui"
   Mod4 + Shift + s
 
-# Show Emoji picker
+# Title: Screenshot - GUI
+"flameshot gui"
+  Print
+
+# Title: Screenshot - Current screen to clipboard
+"flameshot screen -c"
+  Alt + Print
+
+# Title: Screenshot - Current screen to ~/Pictures
+"flameshot screen -p ~/Pictures"
+  Alt + Shift + Print
+
+# Title: Screenshot - Full desktop to clipboard
+"flameshot full -c"
+  Control + Print
+
+# Title: Screenshot - Full desktop to ~/Pictures
+"flameshot full -p ~/Pictures"
+  Mod4 + Print
+
+# Title: Rofi - Emoji Picker
 "rofi -modi 'emoji:/usr/bin/rofimoji' -show emoji"
-  Shift + Alt + e
+  Alt + Shift + e
 
-# Rofi bitwarden chooser - auto lock after 2 hours
+# Title: Rofi - Bitwarden
 "$HOME/bin/bwmenu --auto-lock 7200"
-  Shift + Alt + b
+  Alt + Shift + b
 
-# Adjust brightness
+# Title: Screen Brightness - Increase
 "$HOME/bin/adjust_brightness up"
-  m:0x10 + c:233
   Mod2 + XF86MonBrightnessUp
 
+# Title: Screen Brightness - Increase
 "$HOME/bin/adjust_brightness up"
   Mod4 + Up
 
+# Title: Screen Brightness - Decrease
 "$HOME/bin/adjust_brightness down"
-  m:0x10 + c:232
   Mod2 + XF86MonBrightnessDown
 
+# Title: Screen Brightness - Decrease
 "$HOME/bin/adjust_brightness down"
   Mod4 + Down
 
-# Mute speaker volume
+# Title: Speaker Volume - Mute
 "pactl set-sink-mute @DEFAULT_SINK@ toggle;pkill -RTMIN+11 dwmblocks"
-  m:0x10 + c:121
   Mod2 + XF86AudioMute
 
-# Mute mic volume
+# Title: Speaker Volume - Mute
+"pactl set-sink-mute @DEFAULT_SINK@ toggle;pkill -RTMIN+11 dwmblocks"
+  Mod4 + m
+
+# Title: Speaker Volume - Decrease
+"pactl set-sink-volume @DEFAULT_SINK@ -2%;pkill -RTMIN+11 dwmblocks"
+  Mod2 + XF86AudioLowerVolume
+
+# Title: Speaker Volume - Decrease
+"pactl set-sink-volume @DEFAULT_SINK@ -2%;pkill -RTMIN+11 dwmblocks"
+  Mod4 + Left
+
+# Title: Speaker Volume - Increase
+"pactl set-sink-volume @DEFAULT_SINK@ +2%;pkill -RTMIN+11 dwmblocks"
+  Mod2 + XF86AudioRaiseVolume
+
+# Title: Speaker Volume - Increase
+"pactl set-sink-volume @DEFAULT_SINK@ +2%;pkill -RTMIN+11 dwmblocks"
+  Mod4 + Right
+
+# Title: Mic Volume - Mute
 "amixer -q -D pulse sset Capture toggle;pkill -RTMIN+12 dwmblocks"
   Shift + Mod2 + XF86AudioMute
 
-# Adjust volume
+# Title: Mic Volume - Mute
+"amixer -q -D pulse sset Capture toggle;pkill -RTMIN+12 dwmblocks"
+  Mod4 + Shift + m
+
+# Title: Mic Volume - Decrease
 "pactl set-source-volume @DEFAULT_SOURCE@ -2%;pkill -RTMIN+12 dwmblocks"
   Shift + Mod2 + XF86AudioLowerVolume
 
+# Title: Mic Volume - Decrease
 "pactl set-source-volume @DEFAULT_SOURCE@ -2%;pkill -RTMIN+12 dwmblocks"
-  Mod4 + Left
+  Mod4 + Shift + Left
 
+# Title: Mic Volume - Increase
 "pactl set-source-volume @DEFAULT_SOURCE@ +2%;pkill -RTMIN+12 dwmblocks"
   Shift + Mod2 + XF86AudioRaiseVolume
 
+# Title: Mic Volume - Increase
 "pactl set-source-volume @DEFAULT_SOURCE@ +2%;pkill -RTMIN+12 dwmblocks"
-  Mod4 + Right
+  Mod4 + Shift + Right
 
-"pactl set-sink-volume @DEFAULT_SINK@ -2%;pkill -RTMIN+11 dwmblocks"
-  m:0x10 + c:122
-  Mod2 + XF86AudioLowerVolume
-
-"pactl set-sink-volume @DEFAULT_SINK@ +2%;pkill -RTMIN+11 dwmblocks"
-  m:0x10 + c:123
-  Mod2 + XF86AudioRaiseVolume
-
-# Previous track
+# Title: Media - Previous track
 "playerctl previous"
-  m:0x10 + c:173
   Mod2 + XF86AudioPrev
 
-# Pause player
+# Title: Media - Play/Pause
 "playerctl play-pause"
-  m:0x10 + c:172
   Mod2 + XF86AudioPlay
 
-# Next track
+# Title: Media - Next track
 "playerctl next"
-  m:0x10 + c:171
   Mod2 + XF86AudioNext

@@ -6,7 +6,8 @@ export GDK_BACKEND=x11
 [ -r $HOME/.bashrc ] && . $HOME/.bashrc
 [ -r $HOME/.merdely.profile ] && . $HOME/.merdely.profile
 
-which xdotool > /dev/null 2>&1 && xdotool key "XF86LogGrabInfo"
+# Set the background
+[ -x /usr/bin/feh ] && /usr/bin/feh --bg-fill $HOME/.config/arch-wallpaper.png
 
 # Fix monitors using xrandr
 [ -r /etc/lightdm/display_setup.sh ] && /bin/sh /etc/lightdm/display_setup.sh

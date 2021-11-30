@@ -284,6 +284,8 @@ def launch_volumecontrol():
     qtile.cmd_spawn(home + '/bin/qtile_volumecontrol.sh')
 def rotate_desktop():
     qtile.cmd_spawn(home + '/bin/qtile_rotate.sh')
+def update_widget(s):
+    subprocess.run([home + '/bin/qtile_widget.sh', s])
 
 # Use a function so that each screen gets a different instantiation of these widgets
 # These widgets are different per screen
@@ -311,7 +313,7 @@ if hostname == "neptune":
     shared_widgets += [ widget.TextBox(**widget_defaults, text="🖥", name="display", mouse_callbacks={'Button1': rotate_desktop}) ]
 
 shared_widgets += [ widget.Sep(**widget_defaults, size_percent=sep_size) ]
-shared_widgets += [ widget.GenPollText(**widget_defaults, name='sshauth', update_interval=sshauth_interval, func=lambda: subprocess.check_output(home + "/bin/qtile_sshauth.sh").decode(), mouse_callbacks={'Button1': launch_sshadd}) ]
+shared_widgets += [ widget.GenPollText(**widget_defaults, name='sshauth', update_interval=sshauth_interval, func=lambda: subprocess.check_output([home + "/bin/qtile_bar.sh", "sshauth"]).decode(), mouse_callbacks={'Button1': launch_sshadd, 'Button3': lambda: qtile.cmd_spawn(home + '/bin/qtile_bar.sh -q sshauth')}) ]
 shared_widgets += [ widget.Sep(**widget_defaults, size_percent=sep_size) ]
 shared_widgets += [ widget.Volume(**widget_defaults, emoji=True, mouse_callbacks={'Button1': launch_volumecontrol, 'Button3': mute_speaker}) ]
 shared_widgets += [ widget.Volume(**widget_defaults, emoji=False, mouse_callbacks={'Button1': launch_volumecontrol, 'Button3': mute_speaker}) ]
@@ -319,31 +321,27 @@ shared_widgets += [ widget.Sep(**widget_defaults, size_percent=sep_size) ]
 shared_widgets += [ widget.TextBox(**widget_defaults, text="🎤", name="mic", mouse_callbacks={'Button1': mute_mic}) ]
 shared_widgets += [ widget.Volume(**widget_defaults, channel="Capture") ]
 shared_widgets += [ widget.Sep(**widget_defaults, size_percent=sep_size) ]
-shared_widgets += [ widget.GenPollText(**widget_defaults, name='brightness', update_interval=brightness_interval, func=lambda: subprocess.check_output(home + "/bin/qtile_brightness.sh").decode()) ]
+shared_widgets += [ widget.GenPollText(**widget_defaults, name='brightness', update_interval=brightness_interval, func=lambda: subprocess.check_output([home + "/bin/qtile_bar.sh", "brightness"]).decode(), mouse_callbacks={'Button3': lambda: qtile.cmd_spawn(home + '/bin/qtile_bar.sh -q brightness')}) ]
 shared_widgets += [ widget.Sep(**widget_defaults, size_percent=sep_size) ]
-shared_widgets += [ widget.GenPollText(**widget_defaults, background="ff0000", foreground="ffffff", name='battery_c', update_interval=battery_interval, func=lambda: subprocess.check_output([home + "/bin/qtile_battery.sh", "-c"]).decode()) ]
-shared_widgets += [ widget.GenPollText(**widget_defaults, background="ffff00", foreground="000000", name='battery_w', update_interval=battery_interval, func=lambda: subprocess.check_output([home + "/bin/qtile_battery.sh", "-w"]).decode()) ]
-shared_widgets += [ widget.GenPollText(**widget_defaults, name='battery_o', update_interval=battery_interval, func=lambda: subprocess.check_output([home + "/bin/qtile_battery.sh", "-o"]).decode()) ]
+shared_widgets += [ widget.GenPollText(**widget_defaults, name='battery', update_interval=battery_interval, func=lambda: subprocess.check_output([home + "/bin/qtile_bar.sh", "battery"]).decode(), mouse_callbacks={'Button3': lambda: qtile.cmd_spawn(home + '/bin/qtile_bar.sh -q battery')}) ]
 
 # Mercury has a UPS and a battery powered mouse
 if hostname == "mercury":
     shared_widgets += [ widget.Sep(**widget_defaults, size_percent=sep_size) ]
-    shared_widgets += [ widget.GenPollText(**widget_defaults, background="ff0000", foreground="ffffff", name='ups_c', update_interval=battery_interval, func=lambda: subprocess.check_output([home + "/bin/qtile_ups.sh", "-c"]).decode()) ]
-    shared_widgets += [ widget.GenPollText(**widget_defaults, background="ffff00", foreground="000000", name='ups_w', update_interval=battery_interval, func=lambda: subprocess.check_output([home + "/bin/qtile_ups.sh", "-w"]).decode()) ]
-    shared_widgets += [ widget.GenPollText(**widget_defaults, name='ups', update_interval=battery_interval, func=lambda: subprocess.check_output([home + "/bin/qtile_ups.sh", "-o"]).decode()) ]
+    shared_widgets += [ widget.GenPollText(**widget_defaults, name='ups', update_interval=battery_interval, func=lambda: subprocess.check_output([home + "/bin/qtile_bar.sh", "ups"]).decode(), mouse_callbacks={'Button3': lambda: qtile.cmd_spawn(home + '/bin/qtile_bar.sh -q ups')}) ]
 
     shared_widgets += [ widget.Sep(**widget_defaults, size_percent=sep_size) ]
-    shared_widgets += [ widget.GenPollText(**widget_defaults, name='mousebatt', update_interval=battery_interval, func=lambda: subprocess.check_output(home + "/bin/qtile_mouse_battery.sh").decode()) ]
+    shared_widgets += [ widget.GenPollText(**widget_defaults, name='mousebatt', update_interval=battery_interval, func=lambda: subprocess.check_output([home + "/bin/qtile_bar.sh", "mousebatt"]).decode(), mouse_callbacks={'Button3': lambda: qtile.cmd_spawn(home + '/bin/qtile_bar.sh -q mousebatt')}) ]
 
 shared_widgets += [ widget.Sep(**widget_defaults, size_percent=sep_size) ]
-shared_widgets += [ widget.GenPollText(**widget_defaults, name='df', update_interval=df_interval, func=lambda: subprocess.check_output(home + "/bin/qtile_df.sh").decode()) ]
+shared_widgets += [ widget.GenPollText(**widget_defaults, name='df', update_interval=df_interval, func=lambda: subprocess.check_output([home + "/bin/qtile_bar.sh", "df"]).decode(), mouse_callbacks={'Button3': lambda: qtile.cmd_spawn(home + '/bin/qtile_bar.sh -q df')}) ]
 shared_widgets += [ widget.Sep(**widget_defaults, size_percent=sep_size) ]
-shared_widgets += [ widget.GenPollText(**widget_defaults, name='weather', update_interval=weather_interval, func=lambda: subprocess.check_output(home + "/bin/qtile_weather.sh").decode()) ]
+shared_widgets += [ widget.GenPollText(**widget_defaults, name='weather', update_interval=weather_interval, func=lambda: subprocess.check_output([home + "/bin/qtile_bar.sh", "weather"]).decode(), mouse_callbacks={'Button3': lambda: qtile.cmd_spawn(home + '/bin/qtile_bar.sh -q weather')}) ]
 shared_widgets += [ widget.Sep(**widget_defaults, size_percent=sep_size) ]
 
 # Allow neptune to touch clock to launch on-screen keyboard (also update the clock less frequently)
 if hostname == "neptune":
-    shared_widgets += [ widget.GenPollText(**widget_defaults, name='clock', update_interval=30, func=lambda: subprocess.check_output(home + "/bin/qtile_clock.sh").decode(), mouse_callbacks={'Button1': launch_keyboard}) ]
+    shared_widgets += [ widget.GenPollText(**widget_defaults, name='clock', update_interval=30, func=lambda: subprocess.check_output([home + "/bin/qtile_bar.sh", "clock"]).decode(), mouse_callbacks={'Button1': launch_keyboard}) ]
 else:
     shared_widgets += [ widget.Clock(**widget_defaults, format='%a %-m/%-d, %-I:%M:%S%P') ]
 
