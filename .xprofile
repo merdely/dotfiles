@@ -2,6 +2,8 @@
 
 export PATH=$PATH:$HOME/bin
 export GDK_BACKEND=x11
+export SSH_ASKPASS=/usr/local/bin/xaskpass
+export SSH_AUTH_SOCK=$XDG_RUNTIME_DIR/ssh-agent.socket
 
 [ -r $HOME/.bashrc ] && . $HOME/.bashrc
 [ -r $HOME/.merdely.profile ] && . $HOME/.merdely.profile
@@ -39,8 +41,7 @@ case $current_wm in
 esac
 
 # Prompt for ssh key passphrase
-export SSH_AUTH_SOCK=$XDG_RUNTIME_DIR/ssh-agent.socket
-ssh-add < /dev/null
+[ ! -r $HOME/.config/qtile/autostart.sh ] && ssh-add < /dev/null
 
 # Load global key bindings; '-p' autoloads changes to ~/.xbindkeysrc
 which xbindkeys > /dev/null 2>&1 && xbindkeys -p
@@ -114,3 +115,4 @@ if [ ! -r $HOME/.noautostart ]; then
   # Start nvidia dual mode manager
   # [ -x /usr/bin/optimus-manager-qt ] && /usr/bin/optimus-manager-qt &
 fi
+

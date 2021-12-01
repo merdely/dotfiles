@@ -314,7 +314,7 @@ case "$HOSTNAME" in
       cp -v $HOME/.config/dunst/dunstrc $DST/.config/dunst/
       cp -v $HOME/.config/fittstool/fittstoolrc $DST/.config/fittstool/
       cp -v $HOME/.config/kitty/kitty.conf $DST/.config/kitty/
-      cp -v $HOME/.config/qtile/config.py $DST/.config/qtile/
+      cp -v $HOME/.config/qtile/{autostart.sh,config.py} $DST/.config/qtile/
       cp -v $HOME/.config/rofi/config.rasi $DST/.config/rofi/
       cp -v $HOME/.config/xset/* $DST/.config/xset/
     }

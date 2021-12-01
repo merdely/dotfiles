@@ -441,3 +441,8 @@ def _unswallow(window):
     if hasattr(window, 'parent'):
         window.parent.minimized = False
 
+# Run autostart.sh when Qtile starts
+@hook.subscribe.startup_once
+def autostart():
+    subprocess.call([home + '/.config/qtile/autostart.sh'])
+
