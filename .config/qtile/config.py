@@ -143,6 +143,8 @@ keys = [
     # Switch between groups, skipping empty groups & groups on another screen
     EzKey("M-C-<comma>", lazy.screen.prev_group(skip_empty=True, skip_managed=True), desc="Switch to the previous group"),
     EzKey("M-C-<period>", lazy.screen.next_group(skip_empty=True, skip_managed=True), desc="Switch to the next group"),
+    EzKey("A-<Tab>", lazy.screen.next_group(skip_empty=True, skip_managed=True), desc="Switch to the next group"),
+    EzKey("A-S-<Tab>", lazy.screen.prev_group(skip_empty=True, skip_managed=True), desc="Switch to the previous group"),
 
     # Switch between screens
     EzKey("M-<comma>", lazy.function(focus_prev_screen), desc="Move focus to previous screen"),
@@ -159,8 +161,8 @@ keys = [
     EzKey("M-k", lazy.layout.up(), desc="Move focus up"),
     # When full screen, try to handle background windows well
     EzKey("A-<space>", lazy.window.bring_to_front(), desc="Move window to front of screen"),
-    EzKey("A-<Tab>", lazy.group.next_window(), desc="Move window focus to other window"),
-    EzKey("A-S-<Tab>", lazy.group.prev_window(), desc="Move window focus to other window"),
+    #EzKey("A-<Tab>", lazy.group.next_window(), desc="Move window focus to other window"),
+    #EzKey("A-S-<Tab>", lazy.group.prev_window(), desc="Move window focus to other window"),
 
     # Move windows between left/right columns or move up/down in current stack.
     # Moving out of range in Columns layout will create new column.
@@ -245,6 +247,7 @@ layout_theme = {
     "border_focus": color_scheme['cursor-color'],
     "border_normal": color_scheme['color-palette-overrides'][colors['black-bright']],
 }
+floating_theme = layout_theme.copy()
 
 # Widget theming
 widget_defaults = dict(
@@ -387,6 +390,7 @@ floating_layout = layout.Floating(float_rules=[
     Match(title='branchdialog'),  # gitk
     Match(title='pinentry'),  # GPG key password entry
     Match(title='dzen slave'),
+    Match(wm_class='Pinentry-gtk-2'),  # GPG key password entry
     Match(wm_class='ssh-askpass'),
     Match(wm_class='SshAskpass'),
     Match(wm_class='Gimp'),
@@ -407,8 +411,11 @@ floating_layout = layout.Floating(float_rules=[
     Match(wm_class='Onboard'),
     Match(wm_class='Pavucontrol'),
     Match(wm_class='feh'),
+    Match(wm_class='XTermFloat'),
     Match(wm_class='Nm-connection-editor'),
-])
+    ],
+**floating_theme,
+)
 
 follow_mouse_focus = True
 bring_front_click = False
@@ -444,5 +451,6 @@ def _unswallow(window):
 # Run autostart.sh when Qtile starts
 @hook.subscribe.startup_once
 def autostart():
-    subprocess.call([home + '/.config/qtile/autostart.sh'])
+    if os.path.exists(home + '/.config/qtile/autostart.sh'):
+        subprocess.call([home + '/.config/qtile/autostart.sh'])
 

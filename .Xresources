@@ -1,3 +1,6 @@
+XScreenSaver*newLoginCommand:
+XScreenSaver*splashDuration: 0:00:00
+
 XTerm.letterSpace: -1
 XTerm.color12: rgb:5c/5c/ff
 XTerm.scrollBar: false

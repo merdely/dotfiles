@@ -199,22 +199,32 @@ alias wtrd='m=wtrd;while true;do s=$(stty size);echo -n "Time: $(date "+%T") | "
 
 # Command aliases
 which view > /dev/null 2>&1 || alias view='vi -R'
-if which vim > /dev/null 2>&1; then
+if which nvim > /dev/null 2>&1; then
+  alias vi=nvim
+  alias nvi=/usr/bin/vi
+  which svn > /dev/null 2>&1 && export SVN_EDITOR=nvim
+elif which vim > /dev/null 2>&1; then
   alias vi=vim
   alias nvi=/usr/bin/vi
   which svn > /dev/null 2>&1 && export SVN_EDITOR=vim
 else
   which svn > /dev/null 2>&1 && export SVN_EDITOR=vi
 fi
+which svn > /dev/null 2>&1 && [ -d $HOME/src ] && alias svnup="svn up $HOME/src"
 which git > /dev/null 2>&1 && alias gitpush='git push -u origin master'
 
 # Ansible aliases
 which ansible-playbook > /dev/null 2>&1 && alias ap=ansible-playbook
 which ansible-playbook > /dev/null 2>&1 && alias apv='ansible-playbook --ask-vault-pass'
 if [ -d $HOME/src/ansible/system-setup ]; then
-  which ansible-playbook > /dev/null 2>&1 && alias apconfigs='ansible-playbook $HOME/src/ansible/system-setup/server-setup.yml --ask-vault-pass -e target=servers -t configs'
-  which ansible-playbook > /dev/null 2>&1 && alias apsshconfigs='ansible-playbook $HOME/src/ansible/system-setup/server-setup.yml --ask-vault-pass -e target=servers -t sshconfigs'
-  which ansible-playbook > /dev/null 2>&1 && alias apupdates='ansible-playbook $HOME/src/ansible/system-setup/server-setup.yml --ask-vault-pass -e target=servers -t updates'
+  which ansible-playbook > /dev/null 2>&1 && alias apconfigs="ansible-playbook $HOME/src/ansible/system-setup/server-setup.yml --ask-vault-pass -e target=servers -t configs"
+  which ansible-playbook > /dev/null 2>&1 && alias apconfigsall="ansible-playbook $HOME/src/ansible/system-setup/server-setup.yml --ask-vault-pass -e target=servers -t configs -e add=neptune"
+  which ansible-playbook > /dev/null 2>&1 && alias apconfigsymir="ansible-playbook $HOME/src/ansible/system-setup/server-setup.yml --ask-vault-pass -e target=servers -t configs -l '!ymir'"
+  which ansible-playbook > /dev/null 2>&1 && alias apsshconfigs="ansible-playbook $HOME/src/ansible/system-setup/server-setup.yml --ask-vault-pass -e target=servers -t sshconfigs"
+  which ansible-playbook > /dev/null 2>&1 && alias apupdates="ansible-playbook $HOME/src/ansible/system-setup/server-setup.yml --ask-vault-pass -e target=servers -t updates"
+  which ansible-playbook > /dev/null 2>&1 && alias apsvn="ansible-playbook --ask-vault-pass ~/src/ansible/system-setup/update-svn-dirs.yaml"
+  which ansible-playbook > /dev/null 2>&1 && alias apsvnall="ansible-playbook --ask-vault-pass ~/src/ansible/system-setup/update-svn-dirs.yaml -e add=neptune"
+  which ansible-playbook > /dev/null 2>&1 && alias apsvnymir="ansible-playbook --ask-vault-pass ~/src/ansible/system-setup/update-svn-dirs.yaml -l '!ymir'"
 fi
 
 # General aliases
@@ -374,10 +384,11 @@ export LANG=en_US.UTF-8
 export LC_CTYPE=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 [ -x /usr/lib/nagios/plugins/check_disk ] && add_to_path /usr/lib/nagios/plugins
-add_to_path -b $HOME/svn/scripts/bin
 add_to_path -b $HOME/.local/bin
 add_to_path -b $HOME/bin
 add_to_path -e /usr/sbin
+[ -d /srv/scripts/bin ]  && add_to_path -e /srv/scripts/bin
+[ -d /srv/scripts/sbin ] && add_to_path -e /srv/scripts/sbin
 
 [ ! $PROFILEDONE ] && [ -r $HOME/.neofetch ] && cat $HOME/.neofetch
 export PROFILEDONE=yes

@@ -36,11 +36,11 @@
   Mod4 + p
 
 # Title: Lock Screen
-"sleep .5;touch /run/user/1000/.screenlocker_force;echo alt+shift+l>/run/user/1000/.screenlocker_method;xset s activate"
+"xscreensaver-command -lock"
   Alt + Shift + l
 
 # Title: Lock Screen
-"sleep .5;touch /run/user/1000/.screenlocker_force;echo alt+shift+s>/run/user/1000/.screenlocker_method;xset s activate"
+"xscreensaver-command -lock"
   Alt + Shift + s
 
 # Title: Close all notifications

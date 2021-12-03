@@ -9,7 +9,8 @@ export SSH_AUTH_SOCK=$XDG_RUNTIME_DIR/ssh-agent.socket
 [ -r $HOME/.merdely.profile ] && . $HOME/.merdely.profile
 
 # Set the background
-[ -x /usr/bin/feh ] && /usr/bin/feh --bg-fill $HOME/.config/arch-wallpaper.png
+# Override firejail's feh (breaks it)
+/usr/bin/feh --bg-fill $HOME/.config/arch-wallpaper.png
 
 # Fix monitors using xrandr
 [ -r /etc/lightdm/display_setup.sh ] && /bin/sh /etc/lightdm/display_setup.sh
@@ -18,7 +19,7 @@ export SSH_AUTH_SOCK=$XDG_RUNTIME_DIR/ssh-agent.socket
 setxkbmap -option caps:super
 
 # Load X settings
-which xrdb > /dev/null 2>&1 && [ -r $HOME/.Xresources ] && xrdb -merge -I$HOME $HOME/.Xresources
+[ -r $HOME/.Xresources ] && xrdb -merge -I$HOME $HOME/.Xresources
 
 # Load urxvt daemon
 #urxvtd -o -f -q
@@ -33,10 +34,10 @@ current_wm=$DESKTOP_SESSION
 # Start WM specific programs
 case $current_wm in
   dwm|dwm-stable)
-    which dwmblocks > /dev/null 2>&1 && dwmblocks &
+    dwmblocks &
     ;;
   openbox)
-    which tint2 > /dev/null 2>&1 && tint2 &
+    tint2 &
     ;;
 esac
 
@@ -44,75 +45,82 @@ esac
 [ ! -r $HOME/.config/qtile/autostart.sh ] && ssh-add < /dev/null
 
 # Load global key bindings; '-p' autoloads changes to ~/.xbindkeysrc
-which xbindkeys > /dev/null 2>&1 && xbindkeys -p
+xbindkeys -p
 
 # Run lxsession to allow polkit (GUI sudo)
-which lxsession > /dev/null 2>&1 && lxsession &
+lxsession &
 
 # Mute the microphone by default
-which amixer > /dev/null 2>&1 && \
-  amixer -D pulse sget Capture|grep -qE '\[[0-9]+%\] \[on\]' && amixer -q -D pulse sset Capture toggle
-pactl set-source-volume @DEFAULT_SOURCE@ 50%
+amixer -q -D pulse sset Capture nocap
+
+# Set the Speaker/Mic Volumes to something reasonable
+pactl > /dev/null 2>&1 && pactl set-source-volume @DEFAULT_SOURCE@ 50%
+pactl set-sink-volume @DEFAULT_SINK@ 70%
 
 # Run compositor for transparency
-which picom > /dev/null 2>&1 && picom &
+picom &
 
 # Set up screen locker
-if [ -x $HOME/bin/screenlocker ]; then
-  if which xss-lock > /dev/null 2>&1; then
-    xss-lock -- $HOME/bin/screenlocker xss-lock &
+#if [ -x $HOME/bin/screenlocker ]; then
+#  if which xss-lock > /dev/null 2>&1; then
+#    xss-lock -- $HOME/bin/screenlocker xss-lock &
+#
+#    # Start hot corners daemon
+#    fittstool &
+#  elif which xautolock > /dev/null 2>&1; then
+#    xautolock -locker 'printf "METHOD=xautolock\n">/run/user/1000/screenlocker_vars;sudo systemctl start slock@mike.service' -time 15 -detectsleep -secure -corners ---- &
+#  else
+#    echo "There is no auto screen locker installed" > /dev/stderr
+#  fi
+#fi
 
-    # Start hot corners daemon
-    [ -x /usr/bin/fittstool ] && /usr/bin/fittstool &
-  elif which xautolock > /dev/null 2>&1; then
-    xautolock -locker '/usr/bin/printf "METHOD=xautolock\n">/run/user/1000/screenlocker_vars;/usr/bin/sudo /usr/bin/systemctl start slock@mike.service' -time 15 -detectsleep -secure -corners ---- &
-  else
-    echo "There is no auto screen locker installed" > /dev/stderr
-  fi
-fi
+# Start xscreensaver
+# starts as systemd user service # xscreensaver --no-splash &
+xss-lock -- xscreensaver-command -lock &
+$HOME/bin/monitor-xscreensaver &
 
 # Set default screensaver, dpms, and font settings
-[ -r $HOME/.config/xset/screensaver ] && sh $HOME/.config/xset/screensaver
+#[ -r $HOME/.config/xset/screensaver ] && sh $HOME/.config/xset/screensaver
 [ -r $HOME/.config/xset/dpms ] && sh $HOME/.config/xset/dpms
 [ -r $HOME/.config/xset/fonts ] && sh $HOME/.config/xset/fonts
 
 # Start some X apps if .noautostart does not exist
 if [ ! -r $HOME/.noautostart ]; then
   # Package Manager GUI tray icon
-  [ -x /usr/bin/pamac-tray ] && /usr/bin/pamac-tray &
+  pamac-tray &
 
   # Start AppArmor Notify applet
-  [ -x /usr/bin/aa-notify ] && /usr/bin/aa-notify -p -s 1 -w 60 -f /var/log/audit/audit.log
+  aa-notify -p -s 1 -w 60 -f /var/log/audit/audit.log
 
   # Start notification daemon
-  [ -x /usr/bin/dunst ] && /usr/bin/dunst &
+  dunst &
 
   # Start NetworkManager applet
-  [ -x /usr/bin/nm-applet ] && /usr/bin/nm-applet &
+  nm-applet &
 
   # Start removable media automounter
-  [ -x /usr/bin/udiskie ] && udiskie &
+  udiskie &
 
   # Start note taking application
-  # [ -x /usr/bin/joplin-desktop ] && /usr/bin/joplin-desktop &
-  [ -e $HOME/bin/joplin-desktop ] && $HOME/bin/joplin-desktop &
+  # joplin-desktop &
+  $HOME/bin/joplin-desktop &
 
   # Start Discord (chat client)
-  # [ -x /usr/bin/discord ] && /usr/bin/discord --start-minimized &
+  # discord --start-minimized &
 
   # Start Hexchat (IRC Client)
-  # [ -x /usr/bin/hexchat ] && /usr/bin/hexchat --minimize=2 &
+  # hexchat --minimize=2 &
 
   # Start password manager
-  [ -x /usr/bin/bitwarden-desktop ] && /usr/bin/bitwarden-desktop &
+  bitwarden-desktop &
 
   # Start on-screen keyboard
-  # [ -x /usr/bin/onboard ] && /usr/bin/onboard -a &
+  # onboard -a &
 
   # Start screenshot manager
-  [ -x /usr/bin/flameshot ] && /usr/bin/flameshot &
+  flameshot &
 
   # Start nvidia dual mode manager
-  # [ -x /usr/bin/optimus-manager-qt ] && /usr/bin/optimus-manager-qt &
+  # optimus-manager-qt &
 fi
 
