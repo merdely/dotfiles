@@ -14,7 +14,7 @@ Configuration files for my laptop
 | .xbindkeysrc | X-Windows hot-key daemon |
 | .xprofile | Config file for X-Windows sessions |
 | .config/dunst/dunstrc | Notification daemon configuration |
-| .config/kitty/kitty.conf | Terminal application configuration |
+| .config/alacritty/local.conf | Terminal application configuration |
 | .config/qtile/config.py | Qtile Window Manager configuration |
 | .config/rofi/config.rasi | Rofi configuration |
 | .config/xset/dpms | Script to set DPMS settings |
@@ -26,4 +26,7 @@ Configuration files for my laptop
 | .config/fittstool/fittstoolrc | Hot corners daemon configuration |
 | bin/adjust_brightness | Script to adjust the screen brightness |
 | bin/qtile_bar.sh | Qtile Widget script
-| bin/term | Default Terminal launcher |
+
+# Notes
+
+I have a symbolic link in ~/bin for x-terminal-application pointing to alacritty.

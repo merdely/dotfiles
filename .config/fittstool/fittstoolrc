@@ -1,3 +1,5 @@
 [BottomRight]
-Enter=xset s off; xset -dpms; notify-send "Disabling Screen Saver"
-Leave=sh ~/.config/xset/screensaver; sh ~/.config/xset/dpms; notify-send "Enabling Screen Saver"
+Enter=notify-send "Disabling Screen Saver"; xset -dpms; disable-xscreensaver
+Leave=notify-send "Enabling Screen Saver"; pkill -f "^/bin/sh $HOME/bin/disable-xscreensaver$"; xset +dpms
+#Enter=xset s off; xset -dpms; notify-send "Disabling Screen Saver"
+#Leave=sh ~/.config/xset/screensaver; sh ~/.config/xset/dpms; notify-send "Enabling Screen Saver"

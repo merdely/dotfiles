@@ -1,28 +1,19 @@
 #!/bin/sh
 
+# Load settings
 export PATH=$PATH:$HOME/bin
 export GDK_BACKEND=x11
 export SSH_ASKPASS=/usr/local/bin/xaskpass
 export SSH_AUTH_SOCK=$XDG_RUNTIME_DIR/ssh-agent.socket
-
 [ -r $HOME/.bashrc ] && . $HOME/.bashrc
 [ -r $HOME/.merdely.profile ] && . $HOME/.merdely.profile
-
-# Set the background
-# Override firejail's feh (breaks it)
-/usr/bin/feh --bg-fill $HOME/.config/arch-wallpaper.png
+unset PROFILEDONE
 
 # Fix monitors using xrandr
 [ -r /etc/lightdm/display_setup.sh ] && /bin/sh /etc/lightdm/display_setup.sh
 
-# Remap CapsLock to Super
-setxkbmap -option caps:super
-
 # Load X settings
 [ -r $HOME/.Xresources ] && xrdb -merge -I$HOME $HOME/.Xresources
-
-# Load urxvt daemon
-#urxvtd -o -f -q
 
 # Determine window manager from environment variables; defaulting to qtile
 current_wm=$DESKTOP_SESSION
@@ -30,54 +21,44 @@ current_wm=$DESKTOP_SESSION
 [ -z "$current_wm" ] && [ "$(basename "${BASH_ARGV[1]}")" = dwm ] && current_wm=dwm
 [ -z "$current_wm" ] && [ "${BASH_ARGV[1]%% *}" = qtile ] && current_wm=qtile
 [ -z "$current_wm" ] && current_wm=qtile
+export current_wm
 
 # Start WM specific programs
 case $current_wm in
-  dwm|dwm-stable)
-    dwmblocks &
-    ;;
-  openbox)
-    tint2 &
-    ;;
+  dwm|dwm-stable) dwmblocks & ;;
+  openbox) tint2 & ;;
+  qtile) $HOME/bin/gen_qtile_help.sh ;;
 esac
 
-# Prompt for ssh key passphrase
-[ ! -r $HOME/.config/qtile/autostart.sh ] && ssh-add < /dev/null
+# Prompt for ssh key passphrase when not using Qtile or using Qtile without autostart.sh
+[ $current_wm != qtile -o ! -r $HOME/.config/qtile/autostart.sh ] && ssh-add < /dev/null
 
-# Load global key bindings; '-p' autoloads changes to ~/.xbindkeysrc
-xbindkeys -p
+/usr/bin/gnome-keyring-daemon --start --components=secrets &  # Load libsecrets daemon
+#urxvtd -o -f -q                                               # Load urxvt daemon
+setxkbmap -option caps:super                                  # Remap CapsLock to Super
+xbindkeys -p                                                  # Load global key bindings; '-p' autoloads changes
+lxsession &                                                   # Allow polkit (GUI sudo)
+picom -b                                                      # Compositor for transparency
+feh --bg-fill $HOME/.config/wallpaper/wallpaper.png           # Set the background
+systemctl --user start xscreensaver.service                   # Make sure xscreensaver has started
+xss-lock -- xscreensaver-command -lock &                      # Lock the screen using xscreensaver
+$HOME/bin/monitor-xscreensaver &                              # Script to monitor the screensaver and lock keys
+fittstool &                                                   # Hot corners daemon to pause screensaver
+syndaemon -i 0.5 -t -K -R -d                                  # Palm detection when typing
+synclient TapAndDragGesture=0
 
-# Run lxsession to allow polkit (GUI sudo)
-lxsession &
+# Set default source to the JOUNIVO Microphone
+if pactl list short sources | grep "alsa_input.usb-JOUNIVO_Co._Ltd._JOUNIVO_JV601PRO_000000000000-00.mono-fallback"; then
+  pactl set-default-source "alsa_input.usb-JOUNIVO_Co._Ltd._JOUNIVO_JV601PRO_000000000000-00.mono-fallback"
+fi
 
-# Mute the microphone by default
-amixer -q -D pulse sset Capture nocap
+pactl set-source-volume @DEFAULT_SOURCE@ 50%         # Set Mic Volume to something reasonable
+pactl set-sink-volume @DEFAULT_SINK@ 70%             # Set Speaker Volume to something reasonable
 
-# Set the Speaker/Mic Volumes to something reasonable
-pactl > /dev/null 2>&1 && pactl set-source-volume @DEFAULT_SOURCE@ 50%
-pactl set-sink-volume @DEFAULT_SINK@ 70%
-
-# Run compositor for transparency
-picom &
-
-# Set up screen locker
-#if [ -x $HOME/bin/screenlocker ]; then
-#  if which xss-lock > /dev/null 2>&1; then
-#    xss-lock -- $HOME/bin/screenlocker xss-lock &
-#
-#    # Start hot corners daemon
-#    fittstool &
-#  elif which xautolock > /dev/null 2>&1; then
-#    xautolock -locker 'printf "METHOD=xautolock\n">/run/user/1000/screenlocker_vars;sudo systemctl start slock@mike.service' -time 15 -detectsleep -secure -corners ---- &
-#  else
-#    echo "There is no auto screen locker installed" > /dev/stderr
-#  fi
-#fi
-
-# Start xscreensaver
-# starts as systemd user service # xscreensaver --no-splash &
-xss-lock -- xscreensaver-command -lock &
-$HOME/bin/monitor-xscreensaver &
+# Mute all sources
+for source in $(pactl list short sources| awk '{print $2}'); do
+  pactl set-source-mute $source on
+done
 
 # Set default screensaver, dpms, and font settings
 #[ -r $HOME/.config/xset/screensaver ] && sh $HOME/.config/xset/screensaver
@@ -86,41 +67,20 @@ $HOME/bin/monitor-xscreensaver &
 
 # Start some X apps if .noautostart does not exist
 if [ ! -r $HOME/.noautostart ]; then
-  # Package Manager GUI tray icon
-  pamac-tray &
+  blueman-applet &                                                # Bluetooth manager applet
+  dunst &                                                         # Notification daemon
+  nm-applet &                                                     # NetworkManager applet
+  udiskie &                                                       # Removable media automounter
+  unclutter --jitter 10 --ignore-scrolling --start-hidden --fork  # Hide the cursor
 
-  # Start AppArmor Notify applet
-  aa-notify -p -s 1 -w 60 -f /var/log/audit/audit.log
-
-  # Start notification daemon
-  dunst &
-
-  # Start NetworkManager applet
-  nm-applet &
-
-  # Start removable media automounter
-  udiskie &
-
-  # Start note taking application
-  # joplin-desktop &
-  $HOME/bin/joplin-desktop &
-
-  # Start Discord (chat client)
-  # discord --start-minimized &
-
-  # Start Hexchat (IRC Client)
-  # hexchat --minimize=2 &
-
-  # Start password manager
-  bitwarden-desktop &
-
-  # Start on-screen keyboard
-  # onboard -a &
-
-  # Start screenshot manager
-  flameshot &
-
-  # Start nvidia dual mode manager
-  # optimus-manager-qt &
+  # Allow for not running SOME of the GUI apps
+  if [ ! -r $HOME/.run_lean ]; then
+    # $HOME/bin/joplin-desktop &                                    # Note taking application
+    aa-notify -p -s 1 -w 60 -f /var/log/audit/audit.log           # AppArmor Notify applet
+    bitwarden-desktop &                                           # Password manager
+    #hexchat --minimize=2 &                                        # IRC Client
+    signal-desktop --start-in-tray --use-tray-icon &              # Signal Desktop
+    solaar -w hide &                                              # Logitech Status
+  fi
 fi
 

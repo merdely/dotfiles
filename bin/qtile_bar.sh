@@ -5,6 +5,10 @@
 # default variables
 crit=10
 warn=20
+keyboardcrit=5
+keyboardwarn=10
+mousecrit=5
+mousewarn=10
 city=Brookeville
 lat="39.180786987168126"
 lon="-77.05892332232466"
@@ -19,10 +23,19 @@ plug=🔌
 computer=💻
 disk=💾
 mouse=🐭
+keyboard=⌨
 hourglass=⌛
 brightness=🔅
+bluecircle=🔵
 greencircle=🟢
 redsquare=🟥
+locked=🔒
+unlocked=🔑
+greencheck=✅
+redcross=❌
+reduparrow=🔺
+speakers=🔊
+headphones=🎧
 
 usage() {
   echo "usage: $0 [-h] [-d] [-q] [-l|-p] [-W WARN] [-C CRIT] [-f NUM] [-b NUM]"
@@ -111,7 +124,26 @@ widget_output() {
 if [ ! $1 ] || [ $1 = sshauth ]; then
   widget=sshauth
   [ $debug ] && printf "\n$widget:\n"
-  env SSH_AUTH_SOCK=$HOME/.ssh/ssh-auth-sock ssh-add -l > /dev/null 2>&1
+  if [ -r /run/user/$EUID/ssh-auth-sock ]; then
+    env SSH_AUTH_SOCK=/run/user/$EUID/ssh-auth-sock ssh-add -l > /dev/null 2>&1
+  else
+    env SSH_AUTH_SOCK=$HOME/.ssh/ssh-auth-sock ssh-add -l > /dev/null 2>&1
+  fi
+  if [ $? = 0 ]; then
+    string=$unlocked
+  else
+    string=$locked
+  fi
+  widget_output $string
+fi
+
+[ ! $1 ] && [ $separator ] && printf " %b " "$separator"
+
+if [ ! $1 ] || [ $1 = xscreensaver ]; then
+  widget=xscreensaver
+  [ $debug ] && printf "\n$widget:\n"
+
+  systemctl --user status xscreensaver.service > /dev/null 2>&1
   if [ $? = 0 ]; then
     string=$greencircle
   else
@@ -214,16 +246,44 @@ if [ ! $1 ] || [ $1 = mousebatt ]; then
 
   string="$mouse $perc%"
   ischarging=0
+  charge_icon=" "
+  [[ $state = charging ]] && ischarging=1 && charge_icon=" $charging"
+  ischarging=0
 
-  if ((perc <= crit)) && [ $ischarging = 0 ]; then
+  if ((perc <= mousecrit)) && [ $ischarging = 0 ]; then
     change_color $widget "#ffffff" "#ff0000"
-  elif ((perc > crit)) && ((perc <= warn)) && [ $ischarging = 0 ]; then
+  elif ((perc > mousecrit)) && ((perc <= mousewarn)) && [ $ischarging = 0 ]; then
     change_color $widget "#000000" "#ffff00"
   else
     change_color $widget $foreground $background
   fi
 
-  widget_output $string
+  widget_output "$string$charge_icon"
+fi
+
+[ ! $1 ] && [ $separator ] && printf " %b " "$separator"
+
+if [ ! $1 ] || [ $1 = keyboardbatt ]; then
+  widget=keyboardbatt
+  [ $debug ] && printf "\n$widget:\n"
+
+  eval $(solaar show "G915 WIRELESS RGB MECHANICAL GAMING KEYBOARD" | awk '$1=="Battery:"{printf "state=%s\nperc=%s\n",substr($(NF-1),1,length($(NF-1))-1),substr($NF,1,length($NF)-1);exit}')
+  [[ ! $perc =~ ^[0-9]+$ ]] || [ ! $state ] && { widget_output "$keyboard ---"; exit 0; }
+
+  string="$keyboard $perc%"
+  ischarging=0
+  charge_icon=" "
+  [[ $state = recharging ]] && ischarging=1 && charge_icon=" $charging"
+
+  if ((perc <= keyboardcrit)) && [ $ischarging = 0 ]; then
+    change_color $widget "#ffffff" "#ff0000"
+  elif ((perc > keyboardcrit)) && ((perc <= keyboardwarn)) && [ $ischarging = 0 ]; then
+    change_color $widget "#000000" "#ffff00"
+  else
+    change_color $widget $foreground $background
+  fi
+
+  widget_output "$string$charge_icon"
 fi
 
 [ ! $1 ] && [ $separator ] && printf " %b " "$separator"
@@ -235,9 +295,9 @@ if [ ! $1 ] || [ $1 = df ]; then
   eval $(df -h / | awk 'NR==2{printf "size=%s;used=%s;usep=%s\n",$2,$3,substr($5,1,length($5)-1)}')
   [ ! $screen_orientation ] && get_screen_orientation
   if [ $screen_orientation = portrait ]; then
-    string="$disk$usep%"
+    string="$disk$usep%U"
   else
-    string="$disk $used/$size $usep%"
+    string="$disk $used/$size $usep%U"
   fi
   if ((usep >= 100-crit)); then
     change_color $widget "#ffffff" "#ff0000"
@@ -273,6 +333,39 @@ if [ ! $1 ] || [ $1 = weather ]; then
     if ! echo $string | grep -q "°F" || [ $newret != 0 ]; then
       string=$hourglass
     fi
+  fi
+  widget_output $string
+fi
+
+[ ! $1 ] && [ $separator ] && printf " %b " "$separator"
+
+if [ ! $1 ] || [ $1 = updates ]; then
+  widget=updates
+  [ $debug ] && printf "\n$widget:\n"
+
+  [ "$2" = force ] && sudo /srv/scripts/sbin/pacman_update_count > /dev/null
+
+  if [ -r /run/pacman_updates ]; then
+    string=$reduparrow
+  else
+    string=$greencheck
+  fi
+  widget_output $string
+fi
+
+[ ${HOSTNAME:=notmercury} = mercury ] && [ ! $1 ] && [ $separator ] && printf " %b " "$separator"
+
+if [ ${HOSTNAME:=notmercury} = mercury ] && [[ ! $1  || $1 = audio_output ]]; then
+  widget=audio_output
+  [ $debug ] && printf "\n$widget:\n"
+
+  default_sink=$(pactl get-default-sink)
+  if [[ $default_sink = *usb-Google_Inc_Headphone_adapter* ]]; then
+    string=$headphones
+  elif [[ $default_sink = *bluez_sink* ]]; then
+    string=$bluecircle
+  else
+    string=$speakers
   fi
   widget_output $string
 fi

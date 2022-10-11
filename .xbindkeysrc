@@ -27,8 +27,12 @@
 #keystate_capslock = enable
 #keystate_scrolllock= enable
 
+# Title: Cheatsheet - XBindKeys
+"$HOME/bin/cheatsheet_xbindkeys.sh"
+  Alt + Shift + x
+
 # Title: Launch default terminal
-"$HOME/bin/term"
+"x-terminal-emulator"
   Mod4 + Return
 
 # Title: Rofi - Program Launcher
@@ -48,16 +52,24 @@
   Control+Mod2 + space
 
 # Title: Cheatsheet - Qutebrowser
-"/usr/bin/feh $HOME/.config/qutebrowser/cheatsheet.png"
+"feh -Z. $HOME/.config/wallpaper/qutebrowser/cheatsheet.png"
   Alt + Shift + w
 
-# Title: Cheatsheet - XBindKeys
-"IFS=$(printf '\n\b');unset next skip;for line in $(cat ~/.xbindkeysrc); do [ $next ] && unset next && echo $(echo $line|sed -r 's/^ +//;s/Mod2 \+ //'): $title; [ $skip ] && unset skip && next=1; echo $line|grep -q '^# Title: ' && title=$(echo $line | sed 's/^# Title: //') && skip=1; done | sort -t: -k2 | column -s: -t | yad --text-info --height 780 --width 700"
-  Alt + Shift + x
+# Title: Cheatsheet - DWM
+"$HOME/bin/cheatsheet_dwm.sh"
+  Alt + Shift + d
 
-# Title: Rofi - Phonetic Alphabet
-"cat $HOME/.notes/alpha | rofi -dmenu -p 'phonetic alphabet'"
+# Title: Cheatsheet - Gmail
+"$HOME/bin/cheatsheet_gmail.sh"
+  Alt + Shift + g
+
+# Title: Cheatsheet - Phonetic Alphabet
+"$HOME/bin/cheatsheet_alpha.sh"
   Alt + Shift + a
+
+# Title: Cheatsheet - Youtube
+"$HOME/bin/cheatsheet_youtube.sh"
+  Alt + Shift + y
 
 # Title: Rofi - Linkding Bookmarks
 "rofi -show linkding -modi linkding:rofi-linkding"
@@ -75,28 +87,20 @@
 "rofi -show p -modi p:~/bin/rofi-power-menu"
   Control + Alt + Delete
 
-# Title: Screenshot - GUI
-"flameshot gui"
+# Title: Screenshot - Selection to Clipboard
+"maim --select | xclip -selection clipboard -t image/png && notify-send 'Selected area copied to clipboard'"
   Mod4 + Shift + s
 
-# Title: Screenshot - GUI
-"flameshot gui"
+# Title: Screenshot - Menu
+"rofi-screenshot"
   Print
 
-# Title: Screenshot - Current screen to clipboard
-"flameshot screen -c"
+# Title: Screenshot - Active Window to Clipboard
+"maim -i $(xdotool getactivewindow) | xclip -selection clipboard -t image/png && notify-send 'Active window copied to clipboard'"
   Alt + Print
 
-# Title: Screenshot - Current screen to ~/Pictures
-"flameshot screen -p ~/Pictures"
-  Alt + Shift + Print
-
-# Title: Screenshot - Full desktop to clipboard
-"flameshot full -c"
-  Control + Print
-
-# Title: Screenshot - Full desktop to ~/Pictures
-"flameshot full -p ~/Pictures"
+# Title: Screenshot - Entire Desktop to File
+"maim $(date "+$HOME/Pictures/screenshot-%F-%H-%M-%S.png") && notify-send 'Entire desktop copied to ~/Pictures'"
   Mod4 + Print
 
 # Title: Rofi - Emoji Picker
@@ -123,6 +127,10 @@
 "$HOME/bin/adjust_brightness down"
   Mod4 + Down
 
+# Title: Toggle Speaker/Headphones
+"$HOME/bin/audio_output_toggle.sh -u"
+  Mod4 + Control + space
+
 # Title: Speaker Volume - Mute
 "pactl set-sink-mute @DEFAULT_SINK@ toggle;pkill -RTMIN+11 dwmblocks"
   Mod2 + XF86AudioMute
@@ -148,11 +156,11 @@
   Mod4 + Right
 
 # Title: Mic Volume - Mute
-"amixer -q -D pulse sset Capture toggle;pkill -RTMIN+12 dwmblocks"
+"$HOME/bin/pactl_toggle_mic_mute.sh;pkill -RTMIN+12 dwmblocks"
   Shift + Mod2 + XF86AudioMute
 
 # Title: Mic Volume - Mute
-"amixer -q -D pulse sset Capture toggle;pkill -RTMIN+12 dwmblocks"
+"$HOME/bin/pactl_toggle_mic_mute.sh;pkill -RTMIN+12 dwmblocks"
   Mod4 + Shift + m
 
 # Title: Mic Volume - Decrease
@@ -176,9 +184,19 @@
   Mod2 + XF86AudioPrev
 
 # Title: Media - Play/Pause
-"playerctl play-pause"
+"$HOME/bin/play_pause_media.sh"
   Mod2 + XF86AudioPlay
 
 # Title: Media - Next track
 "playerctl next"
   Mod2 + XF86AudioNext
+
+"xte 'keydown Control_L' 'key w' 'keyup Control_L'"
+  b:10
+
+"xte 'keydown Control_L' 'key Tab' 'keyup Control_L'"
+  b:14
+
+"xte 'keydown Shift_L' 'keydown Control_L' 'key Tab' 'keyup Control_L' 'keyup Shift_L'"
+  b:15
+

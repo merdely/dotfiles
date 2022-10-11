@@ -3,7 +3,11 @@
 # Check if we're an SSH connection
 if [ -n "$SSH_TTY" ]; then
   # Count the number of connections
-  count=$(pgrep -u $LOGNAME -af "sshd: $LOGNAME@.*,?${SSH_TTY#/dev/}" | awk -F@ '{n=split($2,a,",");print n}')
+  if [ $(uname -s) = OpenBSD ]; then
+    count=$(pgrep -u $LOGNAME -lf "sshd: $LOGNAME@.*,?${SSH_TTY#/dev/}" | awk -F@ '{n=split($2,a,",");print n}')
+  else
+    count=$(pgrep -u $LOGNAME -af "sshd: $LOGNAME@.*,?${SSH_TTY#/dev/}" | awk -F@ '{n=split($2,a,",");print n}')
+  fi
 
   # If there is another pty using this SSH connection, don't clean up
   if [ $count = 1 ]; then
