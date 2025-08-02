@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# Sync my dotfiles into the dotfiles repo
+unset DOTFILES
+DOTFILES="$DOTFILES .config/nvim"
+DOTFILES="$DOTFILES .vimrc"
+
+for dotfile in $DOTFILES; do
+  echo Copying $dotfile
+  mkdir -p "$(dirname "$dotfile")"
+  cp -R $HOME/"$dotfile" "$(dirname "$dotfile")"
+done
