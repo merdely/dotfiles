@@ -1,6 +1,7 @@
 -- ================================================================================================
--- title : Suckless NeoVim Config
--- author: Radley E. Sidwell-lewis
+-- title : Basic Neovim config
+-- author: Michael Erdely
+-- inpsiration: https://github.com/radleylewis/nvim-lite
 -- ================================================================================================
 
 -- theme & transparency
