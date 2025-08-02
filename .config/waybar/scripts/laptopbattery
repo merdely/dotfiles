@@ -1,0 +1,75 @@
+#!/bin/bash
+
+power_device=battery_BAT
+
+upower -i $(upower -e | grep $power_device) > /dev/null 2>&1 || exit 1
+
+wait=1
+if [ -r "$HOME/.config/waybar/settings/$(basename "$0" .sh)" ]; then
+  source "$HOME/.config/waybar/settings/$(basename "$0" .sh)"
+fi
+
+getvalue() {
+  eval $(upower -i \
+       $(upower -e | grep $power_device) | \
+       awk '$1 == "state:" { print "state=" $2 }
+            $1 == "vendor:" { gsub(/^\s+vendor:\s+/,"",$0); print "vendor=\"" $0 "\"" }
+            $1 == "model:" { gsub(/^\s+model:\s+/,"",$0); print "model=\"" $0 "\"" }
+            $1 == "percentage:" { gsub(/^\s+percentage:\s+/,"",$0); gsub(/%/,"",$0); print "value=\"" $0 "\"" }')
+
+  if [[ ! $value =~ ^[0-9]+$ ]]; then
+    exit 1
+  fi
+}
+
+print_output() {
+  local alt
+  local class
+  local tooltip
+  local perc=$1
+  local text=$perc
+
+  class=normal
+  if [ $perc -lt 10 ]; then
+    class=critical
+  elif [ $perc -lt 40 ]; then
+    class=low
+  elif [ $perc -lt 60 ]; then
+    class=medium
+  elif [ $perc -lt 80 ]; then
+    class=high
+  else
+    class=full
+  fi
+  alt=$class
+
+  case "$state" in
+    fully-charged|"Fully charged")
+      state=Charged
+      ;;
+    [Ee]mpty)
+      state=Empty
+      ;;
+    [Cc]harging)
+      state=Charging
+      class=$class-charging
+      ;;
+    [Dd]ischarging|pending-charge|"[Pp]ending charge"|pending-discharge|"[Pp]ending discharge")
+      state=Discharging
+      ;;
+    *)
+      state=Unknown
+      ;;
+  esac
+  tooltip="$vendor $model battery at $perc% ($state)"
+
+  printf '{ "text": "%s", "alt": "%s", "tooltip": "%s", "class": "%s", "percentage": %d }\n' \
+    "$text" "$alt" "$tooltip" "$class" "$perc"
+}
+
+while true; do
+  getvalue
+  print_output "$value"
+  [ "$1" != "loop" ] && break
+  sleep $wait
+done

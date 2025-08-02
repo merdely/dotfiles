@@ -1,0 +1,45 @@
+#!/bin/sh
+
+wait=1
+if [ -r "$HOME/.config/waybar/settings/$(basename "$0" .sh)" ]; then
+  source "$HOME/.config/waybar/settings/$(basename "$0" .sh)"
+fi
+
+getvalue() {
+  if [ "$XDG_CURRENT_SESSION" = Hyprland ]; then
+    value=$(hyprctl --instance 0 clients | grep -c "inhibitingIdle: [^0]")
+  elif [[ $XDG_CURRENT_DESKTOP =~ sway* ]]; then
+    value=$(swaymsg -r -t get_tree | grep -c '"inhibit_idle": true,')
+  fi
+
+  if [[ ! $value =~ ^[0-9]+$ ]]; then
+    exit 1
+  fi
+}
+
+print_output() {
+  local count=$1
+  local tooltip="Idle inhibitors"
+  local class=normal
+  local perc=0
+
+  if [ $count -gt 0 ]; then
+    if [ "$XDG_CURRENT_SESSION" = Hyprland ]; then
+      tooltip="Idle blocked ($count inhibitors)\nInhibitors: $(hyprctl --instance 0 -j clients | jq -r '.[] | select(.inhibitingIdle != false) | .initialClass')"
+    else
+      tooltip="Idle blocked ($count inhibitors)"
+    fi
+    class=critical
+    perc=100
+  fi
+
+  printf '{ "text": "%s", "alt": "%s", "tooltip": "%s", "class": "%s", "percentage": %d }\n' \
+    "$count" "$count" "$tooltip" "$class" "$perc"
+}
+
+while true; do
+  getvalue
+  print_output "$value"
+  [ "$1" != "loop" ] && break
+  sleep $wait
+done

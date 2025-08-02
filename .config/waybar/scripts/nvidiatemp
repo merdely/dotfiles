@@ -1,0 +1,35 @@
+#!/bin/bash
+
+which nvidia-settings > /dev/null 2>&1 || exit 1
+
+critical=80
+wait=1
+if [ -r "$HOME/.config/waybar/settings/$(basename "$0" .sh)" ]; then
+  source "$HOME/.config/waybar/settings/$(basename "$0" .sh)"
+fi
+
+getvalue() {
+  value=$(nvidia-settings -q gpucoretemp -t)
+
+  if [[ ! $value =~ ^[0-9]+$ ]]; then
+    exit 1
+  fi
+}
+
+print_output() {
+  local class="normal"
+  local gpu_temp=$1
+  local tooltip="Nvidia GPU Temp"
+
+  [ $gpu_temp -gt $critical ] && class=critical
+
+  printf '{ "text": "%d", "alt": "%d", "tooltip": "%s", "class": "%s", "percentage": "%d" }\n' \
+    $gpu_temp $gpu_temp "$tooltip" "$class" $gpu_temp
+}
+
+while true; do
+  getvalue
+  print_output "$value"
+  [ "$1" != "loop" ] && break
+  sleep $wait
+done

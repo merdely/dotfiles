@@ -1,0 +1,237 @@
+* {
+    /* `otf-font-awesome` is required to be installed for icons */
+    /* font-family: Font Awesome v4 Compatibility, FontAwesome, Roboto, Helvetica, Arial, sans-serif; */
+    font-family: DejaVuSansM Nerd Font Propo;
+    font-size: 14px;
+}
+
+tooltip label {
+    font-family: DejaVu Sans Mono
+}
+
+window#waybar {
+    background-color: rgba(43, 48, 59, 0.9);
+    color: white;
+    transition-property: background-color;
+    transition-duration: .5s;
+    border-radius: 7px;
+}
+
+window#waybar.hidden {
+    opacity: 0.2;
+}
+
+button {
+    /* Avoid rounded borders under each button name */
+    border: none;
+    border-radius: 0;
+}
+
+/* https://github.com/Alexays/Waybar/wiki/FAQ#the-workspace-buttons-have-a-strange-hover-effect */
+button:hover {
+    background: inherit;
+}
+
+#window {
+    padding-left: 20px;
+}
+
+#workspaces,
+#window {
+    margin: 0 4px;
+}
+
+/* If workspaces is the leftmost module, omit left margin */
+.modules-left > widget:first-child > #workspaces {
+    margin-left: 10px;
+}
+
+/* If workspaces is the rightmost module, omit right margin */
+.modules-right > widget:last-child > #workspaces {
+    margin-right: 10px;
+}
+
+#workspaces button {
+    padding-top: 2px;
+    padding-left: 8px;
+    padding-right: 8px;
+    background-color: transparent;
+    color: #ffffff;
+}
+
+#workspaces button:hover {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+#workspaces button.empty {
+    /* color: #2b303b; */
+    color: #232833;
+}
+
+#workspaces button.visible {
+    background-color: rgba(255,255,255,0.10);
+}
+
+#workspaces button.active {
+    background-color: rgba(255,255,255,0.40);
+}
+
+#workspaces button.urgent {
+    background-color: #eb4d4b;
+}
+
+#mode {
+    background-color: #64727D;
+}
+
+#backlight,
+#battery,
+#clock,
+#cpu,
+#custom-clock,
+#custom-hypridle-blockers,
+#custom-launcher_button,
+#custom-media,
+#custom-notification,
+#custom-nvidiatemp,
+#custom-pacman,
+#custom-power,
+#custom-razermouse,
+#custom-toggle_applauncher,
+#custom-toggle_keyboard,
+#custom-power_button,
+#custom-updates,
+#custom-upsbattery,
+#custom-weather,
+#disk,
+#idle_inhibitor,
+#keyboard-state,
+#memory,
+#mode,
+#mpd,
+#network,
+#power-profiles-daemon,
+#pulseaudio,
+#scratchpad,
+#temperature,
+#tray,
+#wireplumber {
+    padding: 0 6px;
+    color: #ffffff;
+}
+
+#custom-power_button,
+#custom-toggle_applauncher,
+#custom-toggle_keyboard {
+    margin-left: 10px;
+    margin-right: 10px;
+    font-size: 24px;
+}
+
+label:focus {
+    background-color: #000000;
+}
+
+#custom-clock {
+    margin-right: 10px;
+}
+
+#custom-pacman.pending-updates {
+    color: orange;
+}
+
+#disk.warning {
+    color: orange;
+}
+
+#disk.critical {
+    color: red;
+}
+
+#custom-hypridle-blockers.critical {
+    color: orange;
+}
+
+#custom-upsbattery.low {
+    color: orange;
+}
+
+#custom-upsbattery.critical {
+    color: red;
+}
+
+#custom-laptopbattery.low {
+    color: orange;
+}
+
+#custom-laptopbattery.critical {
+    color: red;
+}
+#custom-laptopbattery.critical-charging, #custom-laptopbattery.low {
+    color: yellow;
+}
+
+#custom-razermouse.warning {
+    color: orange;
+}
+
+#custom-razermouse.critical {
+    color: red;
+}
+
+#custom-razermouse.warning {
+    color: orange;
+}
+
+#custom-razermouse.critical {
+    color: red;
+}
+
+#temperature.critical {
+    color: red;
+}
+
+#custom-nvidiatemp.critical {
+    color: red;
+}
+
+#tray {
+    background-color: transparent;
+}
+
+#tray > .passive {
+    -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+    -gtk-icon-effect: highlight;
+    background-color: #eb4d4b;
+}
+
+#idle_inhibitor.activated {
+    color: white;
+    background-color: #64727D;
+}
+
+#privacy {
+    padding: 0;
+}
+
+#privacy-item {
+    padding: 0 5px;
+    color: white;
+}
+
+#privacy-item.screenshare {
+    background-color: #cf5700;
+}
+
+#privacy-item.audio-in {
+    background-color: #1ca000;
+}
+
+#privacy-item.audio-out {
+    background-color: #0069d4;
+}
+
+@import url('../local/waybar.css');

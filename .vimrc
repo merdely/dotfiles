@@ -49,7 +49,7 @@ set showmatch
 set matchtime=2
 set cmdheight=1
 set completeopt=menuone,noinsert,noselect
-set noshowmode
+set showmode
 set pumheight=10
 " set pumblend=10
 " set winblend=0
@@ -235,5 +235,6 @@ function! GitBranch()
   return '(' . l:branch . ')'
 endfunction
 
-set statusline=%#StatusLine#%{ModeStr()}\ \|\ %f\ %h%m%r\ %{GitBranch()}%=%{&filetype}\ \|\ %{&fileencoding}\[%{&fileformat}]\ \|\ %{FileSize()}\ \|\ %l:%c\ %P
+" set statusline=%#StatusLine#%{ModeStr()}\ \|\ %f\ %h%m%r\ %{GitBranch()}%=%{&filetype}\ \|\ %{&fileencoding}\[%{&fileformat}]\ \|\ %{FileSize()}\ \|\ %l:%c\ %P
+set statusline=%#StatusLine#%f\ %h%m%r\ %{GitBranch()}%=%{&filetype}\ \|\ %{&fileencoding}\[%{&fileformat}]\ \|\ %{FileSize()}\ \|\ %l:%c\ %P
 

@@ -2,9 +2,28 @@
 
 ## Neovim config
 
-* .config/nvim/init.lua
+- .config/nvim/init.lua
+
+## Niri config
+
+- .config/niri/config.kdl
+
+## Waybar config
+
+- .config/waybar
+  - config.jsonc - main waybar config
+  - modulees.jsonc - included modules
+  - style.css - waybar style
+- .config/local/waybar* - waybar overrides for syncing across multiple systems
+  - waybar.jsonc
+  - waybar.css
+  - waybar\_{primary,secondary,tertiary}.jsonc - specific configs for multiple monitors
+- .config/local/wb_*
+  - wb\_mode.jsonc - either a copy of wb\_laptop.jsonc or wb\_tablet.jsonc
+  - wb\_laptop.jsonc - waybar config overrides for laptop mode
+  - wb\_tablet.jsonc - waybar config overrides for tablet mode
 
 ## Vim config
 
-* .vimrc
+- .vimrc
 

@@ -1,0 +1,57 @@
+#!/bin/bash
+
+which razer-cli > /dev/null 2>&1 || exit 1
+
+model="Razer Basilisk V3 Pro 35K (Wireless)"
+wait=1
+if [ -r "$HOME/.config/waybar/settings/$(basename "$0" .sh)" ]; then
+  source "$HOME/.config/waybar/settings/$(basename "$0" .sh)"
+fi
+
+getvalue() {
+  eval $(razer-cli -d "$model" -l | \
+       awk '/^   [^[:space:]]/ { found = 0 }
+            /^   battery:/     { found = 1 }
+            found == 1 && /^      charge:/   { print "value=" $2 }
+            found == 1 && /^      charging:/ { print "ischarging=" $2 }')
+
+  if [[ ! $value =~ ^[0-9]+$ ]]; then
+    exit 1
+  fi
+
+  [ $value = 0 ] && [ -f $HOME/.cache/razermouse.charge ] && value=$(cat $HOME/.cache/razermouse.charge)
+  [ $value != 0 ] && echo $value > $HOME/.cache/razermouse.charge
+}
+
+print_output() {
+  local alt
+  local class
+  local tooltip
+  local perc=$1
+
+
+  class=normal
+  if [ $perc -lt 10 ]; then
+    class=critical
+  elif [ $perc -lt 15 ]; then
+    class=warning
+  fi
+  alt=$class
+
+  state="Not Charging"
+  if [ "$ischarging" = True ]; then
+    state=Charging
+    alt=$alt-charging
+  fi
+  tooltip="$model battery at $perc% ($state)"
+
+  printf '{ "text": "%s", "alt": "%s", "tooltip": "%s", "class": "%s", "percentage": %d }\n' \
+    "$perc" "$alt" "$tooltip" "$4" "$5"
+}
+
+while true; do
+  getvalue
+  print_output "$value"
+  [ "$1" != "loop" ] && break
+  sleep $wait
+done

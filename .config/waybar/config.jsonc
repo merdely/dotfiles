@@ -1,0 +1,59 @@
+// -*- mode: jsonc -*-
+[
+  {
+    "reload_style_on_change": true,
+    "layer": "top",
+    "position": "top",
+    "spacing": 4,
+    "margin-right": 5,
+    "margin-left": 5,
+
+    // Choose the order of the modules
+    "modules-left": [
+        "custom/toggle_applauncher",
+        "custom/toggle_keyboard",
+        "hyprland/workspaces",
+        "hyprland/window",
+        "sway/workspaces",
+        "sway/window",
+        "niri/workspaces",
+        "niri/window"
+    ],
+
+    "modules-center": [
+    ],
+
+    "modules-right": [
+        "idle_inhibitor",
+        "pulseaudio",
+        "custom/laptopbattery",
+        "custom/idle-blockers",
+        "privacy",
+        "custom/pacman",
+        "tray",
+        "custom/notification",
+        "custom/clock",
+        "custom/power_button"
+    ],
+
+    "include": [
+        // for multiple monitors
+        "$HOME/.config/local/waybar_primary.jsonc",
+        // for local customizations
+        "$HOME/.config/local/waybar.jsonc",
+        "$HOME/.config/waybar/modules.jsonc"
+    ]
+  },
+  {
+    "include": [
+        // for a second monitor
+        "$HOME/.config/local/waybar_secondary.jsonc"
+    ]
+  },
+  {
+    "include": [
+        // for a third monitor
+        "$HOME/.config/local/waybar_tertiary.jsonc"
+    ]
+  }
+]

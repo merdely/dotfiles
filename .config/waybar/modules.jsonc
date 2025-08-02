@@ -1,0 +1,283 @@
+// -*- mode: jsonc -*-
+{
+    "hyprland/workspaces": {
+        "format": "{icon}",
+        "format-icons": {
+            "10": "0",
+            "11": "-",
+            "12": "="
+        }
+    },
+
+    "hyprland/window": {
+        "on-click": "~/.config/nwg/scripts/run-drawer",
+        "separate-outputs": true,
+        "icon": true,
+        "icon-size": 18
+    },
+
+    "sway/workspaces": {
+        "format": "{icon}",
+        "format-icons": {
+            "10": "0",
+            "11": "-",
+            "12": "="
+        }
+    },
+
+    "sway/window": {
+        "on-click": "~/.config/nwg/scripts/run-drawer",
+        "separate-outputs": true,
+        "icon": true,
+        "icon-size": 18
+    },
+
+    "niri/workspaces": {
+        "format": "<span size='larger'>{icon}</span>",
+        "format-icons": {
+            "active": "\uf444",
+            "default": "\uf4c3"
+        }
+    },
+
+    "niri/window": {
+        "on-click": "~/.config/nwg/scripts/run-drawer",
+        "separate-outputs": true,
+        "icon": true,
+        "icon-size": 18
+    },
+
+    // Custom Modules
+    "custom/launcher_button": {
+        "format": "󰣇",
+        "on-click": "~/.config/nwg/scripts/run-drawer"
+    },
+
+    "custom/clock": {
+        "hide-empty-text": true,
+        "format": "{}",
+        "return-type": "json",
+        "exec-if": "test -x ~/.config/waybar/scripts/clock",
+        "exec": "~/.config/waybar/scripts/clock loop"
+    },
+
+    "custom/idle-blockers": {
+        "hide-empty-text": true,
+        "format": "{} {icon}",
+        "format-icons": ["", ""],
+        "return-type": "json",
+        "exec-if": "test -x ~/.config/waybar/scripts/idle-blockers",
+        "exec": "~/.config/waybar/scripts/idle-blockers loop"
+    },
+
+    "custom/laptopbattery": {
+        "hide-empty-text": true,
+        "format": "{}% {icon}",
+        "format-icons": {
+            "critical": "",
+            "low": "",
+            "medium": "",
+            "high": "",
+            "full": ""
+        },
+        "return-type": "json",
+        "exec-if": "test -x ~/.config/waybar/scripts/laptopbattery",
+        "exec": "~/.config/waybar/scripts/laptopbattery loop"
+    },
+
+    "custom/notification": {
+        // "tooltip": true,
+        "format": "{icon}",
+        "format-icons": {
+            "notification": "<span foreground='red'><sup></sup></span>",
+            "none": "",
+            "dnd-notification": "<span foreground='red'><sup></sup></span>",
+            "dnd-none": "",
+            "inhibited-notification": "<span foreground='red'><sup></sup></span>",
+            "inhibited-none": "",
+            "dnd-inhibited-notification": "<span foreground='red'><sup></sup></span>",
+            "dnd-inhibited-none": ""
+        },
+        "return-type": "json",
+        "exec-if": "which swaync-client",
+        "exec": "swaync-client -swb",
+        "on-click": "swaync-client -t -sw",
+        "on-click-right": "swaync-client -d -sw",
+        "escape": true
+    },
+
+    "custom/nvidiatemp": {
+        "format": "{}°C 󰾲",
+        "return-type": "json",
+        "exec-if": "which nvidia-settings",
+        "exec": "~/.config/waybar/scripts/nvidiatemp"
+    },
+
+    "custom/pacman": {
+        "format": "{0} {icon}",
+        "return-type": "json",
+        "format-icons": {
+            "pending-updates": " ",
+            "updated": ""
+        },
+        "exec-if": "which waybar-updates",
+        "exec": "waybar-updates -l 30"
+    },
+
+    "custom/razermouse": {
+        "hide-empty-text": true,
+        "format": "{}% {icon}",
+        // "format-icons": ["󰍾", "󰍽", "󰍽", "󰍽", "󰍽", "󰍽", "󰍽", "󰍽", "󰍽"],
+        "format-icons": {
+            "critical": "󰍾",
+            "warning": "󰍽",
+            "normal": "󰍽",
+            "critical-charging": "󱕑",
+            "warning-charging": "󱕑",
+            "normal-charging": "󱕑"
+        },
+        "return-type": "json",
+        "exec-if": "test -x ~/.config/waybar/scripts/razermouse-battery",
+        "exec": "~/.config/waybar/scripts/razermouse-battery loop"
+    },
+
+    "custom/upsbattery": {
+        "hide-empty-text": true,
+        "format": "{}% {icon}",
+        "format-icons": {
+            "critical": "󱃍",
+            "critical-charging": "󰢟",
+            "low": "󱊡",
+            "low-charging": "󱊤",
+            "medium": "󱊢",
+            "medium-charging": "󱊥",
+            "high": "󱊣",
+            "high-charging": "󱊦"
+        },
+        "return-type": "json",
+        "exec-if": "test -x ~/.config/waybar/scripts/upsbattery",
+        "exec": "~/.config/waybar/scripts/upsbattery loop"
+    },
+
+    "custom/weather": {
+        "format": "{}°",
+        "tooltip": true,
+        "interval": 3600,
+        "exec": "wttrbar --fahrenheit --mph",
+        "return-type": "json"
+    },
+
+    // Standard Modules
+    "backlight": {
+        // "device": "acpi_video1",
+        "tooltip-format": "Monitor Brightness",
+        "format": "{percent}% {icon}",
+        "format-icons": ["", "", "", "", "", "", "", "", ""]
+    },
+
+    "clock": {
+        // "timezone": "America/New_York",
+        "interval": 1,
+        "format": "{:%a %m/%d, %I:%M:%S %p}",
+        "tooltip-format": "<tt><small>{calendar}</small></tt>",
+        "format-alt": "{:%Y-%m-%d}"
+    },
+
+    "cpu": {
+        "format": "{usage}% ",
+        "tooltip": false
+    },
+
+    "disk": {
+        "states": {
+            "warning": 80,
+            "critical": 90
+        },
+        "interval": 30,
+        "format": "{percentage_used}% 󰋊",
+        "path": "/"
+    },
+
+    "idle_inhibitor": {
+        "tooltip-format-activated": "Idle Inhibitor {status}",
+        "tooltip-format-deactivated": "Idle Inhibitor {status}",
+        "format": "{icon}",
+        "format-icons": {
+            "activated": "",
+            "deactivated": ""
+        }
+    },
+
+    "memory": {
+        "format": "{}% "
+    },
+
+    "pulseaudio": {
+        // "scroll-step": 1, // %, can be a float
+        "format": "{volume}% {icon} {format_source}",
+        "format-bluetooth": "{volume}% {icon} {format_source}",
+        "format-bluetooth-muted": " {icon} {format_source}",
+        "format-muted": "🔇 {format_source}",
+        "format-source": " {volume}% ",
+        "format-source-muted": " ---- ",
+        "format-icons": {
+            "headphone": "",
+            "hands-free": "",
+            "headset": "",
+            "phone": "",
+            "portable": "",
+            "car": "",
+            "default": ["", "", ""]
+        },
+        "on-click": "pavucontrol"
+    },
+
+    "temperature": {
+        // "thermal-zone": 2,
+        // "hwmon-path": "/sys/class/hwmon/hwmon2/temp1_input",
+        "critical-threshold": 80,
+        "format-critical": "{temperatureC}°C {icon}",
+        "format": "{temperatureC}°C {icon}",
+        "tooltip": true,
+        "tooltip-format": "CPU Temp",
+        "format-icons": ["", "", ""]
+        // "format-icons": ["", "", ""]
+    },
+
+    "privacy": {
+        "icon-spacing": 4,
+        "icon-size": 18,
+        "transition-duration": 250,
+        "modules": [
+            {
+                "type": "screenshare",
+                "tooltip": true,
+                "tooltip-icon-size": 24
+            },
+            {
+                "type": "audio-out",
+                "tooltip": true,
+                "tooltip-icon-size": 24
+            },
+            {
+                "type": "audio-in",
+                "tooltip": true,
+                "tooltip-icon-size": 24
+            }
+        ],
+        "ignore-monitor": true
+        /*
+        "ignore": [
+            {
+                "type": "audio-out",
+                "name": "LibreWolf"
+            }
+        ]
+        */
+    },
+
+    "tray": {
+        // "icon-size": 21,
+        "spacing": 7
+    }
+}

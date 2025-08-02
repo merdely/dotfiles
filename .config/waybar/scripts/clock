@@ -1,0 +1,27 @@
+#!/bin/bash
+
+format="%a %-m/%-d, %-I:%M:%S %p"
+wait=1
+cal=1
+if [ -r "$HOME/.config/waybar/settings/$(basename "$0" .sh)" ]; then
+  source "$HOME/.config/waybar/settings/$(basename "$0" .sh)"
+fi
+
+getvalue() {
+  true
+}
+
+print_output() {
+  local tooltip
+  local class="normal"
+  [ $cal != 0 ] && tooltip="$(cal -3 | sed ':a;N;$!ba;s/\n/\\r/g')"
+  printf '{ "text": "%s", "alt": "%s", "tooltip": "%s", "class": "%s", "percentage": "%d" }\n' \
+    "$(date "+$format")" "$(date "+$format")" "$tooltip" "$class" 0
+}
+
+while true; do
+  getvalue
+  print_output "$value"
+  [ "$1" != "loop" ] && break
+  sleep $wait
+done
