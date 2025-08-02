@@ -4,7 +4,7 @@
 unset DOTFILES
 DOTFILES="$DOTFILES $HOME/.config/local/waybar*"
 DOTFILES="$DOTFILES $HOME/.config/local/wb_*"
-DOTFILES="$DOTFILES $HOME/.config/niri/default.kdl"
+DOTFILES="$DOTFILES $HOME/.config/niri/config.kdl"
 DOTFILES="$DOTFILES $HOME/.config/niri/scripts"
 DOTFILES="$DOTFILES $HOME/.config/nvim"
 DOTFILES="$DOTFILES $HOME/.config/waybar"
