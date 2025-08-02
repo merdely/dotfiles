@@ -43,10 +43,11 @@ vim.opt.showmatch = true                           -- Highlight matching bracket
 vim.opt.matchtime = 2                              -- How long to show matching bracket
 vim.opt.cmdheight = 1                              -- Command line height
 vim.opt.completeopt = "menuone,noinsert,noselect"  -- Completion options 
-vim.opt.showmode = false                           -- Don't show mode in command line 
+vim.opt.showmode = true                            -- Don't show mode in command line 
 vim.opt.pumheight = 10                             -- Popup menu height 
 vim.opt.pumblend = 10                              -- Popup menu transparency 
 vim.opt.winblend = 0                               -- Floating window transparency 
+vim.opt.winborder = "rounded"                      -- Windows have rounded corners
 vim.opt.conceallevel = 0                           -- Don't hide markup 
 vim.opt.concealcursor = ""                         -- Don't hide cursor line markup 
 vim.opt.lazyredraw = true                          -- Don't redraw during macros
@@ -70,7 +71,7 @@ vim.opt.hidden = true                              -- Allow hidden buffers
 vim.opt.errorbells = false                         -- No error bells
 vim.opt.backspace = "indent,eol,start"             -- Better backspace behavior
 vim.opt.autochdir = false                          -- Don't auto change directory
-vim.opt.iskeyword:append("-")                      -- Treat dash as part of word
+-- vim.opt.iskeyword:append("-")                      -- Treat dash as part of word
 vim.opt.path:append("**")                          -- include subdirectories in search
 vim.opt.selection = "exclusive"                    -- Selection behavior
 vim.opt.mouse = "a"                                -- Enable mouse support
@@ -96,7 +97,7 @@ vim.g.maplocalleader = " "                         -- Set local leader key (NEW)
 
 -- Normal mode mappings
 vim.keymap.set("n", "<leader>c", ":nohlsearch<CR>", { desc = "Clear search highlights" })
-vim.keymap.set("n", "<Esc>", ":nohlsearch<CR>", { desc = "Clear search highlights" })       -- added by mwe
+-- vim.keymap.set("n", "<Esc>", ":nohlsearch<CR>", { desc = "Clear search highlights" })       -- added by mwe
 
 -- Y to EOL
 vim.keymap.set("n", "Y", "y$", { desc = "Yank to end of line" })
@@ -137,10 +138,10 @@ vim.keymap.set("n", "<C-Left>", ":vertical resize -2<CR>", { desc = "Decrease wi
 vim.keymap.set("n", "<C-Right>", ":vertical resize +2<CR>", { desc = "Increase window width" })
 
 -- Move lines up/down
-vim.keymap.set("n", "<A-j>", ":m .+1<CR>==", { desc = "Move line down" })
-vim.keymap.set("n", "<A-k>", ":m .-2<CR>==", { desc = "Move line up" })
-vim.keymap.set("v", "<A-j>", ":m '>+1<CR>gv=gv", { desc = "Move selection down" })
-vim.keymap.set("v", "<A-k>", ":m '<-2<CR>gv=gv", { desc = "Move selection up" })
+vim.keymap.set("n", "<C-j>", ":m .+1<CR>==", { desc = "Move line down" })
+vim.keymap.set("n", "<C-k>", ":m .-2<CR>==", { desc = "Move line up" })
+vim.keymap.set("v", "<C-j>", ":m '>+1<CR>gv=gv", { desc = "Move selection down" })
+vim.keymap.set("v", "<C-k>", ":m '<-2<CR>gv=gv", { desc = "Move selection up" })
 
 -- Better indenting in visual mode
 vim.keymap.set("v", "<", "<gv", { desc = "Indent left and reselect" })
@@ -192,6 +193,14 @@ vim.api.nvim_create_autocmd("BufReadPost", {
     end
   end,
 })
+
+-- Omnifunc
+-- vim.api.nvim_create_autocmd("FileType", {
+--   group = augroup,
+--   callback = function()
+--     vim.opt_local.omnifunc = "syntaxcomplete#Complete"
+--   end,
+-- })
 
 -- Set filetype-specific settings
 vim.api.nvim_create_autocmd("FileType", {
@@ -561,11 +570,12 @@ local function setup_dynamic_statusline()
   vim.api.nvim_create_autocmd({"WinEnter", "BufEnter"}, {
     callback = function()
     vim.opt_local.statusline = table.concat {
-      "  ",
-      "%#StatusLineBold#",
-      "%{v:lua.mode_icon()}",
-      "%#StatusLine#",
-      " │ %f %h%m%r",
+      " ",
+      -- "%#StatusLineBold#",
+      -- "%{v:lua.mode_icon()}",
+      -- "%#StatusLine#",
+      -- " | ",
+      "%f %h%m%r",
       "%{v:lua.git_branch()}",
       "%=",                     -- Right-align everything after this
       "%{v:lua.file_type()}",
@@ -573,7 +583,7 @@ local function setup_dynamic_statusline()
       "%{v:lua.file_encoding()}[%{v:lua.file_format()}]",
       " | ",
       "%{v:lua.file_size()}",
-      " │ ",
+      " | ",
       "%l:%c  %P ",             -- Line:Column and Percentage
     }
     end
@@ -588,3 +598,32 @@ local function setup_dynamic_statusline()
 end
 
 setup_dynamic_statusline()
+
+-- Bootstrap lazy.nvim
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not (vim.uv or vim.loop).fs_stat(lazypath) then
+  local lazyrepo = "https://github.com/folke/lazy.nvim.git"
+  local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
+  if vim.v.shell_error ~= 0 then
+    vim.api.nvim_echo({
+      { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
+      { out, "WarningMsg" },
+      { "\nPress any key to exit..." },
+    }, true, {})
+    vim.fn.getchar()
+    os.exit(1)
+  end
+end
+vim.opt.rtp:prepend(lazypath)
+
+-- Setup lazy.nvim
+require("lazy").setup({
+	spec = {
+		{ import = "plugins" },
+	},
+	change_detection = {
+		-- automatically check for config file changes and reload the ui
+		enabled = false,
+		notify = false, -- get a notification when changes are found
+	},
+})

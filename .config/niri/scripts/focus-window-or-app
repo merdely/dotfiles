@@ -1,0 +1,80 @@
+#!/bin/bash
+
+usage() {
+  echo "usage: $(basename $0) [-h] [-t] [-c SEARCH] desktop-file [num] [app_id] [title]"
+  echo "            -c SEARCH : String to search the command line"
+  exit $1
+}
+
+unset command_line
+testmode=0
+while getopts ":hc:t" opt; do
+  case $opt in
+    c) command_line=$OPTARG ;;
+    t) testmode=1 ;;
+    *) usage ;;
+  esac
+done
+shift $((OPTIND -1))
+
+num=1
+[[ $1 =~ ^[0-9]+$ ]] && num=$1 && shift
+desktop_file=$1
+app_id=$(basename $1 .desktop)
+[[ $2 ]] && app_id=$2
+[[ $3 ]] && title=$3
+
+[[ $num -gt 0 ]] && num=$((num - 1))
+
+if [[ ! $command_line ]]; then
+  if [[ $title ]]; then
+    win_id=$(niri msg -j windows | jq -r --arg num $num --arg app $app_id 'map(select(.app_id==$app and .title==$title) | .id) | sort | .[$num|tonumber]' 2>/dev/null)
+  else
+    win_id=$(niri msg -j windows | jq -r --arg num $num --arg app $app_id 'map(select(.app_id==$app) | .id) | sort | .[$num|tonumber]' 2>/dev/null)
+  fi
+  [[ $win_id = null ]] && unset win_id
+
+else
+
+  if [[ $title ]]; then
+    pids=$(niri msg -j windows | jq -r --arg num $num --arg app $app_id 'map(select(.app_id==$app and .title==$title)) | .[].pid' 2>/dev/null)
+  else
+    pids=$(niri msg -j windows | jq -r --arg num $num --arg app $app_id 'map(select(.app_id==$app)) | .[].pid' 2>/dev/null)
+  fi
+  for pid in $pids; do
+    if pgrep -laf -u $LOGNAME | awk -v p=$pid -v s="$command_line" 'BEGIN{r=1}$1==p&&$0~s{r=0}END{exit r}'; then
+      win_id=$(niri msg -j windows | jq -r --arg p $pid '.[] | select(.pid|tostring==$p)|.id')
+    fi
+  done
+fi
+
+if [[ ! $win_id ]]; then
+  if which uwsm &>/dev/null && uwsm check is-active; then
+    if [[ $testmode = 1 ]]; then
+      echo "App not running -- would launch it with 'uwsm app -- gtk-launch $desktop_file'"
+    else
+      uwsm app -- gtk-launch $desktop_file
+    fi
+  else
+    if [[ $testmode = 1 ]]; then
+      echo "App not running -- would launch it with 'gtk-launch $desktop_file'"
+    else
+      gtk-launch $desktop_file
+    fi
+  fi
+else
+  if [ $(niri msg -j focused-window | jq -r '.id') = $win_id ]; then
+    if [[ $testmode = 1 ]]; then
+      echo "App running as $win_id ; $win_id is focused ; switching to previous window"
+    else
+      niri msg action focus-window-previous
+    fi
+  else
+    if [[ $testmode = 1 ]]; then
+      echo "App running as $win_id"
+    else
+      niri msg action focus-window --id $win_id
+    fi
+  fi
+fi
+

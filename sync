@@ -2,11 +2,16 @@
 
 # Sync my dotfiles into the dotfiles repo
 unset DOTFILES
-DOTFILES="$DOTFILES .config/nvim"
-DOTFILES="$DOTFILES .vimrc"
+DOTFILES="$DOTFILES $HOME/.config/niri/default.kdl"
+DOTFILES="$DOTFILES $HOME/.config/niri/scripts"
+DOTFILES="$DOTFILES $HOME/.config/nvim"
+DOTFILES="$DOTFILES $HOME/.vimrc"
+
+dest_dir=$(dirname "$(realpath "$0")")
 
 for dotfile in $DOTFILES; do
   echo Copying $dotfile
-  mkdir -p "$(dirname "$dotfile")"
-  cp -R $HOME/"$dotfile" "$(dirname "$dotfile")"
+  relative_path=${dotfile/$HOME\//}
+  mkdir -p "$dest_dir"/"$(dirname "$relative_path")"
+  cp -pR "$dotfile" "$dest_dir"/"$(dirname "$relative_path")"
 done
