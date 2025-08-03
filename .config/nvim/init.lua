@@ -4,6 +4,8 @@
 -- inpsiration: https://github.com/radleylewis/nvim-lite
 -- ================================================================================================
 
+require("lazy_bootstrap")
+
 -- ============================================================================
 -- OPTIONS
 -- ============================================================================
@@ -111,7 +113,7 @@ if vim.fn.isdirectory(undodir) == 0 then
   vim.fn.mkdir(undodir, "p")
 end
 
-require("lazy_init")
+require("lazy_setup")
 
 -- ============================================================================
 -- KEY MAPPINGS
@@ -170,7 +172,7 @@ vim.keymap.set("v", "<", "<gv", { desc = "Indent left and reselect" })
 vim.keymap.set("v", ">", ">gv", { desc = "Indent right and reselect" })
 
 -- Quick file navigation
-vim.keymap.set("n", "<leader>e", ":Explore<CR>", { desc = "Open file explorer" })
+vim.keymap.set("n", "<leader>e", ":Oil --float<CR>", { desc = "Open file explorer" })
 -- vim.keymap.set("n", "<leader>ff", ":find ", { desc = "Find file" })
 vim.keymap.set("n", "<leader>ff", ":FzfLua files<CR>", { desc = "Find file" })
 
@@ -264,6 +266,9 @@ vim.api.nvim_create_autocmd("VimResized", {
 vim.api.nvim_create_autocmd("BufWritePre", {
   group = augroup,
   callback = function()
+    if vim.tbl_contains({ "oil" }, vim.bo.ft) then
+      return
+    end
     local dir = vim.fn.expand('<afile>:p:h')
     if vim.fn.isdirectory(dir) == 0 then
       vim.fn.mkdir(dir, 'p')
