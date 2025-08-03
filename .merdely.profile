@@ -283,7 +283,7 @@ case "$HOSTNAME" in
         alias bootarch='sudo /srv/scripts/sbin/boot-to-arch'
         alias pushprofile='for f in pluto jupiter earth dione carme tarvos sinope; do echo $f; scp $HOME/.merdely.profile $f:; done; for f in metis; do echo $f; ssh root@$f /usr/local/bin/rw; scp $HOME/.merdely.profile $f:; ssh root@$f /usr/local/bin/ro; done; for f in carme tarvos sinope; do echo $f: sync_home; ssh -o ClearAllForwardings=yes root@$f /home/mike/bin/sync_home > /dev/null; done'
         alias pushknownhosts='for f in pluto jupiter mercury earth dione; do echo $f; scp $HOME/src/ansible/system-setup/roles/sshclient/files/ssh_known_hosts root@$f:/etc/ssh/ssh_known_hosts; done; for f in carme metis tarvos; do echo $f; ssh -o ClearAllForwardings=yes root@$f /usr/local/bin/rw; scp $HOME/src/ansible/system-setup/roles/sshclient/files/ssh_known_hosts root@$f:/etc/ssh/ssh_known_hosts; ssh -o ClearAllForwardings=yes root@$f /usr/local/bin/ro; done'
-        alias pushvimrc='for f in jupiter earth carme; do echo $f; scp $HOME/.vimrc $f:; done; for f in carme; do echo $f: sync_home; ssh -o ClearAllForwardings=yes root@$f /home/mike/bin/sync_home > /dev/null; done'
+        alias pushvimrc='for f in jupiter earth pluto carme; do echo $f; scp $HOME/.vimrc $f:; done; for f in carme; do echo $f: sync_home; ssh -o ClearAllForwardings=yes root@$f /home/mike/bin/sync_home > /dev/null; done'
         ;;
     esac
     alias change_password='tmux neww -d -n chpass ; for f in earth jupiter dione venus tarvos sinope carme metis; do tmux splitw -d -t:$ "ssh $f"; tmux select-layout -t:$ tiled; done; tmux set -w -t:$ synchronize-panes; tmux set -w -t:$ pane-active-border-style fg=red; tmux select-layout -t:$ main-vertical; tmux select-window -t:$'

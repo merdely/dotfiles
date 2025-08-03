@@ -5,6 +5,8 @@
 " ===============================
 " Plugins
 " ===============================
+" Install vim-plug
+" curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 call plug#begin()
   Plug 'bluz71/vim-nightfly-colors', { 'as': 'nightfly' }
   Plug 'liuchengxu/vim-which-key'
