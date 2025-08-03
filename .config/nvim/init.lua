@@ -97,7 +97,6 @@ vim.g.maplocalleader = " "                         -- Set local leader key (NEW)
 
 -- Normal mode mappings
 vim.keymap.set("n", "<leader>c", ":nohlsearch<CR>", { desc = "Clear search highlights" })
--- vim.keymap.set("n", "<Esc>", ":nohlsearch<CR>", { desc = "Clear search highlights" })       -- added by mwe
 
 -- Y to EOL
 vim.keymap.set("n", "Y", "y$", { desc = "Yank to end of line" })
@@ -110,11 +109,17 @@ vim.keymap.set("n", "<C-u>", "<C-u>zz", { desc = "Half page up (centered)" })
 
 -- Better paste behavior
 vim.keymap.set("x", "<leader>p", '"_dP', { desc = "Paste without yanking" })
-vim.keymap.set("v", "p", '"_dP', { desc = "Paste without replacing clipboard content" })    -- added by mwe
+vim.keymap.set("v", "p", '"_dP', { desc = "Paste without replacing clipboard content" })                 -- added by mwe
+
+-- Better change behavior
+vim.keymap.set({ "n", "v" }, "cw", '"_cw', { desc = "Change without replacing clipboard content" })      -- added by mwe
+vim.keymap.set({ "n", "v" }, "caw", '"_caw', { desc = "Change without replacing clipboard content" })    -- added by mwe
+vim.keymap.set({ "n", "v" }, "ciw", '"_ciw', { desc = "Change without replacing clipboard content" })    -- added by mwe
+vim.keymap.set({ "n", "v" }, "C", '"_C', { desc = "Change without replacing clipboard content" })        -- added by mwe
 
 -- Better yank behavior (from ThePrimeagen)
-vim.keymap.set({ "n", "v" }, "<leader>y", '"+y', { desc = "Yank to system clipboard" })     -- added by mwe
-vim.keymap.set("n", "<leader>Y", '"+Y', { desc = "Yank to system clipboard" })              -- added by mwe
+vim.keymap.set({ "n", "v" }, "<leader>y", '"+y', { desc = "Yank to system clipboard" })                  -- added by mwe
+vim.keymap.set("n", "<leader>Y", '"+Y', { desc = "Yank to system clipboard" })                           -- added by mwe
 
 -- Delete without yanking
 vim.keymap.set({ "n", "v" }, "<leader>d", '"_d', { desc = "Delete without yanking" })
