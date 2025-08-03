@@ -21,9 +21,12 @@ nnoremap <silent> <leader> :WhichKey '<Space>'<CR>
 " Theme & Transparency
 " ===============================
 colorscheme nightfly
-highlight Normal     ctermbg=NONE guibg=NONE
-highlight NormalNC   ctermbg=NONE guibg=NONE
+highlight Normal      ctermbg=NONE guibg=NONE
+highlight NormalNC    ctermbg=NONE guibg=NONE
 highlight EndOfBuffer ctermbg=NONE guibg=NONE
+autocmd ColorScheme * highlight Normal      ctermbg=NONE guibg=NONE
+autocmd ColorScheme * highlight NormalNC    ctermbg=NONE guibg=NONE
+autocmd ColorScheme * highlight EndOfBuffer ctermbg=NONE guibg=NONE
 
 " ===============================
 " Basic Settings
