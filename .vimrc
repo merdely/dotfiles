@@ -3,12 +3,27 @@
 " ================================================================================================
 
 " ===============================
+" Plugins
+" ===============================
+call plug#begin()
+Plug 'bluz71/vim-nightfly-colors', { 'as': 'nightfly' }
+Plug 'liuchengxu/vim-which-key'
+" Plug 'itchyny/lightline.vim'
+call plug#end()
+
+syntax enable
+set laststatus=2
+" let g:lightline = { 'colorscheme': 'one', }
+
+nnoremap <silent> <leader> :WhichKey '<Space>'<CR>
+
+" ===============================
 " Theme & Transparency
 " ===============================
-colorscheme lunaperche
-" highlight Normal     ctermbg=none guibg=none
-" highlight NormalNC   ctermbg=none guibg=none
-" highlight EndOfBuffer ctermbg=none guibg=none
+colorscheme nightfly
+highlight Normal     ctermbg=NONE guibg=NONE
+highlight NormalNC   ctermbg=NONE guibg=NONE
+highlight EndOfBuffer ctermbg=NONE guibg=NONE
 
 " ===============================
 " Basic Settings
@@ -45,11 +60,13 @@ set termguicolors
 set background=dark
 set signcolumn=yes
 set colorcolumn=80
+set list
+set listchars=tab:▸\ ,trail:·
 set showmatch
 set matchtime=2
 set cmdheight=1
 set completeopt=menuone,noinsert,noselect
-set showmode
+set noshowmode
 set pumheight=10
 " set pumblend=10
 " set winblend=0
@@ -57,6 +74,9 @@ set conceallevel=0
 set concealcursor=
 set lazyredraw
 set synmaxcol=300
+if !has('gui_running')
+    set t_Co=256
+endif
 
 " ===============================
 " File Handling
@@ -146,7 +166,9 @@ vnoremap <A-j> :m '>+1<CR>gv=gv
 vnoremap <A-k> :m '<-2<CR>gv=gv
 vnoremap < <gv
 vnoremap > >gv
-nnoremap <leader>e :Explore<CR> nnoremap <leader>ff :find 
+nnoremap <leader>e :Explore<CR>
+nnoremap <leader>ff :find 
+nnoremap - :Explore<CR>
 
 " nnoremap J mzJ`z
 nnoremap <leader>x :!chmod +x %<CR>
@@ -187,10 +209,8 @@ set maxmempattern=20000
 " ===============================
 " Status Line
 " ===============================
-syntax enable
-set laststatus=2
-" set statusline=%f\ %h%m%r%=%y\ [%{&fileencoding}]\ %l,%c\ %P
-" set statusline=%{mode()}\ \ %f\ %h%m%r%=%{&filetype}\[%{&fileencoding}]\ %l:%c\ %P
+" disabled for lightline -- " " set statusline=%f\ %h%m%r%=%y\ [%{&fileencoding}]\ %l,%c\ %P
+" disabled for lightline -- " " set statusline=%{mode()}\ \ %f\ %h%m%r%=%{&filetype}\[%{&fileencoding}]\ %l:%c\ %P
 function! ModeStr()
   let l:mode_map = {
         \ 'n': 'NORMAL',
@@ -235,6 +255,5 @@ function! GitBranch()
   return '(' . l:branch . ')'
 endfunction
 
-" set statusline=%#StatusLine#%{ModeStr()}\ \|\ %f\ %h%m%r\ %{GitBranch()}%=%{&filetype}\ \|\ %{&fileencoding}\[%{&fileformat}]\ \|\ %{FileSize()}\ \|\ %l:%c\ %P
-set statusline=%#StatusLine#%f\ %h%m%r\ %{GitBranch()}%=%{&filetype}\ \|\ %{&fileencoding}\[%{&fileformat}]\ \|\ %{FileSize()}\ \|\ %l:%c\ %P
+set statusline=%#StatusLine#%{ModeStr()}\ \|\ %f\ %h%m%r\ %{GitBranch()}%=%{&filetype}\ \|\ %{&fileencoding}\[%{&fileformat}]\ \|\ %{FileSize()}\ \|\ %l:%c\ %P
 

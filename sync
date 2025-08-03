@@ -16,5 +16,5 @@ for dotfile in $DOTFILES; do
   echo Copying $dotfile
   relative_path=${dotfile/$HOME\//}
   mkdir -p "$dest_dir"/"$(dirname "$relative_path")"
-  cp -pR "$dotfile" "$dest_dir"/"$(dirname "$relative_path")"
+  rsync -a --info=NAME "$dotfile" "$dest_dir"/"$(dirname "$relative_path")"
 done

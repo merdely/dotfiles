@@ -4,14 +4,28 @@
 -- inpsiration: https://github.com/radleylewis/nvim-lite
 -- ================================================================================================
 
--- theme & transparency
--- vim.cmd.colorscheme("unokai")
-vim.cmd.colorscheme("lunaperche")                  -- added by mwe
--- vim.cmd.colorscheme("torte")                       -- added by mwe
-vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
-vim.api.nvim_set_hl(0, "NormalNC", { bg = "none" })
-vim.api.nvim_set_hl(0, "EndOfBuffer", { bg = "none" })
+-- BOOTSTRAP lazy.nvim
+-- ============================================================================
+-- ============================================================================
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not (vim.uv or vim.loop).fs_stat(lazypath) then
+  local lazyrepo = "https://github.com/folke/lazy.nvim.git"
+  local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
+  if vim.v.shell_error ~= 0 then
+    vim.api.nvim_echo({
+      { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
+      { out, "WarningMsg" },
+      { "\nPress any key to exit..." },
+    }, true, {})
+    vim.fn.getchar()
+    os.exit(1)
+  end
+end
+vim.opt.rtp:prepend(lazypath)
 
+-- ============================================================================
+-- OPTIONS
+-- ============================================================================
 -- Basic settings
 vim.opt.number = true                              -- Line numbers
 vim.opt.relativenumber = false                     -- Relative line numbers
@@ -39,11 +53,16 @@ vim.opt.termguicolors = true                       -- Enable 24-bit colors
 vim.opt.background = "dark"                        -- Change colorscheme to handle dark background (added by mwe)
 vim.opt.signcolumn = "yes"                         -- Always show sign column
 vim.opt.colorcolumn = "80"                         -- Show column at 100 characters
+vim.opt.list = true                                -- Show list characters
+vim.opt.listchars:append {                         -- Show symbols for tabs and trailing spaces
+  tab   = "▸ ",
+  trail = "·"
+}
 vim.opt.showmatch = true                           -- Highlight matching brackets
 vim.opt.matchtime = 2                              -- How long to show matching bracket
 vim.opt.cmdheight = 1                              -- Command line height
 vim.opt.completeopt = "menuone,noinsert,noselect"  -- Completion options 
-vim.opt.showmode = true                            -- Don't show mode in command line 
+vim.opt.showmode = false                           -- Don't show mode in command line 
 vim.opt.pumheight = 10                             -- Popup menu height 
 vim.opt.pumblend = 10                              -- Popup menu transparency 
 vim.opt.winblend = 0                               -- Floating window transparency 
@@ -91,7 +110,40 @@ vim.opt.foldlevel = 99                             -- Start with all folds open
 vim.opt.splitbelow = true                          -- Horizontal splits go below
 vim.opt.splitright = true                          -- Vertical splits go right
 
--- Key mappings
+-- ============================================================================
+-- SETUP lazy.nvim
+-- ============================================================================
+require("lazy").setup({
+	spec = {
+		{ import = "plugins" },
+	},
+    install = { colorscheme = { "nightfly" } },
+	change_detection = {
+		-- automatically check for config file changes and reload the ui
+		enabled = false,
+		notify = false, -- get a notification when changes are found
+	},
+})
+
+-- theme & transparency
+vim.cmd.colorscheme("nightfly")                       -- added by mwe
+vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
+vim.api.nvim_set_hl(0, "NormalNC", { bg = "none" })
+vim.api.nvim_set_hl(0, "EndOfBuffer", { bg = "none" })
+
+-- require('mini.statusline').setup()
+ require('lualine').setup({
+     options = {
+         theme = "nightfly",
+     }
+ })
+
+require("oil").setup()
+vim.keymap.set("n", "-", "<CMD>Oil --float<CR>", { desc = "Use Oil file manager" })
+
+-- ============================================================================
+-- KEY MAPPINGS
+-- ============================================================================
 vim.g.mapleader = " "                              -- Set leader key to space
 vim.g.maplocalleader = " "                         -- Set local leader key (NEW)
 
@@ -168,7 +220,6 @@ vim.keymap.set("n", "<leader>rc", ":e ~/.config/nvim/init.lua<CR>", { desc = "Ed
 -- ============================================================================
 -- USEFUL FUNCTIONS
 -- ============================================================================
-
 -- Copy Full File-Path
 vim.keymap.set("n", "<leader>pa", function()
 	local path = vim.fn.expand("%:p")
@@ -285,8 +336,6 @@ end
 -- ============================================================================
 -- FLOATING TERMINAL
 -- ============================================================================
-
--- terminal
 local terminal_state = {
   buf = nil,
   win = nil,
@@ -387,8 +436,6 @@ end, { noremap = true, silent = true, desc = "Close floating terminal from termi
 -- ============================================================================
 -- TABS
 -- ============================================================================
-
--- Tab display settings
 vim.opt.showtabline = 1  -- Always show tabline (0=never, 1=when multiple tabs, 2=always)
 vim.opt.tabline = ''     -- Use default tabline (empty string uses built-in)
 
@@ -461,174 +508,3 @@ local function smart_close_buffer()
   end
 end
 vim.keymap.set('n', '<leader>bd', smart_close_buffer, { desc = 'Smart close buffer/tab' })
-
--- ============================================================================
--- STATUSLINE
--- ============================================================================
-
--- Git branch function
-local function git_branch()
-  local branch = vim.fn.system("git branch --show-current 2>/dev/null | tr -d '\n'")
-  if branch ~= "" then
-    return "  (" .. branch .. ") "
-  end
-  return ""
-end
-
--- File encoding with icon
-local function file_encoding()
-  local fe = vim.bo.fileencoding
-  local icons = {
-  }
-
-  if fe == "" then
-    return "  "
-  end
-
-  return (icons[fe] or fe)
-end
-
--- File format with icon
-local function file_format()
-  local ff = vim.bo.fileformat
-  local icons = {
-  }
-
-  if ff == "" then
-    return "  "
-  end
-
-  return (icons[ff] or ff)
-end
-
--- File type with icon
-local function file_type()
-  local ft = vim.bo.filetype
-  local icons = {
-    sh = "shell",
-  }
-
-  if ft == "" then
-    return "  "
-  end
-
-  return (icons[ft] or ft)
-end
-
--- Word count for text files
-local function word_count()
-  local ft = vim.bo.filetype
-  if ft == "markdown" or ft == "text" or ft == "tex" then
-    local words = vim.fn.wordcount().words
-    return "  " .. words .. " words "
-  end
-  return ""
-end
-
--- File size
-local function file_size()
-  local size = vim.fn.getfsize(vim.fn.expand('%'))
-  if size < 0 then return "" end
-  if size < 1024 then
-    return size .. "B "
-  elseif size < 1024 * 1024 then
-    return string.format("%.1fK", size / 1024)
-  else
-    return string.format("%.1fM", size / 1024 / 1024)
-  end
-end
-
--- Mode indicators with icons
-local function mode_icon()
-  local mode = vim.fn.mode()
-  local modes = {
-    n = "NORMAL",
-    i = "INSERT",
-    v = "VISUAL",
-    V = "V-LINE",
-    ["\22"] = "V-BLOCK",  -- Ctrl-V
-    c = "COMMAND",
-    s = "SELECT",
-    S = "S-LINE",
-    ["\19"] = "S-BLOCK",  -- Ctrl-S
-    R = "REPLACE",
-    r = "REPLACE",
-    ["!"] = "SHELL",
-    t = "TERMINAL"
-  }
-  return modes[mode] or "  " .. mode:upper()
-end
-
-_G.mode_icon = mode_icon
-_G.git_branch = git_branch
-_G.file_encoding = file_encoding
-_G.file_format = file_format
-_G.file_type = file_type
-_G.file_size = file_size
-
-vim.cmd([[
-  highlight StatusLineBold gui=bold cterm=bold
-]])
-
--- Function to change statusline based on window focus
-local function setup_dynamic_statusline()
-  vim.api.nvim_create_autocmd({"WinEnter", "BufEnter"}, {
-    callback = function()
-    vim.opt_local.statusline = table.concat {
-      " ",
-      -- "%#StatusLineBold#",
-      -- "%{v:lua.mode_icon()}",
-      -- "%#StatusLine#",
-      -- " | ",
-      "%f %h%m%r",
-      "%{v:lua.git_branch()}",
-      "%=",                     -- Right-align everything after this
-      "%{v:lua.file_type()}",
-      " | ",
-      "%{v:lua.file_encoding()}[%{v:lua.file_format()}]",
-      " | ",
-      "%{v:lua.file_size()}",
-      " | ",
-      "%l:%c  %P ",             -- Line:Column and Percentage
-    }
-    end
-  })
-  vim.api.nvim_set_hl(0, "StatusLineBold", { bold = true })
-
-  vim.api.nvim_create_autocmd({"WinLeave", "BufLeave"}, {
-    callback = function()
-      vim.opt_local.statusline = "  %f %h%m%r │ %{v:lua.file_type()} | %=  %l:%c   %P "
-    end
-  })
-end
-
-setup_dynamic_statusline()
-
--- Bootstrap lazy.nvim
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not (vim.uv or vim.loop).fs_stat(lazypath) then
-  local lazyrepo = "https://github.com/folke/lazy.nvim.git"
-  local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
-  if vim.v.shell_error ~= 0 then
-    vim.api.nvim_echo({
-      { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
-      { out, "WarningMsg" },
-      { "\nPress any key to exit..." },
-    }, true, {})
-    vim.fn.getchar()
-    os.exit(1)
-  end
-end
-vim.opt.rtp:prepend(lazypath)
-
--- Setup lazy.nvim
-require("lazy").setup({
-	spec = {
-		{ import = "plugins" },
-	},
-	change_detection = {
-		-- automatically check for config file changes and reload the ui
-		enabled = false,
-		notify = false, -- get a notification when changes are found
-	},
-})
