@@ -153,24 +153,24 @@ xnoremap <leader>p "_dP
 vnoremap p "_dP
 
 " Change without replacing clipboard content
-" nnoremap cw _cw
-" vnoremap cw _cw
-" nnoremap caw _caw
-" vnoremap caw _caw
-" nnoremap ciw _ciw
-" vnoremap ciw _ciw
-" nnoremap C _C
-" vnoremap C _C
+nnoremap cw "_cw
+vnoremap cw "_cw
+nnoremap caw "_caw
+vnoremap caw "_caw
+nnoremap ciw "_ciw
+vnoremap ciw "_ciw
+nnoremap C "_C
+vnoremap C "_C
 
 " Delete without replacing clipboard content
-" nnoremap dw _dw
-" vnoremap dw _dw
-" nnoremap daw _daw
-" vnoremap daw _daw
-" nnoremap diw _diw
-" vnoremap diw _diw
-" nnoremap D _D
-" vnoremap D _D
+nnoremap dw "_dw
+vnoremap dw "_dw
+nnoremap daw "_daw
+vnoremap daw "_daw
+nnoremap diw "_diw
+vnoremap diw "_diw
+nnoremap D "_D
+vnoremap D "_D
 
 " Better window navigation
 nnoremap <C-h> <C-w>h
