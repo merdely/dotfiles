@@ -41,6 +41,7 @@ vim.opt.softtabstop = 2                            -- Soft tab stop
 vim.opt.expandtab = true                           -- Use spaces instead of tabs
 vim.opt.smartindent = true                         -- Smart auto-indenting
 vim.opt.autoindent = true                          -- Copy indent from current line
+vim.opt.breakindent = true                         -- Show wrapped lines indented
 
 -- Search settings
 vim.opt.ignorecase = true                          -- Case insensitive search
@@ -88,7 +89,8 @@ vim.opt.autowrite = false                          -- Don't auto save
 -- Behavior settings
 vim.opt.hidden = true                              -- Allow hidden buffers
 vim.opt.errorbells = false                         -- No error bells
-vim.opt.backspace = "indent,eol,start"             -- Better backspace behavior
+-- vim.opt.backspace = "indent,eol,start"             -- Better backspace behavior
+vim.opt.backspace = "indent,start"                 -- Better backspace behavior
 vim.opt.autochdir = false                          -- Don't auto change directory
 -- vim.opt.iskeyword:append("-")                      -- Treat dash as part of word
 vim.opt.path:append("**")                          -- include subdirectories in search
@@ -150,14 +152,14 @@ vim.g.maplocalleader = " "                         -- Set local leader key (NEW)
 -- Normal mode mappings
 vim.keymap.set("n", "<leader>c", ":nohlsearch<CR>", { desc = "Clear search highlights" })
 
--- Y to EOL
+-- Yank to EOL
 vim.keymap.set("n", "Y", "y$", { desc = "Yank to end of line" })
 
 -- Center screen when jumping
-vim.keymap.set("n", "n", "nzzzv", { desc = "Next search result (centered)" })
-vim.keymap.set("n", "N", "Nzzzv", { desc = "Previous search result (centered)" })
-vim.keymap.set("n", "<C-d>", "<C-d>zz", { desc = "Half page down (centered)" })
-vim.keymap.set("n", "<C-u>", "<C-u>zz", { desc = "Half page up (centered)" })
+-- vim.keymap.set("n", "n", "nzzzv", { desc = "Next search result (centered)" })
+-- vim.keymap.set("n", "N", "Nzzzv", { desc = "Previous search result (centered)" })
+-- vim.keymap.set("n", "<C-d>", "<C-d>zz", { desc = "Half page down (centered)" })
+-- vim.keymap.set("n", "<C-u>", "<C-u>zz", { desc = "Half page up (centered)" })
 
 -- Better paste behavior
 vim.keymap.set("x", "<leader>p", '"_dP', { desc = "Paste without yanking" })
@@ -169,16 +171,11 @@ vim.keymap.set({ "n", "v" }, "caw", '"_caw', { desc = "Change without replacing 
 vim.keymap.set({ "n", "v" }, "ciw", '"_ciw', { desc = "Change without replacing clipboard content" })    -- added by mwe
 vim.keymap.set({ "n", "v" }, "C", '"_C', { desc = "Change without replacing clipboard content" })        -- added by mwe
 
--- Better yank behavior (from ThePrimeagen)
-vim.keymap.set({ "n", "v" }, "<leader>y", '"+y', { desc = "Yank to system clipboard" })                  -- added by mwe
-vim.keymap.set("n", "<leader>Y", '"+Y', { desc = "Yank to system clipboard" })                           -- added by mwe
-
--- Delete without yanking
-vim.keymap.set({ "n", "v" }, "<leader>d", '"_d', { desc = "Delete without yanking" })
-
--- Buffer navigation
-vim.keymap.set("n", "<leader>bn", ":bnext<CR>", { desc = "Next buffer" })
-vim.keymap.set("n", "<leader>bp", ":bprevious<CR>", { desc = "Previous buffer" })
+-- Better change behavior
+vim.keymap.set({ "n", "v" }, "dw", '"_dw', { desc = "Delete without replacing clipboard content" })      -- added by mwe
+vim.keymap.set({ "n", "v" }, "daw", '"_daw', { desc = "Delete without replacing clipboard content" })    -- added by mwe
+vim.keymap.set({ "n", "v" }, "diw", '"_diw', { desc = "Delete without replacing clipboard content" })    -- added by mwe
+vim.keymap.set({ "n", "v" }, "D", '"_D', { desc = "Delete without replacing clipboard content" })        -- added by mwe
 
 -- Better window navigation
 vim.keymap.set("n", "<C-h>", "<C-w>h", { desc = "Move to left window" })
@@ -186,9 +183,7 @@ vim.keymap.set("n", "<C-j>", "<C-w>j", { desc = "Move to bottom window" })
 vim.keymap.set("n", "<C-k>", "<C-w>k", { desc = "Move to top window" })
 vim.keymap.set("n", "<C-l>", "<C-w>l", { desc = "Move to right window" })
 
--- Splitting & Resizing
-vim.keymap.set("n", "<leader>sv", ":vsplit<CR>", { desc = "Split window vertically" })
-vim.keymap.set("n", "<leader>sh", ":split<CR>", { desc = "Split window horizontally" })
+-- Resizing Splits
 vim.keymap.set("n", "<C-Up>", ":resize +2<CR>", { desc = "Increase window height" })
 vim.keymap.set("n", "<C-Down>", ":resize -2<CR>", { desc = "Decrease window height" })
 vim.keymap.set("n", "<C-Left>", ":vertical resize -2<CR>", { desc = "Decrease window width" })
@@ -207,9 +202,6 @@ vim.keymap.set("v", ">", ">gv", { desc = "Indent right and reselect" })
 -- Quick file navigation
 vim.keymap.set("n", "<leader>e", ":Explore<CR>", { desc = "Open file explorer" })
 vim.keymap.set("n", "<leader>ff", ":find ", { desc = "Find file" })
-
--- Better J behavior
--- vim.keymap.set("n", "J", "mzJ`z", { desc = "Join lines and keep cursor position" })  -- I don't like this
 
 -- Make file executable
 vim.keymap.set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { desc = "Make file executable", silent = true })  -- added by mwe

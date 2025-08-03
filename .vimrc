@@ -47,6 +47,7 @@ set softtabstop=2
 set expandtab
 set smartindent
 set autoindent
+set breakindent
 
 " ===============================
 " Search
@@ -100,7 +101,7 @@ set noautowrite
 " ===============================
 set hidden
 set noerrorbells
-set backspace=indent,eol,start
+set backspace=indent,start
 set noautochdir
 set iskeyword+=-
 set path+=**
@@ -138,43 +139,71 @@ let maplocalleader = " "
 " Key Mappings
 " ===============================
 nnoremap <leader>c :nohlsearch<CR>
-nnoremap <Esc> :nohlsearch<CR>
+
+" Yank to EOL
 nnoremap Y y$
-nnoremap n nzzzv
-nnoremap N Nzzzv
-nnoremap <C-d> <C-d>zz
-nnoremap <C-u> <C-u>zz
+
+" Center screen when jumping
+" nnoremap n nzzzv
+" nnoremap N Nzzzv
+" nnoremap <C-d> <C-d>zz
+" nnoremap <C-u> <C-u>zz
+
+" Better paste behavior
 xnoremap <leader>p "_dP
 vnoremap p "_dP
-nnoremap <leader>y "+y
-vnoremap <leader>y "+y
-nnoremap <leader>Y "+Y
-nnoremap <leader>d "_d
-vnoremap <leader>d "_d
-nnoremap <leader>bn :bnext<CR>
-nnoremap <leader>bp :bprevious<CR>
+
+" Change without replacing clipboard content
+nnoremap cw _cw
+vnoremap cw _cw
+nnoremap caw _caw
+vnoremap caw _caw
+nnoremap ciw _ciw
+vnoremap ciw _ciw
+nnoremap C _C
+vnoremap C _C
+
+" Delete without replacing clipboard content
+nnoremap dw _dw
+vnoremap dw _dw
+nnoremap daw _daw
+vnoremap daw _daw
+nnoremap diw _diw
+vnoremap diw _diw
+nnoremap D _D
+vnoremap D _D
+
+" Better window navigation
 nnoremap <C-h> <C-w>h
 nnoremap <C-j> <C-w>j
 nnoremap <C-k> <C-w>k
 nnoremap <C-l> <C-w>l
-nnoremap <leader>sv :vsplit<CR>
-nnoremap <leader>sh :split<CR>
+
+" Resizing Splits
 nnoremap <C-Up> :resize +2<CR>
 nnoremap <C-Down> :resize -2<CR>
 nnoremap <C-Left> :vertical resize -2<CR>
 nnoremap <C-Right> :vertical resize +2<CR>
-nnoremap <A-j> :m .+1<CR>==
-nnoremap <A-k> :m .-2<CR>==
-vnoremap <A-j> :m '>+1<CR>gv=gv
-vnoremap <A-k> :m '<-2<CR>gv=gv
+
+" Move lines up/down
+nnoremap <C-j> :m .+1<CR>==
+nnoremap <C-k> :m .-2<CR>==
+vnoremap <C-j> :m '>+1<CR>gv=gv
+vnoremap <C-k> :m '<-2<CR>gv=gv
+
+" Better indenting in visual mode
 vnoremap < <gv
 vnoremap > >gv
+
+" Quick file navigation
 nnoremap <leader>e :Explore<CR>
 nnoremap <leader>ff :find 
 nnoremap - :Explore<CR>
 
-" nnoremap J mzJ`z
+" Make file executable
 nnoremap <leader>x :!chmod +x %<CR>
+
+" Quick config editing
 nnoremap <leader>rc :e ~/.vimrc<CR>
 
 " ===============================
