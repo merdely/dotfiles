@@ -4,6 +4,9 @@
 -- inpsiration: https://github.com/radleylewis/nvim-lite
 -- ================================================================================================
 
+-- ============================================================================
+-- BOOTSTRAP lazy.nvim
+-- ============================================================================
 require("lazy_bootstrap")
 
 -- ============================================================================
@@ -34,7 +37,7 @@ vim.opt.incsearch = true                           -- Show matches as you type
 
 -- Visual settings
 vim.opt.termguicolors = true                       -- Enable 24-bit colors
-vim.opt.background = "dark"                        -- Change colorscheme to handle dark background (added by mwe)
+vim.opt.background = "dark"                        -- Change colorscheme to handle dark background
 vim.opt.signcolumn = "yes"                         -- Always show sign column
 vim.opt.colorcolumn = "80"                         -- Show column at 100 characters
 vim.opt.list = true                                -- Show list characters
@@ -113,7 +116,18 @@ if vim.fn.isdirectory(undodir) == 0 then
   vim.fn.mkdir(undodir, "p")
 end
 
+-- ============================================================================
+-- SETUP lazy.nvim
+-- ============================================================================
 require("lazy_setup")
+
+-- ============================================================================
+-- THEME & TRANSPARENCY
+-- ============================================================================
+vim.cmd.colorscheme("nightfly")
+vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
+vim.api.nvim_set_hl(0, "NormalNC", { bg = "none" })
+vim.api.nvim_set_hl(0, "EndOfBuffer", { bg = "none" })
 
 -- ============================================================================
 -- KEY MAPPINGS
@@ -135,19 +149,19 @@ vim.keymap.set("n", "Y", "y$", { desc = "Yank to end of line" })
 
 -- Better paste behavior
 vim.keymap.set("x", "<leader>p", '"_dP', { desc = "Paste without yanking" })
-vim.keymap.set("v", "p", '"_dP', { desc = "Paste without replacing clipboard content" })                 -- added by mwe
+vim.keymap.set("v", "p", '"_dP', { desc = "Paste without replacing clipboard content" })
 
 -- Better change behavior
-vim.keymap.set({ "n", "v" }, "cw", '"_cw', { desc = "Change without replacing clipboard content" })      -- added by mwe
-vim.keymap.set({ "n", "v" }, "caw", '"_caw', { desc = "Change without replacing clipboard content" })    -- added by mwe
-vim.keymap.set({ "n", "v" }, "ciw", '"_ciw', { desc = "Change without replacing clipboard content" })    -- added by mwe
-vim.keymap.set({ "n", "v" }, "C", '"_C', { desc = "Change without replacing clipboard content" })        -- added by mwe
+vim.keymap.set({ "n", "v" }, "cw", '"_cw', { desc = "Change without replacing clipboard content" })
+vim.keymap.set({ "n", "v" }, "caw", '"_caw', { desc = "Change without replacing clipboard content" })
+vim.keymap.set({ "n", "v" }, "ciw", '"_ciw', { desc = "Change without replacing clipboard content" })
+vim.keymap.set({ "n", "v" }, "C", '"_C', { desc = "Change without replacing clipboard content" })
 
 -- Better change behavior
-vim.keymap.set({ "n", "v" }, "dw", '"_dw', { desc = "Delete without replacing clipboard content" })      -- added by mwe
-vim.keymap.set({ "n", "v" }, "daw", '"_daw', { desc = "Delete without replacing clipboard content" })    -- added by mwe
-vim.keymap.set({ "n", "v" }, "diw", '"_diw', { desc = "Delete without replacing clipboard content" })    -- added by mwe
-vim.keymap.set({ "n", "v" }, "D", '"_D', { desc = "Delete without replacing clipboard content" })        -- added by mwe
+vim.keymap.set({ "n", "v" }, "dw", '"_dw', { desc = "Delete without replacing clipboard content" })
+vim.keymap.set({ "n", "v" }, "daw", '"_daw', { desc = "Delete without replacing clipboard content" })
+vim.keymap.set({ "n", "v" }, "diw", '"_diw', { desc = "Delete without replacing clipboard content" })
+vim.keymap.set({ "n", "v" }, "D", '"_D', { desc = "Delete without replacing clipboard content" })
 
 -- Better window navigation
 vim.keymap.set("n", "<C-h>", "<C-w>h", { desc = "Move to left window" })
@@ -172,12 +186,12 @@ vim.keymap.set("v", "<", "<gv", { desc = "Indent left and reselect" })
 vim.keymap.set("v", ">", ">gv", { desc = "Indent right and reselect" })
 
 -- Quick file navigation
+vim.keymap.set("n", "-", "<CMD>Oil --float<CR>", { desc = "Use Oil file manager" })
 vim.keymap.set("n", "<leader>e", ":Oil --float<CR>", { desc = "Open file explorer" })
--- vim.keymap.set("n", "<leader>ff", ":find ", { desc = "Find file" })
 vim.keymap.set("n", "<leader>ff", ":FzfLua files<CR>", { desc = "Find file" })
 
 -- Make file executable
-vim.keymap.set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { desc = "Make file executable", silent = true })  -- added by mwe
+vim.keymap.set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { desc = "Make file executable", silent = true })
 
 -- Quick config editing
 vim.keymap.set("n", "<leader>rc", ":e ~/.config/nvim/init.lua<CR>", { desc = "Edit config" })
