@@ -8,6 +8,8 @@ DOTFILES="$DOTFILES $HOME/.config/niri/config.kdl"
 DOTFILES="$DOTFILES $HOME/.config/niri/scripts"
 DOTFILES="$DOTFILES $HOME/.config/nvim"
 DOTFILES="$DOTFILES $HOME/.config/waybar"
+DOTFILES="$DOTFILES $HOME/.bashrc"
+DOTFILES="$DOTFILES $HOME/.merdely.profile"
 DOTFILES="$DOTFILES $HOME/.vimrc"
 
 dest_dir=$(dirname "$(realpath "$0")")
