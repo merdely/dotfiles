@@ -6,14 +6,18 @@
 " Plugins
 " ===============================
 call plug#begin()
-Plug 'bluz71/vim-nightfly-colors', { 'as': 'nightfly' }
-Plug 'liuchengxu/vim-which-key'
-" Plug 'itchyny/lightline.vim'
+  Plug 'bluz71/vim-nightfly-colors', { 'as': 'nightfly' }
+  Plug 'liuchengxu/vim-which-key'
+  Plug 'itchyny/lightline.vim'
 call plug#end()
 
 syntax enable
 set laststatus=2
-" let g:lightline = { 'colorscheme': 'one', }
+let g:lightline = {
+      \ 'colorscheme': 'one',
+      \ 'separator': { 'left': "\ue0b0", 'right': "\ue0b2" },
+      \ 'subseparator': { 'left': "\ue0b1", 'right': "\ue0b3" },
+      \ }
 
 nnoremap <silent> <leader> :WhichKey '<Space>'<CR>
 
@@ -65,22 +69,17 @@ set background=dark
 set signcolumn=yes
 set colorcolumn=80
 set list
-set listchars=tab:▸\ ,trail:·
+set listchars=tab:▸\ ,trail:·,nbsp:␣
 set showmatch
 set matchtime=2
 set cmdheight=1
 set completeopt=menuone,noinsert,noselect
 set noshowmode
 set pumheight=10
-" set pumblend=10
-" set winblend=0
 set conceallevel=0
 set concealcursor=
 set lazyredraw
 set synmaxcol=300
-if !has('gui_running')
-    set t_Co=256
-endif
 
 " ===============================
 " File Handling
@@ -103,7 +102,7 @@ set hidden
 set noerrorbells
 set backspace=indent,start
 set noautochdir
-set iskeyword+=-
+" set iskeyword+=-
 set path+=**
 set selection=exclusive
 set mouse=a
@@ -154,24 +153,24 @@ xnoremap <leader>p "_dP
 vnoremap p "_dP
 
 " Change without replacing clipboard content
-nnoremap cw _cw
-vnoremap cw _cw
-nnoremap caw _caw
-vnoremap caw _caw
-nnoremap ciw _ciw
-vnoremap ciw _ciw
-nnoremap C _C
-vnoremap C _C
+" nnoremap cw _cw
+" vnoremap cw _cw
+" nnoremap caw _caw
+" vnoremap caw _caw
+" nnoremap ciw _ciw
+" vnoremap ciw _ciw
+" nnoremap C _C
+" vnoremap C _C
 
 " Delete without replacing clipboard content
-nnoremap dw _dw
-vnoremap dw _dw
-nnoremap daw _daw
-vnoremap daw _daw
-nnoremap diw _diw
-vnoremap diw _diw
-nnoremap D _D
-vnoremap D _D
+" nnoremap dw _dw
+" vnoremap dw _dw
+" nnoremap daw _daw
+" vnoremap daw _daw
+" nnoremap diw _diw
+" vnoremap diw _diw
+" nnoremap D _D
+" vnoremap D _D
 
 " Better window navigation
 nnoremap <C-h> <C-w>h
@@ -237,55 +236,4 @@ set wildignore+=*.o,*.obj,*.pyc,*.class,*.jar
 " set diffopt+=linematch:60
 set redrawtime=10000
 set maxmempattern=20000
-
-" ===============================
-" Status Line
-" ===============================
-" disabled for lightline -- " " set statusline=%f\ %h%m%r%=%y\ [%{&fileencoding}]\ %l,%c\ %P
-" disabled for lightline -- " " set statusline=%{mode()}\ \ %f\ %h%m%r%=%{&filetype}\[%{&fileencoding}]\ %l:%c\ %P
-function! ModeStr()
-  let l:mode_map = {
-        \ 'n': 'NORMAL',
-        \ 'i': 'INSERT',
-        \ 'v': 'VISUAL',
-        \ 'V': 'V-LINE',
-        \ "\<C-v>": 'V-BLOCK',
-        \ 'c': 'COMMAND',
-        \ 's': 'SELECT',
-        \ 'S': 'S-LINE',
-        \ "\<C-s>": 'S-BLOCK',
-        \ 'R': 'REPLACE',
-        \ 't': 'TERMINAL'
-        \ }
-  return get(l:mode_map, mode(), mode())
-endfunction
-
-function! FileSize()
-  let size = getfsize(expand('%'))
-  if size < 0
-    return ''
-  elseif size < 1024
-    return size . 'B'
-  elseif size < 1024 * 1024
-    return printf('%.1fK', size / 1024.0)
-  else
-    return printf('%.1fM', size / (1024.0 * 1024))
-  endif
-endfunction
-
-function! GitBranch()
-  let l:gitdir = finddir('.git', expand('%:p:h') . ';')
-  if empty(l:gitdir)
-    return ''
-  endif
-  let l:repo = fnamemodify(l:gitdir, ':h')
-  let l:branch = system('git -C ' . fnameescape(l:repo) . ' rev-parse --abbrev-ref HEAD 2>/dev/null')
-  let l:branch = substitute(l:branch, '\n\+$', '', '')
-  if empty(l:branch) || v:shell_error != 0
-    return ''
-  endif
-  return '(' . l:branch . ')'
-endfunction
-
-set statusline=%#StatusLine#%{ModeStr()}\ \|\ %f\ %h%m%r\ %{GitBranch()}%=%{&filetype}\ \|\ %{&fileencoding}\[%{&fileformat}]\ \|\ %{FileSize()}\ \|\ %l:%c\ %P
 

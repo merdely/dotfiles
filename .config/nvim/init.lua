@@ -57,7 +57,8 @@ vim.opt.colorcolumn = "80"                         -- Show column at 100 charact
 vim.opt.list = true                                -- Show list characters
 vim.opt.listchars:append {                         -- Show symbols for tabs and trailing spaces
   tab   = "▸ ",
-  trail = "·"
+  trail = "·",
+  nbsp  = "␣"
 }
 vim.opt.showmatch = true                           -- Highlight matching brackets
 vim.opt.matchtime = 2                              -- How long to show matching bracket
