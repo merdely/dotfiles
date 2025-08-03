@@ -4,25 +4,6 @@
 -- inpsiration: https://github.com/radleylewis/nvim-lite
 -- ================================================================================================
 
--- BOOTSTRAP lazy.nvim
--- ============================================================================
--- ============================================================================
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not (vim.uv or vim.loop).fs_stat(lazypath) then
-  local lazyrepo = "https://github.com/folke/lazy.nvim.git"
-  local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
-  if vim.v.shell_error ~= 0 then
-    vim.api.nvim_echo({
-      { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
-      { out, "WarningMsg" },
-      { "\nPress any key to exit..." },
-    }, true, {})
-    vim.fn.getchar()
-    os.exit(1)
-  end
-end
-vim.opt.rtp:prepend(lazypath)
-
 -- ============================================================================
 -- OPTIONS
 -- ============================================================================
@@ -113,36 +94,24 @@ vim.opt.foldlevel = 99                             -- Start with all folds open
 vim.opt.splitbelow = true                          -- Horizontal splits go below
 vim.opt.splitright = true                          -- Vertical splits go right
 
--- ============================================================================
--- SETUP lazy.nvim
--- ============================================================================
-require("lazy").setup({
-	spec = {
-		{ import = "plugins" },
-	},
-    install = { colorscheme = { "nightfly" } },
-	change_detection = {
-		-- automatically check for config file changes and reload the ui
-		enabled = false,
-		notify = false, -- get a notification when changes are found
-	},
-})
+-- Command-line completion
+vim.opt.wildmenu = true
+vim.opt.wildmode = "longest:full,full"
+vim.opt.wildignore:append({ "*.o", "*.obj", "*.pyc", "*.class", "*.jar" })
 
--- theme & transparency
-vim.cmd.colorscheme("nightfly")                       -- added by mwe
-vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
-vim.api.nvim_set_hl(0, "NormalNC", { bg = "none" })
-vim.api.nvim_set_hl(0, "EndOfBuffer", { bg = "none" })
+-- Better diff options
+vim.opt.diffopt:append("linematch:60")
 
--- require('mini.statusline').setup()
- require('lualine').setup({
-     options = {
-         theme = "nightfly",
-     }
- })
+-- Performance improvements
+vim.opt.redrawtime = 10000
+vim.opt.maxmempattern = 20000
 
-require("oil").setup()
-vim.keymap.set("n", "-", "<CMD>Oil --float<CR>", { desc = "Use Oil file manager" })
+-- Create undo directory if it doesn't exist
+if vim.fn.isdirectory(undodir) == 0 then
+  vim.fn.mkdir(undodir, "p")
+end
+
+require("lazy_init")
 
 -- ============================================================================
 -- KEY MAPPINGS
@@ -202,7 +171,8 @@ vim.keymap.set("v", ">", ">gv", { desc = "Indent right and reselect" })
 
 -- Quick file navigation
 vim.keymap.set("n", "<leader>e", ":Explore<CR>", { desc = "Open file explorer" })
-vim.keymap.set("n", "<leader>ff", ":find ", { desc = "Find file" })
+-- vim.keymap.set("n", "<leader>ff", ":find ", { desc = "Find file" })
+vim.keymap.set("n", "<leader>ff", ":FzfLua files<CR>", { desc = "Find file" })
 
 -- Make file executable
 vim.keymap.set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { desc = "Make file executable", silent = true })  -- added by mwe
@@ -243,18 +213,10 @@ vim.api.nvim_create_autocmd("BufReadPost", {
   end,
 })
 
--- Omnifunc
--- vim.api.nvim_create_autocmd("FileType", {
---   group = augroup,
---   callback = function()
---     vim.opt_local.omnifunc = "syntaxcomplete#Complete"
---   end,
--- })
-
 -- Set filetype-specific settings
 vim.api.nvim_create_autocmd("FileType", {
   group = augroup,
-  pattern = { "lua", "python", "php", "markdown" },
+  pattern = { "python", "php", "markdown" },
   callback = function()
     vim.opt_local.tabstop = 4
     vim.opt_local.shiftwidth = 4
@@ -263,7 +225,7 @@ vim.api.nvim_create_autocmd("FileType", {
 
 vim.api.nvim_create_autocmd("FileType", {
   group = augroup,
-  pattern = { "javascript", "typescript", "json", "html", "css" },
+  pattern = { "css", "html", "javascript", "json", "lua", "typescript" },
   callback = function()
     vim.opt_local.tabstop = 2
     vim.opt_local.shiftwidth = 2
@@ -308,23 +270,6 @@ vim.api.nvim_create_autocmd("BufWritePre", {
     end
   end,
 })
-
--- Command-line completion
-vim.opt.wildmenu = true
-vim.opt.wildmode = "longest:full,full"
-vim.opt.wildignore:append({ "*.o", "*.obj", "*.pyc", "*.class", "*.jar" })
-
--- Better diff options
-vim.opt.diffopt:append("linematch:60")
-
--- Performance improvements
-vim.opt.redrawtime = 10000
-vim.opt.maxmempattern = 20000
-
--- Create undo directory if it doesn't exist
-if vim.fn.isdirectory(undodir) == 0 then
-  vim.fn.mkdir(undodir, "p")
-end
 
 -- ============================================================================
 -- FLOATING TERMINAL
@@ -424,7 +369,6 @@ vim.keymap.set("t", "<Esc>", function()
     terminal_state.is_open = false
   end
 end, { noremap = true, silent = true, desc = "Close floating terminal from terminal mode" })
-
 
 -- ============================================================================
 -- TABS

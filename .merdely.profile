@@ -89,7 +89,7 @@ fi
 
 # General settings
 umask 0022
-export LESS=RXc
+export LESS=REX
 export NIFS=$(printf "\n\b")
 export OIFS=$IFS
 export PS1='[\u@\h \W]\$ '
