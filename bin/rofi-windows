@@ -1,0 +1,5 @@
+#!/bin/sh
+
+pgrep -u $LOGNAME -f "^rofi -show window" && \
+  pkill -u $LOGNAME -f "^rofi -show window" || \
+  rofi -show window -cache-dir ~/.cache/rofi_windows

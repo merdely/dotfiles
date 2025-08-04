@@ -1,0 +1,13 @@
+#!/bin/sh
+
+ontop='--on-top'
+unset css
+width=350
+
+#if [[ $(hostname -s) =~ ^(neptune|styx)$ ]]; then
+#  css="* { font-size: 16px; }"
+#  width=600
+#fi
+
+#echo /usr/bin/yad --title 'Enter SSH Key Passphrase' $ontop --css "$css" --width $width --center --fixed --entry --entry-label='Enter SSH Key passphrase' --hide-text > /dev/stderr
+/usr/bin/yad --title 'Enter SSH Key Passphrase' $ontop --css "$css" --width $width --center --fixed --entry --entry-label='Enter SSH Key passphrase' --hide-text

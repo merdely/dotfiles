@@ -1,0 +1,115 @@
+#!/bin/sh
+
+usage() {
+  echo "usage: $(basename $0) [-h] command [windowclass] [title]"
+  exit $1
+}
+
+niri_floating_ws="🗒️"
+
+[ "$1" = "-h" ] && usage
+[ -z "$1" ] && usage 1
+
+cmd=$1
+appid=$1
+[ -n "$2" ] && appid=$2
+[ -n "$3" ] && title=$3
+
+toggle_minimize() {
+  if [[ "$XDG_CURRENT_DESKTOP" =~ ^sway ]]; then
+    scratchpad_search=$(swaymsg -r -t get_tree | jq --arg c "$1" -r '.nodes[].nodes[] | select(.name=="__i3_scratch").floating_nodes.[] | select(.app_id==$c).app_id')
+
+    if [ "$scratchpad_search" = $1 ]; then
+      # window is in scratchpad
+      if [ -z "$2" ]; then
+        swaymsg [app_id="$1"] scratchpad show
+      else
+        swaymsg "[app_id=\"$1\" title=\"$2\"] scratchpad show"
+      fi
+    else
+      if [ -z "$2" ]; then
+        swaymsg [app_id="$1"] move window to scratchpad
+      else
+        swaymsg "[app_id=\"$1\" title=\"$2\"] move window to scratchpad"
+      fi
+    fi
+
+  elif [[ "$XDG_CURRENT_DESKTOP" =~ ^niri ]]; then
+    if [ -z "$2" ]; then
+      ws_id=$(niri msg -j windows | jq -r --arg c "$1" '.[] | select(.app_id==$c) | .workspace_id')
+    else
+      ws_id=$(niri msg -j windows | jq -r --arg c "$1" --arg t "$2" '.[] | select(.app_id==$c and .title==$t) | .workspace_id')
+    fi
+    [[ $ws_id ]] && ws_name=$(niri msg -j workspaces | jq -r --arg c $ws_id '.[] | select(.id|tostring==$c) | .name')
+    cur_ws=$(niri msg -j focused-window | jq -r '.workspace_id')
+    cur_mon=$(niri msg -j focused-output | jq -r '.name')
+    if [ -z "$2" ]; then
+      app_id=$(niri msg -j windows | jq -r --arg c "$1" '.[] | select(.app_id==$c) | .id')
+    else
+      app_id=$(niri msg -j windows | jq -r --arg c "$1" --arg t "$2" '.[] | select(.app_id==$c and .title==$t) | .id')
+    fi
+
+    if [ "$ws_name" = $niri_floating_ws ] || [ "$ws_id" != "$cur_ws" ]; then
+      niri msg action move-window-to-floating --id $app_id
+      niri msg action move-window-to-monitor --id $app_id $cur_mon
+      niri msg action focus-window --id $app_id
+    else
+      niri msg action move-window-to-workspace --focus false --window-id $app_id $niri_floating_ws
+      niri msg action move-window-to-tiling --id $app_id
+    fi
+
+  else  # Hyprland
+
+    ws=$(hyprctl workspaces -j | jq --arg w "special:$1" -r '.[] | select(.name == $w) | .id')
+    mon=$(hyprctl monitors -j | jq --arg w "special:$1" -r '.[] | select(.specialWorkspace.name == $w) | .id')
+    if [ -z "$2" ]; then
+      app=$(hyprctl clients -j | jq --arg c "$1" -r '.[] | select(.class==$c) | .address')
+    else
+      app=$(hyprctl clients -j | jq --arg c "$1" --arg t "$2" -r '.[] | select(.class==$c and .title==$t) | .address')
+    fi
+
+    # if $mon is defined, window is assumed to be showing so hide it
+
+    if [ -z "$mon" ] && [ -z "$ws" ]; then
+      hyprctl dispatch movetoworkspacesilent special:"$1",address:$app
+    else
+      a_ws=$(hyprctl monitors -j | jq -r '.[] | select(.focused==true) | .activeWorkspace.id')
+      hyprctl dispatch movetoworkspace $a_ws,address:$app
+    fi
+  fi
+}
+
+run_cmd() {
+  if [[ "$XDG_CURRENT_DESKTOP" =~ ^sway ]]; then
+    if which uwsm &>/dev/null && uwsm check is-active; then
+      swaymsg exec uwsm app -- gtk-launch $1
+    else
+      swaymsg exec gtk-launch $1
+    fi
+  elif [[ "$XDG_CURRENT_DESKTOP" =~ ^niri ]]; then
+    if which uwsm &>/dev/null && uwsm check is-active; then
+      niri msg action spawn -- uwsm app -- gtk-launch $1
+    else
+      niri msg action spawn -- gtk-launch $1
+    fi
+  else
+    if which uwsm &>/dev/null && uwsm check is-active; then
+      hyprctl dispatch exec uwsm app -- gtk-launch $1
+    else
+      hyprctl dispatch exec gtk-launch $1
+    fi
+  fi
+}
+
+isrunning() {
+  if [[ "$XDG_CURRENT_DESKTOP" =~ ^sway ]]; then
+    swaymsg -r -t get_tree | jq -r --arg c "$1" 'recurse(.nodes[]?, .floating_nodes[]?) | select(.app_id==$c) | .app_id' | grep -qE "^${1}$"
+  elif [[ "$XDG_CURRENT_DESKTOP" =~ ^niri ]]; then
+    niri msg -j windows | jq -r --arg c "$1" '.[] | select(.app_id==$c) | .app_id' | grep -qE "^${1}$"
+  else
+    hyprctl clients -j | jq -r --arg c "$1" '.[] | select(.class==$c) | .class' | grep -qE "^${1}$"
+  fi
+}
+
+isrunning "$appid" && toggle_minimize "$appid" "$title" || run_cmd "$cmd" "$appid" "$title"
+

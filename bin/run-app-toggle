@@ -1,0 +1,15 @@
+#!/bin/sh
+
+usage() {
+  echo "usage: $(basename $0) [-h] command"
+  exit $1
+}
+
+[ "$1" = "-h" ] && usage
+[ -z "$1" ] && usage 1
+
+cmd=$1
+
+pgrep -u $LOGNAME -x -- $cmd && \
+  pkill -u $LOGNAME -x -- $cmd || \
+  $cmd &

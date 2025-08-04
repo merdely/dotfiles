@@ -1,0 +1,13 @@
+#!/bin/sh
+
+rofi_launcher() {
+  if which uwsm &>/dev/null && uwsm check is-active; then
+    rofi -combi-modi drun,run -modi combi -show combi -display-combi Application\ Launcher -run-command "uwsm app -- {cmd}" "$*"
+  else
+    rofi -combi-modi drun,run -modi combi -show combi -display-combi Application\ Launcher "$*"
+  fi
+}
+
+pgrep -u $LOGNAME -f "^rofi -combi-modi drun,run -modi combi -show combi -display-combi Application Launcher" && \
+  pkill -u $LOGNAME -f "^rofi -combi-modi drun,run -modi combi -show combi -display-combi Application Launcher" || \
+  rofi_launcher $*

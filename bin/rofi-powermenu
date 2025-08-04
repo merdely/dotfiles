@@ -1,0 +1,48 @@
+#!/bin/sh
+
+pgrep -u $LOGNAME -f -- "^rofi -dmenu -window-title Power Menu -i" && \
+  pkill -u $LOGNAME -f -- "^rofi -dmenu -window-title Power Menu -i" && exit
+
+choice=$(
+  printf " Lock\n󰍃 Logout\n󰤄 Suspend\n Hibernate\n  Reboot\n  Halt" | \
+    rofi -dmenu -window-title "Power Menu" -i -p ">>> " -theme-str 'entry {placeholder:"Power Menu";}'
+  )
+
+case "$choice" in
+  " Lock") loginctl lock-session ;;
+  "󰍃 Logout")
+    case "$XDG_CURRENT_DESKTOP" in
+      Hyprland|hyprland)
+        $HOME/bin/wm-closeapps
+        hyprctl dispatch exit
+        ;;
+      KDE)
+        if which qdbus6 > /dev/null 2>&1; then
+          qdbus6 org.kde.Shutdown /Shutdown org.kde.Shutdown.logout
+        elif which qdbus > /dev/null 2>&1; then
+          qdbus org.kde.ksmserver /KSMServer logout 0 0 1
+        else
+          loginctl terminate-session
+        fi
+        ;;
+      niri)
+        $HOME/bin/wm-closeapps
+        niri msg action quit
+        ;;
+      i3)
+        i3-msg exit
+        ;;
+      sway*)
+        swaymsg exit
+        ;;
+      *)
+        loginctl terminate-session
+        ;;
+    esac
+    ;;
+  "󰤄 Suspend") systemctl suspend-then-hibernate ;;
+  " Hibernate") systemctl hibernate ;;
+  "  Reboot") $HOME/bin/wm-closeapps ; systemctl reboot ;;
+  "  Halt") $HOME/bin/wm-closeapps ; systemctl poweroff ;;
+  *) exit 1 ;;
+esac

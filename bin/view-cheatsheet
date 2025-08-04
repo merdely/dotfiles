@@ -1,0 +1,17 @@
+#!/bin/sh
+
+[ -z "$1" ] && echo "usage: $(basename $0) IMAGEFILE" && exit 1
+img=$1
+[ ! -r "$img" ] && echo "Error: Cannot open '$img'" && exit 1
+
+run_imv() {
+  if which uwsm &>/dev/null && uwsm check is-active; then
+    uwsm app -- imv -W 1600 -H 1000 "$1" &
+  else
+    imv -W 1600 -H 1000 "$1" &
+  fi
+}
+
+pgrep -f "^imv(-wayland)? .* $img" && \
+  pkill -f "^imv(-wayland)? .* $img" || \
+  run_imv "$img"

@@ -1,0 +1,55 @@
+#!/bin/sh
+
+
+mode=hypr
+img=hyprland.png
+script=hyprland-keys
+name=Hyprland
+if [[ "$XDG_CURRENT_DESKTOP" =~ ^sway ]]; then
+  mode=sway
+  img=sway.png
+  script=sway-i3-keys
+  name=Sway
+elif [[ "$XDG_CURRENT_DESKTOP" =~ ^niri ]]; then
+  mode=niri
+  img=niri.png
+  script=niri-keys
+  name=Niri
+fi
+
+imgdir=$HOME/.config/$mode/help
+scriptdir=$HOME/git/gen-keybinding-img
+
+unset msg
+! python -c 'import PIL' > /dev/null 2>&1 && msg="$msg PIL(python-pillow)"
+! python -c 'import cairocffi' > /dev/null 2>&1 && msg="$msg cairocffi(python-cairocffi)"
+[ -n "$img" ] && [ ! -r $scriptdir/$img ] && msg="$msg $img"
+
+if [ -n "$msg" ]; then
+  echo "Error: Missing prerequesites:$msg"
+  exit 1
+fi
+
+tmpimgdir=$(mktemp -d)
+
+mkdir -p $imgdir
+
+unset logo_arg
+[ -n "$img" ] && logo_arg="-l $scriptdir/$img"
+
+# Generate new images
+$scriptdir/gen-keybinding-img -d \
+  -o $tmpimgdir $logo_arg \
+  -c $scriptdir/scripts/$script \
+  -t $name \
+  -k '{"Screen":"Monitor","Group":"Wrkspce"}'
+
+# If an image exists
+if [ $(ls $tmpimgdir/*.png 2> /dev/null | wc -l) != 0 ]; then
+  rm -f $imgdir/*.png
+  cp $tmpimgdir/*.png $imgdir
+fi
+[ $imgdir/no_modifier.png ] && mv $imgdir/no_modifier.png $imgdir/None.png
+
+# Remove temp dir
+rm -Rf $tmpimgdir
