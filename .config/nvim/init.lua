@@ -138,6 +138,9 @@ vim.g.maplocalleader = " "                         -- Set local leader key (NEW)
 -- Normal mode mappings
 vim.keymap.set("n", "<leader>c", ":nohlsearch<CR>", { desc = "Clear search highlights" })
 
+-- Switch to only one buffer (not split)
+vim.keymap.set("n", "<leader>o", ":only<CR>", { desc = "Switch to showing only one buffer" })
+
 -- Yank to EOL
 vim.keymap.set("n", "Y", "y$", { desc = "Yank to end of line" })
 
@@ -464,3 +467,16 @@ local function smart_close_buffer()
   end
 end
 vim.keymap.set('n', '<leader>bd', smart_close_buffer, { desc = 'Smart close buffer/tab' })
+
+-- LSP for Lua
+vim.lsp.enable({ "lua_ls" })
+vim.lsp.config("lua_ls", {
+  settings = {
+    Lua = {
+      workspace = {
+        library = vim.api.nvim_get_runtime_file("", true),
+      }
+    }
+  }
+})
+
