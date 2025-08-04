@@ -8,6 +8,17 @@
 
 - .config/niri/config.kdl
 
+## Tmux config
+
+- .config/tmux/tmux.conf
+  - My main tmux config
+- /srv/scripts/bin/tmux*
+  - Helper scripts
+
+## Vim config
+
+- .vimrc
+
 ## Waybar config
 
 - .config/waybar
@@ -22,8 +33,4 @@
   - wb\_mode.jsonc - either a copy of wb\_laptop.jsonc or wb\_tablet.jsonc
   - wb\_laptop.jsonc - waybar config overrides for laptop mode
   - wb\_tablet.jsonc - waybar config overrides for tablet mode
-
-## Vim config
-
-- .vimrc
 
