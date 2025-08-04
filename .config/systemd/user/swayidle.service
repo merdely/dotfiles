@@ -1,0 +1,16 @@
+[Unit]
+Description=Sways's idle daemon
+Documentation=https://man.archlinux.org/man/swayidle.1
+PartOf=graphical-session.target
+After=graphical-session.target
+ConditionEnvironment=WAYLAND_DISPLAY
+
+[Service]
+Type=simple
+Environment=SSH_AUTH_SOCK=%t/ssh-agent.socket
+Environment=SSH_ASKPASS=%h/bin/yad-askpass
+ExecStart=/usr/bin/swayidle -w
+Restart=on-failure
+
+[Install]
+WantedBy=graphical-session.target

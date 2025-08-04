@@ -104,6 +104,7 @@ spawn-at-startup "systemctl" "--user" "start" "plasma-polkit-agent.service"
 spawn-at-startup "systemctl" "--user" "start" "waybar.service"
 spawn-at-startup "systemctl" "--user" "start" "swaybg.service"
 spawn-at-startup "systemctl" "--user" "start" "swayidle.service"
+spawn-at-startup "systemctl" "--user" "start" "xdg-desktop-portal-gnome.service"
 // spawn-at-startup "systemctl" "--user" "start" "wl-clip-persist.service"
 spawn-at-startup "systemctl" "--user" "start" "wl-paste-text.service"
 spawn-at-startup "systemctl" "--user" "start" "wl-paste-image.service"
@@ -129,11 +130,11 @@ spawn-at-startup "bash" "-c" "[[ $(hostname -s) =~ ^(neptune|styx)$ ]] && system
 spawn-at-startup "bash" "-c" "[[ $(hostname -s) =~ ^(neptune|styx)$ ]] && niri msg output eDP-1 scale 1.3"
 
 window-rule {
-    match app-id=r#"^(com.seafile.seafile-applet|galculator|imv|nm-connection-editor|nwg-look|onboard|org.kde.plasma.emojier|piper|thunar|solaar|syncthingtray|vimiv)$"#
+    match app-id=r#"^(com.seafile.seafile-applet|galculator|imv|nm-connection-editor|nwg-drawer|nwg-look|onboard|org.kde.plasma.emojier|piper|thunar|solaar|syncthingtray|vimiv)$"#
     match app-id=r#"^(librewolf|firefox)$"# title=r#"^($|(Firefox|LibreWolf) - Choose User Profile|Enter name of file to save to…|Library$|Page Info)"#
     match app-id="org.remmina.Remmina" title="Remmina Remote Desktop Client"
     match title=r#"^(Open File|Open|Save|Save As|Export|Import|Choose File|Rename)"#
-    match title=r#"^[Xx]dg-desktop-portal-(gtk|hyprland)"#
+    match title=r#"^[Xx]dg-desktop-portal-(gnome|gtk|hyprland)"#
     open-floating true
 }
 

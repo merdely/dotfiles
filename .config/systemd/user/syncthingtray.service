@@ -1,0 +1,17 @@
+[Unit]
+Description=Syncthingtray
+PartOf=graphical-session.target
+Requires=graphical-session.target
+After=graphical-session.target
+ConditionEnvironment=WAYLAND_DISPLAY
+
+[Service]
+Type=simple
+Environment=QT_QPA_PLATFORMTHEME=kde
+Environment=QT_QPA_PLATFORM=wayland
+ExecStart=/usr/bin/syncthingtray --wait --single-instance
+Slice=session.slice
+Restart=on-failure
+
+[Install]
+WantedBy=graphical-session.target
