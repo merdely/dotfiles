@@ -107,7 +107,7 @@ set noautowrite
 " ===============================
 set hidden
 set noerrorbells
-set backspace=indent,start
+set backspace=indent,start,eol
 set noautochdir
 " set iskeyword+=-
 set path+=**
