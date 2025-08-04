@@ -7,15 +7,19 @@ DOTFILES="$DOTFILES $HOME/.config/local/wb_*"
 DOTFILES="$DOTFILES $HOME/.config/niri/config.kdl"
 DOTFILES="$DOTFILES $HOME/.config/niri/scripts"
 DOTFILES="$DOTFILES $HOME/.config/nvim"
+DOTFILES="$DOTFILES $HOME/.config/tmux/tmux.conf"
 DOTFILES="$DOTFILES $HOME/.config/waybar"
 DOTFILES="$DOTFILES $HOME/.bashrc"
 DOTFILES="$DOTFILES $HOME/.merdely.profile"
 DOTFILES="$DOTFILES $HOME/.vimrc"
+DOTFILES="$DOTFILES /srv/scripts/bin/tmux_groupssh"
+DOTFILES="$DOTFILES /srv/scripts/bin/tmux_reorder"
+DOTFILES="$DOTFILES /srv/scripts/bin/tmux_winsplit"
 
 dest_dir=$(dirname "$(realpath "$0")")
 
 for dotfile in $DOTFILES; do
-  relative_path=${dotfile/$HOME\//}
-  mkdir -p "$dest_dir"/"$(dirname "$relative_path")"
-  rsync -a --info=NAME "$dotfile" "$dest_dir"/"$(dirname "$relative_path")"
+  relative_path=${dotfile/$HOME/}
+  mkdir -p "$dest_dir""$(dirname "$relative_path")"
+  rsync -a --info=NAME "$dotfile" "$dest_dir""$(dirname "$relative_path")"
 done

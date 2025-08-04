@@ -1,0 +1,76 @@
+#!/bin/sh
+
+usage() {
+  echo "usage: $(basename $0) [-s] [-u] [-t|-eh|-ev|-mh|-mv] HOST..."
+  echo "        -h: This help text"
+  echo "        -s: synchronize panes"
+  echo "        -u: don't use known_hosts"
+  echo "        -t: Use tiled layout (default)"
+  echo "        -eh: Use even-horizontal layout"
+  echo "        -ev: Use even-vertical layout"
+  echo "        -mh: Use main-horizontal layout"
+  echo "        -mv: Use main-vertical layout"
+  echo "        HOST1 [HOST2 [HOST3...[HOSTn]]]"
+  exit 1
+}
+
+sync=0
+unset mode
+unset split
+unset khosts
+
+while getopts ":hsuemthv" opt; do
+  case ${opt} in
+    s)
+      sync=1
+      ;;
+    u)
+      khosts="-o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
+      ;;
+    e)
+      mode=even
+      ;;
+    m)
+      mode=main
+      ;;
+    t)
+      mode=tiled
+      unset split
+      ;;
+    h)
+      split="-horizontal"
+      ;;
+    v)
+      split="-vertical"
+      ;;
+    *)
+      usage
+      ;;
+  esac
+done
+shift $((OPTIND -1))
+
+[ -z "$mode" ] && tiled=1 && mode=tiled
+[ -n "$split" ] && [ $mode = tiled ] && mode=even
+[ -z "$1" ] && exit 0
+
+group=$(echo "$@" | sed 's/,/ /g')
+count=0
+for host in $group; do
+  if [ $count = 0 ]; then
+    window=$(tmux new-window -n "$host" "ssh $khosts $host")
+  else
+    tmux split-window -t:$window.{bottom-right} "ssh $khosts $host"
+    tmux select-layout -t:$window.0 $mode$split
+  fi
+  count=$((count+1))
+done
+
+if [ $count -gt 1 ]; then
+  tmux select-layout -t:$window.0 $mode$split
+
+  [ $sync = 1 ] && tmux setw -t:$window.0 synchronize-panes && \
+                   tmux setw -F -t:$window.0 pane-active-border-style "#{?pane_synchronized,fg=red,fg=green}"
+fi
+
+exit 0
