@@ -11,6 +11,7 @@ call plug#begin()
   Plug 'bluz71/vim-nightfly-colors', { 'as': 'nightfly' }
   Plug 'liuchengxu/vim-which-key'
   Plug 'itchyny/lightline.vim'
+  Plug 'lambdalisue/vim-suda'
 call plug#end()
 
 syntax enable
