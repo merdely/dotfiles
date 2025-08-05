@@ -2,6 +2,7 @@
 
 # Sync my dotfiles into the dotfiles repo
 unset DOTFILES
+DOTFILES="$DOTFILES $HOME/.config/kitty"
 DOTFILES="$DOTFILES $HOME/.config/local/waybar*"
 DOTFILES="$DOTFILES $HOME/.config/local/wb_*"
 DOTFILES="$DOTFILES $HOME/.config/niri/config.kdl"
