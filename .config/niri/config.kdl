@@ -103,8 +103,8 @@ spawn-at-startup "systemctl" "--user" "start" "wm-session.target"
 spawn-at-startup "systemctl" "--user" "start" "plasma-polkit-agent.service"
 spawn-at-startup "systemctl" "--user" "start" "waybar.service"
 spawn-at-startup "systemctl" "--user" "start" "swaybg.service"
-spawn-at-startup "systemctl" "--user" "start" "swayidle.service"
-spawn-at-startup "systemctl" "--user" "start" "xdg-desktop-portal-gnome.service"
+spawn-at-startup "bash" "-c" "[[ ! $(hostname -s) =~ ^(styx)$ ]] && systemctl --user start swayidle.service"
+spawn-at-startup "bash" "-c" "[[ $(hostname -s) =~ ^(styx)$ ]] && systemctl --user start hypridle.service"
 // spawn-at-startup "systemctl" "--user" "start" "wl-clip-persist.service"
 spawn-at-startup "systemctl" "--user" "start" "wl-paste-text.service"
 spawn-at-startup "systemctl" "--user" "start" "wl-paste-image.service"
@@ -112,7 +112,8 @@ spawn-at-startup "sh" "-c" "sleep 10 && systemctl --user start syncthingtray.ser
 spawn-at-startup "uwsm" "app" "--" "sh" "-c" "gtk-launch ydotoold"
 spawn-at-startup "uwsm" "app" "--" "sh" "-c" "gtk-launch blueman-applet"
 spawn-at-startup "uwsm" "app" "--" "sh" "-c" "gtk-launch nm-applet"
-spawn-at-startup "uwsm" "app" "--" "sh" "-c" "gtk-launch com.seafile.seafile-applet"
+// spawn-at-startup "uwsm" "app" "--" "sh" "-c" "gtk-launch com.seafile.seafile-applet"
+spawn-at-startup "uwsm" "app" "--" "sh" "-c" "$HOME/.local/share/AppImage/Seafile-x86_64.AppImage"
 spawn-at-startup "uwsm" "app" "--" "sh" "-c" "gtk-launch solaar-applet"
 spawn-at-startup "uwsm" "app" "--" "sh" "-c" "gtk-launch udiskie-applet"
 spawn-at-startup "uwsm" "app" "--" "sh" "-c" "$HOME/bin/wm-minimize com.logseq.Logseq Logseq"
@@ -134,7 +135,7 @@ window-rule {
     match app-id=r#"^(librewolf|firefox)$"# title=r#"^($|(Firefox|LibreWolf) - Choose User Profile|Enter name of file to save to…|Library$|Page Info)"#
     match app-id="org.remmina.Remmina" title="Remmina Remote Desktop Client"
     match title=r#"^(Open File|Open|Save|Save As|Export|Import|Choose File|Rename)"#
-    match title=r#"^[Xx]dg-desktop-portal-(gnome|gtk|hyprland)"#
+    match title=r#"^[Xx]dg-desktop-portal-(gnome|gtk|hyprland|wlr)"#
     open-floating true
 }
 
