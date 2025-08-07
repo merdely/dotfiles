@@ -154,16 +154,15 @@ vim.keymap.set("x", "<leader>p", '"_dP', { desc = "Paste without yanking" })
 vim.keymap.set("v", "p", '"_dP', { desc = "Paste without replacing clipboard content" })
 
 -- Better change behavior
-vim.keymap.set({ "n", "v" }, "cw", '"_cw', { desc = "Change without replacing clipboard content" })
-vim.keymap.set({ "n", "v" }, "caw", '"_caw', { desc = "Change without replacing clipboard content" })
-vim.keymap.set({ "n", "v" }, "ciw", '"_ciw', { desc = "Change without replacing clipboard content" })
-vim.keymap.set({ "n", "v" }, "C", '"_C', { desc = "Change without replacing clipboard content" })
+vim.keymap.set({ "n", "v" }, "c", '"_c', { desc = "Change without replacing clipboard content", noremap = true, silent = true })
+vim.keymap.set({ "n", "v" }, "C", '"_C', { desc = "Change without replacing clipboard content", noremap = true, silent = true })
 
--- Better change behavior
-vim.keymap.set({ "n", "v" }, "dw", '"_dw', { desc = "Delete without replacing clipboard content" })
-vim.keymap.set({ "n", "v" }, "daw", '"_daw', { desc = "Delete without replacing clipboard content" })
-vim.keymap.set({ "n", "v" }, "diw", '"_diw', { desc = "Delete without replacing clipboard content" })
-vim.keymap.set({ "n", "v" }, "D", '"_D', { desc = "Delete without replacing clipboard content" })
+-- Better delete behavior
+-- vim.keymap.set({ "n", "v" }, "d", '"_d', { desc = "Delete without replacing clipboard content", noremap = true, silent = true })
+-- vim.keymap.set({ "n", "v" }, "D", '"_D', { desc = "Delete without replacing clipboard content", noremap = true, silent = true })
+
+-- Better single delete behavior
+vim.keymap.set({ "n", "v" }, "x", '"_x', { desc = "Delete without replacing clipboard content", noremap = true, silent = true })
 
 -- Better window navigation
 vim.keymap.set("n", "<C-h>", "<C-w>h", { desc = "Move to left window" })

@@ -53,6 +53,7 @@ toggle_minimize() {
       niri msg action move-window-to-floating --id $app_id
       niri msg action move-window-to-monitor --id $app_id $cur_mon
       niri msg action focus-window --id $app_id
+      niri msg action center-window --id $app_id
     else
       niri msg action move-window-to-workspace --focus false --window-id $app_id $niri_floating_ws
       niri msg action move-window-to-tiling --id $app_id

@@ -168,12 +168,12 @@ ret_doas=$?
 [ $ret_sudo != 0 -a $ret_doas = 0 ] && alias sudo=doas
 [ $ret_sudo = 0 -a $ret_doas != 0 ] && alias doas=sudo
 
-# Check to see if $HOME is writeable
-HOME_WRITEABLE=0
-touch $HOME/.write_test 2> /dev/null && HOME_WRITEABLE=1 && rm -f $HOME/.write_test
+## Check to see if $HOME is writeable
+#HOME_WRITEABLE=0
+#touch $HOME/.write_test 2> /dev/null && HOME_WRITEABLE=1 && rm -f $HOME/.write_test
 
-# Create $HOME/.cache directory
-[ $HOME_WRITEABLE = 1 ] && [ ! -d $HOME/.cache ] && mkdir -p $HOME/.cache > /dev/null 2>&1
+## Create $HOME/.cache directory
+#[ $HOME_WRITEABLE = 1 ] && [ ! -d $HOME/.cache ] && mkdir -p $HOME/.cache > /dev/null 2>&1
 
 #XDG PATHS (https://wiki.archlinux.org/title/XDG_Base_Directory)
 export XDG_CONFIG_HOME=${XDG_CONFIG_HOME:=$HOME/.config}
@@ -187,12 +187,12 @@ export XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR:=/run/user/$EUID}
 [ ! -w $XDG_CACHE_HOME ] && export XDG_CACHE_HOME=$XDG_RUNTIME_DIR/.cache && mkdir -p -m 700 $XDG_CACHE_HOME
 [ ! -w $XDG_STATE_HOME ] && export XDG_STATE_HOME=$XDG_RUNTIME_DIR/.state && mkdir -p -m 700 $XDG_STATE_HOME
 
-# Handle when Home is not writeable
-if [ $HOME_WRITEABLE = 0 ]; then
-  mkdir -p -m 700 $XDG_RUNTIME_DIR/.cache/{vim,vim_backup}
-  mkdir -p -m 700 $XDG_RUNTIME_DIR/.cargo
-  mkdir -p -m 700 $XDG_RUNTIME_DIR/.ansible
-fi
+## Handle when Home is not writeable
+#if [ $HOME_WRITEABLE = 0 ]; then
+#  mkdir -p -m 700 $XDG_RUNTIME_DIR/.cache/{vim,vim_backup}
+#  mkdir -p -m 700 $XDG_RUNTIME_DIR/.cargo
+#  mkdir -p -m 700 $XDG_RUNTIME_DIR/.ansible
+#fi
 
 # Handle with / is read-only
 if [ -r /boot/cmdline.txt ] && grep -qE "\<ro\>" /boot/cmdline.txt; then
@@ -304,6 +304,7 @@ case "$ID" in
       alias updates='echo Using paru; paru'
     else
       alias updates='echo Using pacman; sudo pacman -Syu --noconfirm'
+      alias paru='echo paru not installed; sudo pacman -Syu'
     fi
     ;;
   debian|ubuntu)
@@ -328,21 +329,12 @@ case "$ID" in
     ;;
 esac
 
-# Wayland stuff
-if [ "$XDG_SESSION_TYPE" = wayland ]; then
-  export ELECTRON_OZONE_PLATFORM_HINT=auto
-  export MOZ_DISABLE_RDD_SANDBOX=1
-  export QT_QPA_PLATFORMTHEME=kde
-  export QT_QPA_PLATFORM=wayland
-  export SSH_ASKPASS=$HOME/bin/yad-askpass
-  export SSH_AUTH_SOCK=$XDG_RUNTIME_DIR/ssh-agent.socket
-  for terminal in kitty alacritty foot wezterm ghostty kconsole mate-terminal gnome-terminal xfce4-terminal wayst urxvt rxvt Eterm aterm uxterm xterm roxterm termite lxterminal terminology st qterminal lilyterm tilix termininx guake tilda hypr rio; do
-    if which $terminal > /dev/null 2>&1; then
-      export TERMINAL=$(which $terminal)
-      break
-    fi
-  done
-fi
-
 export PROFILEDONE=yes
 [ -e $HOME/.profile.local ] && . $HOME/.profile.local
+
+# Wayland stuff
+if [ "$XDG_SESSION_TYPE" = wayland ]; then
+  export SSH_ASKPASS=$HOME/bin/yad-askpass
+  export SSH_AUTH_SOCK=$XDG_RUNTIME_DIR/ssh-agent.socket
+fi
+
