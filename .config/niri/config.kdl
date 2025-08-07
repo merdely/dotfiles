@@ -280,7 +280,7 @@ binds {
     Ctrl+Alt+Delete  hotkey-overlay-title="Power Menu"                   { spawn "sh" "-c" "$HOME/bin/rofi-powermenu"; }
     Ctrl+Space       hotkey-overlay-title="Clear Notifications"          { spawn "sh" "-c" "swaync-client --close-all ; swaync-client --close-panel"; }
     Mod+B            hotkey-overlay-title="Rofi Bitwarden"               { spawn "sh" "-c" "$HOME/bin/run-app-toggle -P rofi-rbw --use-notify-send"; }
-    Mod+E            hotkey-overlay-title="Emoji Chooser"                { spawn "sh" "-c" "$HOME/bin/run-app-toggle plasma-emojier"; }
+    Mod+E            hotkey-overlay-title="Emoji Chooser"                { spawn "sh" "-c" "$HOME/bin/run-app-toggle -P rofimoji"; }
     Mod+I            hotkey-overlay-title="Camera Chooser"               { spawn "sh" "-c" "$HOME/bin/rofi-cams"; }
     Mod+Space        hotkey-overlay-title="Notification Panel"           { spawn "swaync-client" "-t" "-sw"; }
     Mod+Z            hotkey-overlay-title="Clipboard Manager"            { spawn "sh" "-c" "$HOME/bin/run-app-toggle nwg-clipman"; }
