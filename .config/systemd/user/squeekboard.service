@@ -1,0 +1,13 @@
+[Unit]
+Description=Onscreen keyboard
+PartOf=graphical-session.target
+After=graphical-session.target
+Requisite=graphical-session.target
+
+[Service]
+ExecStart=squeekboard
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=graphical-session.target

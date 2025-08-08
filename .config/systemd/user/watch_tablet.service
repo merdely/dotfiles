@@ -1,0 +1,14 @@
+[Unit]
+Description=Watch for tablet mode
+PartOf=graphical-session.target
+After=graphical-session.target
+Requisite=graphical-session.target
+
+[Service]
+Environment=WAYLAND_DISPLAY=wayland-1
+ExecStart=%h/bin/watch_tablet.sh
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=graphical-session.target

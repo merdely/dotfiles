@@ -1,0 +1,13 @@
+[Unit]
+Description=Bind gestures on touchscreens
+PartOf=graphical-session.target
+After=graphical-session.target
+Requisite=graphical-session.target
+
+[Service]
+ExecStart=%h/bin/run_lisgd
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=graphical-session.target

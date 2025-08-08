@@ -1,0 +1,13 @@
+[Unit]
+Description=Watch for monitor rotation
+PartOf=graphical-session.target
+After=graphical-session.target
+Requisite=graphical-session.target
+
+[Service]
+ExecStart=%h/bin/screen-rotation
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=graphical-session.target
