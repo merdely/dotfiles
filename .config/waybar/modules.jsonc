@@ -26,7 +26,7 @@
     },
 
     "sway/window": {
-        "on-click": "~/.config/nwg/scripts/run-drawer",
+        "on-click": "$HOME/bin/run_nwg_drawer",
         "separate-outputs": true,
         "icon": true,
         "icon-size": 18
@@ -41,18 +41,13 @@
     },
 
     "niri/window": {
-        "on-click": "~/.config/nwg/scripts/run-drawer",
+        "on-click": "$HOME/bin/run_nwg_drawer",
         "separate-outputs": true,
         "icon": true,
         "icon-size": 18
     },
 
     // Custom Modules
-    "custom/launcher_button": {
-        "format": "󰣇",
-        "on-click": "~/.config/nwg/scripts/run-drawer"
-    },
-
     "custom/clock": {
         "hide-empty-text": true,
         "format": "{}",
