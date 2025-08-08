@@ -70,23 +70,6 @@ if which docker > /dev/null 2>&1; then
   }
 fi
 
-# Command aliases is specific docker containers are running
-if [ -d /srv/docker/*/nagios ] || [ -d /srv/docker/nagios ]; then
-  alias nagioscheck='docker compose exec nagios nagioscheck'
-  alias nagiosreload='docker compose exec nagios nagiosreload'
-fi
-if [ -d /srv/docker/*/nginx ] || [ -d /srv/docker/nginx ]; then
-  alias nginxcheck='docker compose exec nginx nginx -t'
-  alias nginxreload='docker compose exec nginx nginx -s reload'
-fi
-
-# Some docker aliases
-if which docker > /dev/null 2>&1; then
-  alias dc='docker compose'
-  alias dce='docker compose exec -it'
-  alias dcl='docker compose logs -f'
-fi
-
 # General settings
 umask 0022
 export LESS=REX
@@ -102,9 +85,9 @@ add_to_path -b $HOME/bin
 add_to_path -e /usr/sbin
 [ -d /srv/scripts/bin ]  && add_to_path -e /srv/scripts/bin
 [ -d /srv/scripts/sbin ] && add_to_path -e /srv/scripts/sbin
+[ -z "$EUID" ] && export EUID=$(id -u)
 
 # General aliases
-[ -z "$EUID" ] && export EUID=$(id -u)
 alias ls='ls -F'
 [ $(uname -s) = Linux ] && alias ls='ls -N --color=auto'
 alias cdp='cd $(pwd -P)'
@@ -121,6 +104,7 @@ alias check_restart='sudo /srv/scripts/sbin/daily_report_linux restart'
 alias sqlite=sqlite3
 getent passwd splunk > /dev/null && alias susplunk='sudo su - splunk'
 alias suacme='sudo su - -s /bin/bash -l acme'
+which mpv > /dev/null 2>&1 && alias mpv='DBUS_FATAL_WARNINGS=0 mpv'
 
 # Common typos
 alias Grep=grep
@@ -145,15 +129,76 @@ else
   export SUDO_EDITOR=vi
 fi
 
+# Editor aliases
+which hyprctl > /dev/null 2>&1 && alias vih='vi -O ~/.config/hypr/hyprland.conf'
+which hyprctl > /dev/null 2>&1 && alias vihl='vi ~/.config/local/hyprland.conf'
+which hyprctl > /dev/null 2>&1 && alias vihb='vi -O ~/.config/hypr/hyprland.conf ~/.config/local/hyprland.conf'
+which i3-msg  > /dev/null 2>&1 && alias vi3='vi ~/.config/i3/config'
+which swaymsg > /dev/null 2>&1 && alias vis='vi ~/.config/sway/config'
+which niri    > /dev/null 2>&1 && alias vin='vi ~/.config/niri/config.kdl'
+which nvim    > /dev/null 2>&1 && alias viv='vi ~/.config/nvim/init.lua'
+
+# DNS Command aliases
+if which dog > /dev/null 2>&1; then
+  which dig > /dev/null 2>&1 || alias dig=dog
+  which host > /dev/null 2>&1 || alias host=dog
+fi
+
 # Python stuff
 which python2 > /dev/null 2>&1 && alias python=python2
 which python3 > /dev/null 2>&1 && alias python=python3
 
 # Ansible aliases
-which ansible-playbook > /dev/null 2>&1 && alias ap=ansible-playbook
-which ansible-playbook > /dev/null 2>&1 && alias apv='ansible-playbook --ask-vault-pass'
-which ansible-playbook > /dev/null 2>&1 && alias apkv='ANSIBLE_SSH_ARGS="-o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" ansible-playbook --ask-vault-pass'
-which ansible-playbook > /dev/null 2>&1 && alias apk='ANSIBLE_SSH_ARGS="-o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" ansible-playbook'
+if which ansible-playbook > /dev/null 2>&1; then
+  alias ap=ansible-playbook
+  alias apv='ansible-playbook --ask-vault-pass'
+  alias apkv='ANSIBLE_SSH_ARGS="-o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" ansible-playbook --ask-vault-pass'
+  alias apk='ANSIBLE_SSH_ARGS="-o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" ansible-playbook'
+  export ANSIBLE_NOCOWS=1
+fi
+
+# Some docker aliases
+if which docker > /dev/null 2>&1; then
+  alias dc='docker compose'
+  alias dce='docker compose exec'
+  alias dcl='docker compose logs -f'
+fi
+
+# Command aliases is specific docker containers are running
+if which docker > /dev/null 2>&1 && docker ps --format "{{.Names}}" | grep -q "^nagios$"; then
+  alias nagioscheck='docker compose exec nagios nagioscheck'
+  alias nagiosreload='docker compose exec nagios nagiosreload'
+fi
+
+if which docker > /dev/null 2>&1 && docker ps --format "{{.Names}}" | grep -q "^nginx$"; then
+  alias nginxcheck='docker compose exec nginx nginx -t'
+  alias nginxreload='docker compose exec nginx nginx -s reload'
+fi
+
+if ! which ollama > /dev/null 2>&1 && which docker > /dev/null 2>&1 && \
+      docker ps --format "{{.Names}}" | grep -q "^ollama$"; then
+  alias ollama='docker compose -f $COMPOSE_FILE exec -it ollama ollama'
+fi
+
+if ! which psql > /dev/null 2>&1 && which docker > /dev/null 2>&1 && \
+      docker ps --format "{{.Names}}" | grep -q "^postgres$"; then
+  alias psql='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres env HISTSIZE=10000 HISTFILE=~/.psql_history psql'
+  alias pbash='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres bash'
+  alias pg_dump='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres pg_dump'
+  alias pg_dumpall='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres pg_dumpall'
+  alias pg_restore='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres pg_restore'
+  alias createuser='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres createuser'
+  alias dropuser='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres dropuser'
+  alias createdb='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres createdb'
+  alias dropdb='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres dropdb'
+fi
+
+if which docker > /dev/null 2>&1 && docker ps --format "{{.Names}}" | grep -Eq "^(mysql|mariadb)$"; then
+  which mysql > /dev/null 2>&1 || alias mysql="docker compose exec -it -u mysql mysql mariadb"
+  which mariadb > /dev/null 2>&1 || alias mariadb="docker compose exec -it -u mysql mysql mariadb"
+  which mysqldump > /dev/null 2>&1 || alias mysqldump="docker compose exec -it -u mysql mysql mariadb-dump"
+  which mariadb-dump > /dev/null 2>&1 || alias mariadb-dump="docker compose exec -it -u mysql mysql mariadb-dump"
+fi
 
 # RPI commands
 which vcgencmd > /dev/null 2>&1 && alias gettemp='echo $(echo "$(vcgencmd measure_temp | awk -F"[='"'"']" "{print \$2}")*9/5+32" | bc) F'
@@ -181,6 +226,7 @@ export XDG_CACHE_HOME=${XDG_CACHE_HOME:=$HOME/.cache}
 export XDG_DATA_HOME=${XDG_DATA_HOME:=$HOME/.local/share}
 export XDG_STATE_HOME=${XDG_STATE_HOME:=$HOME/.local/state}
 export XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR:=/run/user/$EUID}
+export XDG_DATA_DIRS=$XDG_DATA_HOME:${XDG_DATA_DIRS:=/usr/local/share:/usr/share}
 
 # Make sure specific XDG directories are writeable
 [ ! -w $XDG_RUNTIME_DIR ] && export XDG_RUNTIME_DIR=/tmp/.$EUID && mkdir -p -m 700 $XDG_RUNTIME_DIR
@@ -278,6 +324,7 @@ case "$HOSTNAME" in
   mercury)
     case "$ID" in
       arch)
+        alias remain='echo SSH to carme'
         alias bootwindows='sudo /srv/scripts/sbin/boot-to-windows'
         alias bootlinux='sudo /srv/scripts/sbin/boot-to-arch'
         alias bootarch='sudo /srv/scripts/sbin/boot-to-arch'
@@ -336,5 +383,29 @@ export PROFILEDONE=yes
 if [ "$XDG_SESSION_TYPE" = wayland ]; then
   export SSH_ASKPASS=$HOME/bin/yad-askpass
   export SSH_AUTH_SOCK=$XDG_RUNTIME_DIR/ssh-agent.socket
+fi
+
+# Wayland stuff over SSH
+if [[ $SSH_CONNECTION ]]; then
+  WAYLAND_DISPLAY_FILE=$(find $XDG_RUNTIME_DIR -maxdepth 1 -regex ".*/wayland-[0-9]+")
+  if [[ $WAYLAND_DISPLAY_FILE ]]; then
+    export XDG_SESSION_TYPE=wayland
+    export WAYLAND_DISPLAY=$(basename "$WAYLAND_DISPLAY_FILE")
+
+    if which niri > /dev/null 2>&1; then
+      NIRI_SOCKET=$(find $XDG_RUNTIME_DIR -maxdepth 1 -name "niri.wayland-*.sock")
+      [[ $NIRI_SOCKET ]] && export NIRI_SOCKET
+    fi
+
+    if which hyprctl > /dev/null 2>&1; then
+      HYPRLAND_INSTANCE_SIGNATURE=$(hyprctl -j instances 2>/dev/null | jq -r '.[-1].instance' 2> /dev/null)
+      [[ $HYPRLAND_INSTANCE_SIGNATURE ]] && export HYPRLAND_INSTANCE_SIGNATURE
+    fi
+
+    if which swaymsg > /dev/null 2>&1; then
+      SWAYSOCK=$(find $XDG_RUNTIME_DIR -maxdepth 1 -name "sway-ipc.*.*.sock")
+      [[ $SWAYSOCK ]] && export SWAYSOCK
+    fi
+  fi
 fi
 
