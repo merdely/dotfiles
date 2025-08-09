@@ -23,7 +23,7 @@
 
 - .config/waybar
   - config.jsonc - main waybar config
-  - modulees.jsonc - included modules
+  - modules.jsonc - included modules
   - style.css - waybar style
 - .config/local/waybar* - waybar overrides for syncing across multiple systems
   - waybar.jsonc
