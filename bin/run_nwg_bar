@@ -1,0 +1,38 @@
+#!/bin/bash
+
+open_bar() {
+  unset cfg
+  if [ -r $HOME/.config/nwg-bar/rotated.css ]; then
+    rot_cfg="-s rotated.css"
+  fi
+  open_cmd=nwg-bar
+  if which uwsm &>/dev/null && uwsm check is-active; then
+    open_cmd="uwsm app -- $open_cmd"
+  fi
+  case $XDG_CURRENT_DESKTOP in
+    sway*)
+      xform=$(swaymsg -r -t get_outputs | jq -r '.[] | select(.focused == "true" | .transform')
+      if [[ $xform = 90 ]] || [[ $xform = 270 ]]; then
+        cfg=$rot_cfg
+      fi
+      swaymsg exec $open_cmd $cfg &
+      ;;
+    niri*)
+      xform=$(niri msg -j outputs | jq -r '.[].logical.transform')
+      if [[ $xform = 90 ]] || [[ $xform = 270 ]]; then
+        cfg=$rot_cfg
+      fi
+      niri msg action spawn -- $open_cmd $cfg &
+      ;;
+    Hyprland)
+      xform=$(hyprctl monitors -j | jq -r '.[] | select(.focused == true) | .transform')
+      if [[ $((xform % 2)) = 1 ]]; then
+        cfg=$rot_cfg
+      fi
+      hyprctl dispatch exec $open_cmd $cfg &
+      ;;
+    *) exec $open_cmd & ;;
+  esac
+}
+
+pgrep -u $LOGNAME -x nwg-bar && pkill -u $LOGNAME -x nwg-bar || open_bar
