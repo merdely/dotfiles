@@ -91,6 +91,7 @@ button:hover {
 #custom-clock,
 #custom-hypridle-blockers,
 #custom-launcher_button,
+#custom-toggle_winchooser,
 #custom-media,
 #custom-notification,
 #custom-nvidiatemp,
@@ -121,6 +122,7 @@ button:hover {
 }
 
 #custom-power_button,
+#custom-toggle_winchooser,
 #custom-toggle_applauncher,
 #custom-toggle_keyboard {
     margin-left: 10px;

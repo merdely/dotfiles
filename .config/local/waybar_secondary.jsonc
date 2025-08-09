@@ -18,7 +18,8 @@
 
     // Choose the order of the modules
     "modules-left": [
-        "custom/toggle_keyboard",
+        // "custom/toggle_keyboard",
+        "custom/toggle_winchooser",
         "hyprland/workspaces",
         "hyprland/window",
         "sway/workspaces",
