@@ -111,7 +111,6 @@ set backspace=indent,start,eol
 set noautochdir
 " set iskeyword+=-
 set path+=**
-set selection=exclusive
 set mouse=a
 set clipboard+=unnamedplus
 set modifiable
