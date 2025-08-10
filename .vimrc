@@ -55,6 +55,7 @@ set expandtab
 set smartindent
 set autoindent
 set breakindent
+autocmd FileType yaml,yaml.ansible setlocal indentkeys-=0#
 
 " ===============================
 " Search
