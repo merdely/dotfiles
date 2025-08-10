@@ -33,7 +33,7 @@ while [ $count -gt 0 ] && [ $passes -lt $maxpasses ]; do
     for app in $(hyprctl -i 0 -j clients | jq -r --arg filter "$filter" '.[] | select(.initialClass | test($filter) | not) | .address'); do
       appname=$(hyprctl -i 0 -j clients | jq --arg add $app -r '.[] | select(.address==$add) | .title')
       echo "Running 'hyprctl -i 0 dispatch closewindow address:$app' (app: $appname)" >> $logfile
-      hyprctl -i 0 dispatch closewindow address:$app >> $logfile 2>&1
+      hyprctl -i 0 dispatch closewindow address:$app &>> $logfile
     done
     count=$(hyprctl -i 0 -j clients | jq -r --arg filter "$filter" '.[] | select(.initialClass | test($filter) | not) | .address' | wc -l)
     clients=$(hyprctl -i 0 -j clients | jq -r --arg filter "$filter" '.[] | select(.app_id | test($filter) | not) | .title' | paste -sd,)

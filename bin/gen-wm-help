@@ -21,8 +21,8 @@ imgdir=$HOME/.config/$mode/help
 scriptdir=$HOME/git/gen-keybinding-img
 
 unset msg
-! python -c 'import PIL' > /dev/null 2>&1 && msg="$msg PIL(python-pillow)"
-! python -c 'import cairocffi' > /dev/null 2>&1 && msg="$msg cairocffi(python-cairocffi)"
+! python -c 'import PIL' &> /dev/null && msg="$msg PIL(python-pillow)"
+! python -c 'import cairocffi' &> /dev/null && msg="$msg cairocffi(python-cairocffi)"
 [ -n "$img" ] && [ ! -r $scriptdir/$img ] && msg="$msg $img"
 
 if [ -n "$msg" ]; then

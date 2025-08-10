@@ -17,9 +17,9 @@ case "$choice" in
         hyprctl dispatch exit
         ;;
       KDE)
-        if which qdbus6 > /dev/null 2>&1; then
+        if which qdbus6 &> /dev/null; then
           qdbus6 org.kde.Shutdown /Shutdown org.kde.Shutdown.logout
-        elif which qdbus > /dev/null 2>&1; then
+        elif which qdbus &> /dev/null; then
           qdbus org.kde.ksmserver /KSMServer logout 0 0 1
         else
           loginctl terminate-session

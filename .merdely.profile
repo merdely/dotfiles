@@ -46,8 +46,8 @@ resolve_link() {
 }
 
 # Set some variables
-which virsh > /dev/null 2>&1 && export VIRSH_DEFAULT_CONNECT_URI=qemu:///system
-if which docker > /dev/null 2>&1; then
+which virsh &> /dev/null && export VIRSH_DEFAULT_CONNECT_URI=qemu:///system
+if which docker &> /dev/null; then
   [ -r /srv/docker/docker-compose.yaml ] && export COMPOSE_FILE=/srv/docker/docker-compose.yaml
   [ -r /srv/docker/compose.yaml ] && export COMPOSE_FILE=/srv/docker/compose.yaml
   [ -r /srv/docker/$HOSTNAME/compose.yaml ] && export COMPOSE_FILE=/srv/docker/$HOSTNAME/compose.yaml
@@ -63,11 +63,11 @@ if which docker > /dev/null 2>&1; then
     alias nginxreload='docker compose exec nginx nginx -s reload'
   fi
 
-  if ! which ollama > /dev/null 2>&1 && docker ps --format "{{.Names}}" | grep -q "^ollama$"; then
+  if ! which ollama &> /dev/null && docker ps --format "{{.Names}}" | grep -q "^ollama$"; then
     alias ollama='docker compose -f $COMPOSE_FILE exec -it ollama ollama'
   fi
 
-  if ! which psql > /dev/null 2>&1 && docker ps --format "{{.Names}}" | grep -q "^postgres$"; then
+  if ! which psql &> /dev/null && docker ps --format "{{.Names}}" | grep -q "^postgres$"; then
     alias psql='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres env HISTSIZE=10000 HISTFILE=~/.psql_history psql'
     alias pbash='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres bash'
     alias pg_dump='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres pg_dump'
@@ -80,10 +80,10 @@ if which docker > /dev/null 2>&1; then
   fi
 
   if docker ps --format "{{.Names}}" | grep -Eq "^(mysql|mariadb)$"; then
-    which mysql > /dev/null 2>&1 || alias mysql="docker compose exec -it -u mysql mysql mariadb"
-    which mariadb > /dev/null 2>&1 || alias mariadb="docker compose exec -it -u mysql mysql mariadb"
-    which mysqldump > /dev/null 2>&1 || alias mysqldump="docker compose exec -it -u mysql mysql mariadb-dump"
-    which mariadb-dump > /dev/null 2>&1 || alias mariadb-dump="docker compose exec -it -u mysql mysql mariadb-dump"
+    which mysql &> /dev/null || alias mysql="docker compose exec -it -u mysql mysql mariadb"
+    which mariadb &> /dev/null || alias mariadb="docker compose exec -it -u mysql mysql mariadb"
+    which mysqldump &> /dev/null || alias mysqldump="docker compose exec -it -u mysql mysql mariadb-dump"
+    which mariadb-dump &> /dev/null || alias mariadb-dump="docker compose exec -it -u mysql mysql mariadb-dump"
   fi
 fi
 
@@ -112,7 +112,7 @@ alias cdp='cd $(pwd -P)'
 [ -e /srv/scripts/bin/nohist ] && alias nohist='. /srv/scripts/bin/nohist'
 alias dos_rsync='rsync -rtcvP'
 alias utcdate='TZ=UTC date "+%a %b %d %H:%M:%S %Z %Y"'
-! which mail > /dev/null 2>&1 && which s-nail > /dev/null 2>&1 && alias mail=s-nail
+! which mail &> /dev/null && which s-nail &> /dev/null && alias mail=s-nail
 alias printenv='printenv|sort'
 alias rebashrc='. $USER_DOT_PROFILE reload'
 alias reprofile='. $USER_DOT_PROFILE reload'
@@ -121,7 +121,7 @@ alias check_restart='sudo /srv/scripts/sbin/daily_report_linux restart'
 alias sqlite=sqlite3
 getent passwd splunk > /dev/null && alias susplunk='sudo su - splunk'
 alias suacme='sudo su - -s /bin/bash -l acme'
-which mpv > /dev/null 2>&1 && alias mpv='DBUS_FATAL_WARNINGS=0 mpv'
+which mpv &> /dev/null && alias mpv='DBUS_FATAL_WARNINGS=0 mpv'
 
 # Common typos
 alias Grep=grep
@@ -130,13 +130,13 @@ alias More=more
 
 # Editor aliases
 set -o vi  # vi mode for command line editing
-which view > /dev/null 2>&1 || alias view='vi -R'
-if which nvim > /dev/null 2>&1; then
+which view &> /dev/null || alias view='vi -R'
+if which nvim &> /dev/null; then
   alias vi=nvim
   alias nvi=/usr/bin/vi
   export EDITOR=nvim
   export SUDO_EDITOR=nvim
-elif which vim > /dev/null 2>&1; then
+elif which vim &> /dev/null; then
   alias vi=vim
   alias nvi=/usr/bin/vi
   export EDITOR=vim
@@ -147,26 +147,26 @@ else
 fi
 
 # Editor aliases
-which hyprctl > /dev/null 2>&1 && alias vih='vi -O ~/.config/hypr/hyprland.conf'
-which hyprctl > /dev/null 2>&1 && alias vihl='vi ~/.config/local/hyprland.conf'
-which hyprctl > /dev/null 2>&1 && alias vihb='vi -O ~/.config/hypr/hyprland.conf ~/.config/local/hyprland.conf'
-which i3-msg  > /dev/null 2>&1 && alias vi3='vi ~/.config/i3/config'
-which swaymsg > /dev/null 2>&1 && alias vis='vi ~/.config/sway/config'
-which niri    > /dev/null 2>&1 && alias vin='vi ~/.config/niri/config.kdl'
-which nvim    > /dev/null 2>&1 && alias viv='vi ~/.config/nvim/init.lua'
+which hyprctl &> /dev/null && alias vih='vi -O ~/.config/hypr/hyprland.conf'
+which hyprctl &> /dev/null && alias vihl='vi ~/.config/local/hyprland.conf'
+which hyprctl &> /dev/null && alias vihb='vi -O ~/.config/hypr/hyprland.conf ~/.config/local/hyprland.conf'
+which i3-msg  &> /dev/null && alias vi3='vi ~/.config/i3/config'
+which swaymsg &> /dev/null && alias vis='vi ~/.config/sway/config'
+which niri    &> /dev/null && alias vin='vi ~/.config/niri/config.kdl'
+which nvim    &> /dev/null && alias viv='vi ~/.config/nvim/init.lua'
 
 # DNS Command aliases
-if which dog > /dev/null 2>&1; then
-  which dig > /dev/null 2>&1 || alias dig=dog
-  which host > /dev/null 2>&1 || alias host=dog
+if which dog &> /dev/null; then
+  which dig &> /dev/null || alias dig=dog
+  which host &> /dev/null || alias host=dog
 fi
 
 # Python stuff
-which python2 > /dev/null 2>&1 && alias python=python2
-which python3 > /dev/null 2>&1 && alias python=python3
+which python2 &> /dev/null && alias python=python2
+which python3 &> /dev/null && alias python=python3
 
 # Ansible aliases
-if which ansible-playbook > /dev/null 2>&1; then
+if which ansible-playbook &> /dev/null; then
   alias ap=ansible-playbook
   alias apv='ansible-playbook --ask-vault-pass'
   alias apkv='ANSIBLE_SSH_ARGS="-o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" ansible-playbook --ask-vault-pass'
@@ -175,14 +175,14 @@ if which ansible-playbook > /dev/null 2>&1; then
 fi
 
 # RPI commands
-which vcgencmd > /dev/null 2>&1 && alias gettemp='echo $(echo "$(vcgencmd measure_temp | awk -F"[='"'"']" "{print \$2}")*9/5+32" | bc) F'
-which vcgencmd > /dev/null 2>&1 && alias gettempc='echo $(vcgencmd measure_temp | awk -F"[='"'"']" "{print \$2}") C'
+which vcgencmd &> /dev/null && alias gettemp='echo $(echo "$(vcgencmd measure_temp | awk -F"[='"'"']" "{print \$2}")*9/5+32" | bc) F'
+which vcgencmd &> /dev/null && alias gettempc='echo $(vcgencmd measure_temp | awk -F"[='"'"']" "{print \$2}") C'
 
 # sudo/doas aliases
 alias sudo='sudo '
-which sudo > /dev/null 2>&1
+which sudo &> /dev/null
 ret_sudo=$?
-which doas > /dev/null 2>&1
+which doas &> /dev/null
 ret_doas=$?
 [ $ret_sudo != 0 -a $ret_doas = 0 ] && alias sudo=doas
 [ $ret_sudo = 0 -a $ret_doas != 0 ] && alias doas=sudo
@@ -192,7 +192,7 @@ ret_doas=$?
 #touch $HOME/.write_test 2> /dev/null && HOME_WRITEABLE=1 && rm -f $HOME/.write_test
 
 ## Create $HOME/.cache directory
-#[ $HOME_WRITEABLE = 1 ] && [ ! -d $HOME/.cache ] && mkdir -p $HOME/.cache > /dev/null 2>&1
+#[ $HOME_WRITEABLE = 1 ] && [ ! -d $HOME/.cache ] && mkdir -p $HOME/.cache &> /dev/null
 
 #XDG PATHS (https://wiki.archlinux.org/title/XDG_Base_Directory)
 export XDG_CONFIG_HOME=${XDG_CONFIG_HOME:=$HOME/.config}
@@ -241,7 +241,7 @@ alias sshk='ssh -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/nul
 alias scpk='scp -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
 
 # tmux-specific stuff
-if which tmux > /dev/null 2>&1; then
+if which tmux &> /dev/null; then
   alias remain='tmux -f $HOME/.config/tmux/tmux.conf.remain new-session -A -s main'
 
   alias shass='w=$(tmux neww -Pnhass "ssh ha");w=${w#*:};o=$(tmux run -d .5 "true");tmux splitw -vl 77% -t "$w" "ssh ha";tmux send -t "${w%.*}.0" "tail -F /config/home-assistant.log" Enter;tmux selectp -t ":${w%.*}.{bottom-right}";unset w o'
@@ -253,13 +253,13 @@ fi
 
 # Git stuff
 if echo $SHELL | grep -Eq "^.*/bash$" || echo $SHELL | grep -Eq "^.*/ksh$"; then
-  if ! typeset -f __git_ps1 > /dev/null 2>&1 && [ -e /usr/share/git/completion/git-prompt.sh ]; then
+  if ! typeset -f __git_ps1 &> /dev/null && [ -e /usr/share/git/completion/git-prompt.sh ]; then
     . /usr/share/git/completion/git-prompt.sh
   fi
-  if ! typeset -f __git_ps1 > /dev/null 2>&1 && [ -e $HOME/bin/git-prompt.sh ]; then
+  if ! typeset -f __git_ps1 &> /dev/null && [ -e $HOME/bin/git-prompt.sh ]; then
     . $HOME/bin/git-prompt.sh
   fi
-  if typeset -f __git_ps1 > /dev/null 2>&1; then
+  if typeset -f __git_ps1 &> /dev/null; then
     export GIT_PS1_SHOWDIRTYSTATE=true
     export GIT_PS1_SHOWCOLORHINTS=true
     export PS1='[\[\e[1;36m\]\u\[\e[0m\]@\[\e[1;32m\]\h\[\e[0m\] \[\e[1;34m\]\W\[\e[0m\]]$(__git_ps1 " (%s)")\$ '
@@ -270,7 +270,7 @@ if echo $SHELL | grep -Eq "^.*/bash$" || echo $SHELL | grep -Eq "^.*/ksh$"; then
 fi
 gitcmd=$(which git 2> /dev/null)
 if [ -n "$gitcmd" ]; then
-  if ! pgrep -x gpg-agent > /dev/null 2>&1; then
+  if ! pgrep -x gpg-agent &> /dev/null; then
     export GPG_TTY=$(tty)
   fi
 fi
@@ -319,7 +319,7 @@ case "$ID" in
   arch|archarm)
     alias ls_aur='pacman -Qm'
     alias ls_orphans='pacman -Qdtq'
-    alias rm_orphans='pacman -Qdtq > /dev/null 2>&1 && sudo pacman -Rcns $(pacman -Qdtq)'
+    alias rm_orphans='pacman -Qdtq &> /dev/null && sudo pacman -Rcns $(pacman -Qdtq)'
     alias ru='sudo reflector -c US -p https -f 5 --sort rate --save /etc/pacman.d/mirrorlist'
     if which paru &> /dev/null; then
       alias updates='echo Using paru; paru'
@@ -366,17 +366,17 @@ if [[ ! $ID = OpenBSD ]] && [[ $SSH_CONNECTION ]]; then
     export XDG_SESSION_TYPE=wayland
     export WAYLAND_DISPLAY=$(basename "$WAYLAND_DISPLAY_FILE")
 
-    if which niri > /dev/null 2>&1; then
+    if which niri &> /dev/null; then
       NIRI_SOCKET=$(find $XDG_RUNTIME_DIR -maxdepth 1 -name "niri.wayland-*.sock")
       [[ $NIRI_SOCKET ]] && export NIRI_SOCKET
     fi
 
-    if which hyprctl > /dev/null 2>&1; then
+    if which hyprctl &> /dev/null; then
       HYPRLAND_INSTANCE_SIGNATURE=$(hyprctl -j instances 2>/dev/null | jq -r '.[-1].instance' 2> /dev/null)
       [[ $HYPRLAND_INSTANCE_SIGNATURE ]] && export HYPRLAND_INSTANCE_SIGNATURE
     fi
 
-    if which swaymsg > /dev/null 2>&1; then
+    if which swaymsg &> /dev/null; then
       SWAYSOCK=$(find $XDG_RUNTIME_DIR -maxdepth 1 -name "sway-ipc.*.*.sock")
       [[ $SWAYSOCK ]] && export SWAYSOCK
     fi
