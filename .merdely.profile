@@ -386,7 +386,7 @@ if [ "$XDG_SESSION_TYPE" = wayland ]; then
 fi
 
 # Wayland stuff over SSH
-if [[ $SSH_CONNECTION ]]; then
+if [[ ! $ID = OpenBSD ]] && [[ $SSH_CONNECTION ]]; then
   WAYLAND_DISPLAY_FILE=$(find $XDG_RUNTIME_DIR -maxdepth 1 -regex ".*/wayland-[0-9]+")
   if [[ $WAYLAND_DISPLAY_FILE ]]; then
     export XDG_SESSION_TYPE=wayland
