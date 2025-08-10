@@ -47,27 +47,44 @@ resolve_link() {
 
 # Set some variables
 which virsh > /dev/null 2>&1 && export VIRSH_DEFAULT_CONNECT_URI=qemu:///system
-[ -r /srv/docker/docker-compose.yaml ] && export COMPOSE_FILE=/srv/docker/docker-compose.yaml
-[ -r /srv/docker/compose.yaml ] && export COMPOSE_FILE=/srv/docker/compose.yaml
-[ -r /srv/docker/$HOSTNAME/compose.yaml ] && export COMPOSE_FILE=/srv/docker/$HOSTNAME/compose.yaml
-[ -r /srv/containers/$HOSTNAME/compose.yaml ] && export COMPOSE_FILE=/srv/containers/$HOSTNAME/compose.yaml
 if which docker > /dev/null 2>&1; then
+  [ -r /srv/docker/docker-compose.yaml ] && export COMPOSE_FILE=/srv/docker/docker-compose.yaml
+  [ -r /srv/docker/compose.yaml ] && export COMPOSE_FILE=/srv/docker/compose.yaml
+  [ -r /srv/docker/$HOSTNAME/compose.yaml ] && export COMPOSE_FILE=/srv/docker/$HOSTNAME/compose.yaml
+  [ -r /srv/containers/$HOSTNAME/compose.yaml ] && export COMPOSE_FILE=/srv/containers/$HOSTNAME/compose.yaml
   export COMPOSE_DOCKER_CLI_BUILD=0
-  docker() {
-    case "$1" in
-      commit)
-        shift
-        /usr/bin/docker commit $*
-        ;;
-      c|co|com*|cmo*|ocmp*|ocmo*)
-        shift
-        /usr/bin/docker compose $*
-        ;;
-      *)
-        /usr/bin/docker $*
-        ;;
-    esac
-  }
+  if docker ps --format "{{.Names}}" | grep -q "^nagios$"; then
+    alias nagioscheck='docker compose exec nagios nagioscheck'
+    alias nagiosreload='docker compose exec nagios nagiosreload'
+  fi
+
+  if docker ps --format "{{.Names}}" | grep -q "^nginx$"; then
+    alias nginxcheck='docker compose exec nginx nginx -t'
+    alias nginxreload='docker compose exec nginx nginx -s reload'
+  fi
+
+  if ! which ollama > /dev/null 2>&1 && docker ps --format "{{.Names}}" | grep -q "^ollama$"; then
+    alias ollama='docker compose -f $COMPOSE_FILE exec -it ollama ollama'
+  fi
+
+  if ! which psql > /dev/null 2>&1 && docker ps --format "{{.Names}}" | grep -q "^postgres$"; then
+    alias psql='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres env HISTSIZE=10000 HISTFILE=~/.psql_history psql'
+    alias pbash='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres bash'
+    alias pg_dump='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres pg_dump'
+    alias pg_dumpall='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres pg_dumpall'
+    alias pg_restore='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres pg_restore'
+    alias createuser='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres createuser'
+    alias dropuser='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres dropuser'
+    alias createdb='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres createdb'
+    alias dropdb='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres dropdb'
+  fi
+
+  if docker ps --format "{{.Names}}" | grep -Eq "^(mysql|mariadb)$"; then
+    which mysql > /dev/null 2>&1 || alias mysql="docker compose exec -it -u mysql mysql mariadb"
+    which mariadb > /dev/null 2>&1 || alias mariadb="docker compose exec -it -u mysql mysql mariadb"
+    which mysqldump > /dev/null 2>&1 || alias mysqldump="docker compose exec -it -u mysql mysql mariadb-dump"
+    which mariadb-dump > /dev/null 2>&1 || alias mariadb-dump="docker compose exec -it -u mysql mysql mariadb-dump"
+  fi
 fi
 
 # General settings
@@ -155,49 +172,6 @@ if which ansible-playbook > /dev/null 2>&1; then
   alias apkv='ANSIBLE_SSH_ARGS="-o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" ansible-playbook --ask-vault-pass'
   alias apk='ANSIBLE_SSH_ARGS="-o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" ansible-playbook'
   export ANSIBLE_NOCOWS=1
-fi
-
-# Some docker aliases
-if which docker > /dev/null 2>&1; then
-  alias dc='docker compose'
-  alias dce='docker compose exec'
-  alias dcl='docker compose logs -f'
-fi
-
-# Command aliases is specific docker containers are running
-if which docker > /dev/null 2>&1 && docker ps --format "{{.Names}}" | grep -q "^nagios$"; then
-  alias nagioscheck='docker compose exec nagios nagioscheck'
-  alias nagiosreload='docker compose exec nagios nagiosreload'
-fi
-
-if which docker > /dev/null 2>&1 && docker ps --format "{{.Names}}" | grep -q "^nginx$"; then
-  alias nginxcheck='docker compose exec nginx nginx -t'
-  alias nginxreload='docker compose exec nginx nginx -s reload'
-fi
-
-if ! which ollama > /dev/null 2>&1 && which docker > /dev/null 2>&1 && \
-      docker ps --format "{{.Names}}" | grep -q "^ollama$"; then
-  alias ollama='docker compose -f $COMPOSE_FILE exec -it ollama ollama'
-fi
-
-if ! which psql > /dev/null 2>&1 && which docker > /dev/null 2>&1 && \
-      docker ps --format "{{.Names}}" | grep -q "^postgres$"; then
-  alias psql='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres env HISTSIZE=10000 HISTFILE=~/.psql_history psql'
-  alias pbash='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres bash'
-  alias pg_dump='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres pg_dump'
-  alias pg_dumpall='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres pg_dumpall'
-  alias pg_restore='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres pg_restore'
-  alias createuser='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres createuser'
-  alias dropuser='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres dropuser'
-  alias createdb='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres createdb'
-  alias dropdb='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres dropdb'
-fi
-
-if which docker > /dev/null 2>&1 && docker ps --format "{{.Names}}" | grep -Eq "^(mysql|mariadb)$"; then
-  which mysql > /dev/null 2>&1 || alias mysql="docker compose exec -it -u mysql mysql mariadb"
-  which mariadb > /dev/null 2>&1 || alias mariadb="docker compose exec -it -u mysql mysql mariadb"
-  which mysqldump > /dev/null 2>&1 || alias mysqldump="docker compose exec -it -u mysql mysql mariadb-dump"
-  which mariadb-dump > /dev/null 2>&1 || alias mariadb-dump="docker compose exec -it -u mysql mysql mariadb-dump"
 fi
 
 # RPI commands
