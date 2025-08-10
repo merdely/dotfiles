@@ -175,7 +175,7 @@ window-rule {
 }
 
 window-rule {
-    match app-id=r#"^(Bitwarden|blueman-manager|Element|Logseq|signal|pavucontrol|htop|btop|net.nokyan.Resources|nvtop|term-scratchpad|termfm)$"#
+    match app-id=r#"^(Bitwarden|blueman-manager|Element|io.missioncenter.MissionCenter|Logseq|signal|pavucontrol|htop|btop|net.nokyan.Resources|nvtop|term-scratchpad|termfm)$"#
     open-floating true
     default-column-width { proportion 0.95; }
     default-window-height { proportion 0.90; }
@@ -183,7 +183,7 @@ window-rule {
 }
 
 window-rule {
-    match app-id=r#"^(Bitwarden|blueman-manager|Element|Logseq|signal|pavucontrol|htop|btop|net.nokyan.Resources|nvtop|term-scratchpad|termfm)$"# at-startup=true
+    match app-id=r#"^(Bitwarden|blueman-manager|Element|io.missioncenter.MissionCenter|Logseq|signal|pavucontrol|htop|btop|net.nokyan.Resources|nvtop|term-scratchpad|termfm)$"# at-startup=true
     open-on-workspace "🗒️"
     open-floating false
     open-focused false
