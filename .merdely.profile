@@ -179,7 +179,17 @@ which vcgencmd &> /dev/null && alias gettemp='echo $(echo "$(vcgencmd measure_te
 which vcgencmd &> /dev/null && alias gettempc='echo $(vcgencmd measure_temp | awk -F"[='"'"']" "{print \$2}") C'
 
 # sudo/doas aliases
-alias sudo='sudo '
+# Force me to use sudoedit
+function mysudo() {
+  if [ "$1" = vi ]; then
+    shift
+    sudoedit $*
+  else
+    sudo $*
+  fi
+}
+# The space after mysudo (or sudo) allows for alias expansion in sudo
+alias sudo='mysudo '
 which sudo &> /dev/null
 ret_sudo=$?
 which doas &> /dev/null
