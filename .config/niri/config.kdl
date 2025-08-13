@@ -210,7 +210,7 @@ window-rule {
 */
 
 window-rule {
-    match app-id=r#"^(kitty)$"# at-startup=true
+    match app-id=r#"^(com.mitchellh.ghostty|kitty)$"# at-startup=true
     open-maximized true
 }
 
