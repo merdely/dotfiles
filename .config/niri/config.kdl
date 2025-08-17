@@ -299,7 +299,7 @@ binds {
     Mod+Home         hotkey-overlay-title="Nvtop"                        { spawn "sh" "-c" "$HOME/bin/wm-minimize nvtop"; }
     Mod+Insert       hotkey-overlay-title="Htop"                         { spawn "sh" "-c" "$HOME/bin/wm-minimize htop"; }
     Mod+O            hotkey-overlay-title="Logseq"                       { spawn "sh" "-c" "$HOME/bin/wm-minimize com.logseq.Logseq Logseq"; }
-    Mod+Page_Down    hotkey-overlay-title="Audio Mixer"                  { spawn "sh" "-c" "$HOME/bin/wm-minimize pavucontrol"; }
+    Mod+Page_Down    hotkey-overlay-title="Audio Mixer"                  { spawn "sh" "-c" "$HOME/bin/wm-minimize org.pulseaudio.pavucontrol pavucontrol"; }
     Mod+Page_Up      hotkey-overlay-title="Btop"                         { spawn "sh" "-c" "$HOME/bin/wm-minimize btop"; }
     Mod+SemiColon    hotkey-overlay-title="Signal"                       { spawn "sh" "-c" "$HOME/bin/wm-minimize signal-desktop signal"; }
     Mod+U            hotkey-overlay-title="Element"                      { spawn "sh" "-c" "$HOME/bin/wm-minimize io.element.Element Element"; }
