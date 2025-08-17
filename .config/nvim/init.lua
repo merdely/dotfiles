@@ -188,7 +188,9 @@ vim.keymap.set("v", ">", ">gv", { desc = "Indent right and reselect" })
 -- Quick file navigation
 vim.keymap.set("n", "-", "<CMD>Oil --float<CR>", { desc = "Use Oil file manager" })
 vim.keymap.set("n", "<leader>e", ":Oil --float<CR>", { desc = "Open file explorer" })
-vim.keymap.set("n", "<leader>ff", ":FzfLua files<CR>", { desc = "Find file" })
+vim.keymap.set("n", "<leader>ff", ":FzfLua files<CR>", { desc = "Find files (current)" })
+vim.keymap.set("n", "<leader>fc", ":FzfLua files cwd=~/.config<CR>", { desc = "Find file (.config)" })
+vim.keymap.set("n", "<leader>fh", ":FzfLua files cwd=~<CR>", { desc = "Find file (home)" })
 
 -- Make file executable
 vim.keymap.set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { desc = "Make file executable", silent = true })
