@@ -73,4 +73,15 @@ if [ $count -gt 1 ]; then
                    tmux setw -F -t:$window.0 pane-active-border-style "#{?pane_synchronized,fg=red,fg=green}"
 fi
 
+if [ "$group" = hass ]; then
+  #w=$(tmux neww -Pnhass "ssh ha")
+  w=${window#*:}
+  #tmux run -d .5 "true"
+  sleep .5
+  tmux split-window -vl 77% -t "$w" "ssh hass"
+  tmux send -t "${w%.*}.0" "tail -F /config/home-assistant.log" Enter
+  tmux select-pane -t ":${w%.*}.{bottom-right}"
+  unset w
+fi
+
 exit 0
