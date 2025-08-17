@@ -1,10 +1,11 @@
 ## Mike's Master .merdely.profile
 
-# Add '[[ $- == *i* ]] && [ -r $HOME/.merdely.profile ] && source $HOME/.merdely.profile'
+# Add '[[ $- == *i* ]] && [ -r $HOME/.merdely.profile ] && . $HOME/.merdely.profile'
 # to the bottom of $HOME/.profile or $HOME/.bashrc
 
-[ -r /etc/os-release ] && source /etc/os-release
-[ "$(uname -s)" = "OpenBSD" ] && export ID=OpenBSD
+[ -r /etc/os-release ] && . /etc/os-release
+kernel_name=$(uname -s)
+[ -z "$ID" ] && export ID=$kernel_name
 
 # add_to_path smartly adds a directory to PATH
 add_to_path() {
@@ -33,62 +34,110 @@ add_to_path() {
 [ -z "$HOSTNAME" ] && HOSTNAME="$(hostname -s)"
 export HOSTNAME=${HOSTNAME%%.*}
 
-# COLORS
-CLEAR="\[\e[0m\]"
+#XDG PATHS (https://wiki.archlinux.org/title/XDG_Base_Directory)
+export XDG_CONFIG_HOME=${XDG_CONFIG_HOME:=$HOME/.config}
+export XDG_CACHE_HOME=${XDG_CACHE_HOME:=$HOME/.cache}
+export XDG_DATA_HOME=${XDG_DATA_HOME:=$HOME/.local/share}
+export XDG_STATE_HOME=${XDG_STATE_HOME:=$HOME/.local/state}
+export XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR:=/run/user/$EUID}
+export XDG_DATA_DIRS=$XDG_DATA_HOME:${XDG_DATA_DIRS:=/usr/local/share:/usr/share}
 
-BLACK="\[\033[0;30m\]"
-BLACK_BOLD="\[\033[1;30m\]"
-BLACK_UNDERLINE="\[\033[4;30m\]"
-BLACK_DIM="\[\033[2;30m\]"
-BLACK_REVERSE="\[\033[7;30m\]"
+# Make sure specific XDG directories are writeable
+[ ! -w $XDG_RUNTIME_DIR ] && export XDG_RUNTIME_DIR=/tmp/.$EUID && mkdir -p -m 700 $XDG_RUNTIME_DIR
+[ ! -w $XDG_CACHE_HOME ] && export XDG_CACHE_HOME=$XDG_RUNTIME_DIR/.cache && mkdir -p -m 700 $XDG_CACHE_HOME
+[ ! -w $XDG_STATE_HOME ] && export XDG_STATE_HOME=$XDG_RUNTIME_DIR/.state && mkdir -p -m 700 $XDG_STATE_HOME
 
-BLUE="\[\033[0;34m\]"
-BLUE_BOLD="\[\033[1;34m\]"
-BLUE_DIM="\[\033[2;34m\]"
-BLUE_UNDERLINE="\[\033[4;34m\]"
-BLUE_REVERSE="\[\033[7;34m\]"
+# History stuff (needs to come after Git stuff)
+HISTFILESIZE=10000
+HISTSIZE=10000
+HISTCONTROL=ignoreboth:erasedups
+HISTFILE=$XDG_CACHE_HOME/shell_history
+if echo $SHELL | grep -Eq "^(/usr(/local)?)?/bin/bash$"; then
+  bind 'set show-mode-in-prompt on'
+  #bind 'set vi-cmd-mode-string "[N]"'
+  #bind 'set vi-ins-mode-string "[I]"'
+  bind 'set vi-ins-mode-string \1\e[6 q\2'
+  bind 'set vi-cmd-mode-string \1\e[2 q\2'
 
-CYAN="\[\033[0;36m\]"
-CYAN_BOLD="\[\033[1;36m\]"
-CYAN_DIM="\[\033[2;36m\]"
-CYAN_UNDERLINE="\[\033[4;36m\]"
-CYAN_REVERSE="\[\033[7;36m\]"
+  shopt -s autocd
+  shopt -s cdspell
+  shopt -s extglob
+  shopt -s histappend
+  # Try to do a shared command history
+  if [ -z "$PROMPT_COMMAND" ]; then
+    PROMPT_COMMAND="history -a; history -c; history -r"
+  elif ! echo ";$PROMPT_COMMAND;" | grep -qE "; ?history -a; ?history -c; ?history -r ?;"; then
+    PROMPT_COMMAND="$PROMPT_COMMAND; history -a; history -c; history -r"
+  fi
+  if which fzf &> /dev/null; then
+    if fzf --help | grep -q -- " --bash "; then
+      eval "$(fzf --bash)"
+    else
+      . /usr/share/doc/fzf/examples/key-bindings.bash
+    fi
+  fi
+fi
 
-GREEN="\[\033[0;32m\]"
-GREEN_BOLD="\[\033[1;32m\]"
-GREEN_DIM="\[\033[2;32m\]"
-GREEN_UNDERLINE="\[\033[4;32m\]"
-GREEN_REVERSE="\[\033[7;32m\]"
+# ANSI Colors
+unformat="\[\033[00m\]"
 
-PURPLE="\[\033[0;35m\]"
-PURPLE_BOLD="\[\033[1;35m\]"
-PURPLE_DIM="\[\033[2;35m\]"
-PURPLE_UNDERLINE="\[\033[4;35m\]"
-PURPLE_REVERSE="\[\033[7;35m\]"
+black="\[\033[00;30m\]"
+black_bold="\[\033[01;30m\]"
+black_underline="\[\033[04;30m\]"
+black_dim="\[\033[02;30m\]"
+black_reverse="\[\033[07;30m\]"
 
-RED="\[\033[0;31m\]"
-RED_BOLD="\[\033[1;31m\]"
-RED_DIM="\[\033[2;31m\]"
-RED_UNDERLINE="\[\033[4;31m\]"
-RED_REVERSE="\[\033[7;31m\]"
+blue="\[\033[00;34m\]"
+blue_bold="\[\033[01;34m\]"
+blue_dim="\[\033[02;34m\]"
+blue_underline="\[\033[04;34m\]"
+blue_reverse="\[\033[07;34m\]"
 
-WHITE="\[\033[0;37m\]"
-WHITE_BOLD="\[\033[1;37m\]"
-WHITE_DIM="\[\033[2;37m\]"
-WHITE_UNDERLINE="\[\033[4;37m\]"
-WHITE_REVERSE="\[\033[7;37m\]"
+cyan="\[\033[00;36m\]"
+cyan_bold="\[\033[01;36m\]"
+cyan_dim="\[\033[02;36m\]"
+cyan_underline="\[\033[04;36m\]"
+cyan_reverse="\[\033[07;36m\]"
 
-YELLOW="\[\033[0;33m\]"
-YELLOW_BOLD="\[\033[1;33m\]"
-YELLOW_DIM="\[\033[2;33m\]"
-YELLOW_UNDERLINE="\[\033[4;33m\]"
-YELLOW_REVERSE="\[\033[7;33m\]"
+green="\[\033[00;32m\]"
+green_bold="\[\033[01;32m\]"
+green_dim="\[\033[02;32m\]"
+green_underline="\[\033[04;32m\]"
+green_reverse="\[\033[07;32m\]"
+
+purple="\[\033[00;35m\]"
+purple_bold="\[\033[01;35m\]"
+purple_dim="\[\033[02;35m\]"
+purple_underline="\[\033[04;35m\]"
+purple_reverse="\[\033[07;35m\]"
+
+red="\[\033[00;31m\]"
+red_bold="\[\033[01;31m\]"
+red_dim="\[\033[02;31m\]"
+red_underline="\[\033[04;31m\]"
+red_reverse="\[\033[07;31m\]"
+
+white="\[\033[00;37m\]"
+white_bold="\[\033[01;37m\]"
+white_dim="\[\033[02;37m\]"
+white_underline="\[\033[04;37m\]"
+white_reverse="\[\033[07;37m\]"
+
+yellow="\[\033[00;33m\]"
+yellow_bold="\[\033[01;33m\]"
+yellow_dim="\[\033[02;33m\]"
+yellow_underline="\[\033[04;33m\]"
+yellow_reverse="\[\033[07;33m\]"
 
 # General settings
 # Define __git_ps1 to be nothing -- will be defined later if available
 __git_ps1() { true; }
 umask 0022
-PS1="[${CYAN_BOLD}\u${CLEAR}@${GREEN_BOLD}\h${CLEAR} ${BLUE_BOLD}\W${CLEAR}]\$(__git_ps1 \" (%s)\")${GREEN}\$(code=\${?##0};echo \${code:+\"\[\033[01;31m\]\"}) ❯ ${CLEAR}"
+prompt_char=">"
+echo $TERM | grep -Eq "^(xterm|tmux|screen)" && prompt_char="❯"
+__prompt_exit_code_color() { local code=$?;local color='\033[00;32m';[ $code -ne 0 ]&&color='\033[00;31m';echo -e "$color"; }
+PS1="[${cyan_bold}\u${unformat}@${green_bold}\h${unformat} ${blue_bold}\W${unformat}]\$(__git_ps1 ' (%s)';echo -e \"\[\$(__prompt_exit_code_color)\]\") ${prompt_char} ${unformat}"
+
 export LESS=REX
 export NIFS=$(printf "\n\b")
 export OIFS=$IFS
@@ -102,23 +151,23 @@ add_to_path -e /usr/sbin
 [ -d /srv/scripts/bin ]  && add_to_path -e /srv/scripts/bin
 [ -d /srv/scripts/sbin ] && add_to_path -e /srv/scripts/sbin
 [ -z "$EUID" ] && export EUID=$(id -u)
-USER_DOT_PROFILE=$HOME/.profile
-[ -r $HOME/.bash_profile ] && USER_DOT_PROFILE=$HOME/.bash_profile
+user_dot_profile=$HOME/.profile
+[ -r $HOME/.bash_profile ] && user_dot_profile=$HOME/.bash_profile
 
 # General aliases
-alias ls='ls -F --color=auto'
-alias grep='grep --color=auto'
-alias diff='diff --color=auto'
-[ $(uname -s) = Linux ] && alias ls='ls -N --color=auto'
+alias ls='ls -F'
+[ $kernel_name = Linux ] && alias ls='ls -N --color=auto'
+[ $kernel_name = Linux ] && alias grep='grep --color=auto'
+[ $kernel_name = Linux ] && alias diff='diff --color=auto'
 alias cdp='cd $(pwd -P)'
 [ -e /dev/pf ] && alias pflog='doas tcpdump -n -e -ttt -i pflog0'
-[ -e /srv/scripts/bin/nohist ] && alias nohist='source /srv/scripts/bin/nohist'
+[ -e /srv/scripts/bin/nohist ] && alias nohist='. /srv/scripts/bin/nohist'
 alias dos_rsync='rsync -rtcvP'
 alias utcdate='TZ=UTC date "+%a %b %d %H:%M:%S %Z %Y"'
 ! which mail > /dev/null 2>&1 && which s-nail > /dev/null 2>&1 && alias mail=s-nail
 alias printenv='printenv|sort'
-alias rebashrc="source $USER_DOT_PROFILE reload"
-alias reprofile="source $USER_DOT_PROFILE reload"
+alias rebashrc=". $user_dot_profile reload"
+alias reprofile=". $user_dot_profile reload"
 alias check_reboot='sudo /srv/scripts/sbin/daily_report_linux reboot'
 alias check_restart='sudo /srv/scripts/sbin/daily_report_linux restart'
 alias sqlite=sqlite3
@@ -233,19 +282,6 @@ ret_doas=$?
 [ $ret_sudo != 0 -a $ret_doas = 0 ] && alias sudo='doas '
 [ $ret_sudo = 0 -a $ret_doas != 0 ] && alias doas='sudo '
 
-#XDG PATHS (https://wiki.archlinux.org/title/XDG_Base_Directory)
-export XDG_CONFIG_HOME=${XDG_CONFIG_HOME:=$HOME/.config}
-export XDG_CACHE_HOME=${XDG_CACHE_HOME:=$HOME/.cache}
-export XDG_DATA_HOME=${XDG_DATA_HOME:=$HOME/.local/share}
-export XDG_STATE_HOME=${XDG_STATE_HOME:=$HOME/.local/state}
-export XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR:=/run/user/$EUID}
-export XDG_DATA_DIRS=$XDG_DATA_HOME:${XDG_DATA_DIRS:=/usr/local/share:/usr/share}
-
-# Make sure specific XDG directories are writeable
-[ ! -w $XDG_RUNTIME_DIR ] && export XDG_RUNTIME_DIR=/tmp/.$EUID && mkdir -p -m 700 $XDG_RUNTIME_DIR
-[ ! -w $XDG_CACHE_HOME ] && export XDG_CACHE_HOME=$XDG_RUNTIME_DIR/.cache && mkdir -p -m 700 $XDG_CACHE_HOME
-[ ! -w $XDG_STATE_HOME ] && export XDG_STATE_HOME=$XDG_RUNTIME_DIR/.state && mkdir -p -m 700 $XDG_STATE_HOME
-
 # Handle with / is read-only
 if [ -r /boot/cmdline.txt ] && grep -qE "\<ro\>" /boot/cmdline.txt; then
   alias check_root='sudo lsof / | awk "NR==1 || \$4~/[0-9]+[uw]/"'
@@ -288,41 +324,12 @@ if which git > /dev/null 2>&1; then
     GIT_PS1_SHOWUNTRACKEDFILES=true
     GIT_PS1_SHOWSTASHSTATE=true
     GIT_PS1_SHOWCOLORHINTS=true
-    [ -e /usr/lib/git-core/git-sh-prompt ] && source /usr/lib/git-core/git-sh-prompt
-    [ -e /usr/share/git/completion/git-prompt.sh ] && source /usr/share/git/completion/git-prompt.sh
-    [ -e $HOME/bin/git-prompt.sh ] && source $HOME/bin/git-prompt.sh
+    [ -e /usr/lib/git-core/git-sh-prompt ] && . /usr/lib/git-core/git-sh-prompt
+    [ -e /usr/share/git/completion/git-prompt.sh ] && . /usr/share/git/completion/git-prompt.sh
+    [ -e $HOME/bin/git-prompt.sh ] && . $HOME/bin/git-prompt.sh
   fi
   if ! pgrep -x gpg-agent > /dev/null 2>&1; then
     export GPG_TTY=$(tty)
-  fi
-fi
-
-# History stuff (needs to come after Git stuff)
-HISTFILESIZE=10000
-HISTSIZE=10000
-HISTCONTROL=ignoreboth:erasedups
-HISTFILE=$XDG_CACHE_HOME/shell_history
-if echo $SHELL | grep -Eq "^(/usr(/local)?)?/bin/bash$"; then
-  bind 'set show-mode-in-prompt on'
-  #bind 'set vi-cmd-mode-string "[N]"'
-  #bind 'set vi-ins-mode-string "[I]"'
-  bind 'set vi-ins-mode-string \1\e[6 q\2'
-  bind 'set vi-cmd-mode-string \1\e[2 q\2'
-
-  shopt -s extglob
-  shopt -s histappend
-  # Try to do a shared command history
-  if [ -z "$PROMPT_COMMAND" ]; then
-    PROMPT_COMMAND="history -a; history -c; history -r"
-  elif ! echo ";$PROMPT_COMMAND;" | grep -qE "; ?history -a; ?history -c; ?history -r ?;"; then
-    PROMPT_COMMAND="$PROMPT_COMMAND; history -a; history -c; history -r"
-  fi
-  if which fzf &> /dev/null; then
-    if fzf --help | grep -q -- " --bash "; then
-      eval "$(fzf --bash)"
-    else
-      source /usr/share/doc/fzf/examples/key-bindings.bash
-    fi
   fi
 fi
 
@@ -390,7 +397,7 @@ case "$ID" in
     ;;
 esac
 
-[ -e $HOME/.profile.local ] && source $HOME/.profile.local
+[ -e $HOME/.profile.local ] && . $HOME/.profile.local
 
 # Wayland stuff
 if [ "$XDG_SESSION_TYPE" = wayland ]; then
