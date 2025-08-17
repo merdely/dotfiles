@@ -88,7 +88,7 @@ YELLOW_REVERSE="\[\033[7;33m\]"
 # Define __git_ps1 to be nothing -- will be defined later if available
 __git_ps1() { true; }
 umask 0022
-PS1="[${CYAN_BOLD}\u${CLEAR}@${GREEN_BOLD}\h${CLEAR} ${BLUE_BOLD}\W${CLEAR}]\$(__git_ps1 \" (%s)\")\\$ "
+PS1="[${CYAN_BOLD}\u${CLEAR}@${GREEN_BOLD}\h${CLEAR} ${BLUE_BOLD}\W${CLEAR}]\$(__git_ps1 \" (%s)\")${GREEN}\$(code=\${?##0};echo \${code:+\"\[\033[01;31m\]\"}) ❯ ${CLEAR}"
 export LESS=REX
 export NIFS=$(printf "\n\b")
 export OIFS=$IFS
@@ -131,11 +131,6 @@ alias More=more
 
 # bash vi-mode
 set -o vi  # vi mode for command line editing
-bind 'set show-mode-in-prompt on'
-#bind 'set vi-cmd-mode-string "[N]"'
-#bind 'set vi-ins-mode-string "[I]"'
-bind 'set vi-ins-mode-string \1\e[6 q\2'
-bind 'set vi-cmd-mode-string \1\e[2 q\2'
 
 # Editor aliases
 which view > /dev/null 2>&1 || alias view='vi -R'
@@ -313,16 +308,29 @@ HISTFILESIZE=10000
 HISTSIZE=10000
 HISTCONTROL=ignoreboth:erasedups
 HISTFILE=$XDG_CACHE_HOME/shell_history
-[ -n "$BASH_VERSION" ] && shopt -s histappend
 if echo $SHELL | grep -Eq "^(/usr(/local)?)?/bin/bash$"; then
+  bind 'set show-mode-in-prompt on'
+  #bind 'set vi-cmd-mode-string "[N]"'
+  #bind 'set vi-ins-mode-string "[I]"'
+  bind 'set vi-ins-mode-string \1\e[6 q\2'
+  bind 'set vi-cmd-mode-string \1\e[2 q\2'
+
+  shopt -s extglob
+  shopt -s histappend
   # Try to do a shared command history
   if [ -z "$PROMPT_COMMAND" ]; then
     PROMPT_COMMAND="history -a; history -c; history -r"
   elif ! echo ";$PROMPT_COMMAND;" | grep -qE "; ?history -a; ?history -c; ?history -r ?;"; then
     PROMPT_COMMAND="$PROMPT_COMMAND; history -a; history -c; history -r"
   fi
+  if which fzf &> /dev/null; then
+    if fzf --help | grep -q -- " --bash "; then
+      eval "$(fzf --bash)"
+    else
+      source /usr/share/doc/fzf/examples/key-bindings.bash
+    fi
+  fi
 fi
-which fzf > /dev/null 2>&1 && eval "$(fzf --bash)"
 
 # Random password generator
 passgen() {
