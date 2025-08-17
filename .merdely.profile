@@ -1,9 +1,9 @@
 ## Mike's Master .merdely.profile
 
-# Add '[[ $- == *i* ]] && [ -r $HOME/.merdely.profile ] && . $HOME/.merdely.profile'
+# Add '[[ $- == *i* ]] && [ -r $HOME/.merdely.profile ] && source $HOME/.merdely.profile'
 # to the bottom of $HOME/.profile or $HOME/.bashrc
 
-[ -r /etc/os-release ] && . /etc/os-release
+[ -r /etc/os-release ] && source /etc/os-release
 [ "$(uname -s)" = "OpenBSD" ] && export ID=OpenBSD
 
 # add_to_path smartly adds a directory to PATH
@@ -106,17 +106,19 @@ USER_DOT_PROFILE=$HOME/.profile
 [ -r $HOME/.bash_profile ] && USER_DOT_PROFILE=$HOME/.bash_profile
 
 # General aliases
-alias ls='ls -F'
+alias ls='ls -F --color=auto'
+alias grep='grep --color=auto'
+alias diff='diff --color=auto'
 [ $(uname -s) = Linux ] && alias ls='ls -N --color=auto'
 alias cdp='cd $(pwd -P)'
 [ -e /dev/pf ] && alias pflog='doas tcpdump -n -e -ttt -i pflog0'
-[ -e /srv/scripts/bin/nohist ] && alias nohist='. /srv/scripts/bin/nohist'
+[ -e /srv/scripts/bin/nohist ] && alias nohist='source /srv/scripts/bin/nohist'
 alias dos_rsync='rsync -rtcvP'
 alias utcdate='TZ=UTC date "+%a %b %d %H:%M:%S %Z %Y"'
 ! which mail > /dev/null 2>&1 && which s-nail > /dev/null 2>&1 && alias mail=s-nail
 alias printenv='printenv|sort'
-alias rebashrc=". $USER_DOT_PROFILE reload"
-alias reprofile=". $USER_DOT_PROFILE reload"
+alias rebashrc="source $USER_DOT_PROFILE reload"
+alias reprofile="source $USER_DOT_PROFILE reload"
 alias check_reboot='sudo /srv/scripts/sbin/daily_report_linux reboot'
 alias check_restart='sudo /srv/scripts/sbin/daily_report_linux restart'
 alias sqlite=sqlite3
@@ -222,23 +224,14 @@ which vcgencmd > /dev/null 2>&1 && alias gettemp='echo $(echo "$(vcgencmd measur
 which vcgencmd > /dev/null 2>&1 && alias gettempc='echo $(vcgencmd measure_temp | awk -F"[='"'"']" "{print \$2}") C'
 
 # sudo/doas aliases
-# Force me to use sudoedit
-mysudo() {
-  if [ "$1" = vi ]; then
-    shift
-    sudoedit $*
-  else
-    sudo $*
-  fi
-}
 # The space after mysudo (or sudo) allows for alias expansion in sudo
-alias sudo='mysudo '
+alias sudo='sudo '
 which sudo > /dev/null 2>&1
 ret_sudo=$?
 which doas > /dev/null 2>&1
 ret_doas=$?
-[ $ret_sudo != 0 -a $ret_doas = 0 ] && alias sudo=doas
-[ $ret_sudo = 0 -a $ret_doas != 0 ] && alias doas=sudo
+[ $ret_sudo != 0 -a $ret_doas = 0 ] && alias sudo='doas '
+[ $ret_sudo = 0 -a $ret_doas != 0 ] && alias doas='sudo '
 
 #XDG PATHS (https://wiki.archlinux.org/title/XDG_Base_Directory)
 export XDG_CONFIG_HOME=${XDG_CONFIG_HOME:=$HOME/.config}
@@ -295,8 +288,9 @@ if which git > /dev/null 2>&1; then
     GIT_PS1_SHOWUNTRACKEDFILES=true
     GIT_PS1_SHOWSTASHSTATE=true
     GIT_PS1_SHOWCOLORHINTS=true
-    [ -e /usr/share/git/completion/git-prompt.sh ] && . /usr/share/git/completion/git-prompt.sh
-    [ -e $HOME/bin/git-prompt.sh ] && . $HOME/bin/git-prompt.sh
+    [ -e /usr/lib/git-core/git-sh-prompt ] && source /usr/lib/git-core/git-sh-prompt
+    [ -e /usr/share/git/completion/git-prompt.sh ] && source /usr/share/git/completion/git-prompt.sh
+    [ -e $HOME/bin/git-prompt.sh ] && source $HOME/bin/git-prompt.sh
   fi
   if ! pgrep -x gpg-agent > /dev/null 2>&1; then
     export GPG_TTY=$(tty)
@@ -396,7 +390,7 @@ case "$ID" in
     ;;
 esac
 
-[ -e $HOME/.profile.local ] && . $HOME/.profile.local
+[ -e $HOME/.profile.local ] && source $HOME/.profile.local
 
 # Wayland stuff
 if [ "$XDG_SESSION_TYPE" = wayland ]; then
