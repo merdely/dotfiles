@@ -112,23 +112,23 @@ spawn-at-startup "systemctl" "--user" "start" "wl-paste-text.service"
 spawn-at-startup "systemctl" "--user" "start" "wl-paste-image.service"
 spawn-at-startup "systemctl" "--user" "start" "ydotool.service"
 spawn-at-startup "sh" "-c" "sleep 10 && systemctl --user start syncthingtray.service"
-//spawn-at-startup "sh" "-c" "uwsm check is-active && uwsm app -- gtk-launch ydotoold || gtk-launch ydotoold"
-spawn-at-startup "sh" "-c" "uwsm check is-active && uwsm app -- gtk-launch blueman-applet || gtk-launch blueman-applet"
-spawn-at-startup "sh" "-c" "uwsm check is active && uwsm app -- gtk-launch nm-applet || gtk-launch nm-applet"
-spawn-at-startup "sh" "-c" "uwsm check is active && uwsm app -- gtk-launch seafile-applet || gtk-launch seafile-applet"
-spawn-at-startup "sh" "-c" "uwsm check is active && uwsm app -- gtk-launch solaar-applet || gtk-launch solaar-applet"
-spawn-at-startup "sh" "-c" "uwsm check is active && uwsm app -- gtk-launch udiskie-applet || gtk-launch udiskie-applet"
-spawn-at-startup "sh" "-c" "uwsm check is-active && uwsm app -- gtk-launch polkit-gnome-authentication-agent-1 || gtk-launch polkit-gnome-authentication-agent-1"
+//spawn-at-startup "gtk-launch" "ydotoold"
+spawn-at-startup "gtk-launch" "blueman-applet"
+spawn-at-startup "gtk-launch" "nm-applet"
+spawn-at-startup "gtk-launch" "seafile-applet"
+spawn-at-startup "gtk-launch" "solaar-applet"
+spawn-at-startup "gtk-launch" "udiskie-applet"
+spawn-at-startup "gtk-launch" "polkit-gnome-authentication-agent-1"
 
-spawn-at-startup "sh" "-c" "uwsm check is active && uwsm app -- $HOME/bin/wm-minimize com.logseq.Logseq Logseq || $HOME/bin/wm-minimize com.logseq.Logseq Logseq"
-spawn-at-startup "sh" "-c" "uwsm check is active && uwsm app -- $HOME/bin/wm-minimize signal-desktop signal || $HOME/bin/wm-minimize signal-desktop signal"
-spawn-at-startup "sh" "-c" "uwsm check is active && uwsm app -- $HOME/bin/wm-minimize io.element.Element Element || $HOME/bin/wm-minimize io.element.Element Element"
-spawn-at-startup "sh" "-c" "uwsm check is active && uwsm app -- $HOME/bin/wm-minimize bitwarden || $HOME/bin/wm-minimize bitwarden"
+spawn-at-startup "sh" "-c" "$HOME/bin/wm-minimize com.logseq.Logseq Logseq"
+spawn-at-startup "sh" "-c" "$HOME/bin/wm-minimize signal-desktop signal"
+spawn-at-startup "sh" "-c" "$HOME/bin/wm-minimize io.element.Element Element"
+spawn-at-startup "sh" "-c" "$HOME/bin/wm-minimize bitwarden"
 
-spawn-at-startup "bash" "-c" "[[ $(hostname -s) =~ ^(mercury)$ ]] && { uwsm check is active && uwsm app -- gtk-launch librewolf-mike || gtk-launch librewolf-mike; }"
-spawn-at-startup "bash" "-c" "[[ $(hostname -s) =~ ^(mercury)$ ]] && { sleep 1; uwsm check is active && uwsm app -- gtk-launch librewolf-media || gtk-launch librewolf-media; }"
+spawn-at-startup "bash" "-c" "[[ $(hostname -s) =~ ^(mercury)$ ]] && gtk-launch librewolf-mike"
+spawn-at-startup "bash" "-c" "[[ $(hostname -s) =~ ^(mercury)$ ]] && { sleep 1; gtk-launch librewolf-media; }"
 
-spawn-at-startup "sh" "-c" "uwsm check is active && uwsm app -- $HOME/bin/run_terminal || $HOME/bin/run_terminal"
+spawn-at-startup "sh" "-c" "$HOME/bin/run_terminal"
 spawn-at-startup "bash" "-c" "sleep 1; env SSH_AUTH_SOCK=$XDG_RUNTIME_DIR/ssh-agent.socket SSH_ASKPASS=$HOME/bin/yad-askpass ssh-add < /dev/null"
 
 spawn-at-startup "bash" "-c" "[[ $(hostname -s) =~ ^(neptune|styx)$ ]] && systemctl --user start watch_tablet.service"
@@ -268,6 +268,7 @@ binds {
     Mod+N            hotkey-overlay-title="Launch Terminal"              { spawn "sh" "-c" "$HOME/bin/run_terminal"; }
     Mod+Ctrl+B       hotkey-overlay-title="Hide Waybar"                  { spawn "pkill" "-SIGUSR1" "waybar"; }
     Mod+W            hotkey-overlay-title="Close Window"                 { close-window; }
+    Mod+X            hotkey-overlay-title="Minimize Window"              { spawn "sh" "-c" "$HOME/bin/wm-minimize ACTIVE"; }
 
     Mod+Ctrl+O       repeat=false hotkey-overlay-title="Toggle Overview" { toggle-overview; }
     Mod+R            hotkey-overlay-title="Toggle Preset Widths"         { switch-preset-column-width; }
