@@ -1,13 +1,18 @@
 #!/bin/sh
 
+progname=$(basename $0)
 usage() {
-  echo "usage: $(basename $0) [-h] command [windowclass] [title]"
+  echo "usage: $progname [-h] [-c] command|ACTIVE [windowclass] [title]"
+  echo "         By default, $progname uses gtk-launch"
+  echo "         With -c, $progname looks for a command string \"foo --bar --baz\""
   exit $1
 }
 
 niri_floating_ws="🗒️"
 
+mode=desktop
 [ "$1" = "-h" ] && usage
+[ "$1" = "-c" ] && mode=cmdline && shift
 [ -z "$1" ] && usage 1
 
 cmd=$1
@@ -82,25 +87,21 @@ toggle_minimize() {
   fi
 }
 
+do_exec() {
+  if [ $mode = desktop ]; then
+    echo "gtk-launch $*"
+  else
+    echo "$*"
+  fi
+}
+
 run_cmd() {
   if [[ "$XDG_CURRENT_DESKTOP" =~ ^sway ]]; then
-    if which uwsm &>/dev/null && uwsm check is-active; then
-      swaymsg exec uwsm app -- gtk-launch $1
-    else
-      swaymsg exec gtk-launch $1
-    fi
+    swaymsg exec $(do_exec $1)
   elif [[ "$XDG_CURRENT_DESKTOP" =~ ^niri ]]; then
-    if which uwsm &>/dev/null && uwsm check is-active; then
-      niri msg action spawn -- uwsm app -- gtk-launch $1
-    else
-      niri msg action spawn -- gtk-launch $1
-    fi
+    niri msg action spawn -- $(do_exec $1)
   else
-    if which uwsm &>/dev/null && uwsm check is-active; then
-      hyprctl dispatch exec uwsm app -- gtk-launch $1
-    else
-      hyprctl dispatch exec gtk-launch $1
-    fi
+    hyprctl dispatch exec $(do_exec $1)
   fi
 }
 
@@ -114,5 +115,13 @@ isrunning() {
   fi
 }
 
-isrunning "$appid" && toggle_minimize "$appid" "$title" || run_cmd "$cmd" "$appid" "$title"
+if [ $cmd = ACTIVE ]; then
+  if [[ "$XDG_CURRENT_DESKTOP" =~ ^niri ]]; then
+    app_id=$(niri msg -j focused-window | jq '.id')
+    niri msg action move-window-to-workspace --focus false --window-id $app_id $niri_floating_ws
+    niri msg action move-window-to-tiling --id $app_id
+  fi
+else
+  isrunning "$appid" && toggle_minimize "$appid" "$title" || run_cmd "$cmd" "$appid" "$title"
+fi
 
