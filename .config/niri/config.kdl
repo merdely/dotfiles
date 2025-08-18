@@ -129,7 +129,7 @@ spawn-at-startup "bash" "-c" "[[ $(hostname -s) =~ ^(mercury)$ ]] && { uwsm chec
 spawn-at-startup "bash" "-c" "[[ $(hostname -s) =~ ^(mercury)$ ]] && { sleep 1; uwsm check is active && uwsm app -- gtk-launch librewolf-media || gtk-launch librewolf-media; }"
 
 spawn-at-startup "sh" "-c" "uwsm check is active && uwsm app -- $HOME/bin/run_terminal || $HOME/bin/run_terminal"
-spawn-at-startup "bash" "-c" "env SSH_AUTH_SOCK=$XDG_RUNTIME_DIR/ssh-agent.socket SSH_ASKPASS=$HOME/bin/yad-askpass ssh-add < /dev/null"
+spawn-at-startup "bash" "-c" "sleep 1; env SSH_AUTH_SOCK=$XDG_RUNTIME_DIR/ssh-agent.socket SSH_ASKPASS=$HOME/bin/yad-askpass ssh-add < /dev/null"
 
 spawn-at-startup "bash" "-c" "[[ $(hostname -s) =~ ^(neptune|styx)$ ]] && systemctl --user start watch_tablet.service"
 spawn-at-startup "bash" "-c" "[[ $(hostname -s) =~ ^(neptune|styx)$ ]] && systemctl --user start screen-rotation.service"
