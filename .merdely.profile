@@ -136,7 +136,7 @@ umask 0022
 prompt_char=">"
 echo $TERM | grep -Eq "^(xterm|tmux|screen)" && prompt_char="❯"
 __prompt_exit_code_color() { local code=$?;local color='\033[00;32m';[ $code -ne 0 ]&&color='\033[00;31m';echo -e "$color"; }
-PS1="[${cyan_bold}\u${unformat}@${green_bold}\h${unformat} ${blue_bold}\W${unformat}]\$(__git_ps1 ' (%s)';echo -e \"\[\$(__prompt_exit_code_color)\]\") ${prompt_char} ${unformat}"
+PS1="[${cyan_bold}\u${unformat}@${green_bold}\h${unformat} ${blue_bold}\W${unformat}]\$(__git_ps1 ' (%s)' 2>/dev/null;echo -e \"\[\$(__prompt_exit_code_color)\]\") ${prompt_char} ${unformat}"
 
 export LESS=REX
 export NIFS=$(printf "\n\b")
