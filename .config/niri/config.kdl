@@ -92,7 +92,10 @@ layout {
 }
 
 animations { }
-hotkey-overlay { skip-at-startup; }
+hotkey-overlay {
+  skip-at-startup;
+  // hide-not-bound;
+}
 debug { wait-for-frame-completion-before-queueing; }
 cursor { hide-after-inactive-ms 3000; }
 gestures { hot-corners { off; }; }
@@ -256,21 +259,22 @@ window-rule {
 }
 
 binds {
-    Mod+Alt+O hotkey-overlay-title="Show Hotkey Overlay"                 { show-hotkey-overlay; }
-
     // WM Management
     Mod+Ctrl+Shift+B hotkey-overlay-title="Reload Waybar"                { spawn "pkill" "-SIGUSR2" "waybar"; }
-    Mod+Ctrl+Shift+Q hotkey-overlay-title="Quit Niri"                    { quit; }
+    Mod+Shift+E      hotkey-overlay-title="Quit Niri"                    { quit; }
+    Mod+D            hotkey-overlay-title="Fuzzel Program Launcher"      { spawn "sh" "-c" "$HOME/bin/run-app-toggle fuzzel"; }
     Mod+P            hotkey-overlay-title="Rofi Program Launcher"        { spawn "sh" "-c" "$HOME/bin/rofi-launcher"; }
     Mod+Ctrl+P       hotkey-overlay-title="NWG Program Launcher"         { spawn "sh" "-c" "$HOME/bin/run_nwg_drawer"; }
-    Mod+S            hotkey-overlay-title="Rofi Window Chooser"          { spawn "sh" "-c" "$HOME/bin/rofi-windows"; }
+    Mod+Shift+W      hotkey-overlay-title="Rofi Window Chooser"          { spawn "sh" "-c" "$HOME/bin/rofi-windows"; }
     Mod+Return       hotkey-overlay-title="Launch Terminal"              { spawn "sh" "-c" "$HOME/bin/run_terminal"; }
-    Mod+N            hotkey-overlay-title="Launch Terminal"              { spawn "sh" "-c" "$HOME/bin/run_terminal"; }
+    Mod+T            hotkey-overlay-title="Launch Terminal"              { spawn "sh" "-c" "$HOME/bin/run_terminal"; }
     Mod+Ctrl+B       hotkey-overlay-title="Hide Waybar"                  { spawn "pkill" "-SIGUSR1" "waybar"; }
-    Mod+W            hotkey-overlay-title="Close Window"                 { close-window; }
-    Mod+X            hotkey-overlay-title="Minimize Window"              { spawn "sh" "-c" "$HOME/bin/wm-minimize ACTIVE"; }
+    Mod+Q            repeat=false hotkey-overlay-title="Close Window"    { close-window; }
+    Mod+M            hotkey-overlay-title="Minimize Window"              { spawn "sh" "-c" "$HOME/bin/wm-minimize ACTIVE"; }
+    Mod+W            hotkey-overlay-title="Toggle Tabbed Display"        { toggle-column-tabbed-display; }
+    Mod+Shift+O      hotkey-overlay-title="Show Hotkey Overlay"          { show-hotkey-overlay; }
 
-    Mod+Ctrl+O       repeat=false hotkey-overlay-title="Toggle Overview" { toggle-overview; }
+    Mod+O            repeat=false hotkey-overlay-title="Toggle Overview" { toggle-overview; }
     Mod+R            hotkey-overlay-title="Toggle Preset Widths"         { switch-preset-column-width; }
     Mod+Shift+R      hotkey-overlay-title="Toggle Preset Heights"        { switch-preset-window-height; }
     Mod+Ctrl+R       hotkey-overlay-title="Reset Window Height"          { reset-window-height; }
@@ -286,30 +290,26 @@ binds {
     Ctrl+Alt+Delete  hotkey-overlay-title="Power Menu"                   { spawn "sh" "-c" "$HOME/bin/run_nwg_bar"; }
     Ctrl+Space       hotkey-overlay-title="Clear Notifications"          { spawn "sh" "-c" "swaync-client --close-all ; swaync-client --close-panel"; }
     Mod+B            hotkey-overlay-title="Rofi Bitwarden"               { spawn "sh" "-c" "$HOME/bin/run-app-toggle -P rofi-rbw --use-notify-send"; }
-    Mod+E            hotkey-overlay-title="Emoji Chooser"                { spawn "sh" "-c" "$HOME/bin/run-app-toggle -P rofimoji"; }
-    Mod+I            hotkey-overlay-title="Camera Chooser"               { spawn "sh" "-c" "$HOME/bin/rofi-cams"; }
+    Mod+Shift+X      hotkey-overlay-title="Camera Chooser"               { spawn "sh" "-c" "$HOME/bin/rofi-cams"; }
     Mod+Space        hotkey-overlay-title="Notification Panel"           { spawn "swaync-client" "-t" "-sw"; }
     Mod+Z            hotkey-overlay-title="Clipboard Manager"            { spawn "sh" "-c" "$HOME/bin/run-app-toggle nwg-clipman"; }
 
     // Quick Apps
-    Mod+Apostrophe   hotkey-overlay-title="Bitwarden"                    { spawn "sh" "-c" "$HOME/bin/wm-minimize bitwarden Bitwarden"; }
-    Mod+C            hotkey-overlay-title="Calculator"                   { spawn "sh" "-c" "$HOME/bin/wm-minimize galculator"; }
-    Mod+Ctrl+Return  hotkey-overlay-title="Terminal Scratchpad"          { spawn "sh" "-c" "$HOME/bin/wm-minimize term-scratchpad"; }
-    Mod+Delete       hotkey-overlay-title="Terminal File Manager"        { spawn "sh" "-c" "$HOME/bin/wm-minimize termfm"; }
-    Mod+End          hotkey-overlay-title="Bluetooth Manager"            { spawn "sh" "-c" "$HOME/bin/wm-minimize blueman-manager"; }
-    Mod+Home         hotkey-overlay-title="Nvtop"                        { spawn "sh" "-c" "$HOME/bin/wm-minimize nvtop"; }
-    Mod+Insert       hotkey-overlay-title="Htop"                         { spawn "sh" "-c" "$HOME/bin/wm-minimize htop"; }
-    Mod+O            hotkey-overlay-title="Logseq"                       { spawn "sh" "-c" "$HOME/bin/wm-minimize com.logseq.Logseq Logseq"; }
-    Mod+Page_Down    hotkey-overlay-title="Audio Mixer"                  { spawn "sh" "-c" "$HOME/bin/wm-minimize org.pulseaudio.pavucontrol pavucontrol"; }
-    Mod+Page_Up      hotkey-overlay-title="Btop"                         { spawn "sh" "-c" "$HOME/bin/wm-minimize btop"; }
-    Mod+SemiColon    hotkey-overlay-title="Signal"                       { spawn "sh" "-c" "$HOME/bin/wm-minimize signal-desktop signal"; }
-    Mod+U            hotkey-overlay-title="Element"                      { spawn "sh" "-c" "$HOME/bin/wm-minimize io.element.Element Element"; }
-    Mod+T            hotkey-overlay-title="File Manager"                 { spawn "sh" "-c" "$HOME/bin/wm-minimize org.gnome.Nautilus"; }
-    // Mod+X            hotkey-overlay-title="Virtual Machine Manager"      { spawn "sh" "-c" "$HOME/bin/wm-minimize virt-manager virt-manager 'Virtual Machine Manager'"; }
+    Mod+Shift+1             hotkey-overlay-title="Focus First Terminal"  { spawn "sh" "-c" "$HOME/.config/niri/scripts/focus-window-or-app preferred-terminal.desktop kitty"; }
+    Mod+Shift+2             hotkey-overlay-title="Focus First Browser"   { spawn "sh" "-c" "$HOME/.config/niri/scripts/focus-window-or-app -c '-P Mike' librewolf-mike.desktop librewolf"; }
+    Mod+Shift+3             hotkey-overlay-title="Focus Second Browser"  { spawn "sh" "-c" "$HOME/.config/niri/scripts/focus-window-or-app -c '-P Media' librewolf-media.desktop librewolf"; }
 
-    // Keyboard Shortcuts
-    Mod+A            hotkey-overlay-title="Phonetic Alphabet"            { spawn "sh" "-c" "$HOME/bin/view-cheatsheet $HOME/.config/hypr/cheatsheets/phonetic_alphabet.png"; }
-    Mod+Y            hotkey-overlay-title="Phonetic Alphabet"            { spawn "sh" "-c" "$HOME/bin/view-cheatsheet $HOME/.config/hypr/cheatsheets/youtube.png"; }
+    Mod+Shift+Z             hotkey-overlay-title="Bitwarden"             { spawn "sh" "-c" "$HOME/bin/wm-minimize bitwarden Bitwarden"; }
+    Mod+Shift+C             hotkey-overlay-title="Calculator"            { spawn "sh" "-c" "$HOME/bin/wm-minimize -R galculator"; }
+    Mod+Shift+Return        hotkey-overlay-title="Terminal Scratchpad"   { spawn "sh" "-c" "$HOME/bin/wm-minimize term-scratchpad"; }
+    Mod+Shift+BracketLeft   hotkey-overlay-title="Terminal File Manager" { spawn "sh" "-c" "$HOME/bin/wm-minimize termfm"; }
+    Mod+Shift+B             hotkey-overlay-title="Bluetooth Manager"     { spawn "sh" "-c" "$HOME/bin/wm-minimize blueman-manager"; }
+    Mod+Shift+N             hotkey-overlay-title="Nvtop"                 { spawn "sh" "-c" "$HOME/bin/wm-minimize nvtop"; }
+    Mod+Shift+D             hotkey-overlay-title="Htop"                  { spawn "sh" "-c" "$HOME/bin/wm-minimize htop"; }
+    Mod+Shift+Q             hotkey-overlay-title="Logseq"                { spawn "sh" "-c" "$HOME/bin/wm-minimize com.logseq.Logseq Logseq"; }
+    Mod+Shift+BracketRight  hotkey-overlay-title="Audio Mixer"           { spawn "sh" "-c" "$HOME/bin/wm-minimize org.pulseaudio.pavucontrol pavucontrol"; }
+    Mod+Shift+A             hotkey-overlay-title="Signal"                { spawn "sh" "-c" "$HOME/bin/wm-minimize signal-desktop signal"; }
+    Mod+Shift+U             hotkey-overlay-title="Element"               { spawn "sh" "-c" "$HOME/bin/wm-minimize io.element.Element Element"; }
 
     // Niri Shortcuts
     Alt+Shift+Slash      hotkey-overlay-title="Niri Help: A+Sh"          { spawn "sh" "-c" "$HOME/bin/view-wm-help Alt-Shift"; }
@@ -332,8 +332,8 @@ binds {
     Alt+Print        hotkey-overlay-title="Screenshot Window"            { screenshot-window; }
 
     Mod+F            hotkey-overlay-title="Maximize Column"              { maximize-column; }
-    Mod+Ctrl+F       hotkey-overlay-title="Fullscreen Window"            { fullscreen-window; }
-    // Mod+Ctrl+Shift+F hotkey-overlay-title="Expand Column to Width"       { expand-column-to-available-width; }   // what's the point?
+    Mod+Shift+F      hotkey-overlay-title="Fullscreen Window"            { fullscreen-window; }
+    Mod+Ctrl+F       hotkey-overlay-title="Expand Column to Width"       { expand-column-to-available-width; }
 
     // Change Window/Column Focus
     Mod+H            hotkey-overlay-title="Focus Column Left"            { focus-column-or-monitor-left; }
@@ -361,18 +361,24 @@ binds {
     Mod+Ctrl+J       hotkey-overlay-title="Resize Window Up"             { set-window-height "+10%"; }
     Mod+Ctrl+K       hotkey-overlay-title="Resize Window Down"           { set-window-height "-10%"; }
     Mod+Ctrl+L       hotkey-overlay-title="Resize Column Left"           { set-column-width "+10%"; }
+    Mod+Minus        hotkey-overlay-title="Resize Column Left"           { set-column-width "-10%"; }
+    Mod+Equal        hotkey-overlay-title="Resize Column Left"           { set-column-width "+10%"; }
+    Mod+Shift+Minus  hotkey-overlay-title="Resize Window Down"           { set-window-height "-10%"; }
+    Mod+Shift+Equal  hotkey-overlay-title="Resize Window Up"             { set-window-height "+10%"; }
 
     // Move Window along columns
     Mod+BracketLeft  hotkey-overlay-title="Move Win Along Col Left"      { consume-or-expel-window-left; }
     Mod+BracketRight hotkey-overlay-title="Move Win Along Col Right"     { consume-or-expel-window-right; }
+    Mod+Comma        hotkey-overlay-title="Consume Window into Col"      { consume-window-into-column; }
+    Mod+Period       hotkey-overlay-title="Expel Window from Col"        { expel-window-from-column; }
 
     // Move Window/Column between Screens
-    Mod+Comma        hotkey-overlay-title="Focus Previous Screen"        { focus-monitor-left; }
-    Mod+Period       hotkey-overlay-title="Focus Next Screen"            { focus-monitor-right; }
-    Mod+Alt+Comma  hotkey-overlay-title="Move Workspace Previous Screen" { move-workspace-to-monitor-left; }
-    Mod+Alt+Period    hotkey-overlay-title="Move Workspace Next Screen"  { move-workspace-to-monitor-right; }
-    Mod+Shift+Comma   hotkey-overlay-title="Move Window Previous Screen" { move-window-to-monitor-left; }
-    Mod+Shift+Period  hotkey-overlay-title="Move Window Next Screen"     { move-window-to-monitor-right; }
+    Mod+Semicolon         hotkey-overlay-title="Focus Previous Screen"          { focus-monitor-left; }
+    Mod+Apostrophe       hotkey-overlay-title="Focus Next Screen"              { focus-monitor-right; }
+    Mod+Alt+Semicolon    hotkey-overlay-title="Move Workspace Previous Screen" { move-workspace-to-monitor-left; }
+    Mod+Alt+Apostrophe   hotkey-overlay-title="Move Workspace Next Screen"     { move-workspace-to-monitor-right; }
+    Mod+Shift+Semicolon  hotkey-overlay-title="Move Window Previous Screen"    { move-window-to-monitor-left; }
+    Mod+Shift+Apostrophe hotkey-overlay-title="Move Window Next Screen"        { move-window-to-monitor-right; }
 
     // Mod+MouseForward    cooldown-ms=150  hotkey-overlay-title="Focus Next Column/Screen" { focus-column-or-monitor-right; }
     // Mod+MouseBack       cooldown-ms=150 hotkey-overlay-title="Focus Previous Column/Screen" { focus-column-or-monitor-left; }
@@ -393,19 +399,15 @@ binds {
     Mod+Ctrl+Comma    hotkey-overlay-title="Focus Previous Workspace"    { focus-workspace-up; }
     Mod+Ctrl+Period   hotkey-overlay-title="Focus Previous Workspace"    { focus-workspace-down; }
 
-    Mod+1             hotkey-overlay-title="Focus Oldest Terminal"       { spawn "sh" "-c" "$HOME/.config/niri/scripts/focus-window-or-app preferred-terminal.desktop kitty"; }
-    Mod+2             hotkey-overlay-title="Focus Oldest Browser"        { spawn "sh" "-c" "$HOME/.config/niri/scripts/focus-window-or-app -c '-P Mike' librewolf-mike.desktop librewolf"; }
-    Mod+3             hotkey-overlay-title="Focus 2nd Oldest Browser"    { spawn "sh" "-c" "$HOME/.config/niri/scripts/focus-window-or-app -c '-P Media' librewolf-media.desktop librewolf"; }
-
-    Mod+Ctrl+1        hotkey-overlay-title="Focus WS 1"                  { focus-workspace 1; }
-    Mod+Ctrl+2        hotkey-overlay-title="Focus WS 2"                  { focus-workspace 2; }
-    Mod+Ctrl+3        hotkey-overlay-title="Focus WS 3"                  { focus-workspace 3; }
-    Mod+Ctrl+4        hotkey-overlay-title="Focus WS 4"                  { focus-workspace 4; }
-    Mod+Ctrl+5        hotkey-overlay-title="Focus WS 5"                  { focus-workspace 5; }
-    Mod+Ctrl+6        hotkey-overlay-title="Focus WS 6"                  { focus-workspace 6; }
-    Mod+Ctrl+7        hotkey-overlay-title="Focus WS 7"                  { focus-workspace 7; }
-    Mod+Ctrl+8        hotkey-overlay-title="Focus WS 8"                  { focus-workspace 8; }
-    Mod+Ctrl+9        hotkey-overlay-title="Focus WS 9"                  { focus-workspace 9; }
+    Mod+1             hotkey-overlay-title="Focus WS 1"                  { focus-workspace 1; }
+    Mod+2             hotkey-overlay-title="Focus WS 2"                  { focus-workspace 2; }
+    Mod+3             hotkey-overlay-title="Focus WS 3"                  { focus-workspace 3; }
+    Mod+4             hotkey-overlay-title="Focus WS 4"                  { focus-workspace 4; }
+    Mod+5             hotkey-overlay-title="Focus WS 5"                  { focus-workspace 5; }
+    Mod+6             hotkey-overlay-title="Focus WS 6"                  { focus-workspace 6; }
+    Mod+7             hotkey-overlay-title="Focus WS 7"                  { focus-workspace 7; }
+    Mod+8             hotkey-overlay-title="Focus WS 8"                  { focus-workspace 8; }
+    Mod+9             hotkey-overlay-title="Focus WS 9"                  { focus-workspace 9; }
 
     Mod+Alt+1         hotkey-overlay-title="Move Window to WS 1"         { move-window-to-workspace 1; }
     Mod+Alt+2         hotkey-overlay-title="Move Window to WS 2"         { move-window-to-workspace 2; }
@@ -417,20 +419,21 @@ binds {
     Mod+Alt+8         hotkey-overlay-title="Move Window to WS 8"         { move-window-to-workspace 8; }
     Mod+Alt+9         hotkey-overlay-title="Move Window to WS 9"         { move-window-to-workspace 9; }
 
-    Mod+Shift+1       hotkey-overlay-title="Move Column to WS 1"         { move-column-to-workspace 1; }
-    Mod+Shift+2       hotkey-overlay-title="Move Column to WS 2"         { move-column-to-workspace 2; }
-    Mod+Shift+3       hotkey-overlay-title="Move Column to WS 3"         { move-column-to-workspace 3; }
-    Mod+Shift+4       hotkey-overlay-title="Move Column to WS 4"         { move-column-to-workspace 4; }
-    Mod+Shift+5       hotkey-overlay-title="Move Column to WS 5"         { move-column-to-workspace 5; }
-    Mod+Shift+6       hotkey-overlay-title="Move Column to WS 6"         { move-column-to-workspace 6; }
-    Mod+Shift+7       hotkey-overlay-title="Move Column to WS 7"         { move-column-to-workspace 7; }
-    Mod+Shift+8       hotkey-overlay-title="Move Column to WS 8"         { move-column-to-workspace 8; }
-    Mod+Shift+9       hotkey-overlay-title="Move Column to WS 9"         { move-column-to-workspace 9; }
+    Mod+Ctrl+1        hotkey-overlay-title="Move Column to WS 1"         { move-column-to-workspace 1; }
+    Mod+Ctrl+2        hotkey-overlay-title="Move Column to WS 2"         { move-column-to-workspace 2; }
+    Mod+Ctrl+3        hotkey-overlay-title="Move Column to WS 3"         { move-column-to-workspace 3; }
+    Mod+Ctrl+4        hotkey-overlay-title="Move Column to WS 4"         { move-column-to-workspace 4; }
+    Mod+Ctrl+5        hotkey-overlay-title="Move Column to WS 5"         { move-column-to-workspace 5; }
+    Mod+Ctrl+6        hotkey-overlay-title="Move Column to WS 6"         { move-column-to-workspace 6; }
+    Mod+Ctrl+7        hotkey-overlay-title="Move Column to WS 7"         { move-column-to-workspace 7; }
+    Mod+Ctrl+8        hotkey-overlay-title="Move Column to WS 8"         { move-column-to-workspace 8; }
+    Mod+Ctrl+9        hotkey-overlay-title="Move Column to WS 9"         { move-column-to-workspace 9; }
 
     // Move the focused window between the floating and the tiling layout.
-    Mod+Ctrl+V        hotkey-overlay-title="Toggle Floating"             { toggle-window-floating; }
+    Mod+V             hotkey-overlay-title="Toggle Floating"             { toggle-window-floating; }
     Mod+Shift+V       hotkey-overlay-title="Switch Focus Float/Tile"     { switch-focus-between-floating-and-tiling; }
-    Mod+Ctrl+C       hotkey-overlay-title="Center Window"               { center-window; }
+    Mod+C             hotkey-overlay-title="Center Window"               { center-window; }
+    Mod+Ctrl+C        hotkey-overlay-title="Center Visible Columns"      { center-visible-columns; }
 
     // Need to consider adding Escape to help image generator
     Mod+Escape        allow-inhibiting=false hotkey-overlay-title="Toggle Keyboard Shortcuts Inhibit" { toggle-keyboard-shortcuts-inhibit; }
@@ -441,7 +444,7 @@ binds {
     XF86AudioRaiseVolume allow-when-locked=true hotkey-overlay-title="Speaker Volume Up"     { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.05+"; }
     Mod+Right            allow-when-locked=true hotkey-overlay-title="Speaker Volume Up"     { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.05+"; }
     XF86AudioMute        allow-when-locked=true hotkey-overlay-title="Mute Speakers"         { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
-    Mod+M                allow-when-locked=true hotkey-overlay-title="Mute Speakers"         { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
+    Mod+Ctrl+M           allow-when-locked=true hotkey-overlay-title="Mute Speakers"         { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
 
     // Mic Volume
     Shift+XF86AudioLowerVolume allow-when-locked=true hotkey-overlay-title="Mic Volume Down" { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SOURCE@" "0.05-"; }

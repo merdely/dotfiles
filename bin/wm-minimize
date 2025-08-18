@@ -2,16 +2,20 @@
 
 progname=$(basename $0)
 usage() {
-  echo "usage: $progname [-h] [-c] command|ACTIVE [windowclass] [title]"
+  echo "usage: $progname [-h] [-R] [-c] command|ACTIVE [windowclass] [title]"
   echo "         By default, $progname uses gtk-launch"
   echo "         With -c, $progname looks for a command string \"foo --bar --baz\""
+  echo "         With -R, $progname will NOT resize windows to 90% when unminimizing"
   exit $1
 }
 
 niri_floating_ws="🗒️"
 
 mode=desktop
+resize=1
 [ "$1" = "-h" ] && usage
+[ "$1" = "-c" ] && mode=cmdline && shift
+[ "$1" = "-R" ] && resize=0 && shift
 [ "$1" = "-c" ] && mode=cmdline && shift
 [ -z "$1" ] && usage 1
 
@@ -58,12 +62,15 @@ toggle_minimize() {
       niri msg action move-window-to-floating --id $app_id
       niri msg action move-window-to-monitor --id $app_id $cur_mon
       niri msg action focus-window --id $app_id
-      niri msg action set-window-height --id $app_id 90%
-      niri msg action set-window-width --id $app_id 90%
+      if [ $resize = 1 ]; then
+        niri msg action set-window-height --id $app_id 90%
+        niri msg action set-window-width --id $app_id 90%
+      fi
       niri msg action center-window --id $app_id
     else
       niri msg action move-window-to-workspace --focus false --window-id $app_id $niri_floating_ws
       niri msg action move-window-to-tiling --id $app_id
+      niri msg action set-window-width --id $app_id 100%
     fi
 
   else  # Hyprland
@@ -118,8 +125,24 @@ isrunning() {
 if [ $cmd = ACTIVE ]; then
   if [[ "$XDG_CURRENT_DESKTOP" =~ ^niri ]]; then
     app_id=$(niri msg -j focused-window | jq '.id')
-    niri msg action move-window-to-workspace --focus false --window-id $app_id $niri_floating_ws
-    niri msg action move-window-to-tiling --id $app_id
+    ws_id=$(niri msg -j focused-window | jq '.workspace_id')
+    [[ $ws_id ]] && ws_name=$(niri msg -j workspaces | jq -r --arg c $ws_id '.[] | select(.id|tostring==$c) | .name')
+    #cur_mon=$(niri msg -j focused-output | jq -r '.name')
+    if [ "$ws_name" = $niri_floating_ws ]; then
+      niri msg action move-window-up-or-to-workspace-up
+      niri msg action move-window-to-floating --id $app_id
+      # niri msg action move-window-to-monitor --id $app_id $cur_mon
+      niri msg action focus-window --id $app_id
+      if [ $resize = 1 ]; then
+        niri msg action set-window-height --id $app_id 90%
+        niri msg action set-window-width --id $app_id 90%
+      fi
+      niri msg action center-window --id $app_id
+    else
+      niri msg action move-window-to-workspace --focus false --window-id $app_id $niri_floating_ws
+      niri msg action move-window-to-tiling --id $app_id
+      niri msg action set-window-width --id $app_id 100%
+    fi
   fi
 else
   isrunning "$appid" && toggle_minimize "$appid" "$title" || run_cmd "$cmd" "$appid" "$title"
