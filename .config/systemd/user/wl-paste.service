@@ -1,12 +1,12 @@
 [Unit]
-Description=Keep Wayland clipboard even after programs close (images)
+Description=Keep Wayland clipboard even after programs close
 PartOf=graphical-session.target
 After=graphical-session.target
 ConditionEnvironment=WAYLAND_DISPLAY
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/wl-paste --type image --watch cliphist store
+ExecStart=/usr/bin/wl-paste --watch cliphist store
 Restart=on-failure
 
 [Install]
