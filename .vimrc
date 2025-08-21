@@ -212,6 +212,9 @@ nnoremap <leader>x :!chmod +x %<CR>
 " Quick config editing
 nnoremap <leader>rc :e ~/.vimrc<CR>
 
+" Clear some customizations to make copying easier
+nnoremap <silent> <expr> <leader>cp "\:set cursorline! list! number! breakindent! " . (&colorcolumn == '' ? "colorcolumn=80 " : "colorcolumn= ") . (&signcolumn == 'number' ? "signcolumn=no " : "signcolumn=number "). "<CR>"
+
 " ===============================
 " Autocommands
 " ===============================
@@ -243,4 +246,13 @@ set wildignore+=*.o,*.obj,*.pyc,*.class,*.jar
 " set diffopt+=linematch:60
 set redrawtime=10000
 set maxmempattern=20000
+
+" Make the cursor look good with tmux
+if exists('$TMUX')
+    let &t_SI = "\<Esc>Ptmux;\<Esc>\e[2 q\<Esc>\\"
+    let &t_EI = "\<Esc>Ptmux;\<Esc>\e[2 q\<Esc>\\"
+else
+    let &t_SI = "\e[2 q"
+    let &t_EI = "\e[2 q"
+endif
 
