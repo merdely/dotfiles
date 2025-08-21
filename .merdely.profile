@@ -72,10 +72,11 @@ if echo $TERM | grep -Eq "^(xterm|tmux|screen)"; then
 fi
 bind 'set show-mode-in-prompt on'
 bind 'set keymap vi-insert'
+PROMPT_DIRTRIM=2
 __update_prompt () {
   ec='\1\e[32m\2'
   [ "$1" != 0 ] && ec='\1\e[31m\2'
-  EMBEDDED_PS1='[\1\e[1;36m\2\u\1\e[0m\2@\1\e[1;32m\2\h\1\e[0m\2 \1\e[1;34m\2\W\1\e[0m\2]$(__git_ps1 " (%s)" 2> /dev/null)${ec}'
+  EMBEDDED_PS1='[\1\e[1;36m\2\u\1\e[0m\2@\1\e[1;32m\2\h\1\e[0m\2 \1\e[1;34m\2\w\1\e[0m\2]$(__git_ps1 " (%s)" 2> /dev/null)${ec}'
   bind "set vi-ins-mode-string \"${EMBEDDED_PS1@P} ${pcharr}\1\e[0m\2\""
   bind "set vi-cmd-mode-string \"${EMBEDDED_PS1@P} ${pcharl}\1\e[0m\2\""
 }
