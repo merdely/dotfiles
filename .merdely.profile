@@ -209,13 +209,34 @@ fi
 
 # sudo/doas aliases
 # The space after mysudo (or sudo) allows for alias expansion in sudo
-alias sudo='sudo '
+mysudo() {
+  if [[ $1 =~ ^(vi|vim|nvim)$ ]]; then
+    local bad good oldcmd=$1
+    shift
+    for file in $@; do
+      if [ -f "$file" ] && [ -w "$(dirname "$(realpath "$file")")" ]; then
+        bad="$bad $file"
+      else
+        good="$good $file"
+      fi
+    done
+    if [ -n "${good# }" ]; then
+      echo "Executing 'sudoedit' instead of 'sudo $oldcmd'"
+      sudoedit "${good# }"
+      [ -n "${bad# }" ] && echo
+    fi
+    [ -n "${bad# }" ] && echo "Error: Do not use sudoedit for these files: ${bad# }"
+  else
+    sudo "$@"
+  fi
+}
 which sudo > /dev/null 2>&1
 ret_sudo=$?
 which doas > /dev/null 2>&1
 ret_doas=$?
+alias sudo='mysudo '
 [ $ret_sudo != 0 -a $ret_doas = 0 ] && alias sudo='doas '
-[ $ret_sudo = 0 -a $ret_doas != 0 ] && alias doas='sudo '
+[ $ret_sudo = 0 -a $ret_doas != 0 ] && alias doas='mysudo '
 
 # Handle with / is read-only
 if [ -r /boot/cmdline.txt ] && grep -qE "\<ro\>" /boot/cmdline.txt; then
