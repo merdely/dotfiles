@@ -1,8 +1,14 @@
 ## Mike's Master .merdely.profile
+# This script only works with bash now
+[ -z "$BASH_VERSION" ] && return
 
 # Add '[[ $- == *i* ]] && [ -r $HOME/.merdely.profile ] && . $HOME/.merdely.profile'
 # to the bottom of $HOME/.profile or $HOME/.bashrc
 
+# Set umask early
+umask 0022
+
+# Set kernel_name so we don't run 'uname -s' several times
 [ -r /etc/os-release ] && . /etc/os-release
 kernel_name=$(uname -s)
 [ -z "$ID" ] && export ID=$kernel_name
@@ -30,7 +36,7 @@ add_to_path() {
   fi
 }
 
-# Used in reload aliases below
+# Used in aliases below
 [ -z "$HOSTNAME" ] && HOSTNAME="$(hostname -s)"
 export HOSTNAME=${HOSTNAME%%.*}
 
@@ -47,138 +53,72 @@ export XDG_DATA_DIRS=$XDG_DATA_HOME:${XDG_DATA_DIRS:=/usr/local/share:/usr/share
 [ ! -w $XDG_CACHE_HOME ] && export XDG_CACHE_HOME=$XDG_RUNTIME_DIR/.cache && mkdir -p -m 700 $XDG_CACHE_HOME
 [ ! -w $XDG_STATE_HOME ] && export XDG_STATE_HOME=$XDG_RUNTIME_DIR/.state && mkdir -p -m 700 $XDG_STATE_HOME
 
-# History stuff (needs to come after Git stuff)
+# History stuff
 HISTFILESIZE=10000
 HISTSIZE=10000
 HISTCONTROL=ignoreboth:erasedups
 HISTFILE=$XDG_CACHE_HOME/shell_history
-if echo $SHELL | grep -Eq "^(/usr(/local)?)?/bin/bash$"; then
-  bind 'set show-mode-in-prompt on'
-  #bind 'set vi-cmd-mode-string "[N]"'
-  #bind 'set vi-ins-mode-string "[I]"'
-  bind 'set vi-ins-mode-string \1\e[6 q\2'
-  bind 'set vi-cmd-mode-string \1\e[2 q\2'
+user_dot_profile=$HOME/.profile
+[ -r $HOME/.bash_profile ] && user_dot_profile=$HOME/.bash_profile
+shopt -s autocd cdspell extglob histappend
 
-  shopt -s autocd
-  shopt -s cdspell
-  shopt -s extglob
-  shopt -s histappend
-  # Try to do a shared command history
-  if [ -z "$PROMPT_COMMAND" ]; then
-    PROMPT_COMMAND="history -a; history -c; history -r"
-  elif ! echo ";$PROMPT_COMMAND;" | grep -qE "; ?history -a; ?history -c; ?history -r ?;"; then
-    PROMPT_COMMAND="$PROMPT_COMMAND; history -a; history -c; history -r"
-  fi
-  if which fzf &> /dev/null; then
-    if fzf --help | grep -q -- " --bash "; then
-      eval "$(fzf --bash)"
-    else
-      . /usr/share/doc/fzf/examples/key-bindings.bash
-    fi
-  fi
+# Set up prompt
+__git_ps1() { true; }
+pcharr='\1\e[1m\2>\1\e[0m\2'
+pcharl='\1\e[1m\2<\1\e[0m\2'
+if echo $TERM | grep -Eq "^(xterm|tmux|screen)"; then
+  pcharr='❱'
+  pcharl='❰'
 fi
-
-# ANSI Colors
-unformat="\[\033[00m\]"
-
-black="\[\033[00;30m\]"
-black_bold="\[\033[01;30m\]"
-black_underline="\[\033[04;30m\]"
-black_dim="\[\033[02;30m\]"
-black_reverse="\[\033[07;30m\]"
-
-blue="\[\033[00;34m\]"
-blue_bold="\[\033[01;34m\]"
-blue_dim="\[\033[02;34m\]"
-blue_underline="\[\033[04;34m\]"
-blue_reverse="\[\033[07;34m\]"
-
-cyan="\[\033[00;36m\]"
-cyan_bold="\[\033[01;36m\]"
-cyan_dim="\[\033[02;36m\]"
-cyan_underline="\[\033[04;36m\]"
-cyan_reverse="\[\033[07;36m\]"
-
-green="\[\033[00;32m\]"
-green_bold="\[\033[01;32m\]"
-green_dim="\[\033[02;32m\]"
-green_underline="\[\033[04;32m\]"
-green_reverse="\[\033[07;32m\]"
-
-purple="\[\033[00;35m\]"
-purple_bold="\[\033[01;35m\]"
-purple_dim="\[\033[02;35m\]"
-purple_underline="\[\033[04;35m\]"
-purple_reverse="\[\033[07;35m\]"
-
-red="\[\033[00;31m\]"
-red_bold="\[\033[01;31m\]"
-red_dim="\[\033[02;31m\]"
-red_underline="\[\033[04;31m\]"
-red_reverse="\[\033[07;31m\]"
-
-white="\[\033[00;37m\]"
-white_bold="\[\033[01;37m\]"
-white_dim="\[\033[02;37m\]"
-white_underline="\[\033[04;37m\]"
-white_reverse="\[\033[07;37m\]"
-
-yellow="\[\033[00;33m\]"
-yellow_bold="\[\033[01;33m\]"
-yellow_dim="\[\033[02;33m\]"
-yellow_underline="\[\033[04;33m\]"
-yellow_reverse="\[\033[07;33m\]"
+bind 'set show-mode-in-prompt on'
+bind 'set keymap vi-insert'
+__update_prompt () {
+  ec='\1\e[32m\2'
+  [ "$1" != 0 ] && ec='\1\e[31m\2'
+  EMBEDDED_PS1='[\1\e[1;36m\2\u\1\e[0m\2@\1\e[1;32m\2\h\1\e[0m\2 \1\e[1;34m\2\W\1\e[0m\2]$(__git_ps1 " (%s)" 2> /dev/null)${ec}'
+  bind "set vi-ins-mode-string \"${EMBEDDED_PS1@P} ${pcharr}\1\e[0m\2\""
+  bind "set vi-cmd-mode-string \"${EMBEDDED_PS1@P} ${pcharl}\1\e[0m\2\""
+}
+__update_prompt
+PROMPT_COMMAND="code=\$?;__update_prompt \$code;unset code;history -a; history -c; history -r"
+which fzf > /dev/null 2>&1 && eval "$(fzf --bash)"
+PS1=' '
 
 # General settings
-# Define __git_ps1 to be nothing -- will be defined later if available
-__git_ps1() { true; }
-umask 0022
-prompt_char=">"
-echo $TERM | grep -Eq "^(xterm|tmux|screen)" && prompt_char="❯"
-__prompt_exit_code_color() { local code=$?;local color='\033[00;32m';[ $code -ne 0 ]&&color='\033[00;31m';echo -e "$color"; }
-PS1="[${cyan_bold}\u${unformat}@${green_bold}\h${unformat} ${blue_bold}\W${unformat}]\$(__git_ps1 ' (%s)' 2>/dev/null;echo -e \"\[\$(__prompt_exit_code_color)\]\") ${prompt_char} ${unformat}"
-
 export LESS=REX
 export NIFS=$(printf "\n\b")
 export OIFS=$IFS
 export LANG=en_US.UTF-8
 export LC_CTYPE=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
-[ -x /usr/lib/nagios/plugins/check_disk ] && add_to_path /usr/lib/nagios/plugins
 add_to_path -b $HOME/.local/bin
 add_to_path -b $HOME/bin
 add_to_path -e /usr/sbin
 [ -d /srv/scripts/bin ]  && add_to_path -e /srv/scripts/bin
 [ -d /srv/scripts/sbin ] && add_to_path -e /srv/scripts/sbin
 [ -z "$EUID" ] && export EUID=$(id -u)
-user_dot_profile=$HOME/.profile
-[ -r $HOME/.bash_profile ] && user_dot_profile=$HOME/.bash_profile
+[ -x /usr/lib/nagios/plugins/check_disk ] && add_to_path /usr/lib/nagios/plugins
 
 # General aliases
+alias reprofile=". $user_dot_profile reload"
+alias cdp='cd $(pwd -P)'
 alias ls='ls -F'
 [ $kernel_name = Linux ] && alias ls='ls -N --color=auto'
 [ $kernel_name = Linux ] && alias grep='grep --color=auto'
 [ $kernel_name = Linux ] && alias diff='diff --color=auto'
-alias cdp='cd $(pwd -P)'
 [ -e /dev/pf ] && alias pflog='doas tcpdump -n -e -ttt -i pflog0'
 [ -e /srv/scripts/bin/nohist ] && alias nohist='. /srv/scripts/bin/nohist'
-alias dos_rsync='rsync -rtcvP'
-alias utcdate='TZ=UTC date "+%a %b %d %H:%M:%S %Z %Y"'
 ! which mail > /dev/null 2>&1 && which s-nail > /dev/null 2>&1 && alias mail=s-nail
-alias printenv='printenv|sort'
-alias rebashrc=". $user_dot_profile reload"
-alias reprofile=". $user_dot_profile reload"
 alias check_reboot='sudo /srv/scripts/sbin/daily_report_linux reboot'
 alias check_restart='sudo /srv/scripts/sbin/daily_report_linux restart'
-alias sqlite=sqlite3
 getent passwd splunk > /dev/null && alias susplunk='sudo su - splunk'
-alias suacme='sudo su - -s /bin/bash -l acme'
-which mpv > /dev/null 2>&1 && alias mpv='DBUS_FATAL_WARNINGS=0 mpv'
-
-# Common typos
-alias Grep=grep
-alias Less=less
-alias More=more
+getent passwd acme > /dev/null && alias suacme='sudo su - -s /bin/bash -l acme'
+which python2 > /dev/null 2>&1 && alias python=python2
+which python3 > /dev/null 2>&1 && alias python=python3
+which rsync > /dev/null 2>&1 && alias dos_rsync='rsync -rtcvP'
+which batman > /dev/null 2>&1 && eval "$(batman --export-env)"
+which bat > /dev/null 2>&1 && alias cat='bat --paging=never --plain'
+which bat > /dev/null 2>&1 && export PAGER='bat'
 
 # bash vi-mode
 set -o vi  # vi mode for command line editing
@@ -215,18 +155,17 @@ if which dog > /dev/null 2>&1; then
   which host > /dev/null 2>&1 || alias host=dog
 fi
 
-# Python stuff
-which python2 > /dev/null 2>&1 && alias python=python2
-which python3 > /dev/null 2>&1 && alias python=python3
-
 # Set some variables
 which virsh > /dev/null 2>&1 && export VIRSH_DEFAULT_CONNECT_URI=qemu:///system
 if which docker > /dev/null 2>&1; then
   [ -r /srv/docker/docker-compose.yaml ] && export COMPOSE_FILE=/srv/docker/docker-compose.yaml
   [ -r /srv/docker/compose.yaml ] && export COMPOSE_FILE=/srv/docker/compose.yaml
-  [ -r /srv/docker/$HOSTNAME/compose.yaml ] && export COMPOSE_FILE=/srv/docker/$HOSTNAME/compose.yaml
-  [ -r /srv/containers/$HOSTNAME/compose.yaml ] && export COMPOSE_FILE=/srv/containers/$HOSTNAME/compose.yaml
   export COMPOSE_DOCKER_CLI_BUILD=0
+  if docker ps --format "{{.Names}}" 2> /dev/null | grep -q "^naemon$"; then
+    alias naemoncheck='docker compose exec naemon runuser -u naemon -- naemon -v /etc/naemon/naemon.cfg'
+    alias naemonreload='docker compose exec naemon pkill -P 1 -x naemon'
+  fi
+
   if docker ps --format "{{.Names}}" 2> /dev/null | grep -q "^nagios$"; then
     alias nagioscheck='docker compose exec nagios nagioscheck'
     alias nagiosreload='docker compose exec nagios nagiosreload'
@@ -267,10 +206,6 @@ if which ansible-playbook > /dev/null 2>&1; then
   alias apk='ANSIBLE_SSH_ARGS="-o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" ansible-playbook'
   export ANSIBLE_NOCOWS=1
 fi
-
-# RPI commands
-which vcgencmd > /dev/null 2>&1 && alias gettemp='echo $(echo "$(vcgencmd measure_temp | awk -F"[='"'"']" "{print \$2}")*9/5+32" | bc) F'
-which vcgencmd > /dev/null 2>&1 && alias gettempc='echo $(vcgencmd measure_temp | awk -F"[='"'"']" "{print \$2}") C'
 
 # sudo/doas aliases
 # The space after mysudo (or sudo) allows for alias expansion in sudo
