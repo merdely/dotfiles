@@ -1,10 +1,14 @@
 #!/bin/sh
 
+cur=$(tmux display-message -p -F '#{window_index}')
 I=0
 for win in $(tmux lsw -F '#I'); do
   if [ $I != $win ]; then
     [ "$1" = "-v" ] && echo "Moving window $win to $I"
     tmux movew -d -s $win -t $I
+  fi
+  if [ $cur = $win ]; then
+    tmux selectw -t $I
   fi
   I=$((I+1))
 done
