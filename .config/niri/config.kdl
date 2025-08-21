@@ -111,8 +111,7 @@ spawn-at-startup "systemctl" "--user" "start" "swaybg.service"
 spawn-at-startup "bash" "-c" "[[ ! $(hostname -s) =~ ^(styx)$ ]] && systemctl --user start swayidle.service"
 spawn-at-startup "bash" "-c" "[[ $(hostname -s) =~ ^(styx)$ ]] && systemctl --user start swayidle.service"
 spawn-at-startup "bash" "-c" "[[ $(hostname -s) =~ ^(mercury)$ ]] && systemctl --user start firefox-info.service"
-spawn-at-startup "systemctl" "--user" "start" "wl-paste-text.service"
-spawn-at-startup "systemctl" "--user" "start" "wl-paste-image.service"
+spawn-at-startup "systemctl" "--user" "start" "wl-paste.service"
 spawn-at-startup "systemctl" "--user" "start" "ydotool.service"
 spawn-at-startup "sh" "-c" "sleep 10 && systemctl --user start syncthingtray.service"
 //spawn-at-startup "gtk-launch" "ydotoold"
@@ -259,12 +258,24 @@ window-rule {
 }
 
 binds {
+    // Place holders for older keybindings
+    Mod+A                    { spawn "true"; }
+    Mod+B                    { spawn "true"; }
+    Mod+E                    { spawn "true"; }
+    Mod+I                    { spawn "true"; }
+    Mod+P                    { spawn "true"; }
+    Mod+S                    { spawn "true"; }
+    Mod+U                    { spawn "true"; }
+    Mod+Z                    { spawn "true"; }
+    Mod+Semicolon            { spawn "true"; }
+    Mod+Apostrophe           { spawn "true"; }
+    Mod+Shift+Semicolon      { spawn "true"; }
+    Mod+Shift+Apostrophe     { spawn "true"; }
+
     // WM Management
     Mod+Ctrl+Shift+B hotkey-overlay-title="Reload Waybar"                { spawn "pkill" "-SIGUSR2" "waybar"; }
     Mod+Shift+E      hotkey-overlay-title="Quit Niri"                    { quit; }
     Mod+D            hotkey-overlay-title="Fuzzel Program Launcher"      { spawn "sh" "-c" "$HOME/bin/run-app-toggle fuzzel"; }
-    Mod+P            hotkey-overlay-title="Rofi Program Launcher"        { spawn "sh" "-c" "$HOME/bin/rofi-launcher"; }
-    Mod+Ctrl+P       hotkey-overlay-title="NWG Program Launcher"         { spawn "sh" "-c" "$HOME/bin/run_nwg_drawer"; }
     Mod+Shift+W      hotkey-overlay-title="Rofi Window Chooser"          { spawn "sh" "-c" "$HOME/bin/rofi-windows"; }
     Mod+Return       hotkey-overlay-title="Launch Terminal"              { spawn "sh" "-c" "$HOME/bin/run_terminal"; }
     Mod+T            hotkey-overlay-title="Launch Terminal"              { spawn "sh" "-c" "$HOME/bin/run_terminal"; }
@@ -289,10 +300,10 @@ binds {
     Alt+Shift+P      hotkey-overlay-title="Power Menu"                   { spawn "sh" "-c" "$HOME/bin/rofi-powermenu"; }
     Ctrl+Alt+Delete  hotkey-overlay-title="Power Menu"                   { spawn "sh" "-c" "$HOME/bin/run_nwg_bar"; }
     Ctrl+Space       hotkey-overlay-title="Clear Notifications"          { spawn "sh" "-c" "swaync-client --close-all ; swaync-client --close-panel"; }
-    Mod+B            hotkey-overlay-title="Rofi Bitwarden"               { spawn "sh" "-c" "$HOME/bin/run-app-toggle -P rofi-rbw --use-notify-send"; }
+    Mod+N            hotkey-overlay-title="Rofi Bitwarden"               { spawn "sh" "-c" "$HOME/bin/run-app-toggle -P rofi-rbw --use-notify-send"; }
     Mod+Shift+X      hotkey-overlay-title="Camera Chooser"               { spawn "sh" "-c" "$HOME/bin/rofi-cams"; }
     Mod+Space        hotkey-overlay-title="Notification Panel"           { spawn "swaync-client" "-t" "-sw"; }
-    Mod+Z            hotkey-overlay-title="Clipboard Manager"            { spawn "sh" "-c" "$HOME/bin/run-app-toggle nwg-clipman"; }
+    Mod+X            hotkey-overlay-title="Clipboard Manager"            { spawn "sh" "-c" "cliphist list | fuzzel -d | cliphist decode | wl-copy"; }
 
     // Quick Apps
     Mod+Shift+1             hotkey-overlay-title="Focus First Terminal"  { spawn "sh" "-c" "$HOME/.config/niri/scripts/focus-window-or-app preferred-terminal.desktop kitty"; }
@@ -307,7 +318,7 @@ binds {
     Mod+Shift+N             hotkey-overlay-title="Nvtop"                 { spawn "sh" "-c" "$HOME/bin/wm-minimize nvtop"; }
     Mod+Shift+D             hotkey-overlay-title="Htop"                  { spawn "sh" "-c" "$HOME/bin/wm-minimize htop"; }
     Mod+Shift+Q             hotkey-overlay-title="Logseq"                { spawn "sh" "-c" "$HOME/bin/wm-minimize com.logseq.Logseq Logseq"; }
-    Mod+Shift+BracketRight  hotkey-overlay-title="Audio Mixer"           { spawn "sh" "-c" "$HOME/bin/wm-minimize org.pulseaudio.pavucontrol pavucontrol"; }
+    Mod+Shift+I             hotkey-overlay-title="Audio Mixer"           { spawn "sh" "-c" "$HOME/bin/wm-minimize org.pulseaudio.pavucontrol pavucontrol"; }
     Mod+Shift+A             hotkey-overlay-title="Signal"                { spawn "sh" "-c" "$HOME/bin/wm-minimize signal-desktop signal"; }
     Mod+Shift+U             hotkey-overlay-title="Element"               { spawn "sh" "-c" "$HOME/bin/wm-minimize io.element.Element Element"; }
 
@@ -336,14 +347,14 @@ binds {
     Mod+Ctrl+F       hotkey-overlay-title="Expand Column to Width"       { expand-column-to-available-width; }
 
     // Change Window/Column Focus
-    Mod+H            hotkey-overlay-title="Focus Column Left"            { focus-column-or-monitor-left; }
-    // Mod+H            hotkey-overlay-title="Focus Column Left"            { focus-column-left-or-last; }
+    // Mod+H            hotkey-overlay-title="Focus Column Left"            { focus-column-or-monitor-left; }
+    Mod+H            hotkey-overlay-title="Focus Column Left"            { focus-column-left-or-last; }
     // Mod+H            hotkey-overlay-title="Focus Column Left"            { focus-column-left; }
     Mod+J            hotkey-overlay-title="Focus Column Down"            { focus-window-or-workspace-down; }
     Mod+K            hotkey-overlay-title="Focus Column Up"              { focus-window-or-workspace-up; }
     // Mod+L            hotkey-overlay-title="Focus Column Right"           { focus-column-right; }
-    // Mod+L            hotkey-overlay-title="Focus Column Right"           { focus-column-right-or-first; }
-    Mod+L            hotkey-overlay-title="Focus Column Right"           { focus-column-or-monitor-right; }
+    Mod+L            hotkey-overlay-title="Focus Column Right"           { focus-column-right-or-first; }
+    // Mod+L            hotkey-overlay-title="Focus Column Right"           { focus-column-or-monitor-right; }
 
     Mod+Alt+H        hotkey-overlay-title="Focus First Column"           { focus-column-first; }
     Mod+Alt+L        hotkey-overlay-title="Focus Last Column"            { focus-column-last; }
@@ -367,18 +378,18 @@ binds {
     Mod+Shift+Equal  hotkey-overlay-title="Resize Window Up"             { set-window-height "+10%"; }
 
     // Move Window along columns
-    Mod+BracketLeft  hotkey-overlay-title="Move Win Along Col Left"      { consume-or-expel-window-left; }
-    Mod+BracketRight hotkey-overlay-title="Move Win Along Col Right"     { consume-or-expel-window-right; }
-    Mod+Comma        hotkey-overlay-title="Consume Window into Col"      { consume-window-into-column; }
-    Mod+Period       hotkey-overlay-title="Expel Window from Col"        { expel-window-from-column; }
+    Mod+BracketLeft        hotkey-overlay-title="Move Win Along Col Left"   { consume-or-expel-window-left; }
+    Mod+BracketRight       hotkey-overlay-title="Move Win Along Col Right"  { consume-or-expel-window-right; }
+    Mod+Ctrl+BracketLeft   hotkey-overlay-title="Consume Window into Col"   { consume-window-into-column; }
+    Mod+Ctrl+BracketRight  hotkey-overlay-title="Expel Window from Col"     { expel-window-from-column; }
 
     // Move Window/Column between Screens
-    Mod+Semicolon         hotkey-overlay-title="Focus Previous Screen"          { focus-monitor-left; }
-    Mod+Apostrophe       hotkey-overlay-title="Focus Next Screen"              { focus-monitor-right; }
-    Mod+Alt+Semicolon    hotkey-overlay-title="Move Workspace Previous Screen" { move-workspace-to-monitor-left; }
-    Mod+Alt+Apostrophe   hotkey-overlay-title="Move Workspace Next Screen"     { move-workspace-to-monitor-right; }
-    Mod+Shift+Semicolon  hotkey-overlay-title="Move Window Previous Screen"    { move-window-to-monitor-left; }
-    Mod+Shift+Apostrophe hotkey-overlay-title="Move Window Next Screen"        { move-window-to-monitor-right; }
+    Mod+Comma        hotkey-overlay-title="Focus Previous Screen"          { focus-monitor-left; }
+    Mod+Period       hotkey-overlay-title="Focus Next Screen"              { focus-monitor-right; }
+    Mod+Alt+Comma    hotkey-overlay-title="Move Workspace Previous Screen" { move-workspace-to-monitor-left; }
+    Mod+Alt+Period   hotkey-overlay-title="Move Workspace Next Screen"     { move-workspace-to-monitor-right; }
+    Mod+Shift+Comma  hotkey-overlay-title="Move Window Previous Screen"    { move-window-to-monitor-left; }
+    Mod+Shift+Period hotkey-overlay-title="Move Window Next Screen"        { move-window-to-monitor-right; }
 
     // Mod+MouseForward    cooldown-ms=150  hotkey-overlay-title="Focus Next Column/Screen" { focus-column-or-monitor-right; }
     // Mod+MouseBack       cooldown-ms=150 hotkey-overlay-title="Focus Previous Column/Screen" { focus-column-or-monitor-left; }
