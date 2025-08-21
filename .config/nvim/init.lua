@@ -192,6 +192,9 @@ vim.keymap.set("n", "<leader>ff", ":FzfLua files<CR>", { desc = "Find files (cur
 vim.keymap.set("n", "<leader>fc", ":FzfLua files cwd=~/.config<CR>", { desc = "Find file (.config)" })
 vim.keymap.set("n", "<leader>fh", ":FzfLua files cwd=~<CR>", { desc = "Find file (home)" })
 
+-- Clear some customizations to make copying easier
+vim.keymap.set('n', '<leader>cp', function() vim.cmd(":set cursorline! list! number! breakindent! " .. (vim.o.colorcolumn == '' and "colorcolumn=80 " or "colorcolumn= ") .. (vim.o.signcolumn == 'number' and "signcolumn=no " or "signcolumn=number ")) end, { silent = true, expr = false })
+
 -- Make file executable
 vim.keymap.set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { desc = "Make file executable", silent = true })
 
