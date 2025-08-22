@@ -148,13 +148,14 @@ else
 fi
 
 # Editor aliases
-which hyprctl > /dev/null 2>&1 && alias vih='vi -O ~/.config/hypr/hyprland.conf'
-which hyprctl > /dev/null 2>&1 && alias vihl='vi ~/.config/local/hyprland.conf'
-which hyprctl > /dev/null 2>&1 && alias vihb='vi -O ~/.config/hypr/hyprland.conf ~/.config/local/hyprland.conf'
-which i3-msg  > /dev/null 2>&1 && alias vi3='vi ~/.config/i3/config'
-which swaymsg > /dev/null 2>&1 && alias vis='vi ~/.config/sway/config'
-which niri    > /dev/null 2>&1 && alias vin='vi ~/.config/niri/config.kdl'
-which nvim    > /dev/null 2>&1 && alias viv='vi ~/.config/nvim/init.lua'
+alias vip='vi $HOME/.config/shell/merdely.profile'
+which hyprctl > /dev/null 2>&1 && alias vih='vi -O $HOME/.config/hypr/hyprland.conf'
+which hyprctl > /dev/null 2>&1 && alias vihl='vi $HOME/.config/local/hyprland.conf'
+which hyprctl > /dev/null 2>&1 && alias vihb='vi -O $HOME/.config/hypr/hyprland.conf $HOME/.config/local/hyprland.conf'
+which i3-msg  > /dev/null 2>&1 && alias vi3='vi $HOME/.config/i3/config'
+which swaymsg > /dev/null 2>&1 && alias vis='vi $HOME/.config/sway/config'
+which niri    > /dev/null 2>&1 && alias vin='vi $HOME/.config/niri/config.kdl'
+which nvim    > /dev/null 2>&1 && alias viv='vi $HOME/.config/nvim/init.lua'
 
 # DNS Command aliases
 if which dog > /dev/null 2>&1; then
@@ -240,6 +241,7 @@ export ANSIBLE_HOME=$XDG_CONFIG_HOME/ansible
 export DOCKER_CONFIG=$XDG_CONFIG_HOME/docker
 export GTK2_RC_FILES=$XDG_CONFIG_HOME/gtk-2.0/gtkrc-2.0
 export NPM_CONFIG_USERCONFIG=$XDG_CONFIG_HOME/npm/npmrc
+export SCREENRC=$XDG_CONFIG_HOME/screen/screenrc
 export WGETRC=$XDG_CONFIG_HOME/wget/wgetrc
 export PSQLRC=$XDG_CONFIG_HOME/pg/psqlrc
 # $HOME/.cache
@@ -262,6 +264,8 @@ export GOPATH=$XDG_DATA_HOME/go
 export LEIN_HOME=$XDG_DATA_HOME/lein
 export MACHINE_STORAGE_PATH=$XDG_DATA_HOME/docker-machine
 export VSCODE_PORTABLE=$XDG_DATA_HOME/vscode
+# /run/user/1000 or /tmp/.1000
+export SCREENDIR=$XDG_RUNTIME_DIR/screen
 
 # Create SSH ctl directory
 [ ! -d $XDG_RUNTIME_DIR/ssh-ctl ] && mkdir -m 700 -p $XDG_RUNTIME_DIR/ssh-ctl
@@ -318,9 +322,9 @@ case "$HOSTNAME" in
         alias bootwindows='sudo /srv/scripts/sbin/boot-to-windows'
         alias bootlinux='sudo /srv/scripts/sbin/boot-to-arch'
         alias bootarch='sudo /srv/scripts/sbin/boot-to-arch'
-        alias pushprofile='for f in pluto jupiter earth dione carme metis sinope tarvos; do echo $f; scp $HOME/.config/shell/merdely.profile $f:.config/shell/; done; for f in carme metis sinope tarvos; do echo $f: sync_home; ssh -o ClearAllForwardings=yes root@$f /home/mike/bin/sync_home > /dev/null; done'
+        alias pushprofile='for f in pluto jupiter earth dione carme metis sinope tarvos; do echo $f; scp $HOME/.config/shell/merdely.profile $f:.config/shell/; done; for f in carme metis sinope tarvos; do echo $f: sync_home; ssh -o ClearAllForwardings=yes root@$f /home/mike/.local/bin/sync_home > /dev/null; done'
         alias pushknownhosts='for f in pluto jupiter mercury earth dione; do echo $f; scp $HOME/src/ansible/system-setup/roles/sshclient/files/ssh_known_hosts root@$f:/etc/ssh/ssh_known_hosts; done; for f in carme metis tarvos; do echo $f; ssh -o ClearAllForwardings=yes root@$f /usr/local/bin/rw; scp $HOME/src/ansible/system-setup/roles/sshclient/files/ssh_known_hosts root@$f:/etc/ssh/ssh_known_hosts; ssh -o ClearAllForwardings=yes root@$f /usr/local/bin/ro; done'
-        alias pushvimrc='for f in jupiter earth pluto carme; do echo $f; scp $HOME/.config/vim/vimrc $f:.config/vim/; done; for f in carme; do echo $f: sync_home; ssh -o ClearAllForwardings=yes root@$f /home/mike/bin/sync_home > /dev/null; done'
+        alias pushvimrc='for f in jupiter earth pluto carme metis sinope tarvos; do echo $f; scp $HOME/.config/vim/vimrc $f:.config/vim/; done; for f in carme metis sinope tarvos; do echo $f: sync_home; ssh -o ClearAllForwardings=yes root@$f /home/mike/.local/bin/sync_home > /dev/null; done'
         ;;
     esac
     alias change_password='tmux neww -d -n chpass ; for f in earth jupiter dione venus tarvos sinope carme metis; do tmux splitw -d -t:$ "ssh $f"; tmux select-layout -t:$ tiled; done; tmux set -w -t:$ synchronize-panes; tmux set -w -t:$ pane-active-border-style fg=red; tmux select-layout -t:$ main-vertical; tmux select-window -t:$'
