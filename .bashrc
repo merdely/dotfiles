@@ -9,4 +9,4 @@ alias ls='ls --color=auto'
 alias grep='grep --color=auto'
 PS1='[\u@\h \W]\$ '
 
-[[ $- == *i* ]] && [ -r ~/.merdely.profile ] && . ~/.merdely.profile
+[[ $- == *i* ]] && [ -r ~/.config/shell/merdely.profile ] && . ~/.config/shell/merdely.profile

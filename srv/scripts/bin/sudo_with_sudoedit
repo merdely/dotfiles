@@ -11,7 +11,8 @@ if [ $(basename $0) = mysudo ] && [ "$1" = "-h" ]; then
 fi
 
 if [[ $1 =~ ^(vi|vim|nvim)$ ]]; then
-  bad good oldcmd=$1
+  unset bad good oldcmd
+  oldcmd=$1
   shift
   for file in $@; do
     if [ -f "$file" ] && [ -w "$(dirname "$(realpath "$file")")" ]; then

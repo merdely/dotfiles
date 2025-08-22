@@ -1,8 +1,8 @@
-## Mike's Master .merdely.profile
+## Mike's Master merdely.profile
 # This script only works with bash now
-[ -z "$BASH_VERSION" ] && return
+[ -z "$BASH_VERSION" ] && [ -z "$ZSH_VERSION" ] && return
 
-# Add '[[ $- == *i* ]] && [ -r $HOME/.merdely.profile ] && . $HOME/.merdely.profile'
+# Add '[[ $- == *i* ]] && [ -r $HOME/.config/shell/merdely.profile ] && . $HOME/.config/shell/merdely.profile'
 # to the bottom of $HOME/.profile or $HOME/.bashrc
 
 # Set umask early
@@ -56,34 +56,44 @@ export XDG_DATA_DIRS=$XDG_DATA_HOME:${XDG_DATA_DIRS:=/usr/local/share:/usr/share
 # History stuff
 HISTFILESIZE=10000
 HISTSIZE=10000
-HISTCONTROL=ignoreboth:erasedups
+HISTCONTROL=ignoreboth
 HISTFILE=$XDG_CACHE_HOME/shell_history
 user_dot_profile=$HOME/.profile
 [ -r $HOME/.bash_profile ] && user_dot_profile=$HOME/.bash_profile
-shopt -s autocd cdspell extglob histappend
 
-# Set up prompt
-__git_ps1() { true; }
-pcharr='\1\e[1m\2>\1\e[0m\2'
-pcharl='\1\e[1m\2<\1\e[0m\2'
-if echo $TERM | grep -Eq "^(xterm|tmux|screen)"; then
-  pcharr='❱'
-  pcharl='❰'
+if [ -n "$BASH_VERSION" ]; then
+  HISTCONTROL=ignoreboth:erasedups
+  shopt -s autocd cdspell extglob histappend
+
+  # Set up prompt
+  __git_ps1() { true; }
+  pcharr='\1\e[1m\2>\1\e[0m\2'
+  pcharl='\1\e[1m\2<\1\e[0m\2'
+  if echo $TERM | grep -Eq "^(xterm|tmux|screen)"; then
+    pcharr='❱'
+    pcharl='❰'
+  fi
+  bind 'set show-mode-in-prompt on'
+  bind 'set keymap vi-insert'
+  PROMPT_DIRTRIM=2
+  __update_prompt () {
+    ec='\1\e[32m\2'
+    [ "$1" != 0 ] && ec='\1\e[31m\2'
+    EMBEDDED_PS1='[\1\e[1;36m\2\u\1\e[0m\2@\1\e[1;32m\2\h\1\e[0m\2 \1\e[1;34m\2\w\1\e[0m\2]$(__git_ps1 " (%s)" 2> /dev/null)${ec}'
+    bind "set vi-ins-mode-string \"${EMBEDDED_PS1@P} ${pcharr}\1\e[0m\2\""
+    bind "set vi-cmd-mode-string \"${EMBEDDED_PS1@P} ${pcharl}\1\e[0m\2\""
+  }
+  __update_prompt
+  PROMPT_COMMAND="code=\$?;__update_prompt \$code;unset code;history -a; history -c; history -r"
+  which fzf > /dev/null 2>&1 && eval "$(fzf --bash)"
+  PS1=' '
+
+  # bash vi-mode
+  set -o vi  # vi mode for command line editing
+elif [ -n "$ZSH_VERSION" ]; then
+  HISTFILE=$XDG_CACHE_HOME/zsh_history
+  [ -r $HOME/.zprofile ] && user_dot_profile=$HOME/.zprofile
 fi
-bind 'set show-mode-in-prompt on'
-bind 'set keymap vi-insert'
-PROMPT_DIRTRIM=2
-__update_prompt () {
-  ec='\1\e[32m\2'
-  [ "$1" != 0 ] && ec='\1\e[31m\2'
-  EMBEDDED_PS1='[\1\e[1;36m\2\u\1\e[0m\2@\1\e[1;32m\2\h\1\e[0m\2 \1\e[1;34m\2\w\1\e[0m\2]$(__git_ps1 " (%s)" 2> /dev/null)${ec}'
-  bind "set vi-ins-mode-string \"${EMBEDDED_PS1@P} ${pcharr}\1\e[0m\2\""
-  bind "set vi-cmd-mode-string \"${EMBEDDED_PS1@P} ${pcharl}\1\e[0m\2\""
-}
-__update_prompt
-PROMPT_COMMAND="code=\$?;__update_prompt \$code;unset code;history -a; history -c; history -r"
-which fzf > /dev/null 2>&1 && eval "$(fzf --bash)"
-PS1=' '
 
 # General settings
 export LESS=REX
@@ -93,7 +103,6 @@ export LANG=en_US.UTF-8
 export LC_CTYPE=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 add_to_path -b $HOME/.local/bin
-add_to_path -b $HOME/bin
 add_to_path -e /usr/sbin
 [ -d /srv/scripts/bin ]  && add_to_path -e /srv/scripts/bin
 [ -d /srv/scripts/sbin ] && add_to_path -e /srv/scripts/sbin
@@ -120,9 +129,6 @@ which rsync > /dev/null 2>&1 && alias dos_rsync='rsync -rtcvP'
 which batman > /dev/null 2>&1 && eval "$(batman --export-env)"
 which bat > /dev/null 2>&1 && alias cat='bat --paging=never --plain'
 which bat > /dev/null 2>&1 && export PAGER='bat'
-
-# bash vi-mode
-set -o vi  # vi mode for command line editing
 
 # Editor aliases
 which view > /dev/null 2>&1 || alias view='vi -R'
@@ -227,11 +233,35 @@ if [ -r /boot/cmdline.txt ] && grep -qE "\<ro\>" /boot/cmdline.txt; then
   alias check_root='sudo lsof / | awk "NR==1 || \$4~/[0-9]+[uw]/"'
 fi
 
-# Set other PATH files
-export CARGO_HOME=$XDG_DATA_HOME/cargo
+# Configuration settings to not pollute $HOME
+# $HOME/.config
+export ANSIBLE_CONFIG=$XDG_CONFIG_HOME/ansible.cfg
+export ANSIBLE_HOME=$XDG_CONFIG_HOME/ansible
+export DOCKER_CONFIG=$XDG_CONFIG_HOME/docker
+export GTK2_RC_FILES=$XDG_CONFIG_HOME/gtk-2.0/gtkrc-2.0
+export NPM_CONFIG_USERCONFIG=$XDG_CONFIG_HOME/npm/npmrc
+export WGETRC=$XDG_CONFIG_HOME/wget/wgetrc
+export PSQLRC=$XDG_CONFIG_HOME/pg/psqlrc
+# $HOME/.cache
+export ANSIBLE_GALAXY_CACHE_DIR=$XDG_CACHE_HOME/ansible/galaxy_cache
 export DEAD=$XDG_CACHE_HOME/dead.letter
+export LESSHISTFILE=$XDG_CACHE_HOME/less-history
+export PYTHON_HISTORY=$XDG_CACHE_HOME/python-history
+# $HOME/.local/state
+export MYSQL_HISTFILE=$XDG_STATE_HOME/mysql_history
+export PSQL_HISTORY=$XDG_STATE_HOME/psql_history
+export SQLITE_HISTORY=$XDG_STATE_HOME/sqlite_history
+# $HOME/.local/share
+export CARGO_HOME=$XDG_DATA_HOME/cargo
+export CUDA_CACHE_PATH=$XDG_CACHE_HOME/nv
+export DVDCSS_CACHE=$XDG_DATA_HOME/dvdcss
+export ELECTRUMDIR=$XDG_DATA_HOME/electrum
 export GNUPGHOME=$XDG_DATA_HOME/gnupg
-export LESSHISTFILE=$XDG_CACHE_HOME/.lesshst
+export GOBIN=$GOPATH/bin
+export GOPATH=$XDG_DATA_HOME/go
+export LEIN_HOME=$XDG_DATA_HOME/lein
+export MACHINE_STORAGE_PATH=$XDG_DATA_HOME/docker-machine
+export VSCODE_PORTABLE=$XDG_DATA_HOME/vscode
 
 # Create SSH ctl directory
 [ ! -d $XDG_RUNTIME_DIR/ssh-ctl ] && mkdir -m 700 -p $XDG_RUNTIME_DIR/ssh-ctl
@@ -266,7 +296,7 @@ if which git > /dev/null 2>&1; then
     GIT_PS1_SHOWCOLORHINTS=true
     [ -e /usr/lib/git-core/git-sh-prompt ] && . /usr/lib/git-core/git-sh-prompt
     [ -e /usr/share/git/completion/git-prompt.sh ] && . /usr/share/git/completion/git-prompt.sh
-    [ -e $HOME/bin/git-prompt.sh ] && . $HOME/bin/git-prompt.sh
+    [ -e $HOME/.local/bin/git-prompt.sh ] && . $HOME/.local/bin/git-prompt.sh
   fi
   if ! pgrep -x gpg-agent > /dev/null 2>&1; then
     export GPG_TTY=$(tty)
@@ -288,9 +318,9 @@ case "$HOSTNAME" in
         alias bootwindows='sudo /srv/scripts/sbin/boot-to-windows'
         alias bootlinux='sudo /srv/scripts/sbin/boot-to-arch'
         alias bootarch='sudo /srv/scripts/sbin/boot-to-arch'
-        alias pushprofile='for f in pluto jupiter earth dione carme tarvos sinope; do echo $f; scp $HOME/.merdely.profile $f:; done; for f in metis; do echo $f; ssh root@$f /usr/local/bin/rw; scp $HOME/.merdely.profile $f:; ssh root@$f /usr/local/bin/ro; done; for f in carme tarvos sinope; do echo $f: sync_home; ssh -o ClearAllForwardings=yes root@$f /home/mike/bin/sync_home > /dev/null; done'
+        alias pushprofile='for f in pluto jupiter earth dione carme metis sinope tarvos; do echo $f; scp $HOME/.config/shell/merdely.profile $f:.config/shell/; done; for f in carme metis sinope tarvos; do echo $f: sync_home; ssh -o ClearAllForwardings=yes root@$f /home/mike/bin/sync_home > /dev/null; done'
         alias pushknownhosts='for f in pluto jupiter mercury earth dione; do echo $f; scp $HOME/src/ansible/system-setup/roles/sshclient/files/ssh_known_hosts root@$f:/etc/ssh/ssh_known_hosts; done; for f in carme metis tarvos; do echo $f; ssh -o ClearAllForwardings=yes root@$f /usr/local/bin/rw; scp $HOME/src/ansible/system-setup/roles/sshclient/files/ssh_known_hosts root@$f:/etc/ssh/ssh_known_hosts; ssh -o ClearAllForwardings=yes root@$f /usr/local/bin/ro; done'
-        alias pushvimrc='for f in jupiter earth pluto carme; do echo $f; scp $HOME/.vimrc $f:; done; for f in carme; do echo $f: sync_home; ssh -o ClearAllForwardings=yes root@$f /home/mike/bin/sync_home > /dev/null; done'
+        alias pushvimrc='for f in jupiter earth pluto carme; do echo $f; scp $HOME/.config/vim/vimrc $f:.config/vim/; done; for f in carme; do echo $f: sync_home; ssh -o ClearAllForwardings=yes root@$f /home/mike/bin/sync_home > /dev/null; done'
         ;;
     esac
     alias change_password='tmux neww -d -n chpass ; for f in earth jupiter dione venus tarvos sinope carme metis; do tmux splitw -d -t:$ "ssh $f"; tmux select-layout -t:$ tiled; done; tmux set -w -t:$ synchronize-panes; tmux set -w -t:$ pane-active-border-style fg=red; tmux select-layout -t:$ main-vertical; tmux select-window -t:$'
@@ -337,11 +367,11 @@ case "$ID" in
     ;;
 esac
 
-[ -e $HOME/.profile.local ] && . $HOME/.profile.local
+[ -e $HOME/.config/shell/profile.local ] && . $HOME/.config/shell/profile.local
 
 # Wayland stuff
 if [ "$XDG_SESSION_TYPE" = wayland ]; then
-  export SSH_ASKPASS=$HOME/bin/yad-askpass
+  export SSH_ASKPASS=$HOME/.local/bin/yad-askpass
   export SSH_AUTH_SOCK=$XDG_RUNTIME_DIR/ssh-agent.socket
 fi
 

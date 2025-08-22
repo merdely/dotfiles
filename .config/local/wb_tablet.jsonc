@@ -1,7 +1,7 @@
 {
     "custom/toggle_keyboard": {
         "format": "󰌌",
-        "on-click": "$HOME/bin/toggle_wvkbd"
+        "on-click": "$HOME/.local/bin/toggle_wvkbd"
     },
     "custom/power_button": {
         "format": "⏻",

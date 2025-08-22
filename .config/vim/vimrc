@@ -36,6 +36,20 @@ autocmd ColorScheme * highlight NormalNC    ctermbg=NONE guibg=NONE
 autocmd ColorScheme * highlight EndOfBuffer ctermbg=NONE guibg=NONE
 
 " ===============================
+" Paths
+" ===============================
+silent !mkdir -p $XDG_CACHE_HOME/vim/{swapfiles,backup} > /dev/null 2>&1
+set directory=$XDG_CACHE_HOME/vim/swapfiles//
+set backupdir=$XDG_CACHE_HOME/vim/backup//
+set viminfo+=n$XDG_CACHE_HOME/vim/viminfo
+set packpath+=$XDG_CONFIG_HOME/vim/
+set runtimepath^=$XDG_CONFIG_HOME/vim
+set runtimepath+=$XDG_CONFIG_HOME/vim/after,
+            \$XDG_CONFIG_HOME/vim/ftplugin,
+            \$XDG_CONFIG_HOME/vim/spell/
+set undodir=expand("~/.local/state/vim/undodir")
+
+" ===============================
 " Basic Settings
 " ===============================
 set number
@@ -96,7 +110,6 @@ set nobackup
 set nowritebackup
 set noswapfile
 set undofile
-set undodir=~/.vim/undodir
 set updatetime=300
 set timeoutlen=500
 set ttimeoutlen=0
@@ -210,7 +223,7 @@ nnoremap - :Explore<CR>
 nnoremap <leader>x :!chmod +x %<CR>
 
 " Quick config editing
-nnoremap <leader>rc :e ~/.vimrc<CR>
+nnoremap <leader>rc :e ~/.config/vim/vimrc<CR>
 
 " Clear some customizations to make copying easier
 nnoremap <silent> <expr> <leader>cp "\:set cursorline! list! number! breakindent! " . (&colorcolumn == '' ? "colorcolumn=80 " : "colorcolumn= ") . (&signcolumn == 'number' ? "signcolumn=no " : "signcolumn=number "). "<CR>"
@@ -218,8 +231,8 @@ nnoremap <silent> <expr> <leader>cp "\:set cursorline! list! number! breakindent
 " ===============================
 " Autocommands
 " ===============================
-if !isdirectory(expand("~/.vim/undodir"))
-  call mkdir(expand("~/.vim/undodir"), "p")
+if !isdirectory(expand("~/.local/state/vim/undodir"))
+  call mkdir(expand("~/.local/state/vim/undodir"), "p")
 endif
 
 augroup UserConfig

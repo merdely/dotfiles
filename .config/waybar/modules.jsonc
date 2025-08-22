@@ -26,7 +26,7 @@
     },
 
     "sway/window": {
-        "on-click": "$HOME/bin/run_nwg_drawer",
+        "on-click": "$HOME/.local/bin/run_nwg_drawer",
         "separate-outputs": true,
         "icon": true,
         "icon-size": 18
@@ -41,7 +41,7 @@
     },
 
     "niri/window": {
-        "on-click": "$HOME/bin/run_nwg_drawer",
+        "on-click": "$HOME/.local/bin/run_nwg_drawer",
         "separate-outputs": true,
         "icon": true,
         "icon-size": 18
@@ -50,7 +50,7 @@
     // Custom Modules
     "custom/toggle_winchooser": {
         "format": "",
-        "on-click": "$HOME/bin/rofi-windows"
+        "on-click": "$HOME/.local/bin/rofi-windows"
     },
     "custom/clock": {
         "hide-empty-text": true,

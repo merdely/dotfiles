@@ -122,16 +122,16 @@ spawn-at-startup "gtk-launch" "solaar-applet"
 spawn-at-startup "gtk-launch" "udiskie-applet"
 spawn-at-startup "gtk-launch" "polkit-gnome-authentication-agent-1"
 
-spawn-at-startup "sh" "-c" "$HOME/bin/wm-minimize com.logseq.Logseq Logseq"
-spawn-at-startup "sh" "-c" "$HOME/bin/wm-minimize signal-desktop signal"
-spawn-at-startup "sh" "-c" "$HOME/bin/wm-minimize io.element.Element Element"
-spawn-at-startup "sh" "-c" "$HOME/bin/wm-minimize bitwarden"
+spawn-at-startup "sh" "-c" "$HOME/.local/bin/wm-minimize com.logseq.Logseq Logseq"
+spawn-at-startup "sh" "-c" "$HOME/.local/bin/wm-minimize signal-desktop signal"
+spawn-at-startup "sh" "-c" "$HOME/.local/bin/wm-minimize io.element.Element Element"
+spawn-at-startup "sh" "-c" "$HOME/.local/bin/wm-minimize bitwarden"
 
 spawn-at-startup "bash" "-c" "[[ $(hostname -s) =~ ^(mercury)$ ]] && gtk-launch librewolf-mike"
 spawn-at-startup "bash" "-c" "[[ $(hostname -s) =~ ^(mercury)$ ]] && { sleep 1; gtk-launch librewolf-media; }"
 
-spawn-at-startup "sh" "-c" "$HOME/bin/run_terminal"
-spawn-at-startup "bash" "-c" "sleep 1; env SSH_AUTH_SOCK=$XDG_RUNTIME_DIR/ssh-agent.socket SSH_ASKPASS=$HOME/bin/yad-askpass ssh-add < /dev/null"
+spawn-at-startup "sh" "-c" "$HOME/.local/bin/run_terminal"
+spawn-at-startup "bash" "-c" "sleep 1; env SSH_AUTH_SOCK=$XDG_RUNTIME_DIR/ssh-agent.socket SSH_ASKPASS=$HOME/.local/bin/yad-askpass ssh-add < /dev/null"
 
 spawn-at-startup "bash" "-c" "[[ $(hostname -s) =~ ^(neptune|styx)$ ]] && systemctl --user start watch_tablet.service"
 spawn-at-startup "bash" "-c" "[[ $(hostname -s) =~ ^(neptune|styx)$ ]] && systemctl --user start screen-rotation.service"
@@ -275,13 +275,13 @@ binds {
     // WM Management
     Mod+Ctrl+Shift+B hotkey-overlay-title="Reload Waybar"                { spawn "pkill" "-SIGUSR2" "waybar"; }
     Mod+Shift+E      hotkey-overlay-title="Quit Niri"                    { quit; }
-    Mod+D            hotkey-overlay-title="Fuzzel Program Launcher"      { spawn "sh" "-c" "$HOME/bin/run-app-toggle fuzzel"; }
-    Mod+Shift+W      hotkey-overlay-title="Rofi Window Chooser"          { spawn "sh" "-c" "$HOME/bin/rofi-windows"; }
-    Mod+Return       hotkey-overlay-title="Launch Terminal"              { spawn "sh" "-c" "$HOME/bin/run_terminal"; }
-    Mod+T            hotkey-overlay-title="Launch Terminal"              { spawn "sh" "-c" "$HOME/bin/run_terminal"; }
+    Mod+D            hotkey-overlay-title="Fuzzel Program Launcher"      { spawn "sh" "-c" "$HOME/.local/bin/run-app-toggle fuzzel"; }
+    Mod+Shift+W      hotkey-overlay-title="Rofi Window Chooser"          { spawn "sh" "-c" "$HOME/.local/bin/rofi-windows"; }
+    Mod+Return       hotkey-overlay-title="Launch Terminal"              { spawn "sh" "-c" "$HOME/.local/bin/run_terminal"; }
+    Mod+T            hotkey-overlay-title="Launch Terminal"              { spawn "sh" "-c" "$HOME/.local/bin/run_terminal"; }
     Mod+Ctrl+B       hotkey-overlay-title="Hide Waybar"                  { spawn "pkill" "-SIGUSR1" "waybar"; }
     Mod+Q            repeat=false hotkey-overlay-title="Close Window"    { close-window; }
-    Mod+M            hotkey-overlay-title="Minimize Window"              { spawn "sh" "-c" "$HOME/bin/wm-minimize ACTIVE"; }
+    Mod+M            hotkey-overlay-title="Minimize Window"              { spawn "sh" "-c" "$HOME/.local/bin/wm-minimize ACTIVE"; }
     Mod+W            hotkey-overlay-title="Toggle Tabbed Display"        { toggle-column-tabbed-display; }
     Mod+Shift+O      hotkey-overlay-title="Show Hotkey Overlay"          { show-hotkey-overlay; }
 
@@ -297,11 +297,11 @@ binds {
     Alt+Shift+H      allow-when-locked=true hotkey-overlay-title="Hibernate"  { spawn "systemctl" "hibernate"; }
 
     // Apps
-    Alt+Shift+P      hotkey-overlay-title="Power Menu"                   { spawn "sh" "-c" "$HOME/bin/rofi-powermenu"; }
-    Ctrl+Alt+Delete  hotkey-overlay-title="Power Menu"                   { spawn "sh" "-c" "$HOME/bin/run_nwg_bar"; }
+    Alt+Shift+P      hotkey-overlay-title="Power Menu"                   { spawn "sh" "-c" "$HOME/.local/bin/rofi-powermenu"; }
+    Ctrl+Alt+Delete  hotkey-overlay-title="Power Menu"                   { spawn "sh" "-c" "$HOME/.local/bin/run_nwg_bar"; }
     Ctrl+Space       hotkey-overlay-title="Clear Notifications"          { spawn "sh" "-c" "swaync-client --close-all ; swaync-client --close-panel"; }
-    Mod+N            hotkey-overlay-title="Rofi Bitwarden"               { spawn "sh" "-c" "$HOME/bin/run-app-toggle -P rofi-rbw --use-notify-send"; }
-    Mod+Shift+X      hotkey-overlay-title="Camera Chooser"               { spawn "sh" "-c" "$HOME/bin/rofi-cams"; }
+    Mod+N            hotkey-overlay-title="Rofi Bitwarden"               { spawn "sh" "-c" "$HOME/.local/bin/run-app-toggle -P rofi-rbw --use-notify-send"; }
+    Mod+Shift+X      hotkey-overlay-title="Camera Chooser"               { spawn "sh" "-c" "$HOME/.local/bin/rofi-cams"; }
     Mod+Space        hotkey-overlay-title="Notification Panel"           { spawn "swaync-client" "-t" "-sw"; }
     Mod+X            hotkey-overlay-title="Clipboard Manager"            { spawn "sh" "-c" "cliphist list | fuzzel -d | cliphist decode | wl-copy"; }
 
@@ -310,31 +310,31 @@ binds {
     Mod+Shift+2             hotkey-overlay-title="Focus First Browser"   { spawn "sh" "-c" "$HOME/.config/niri/scripts/focus-window-or-app -c '-P Mike' librewolf-mike.desktop librewolf"; }
     Mod+Shift+3             hotkey-overlay-title="Focus Second Browser"  { spawn "sh" "-c" "$HOME/.config/niri/scripts/focus-window-or-app -c '-P Media' librewolf-media.desktop librewolf"; }
 
-    Mod+Shift+Z             hotkey-overlay-title="Bitwarden"             { spawn "sh" "-c" "$HOME/bin/wm-minimize bitwarden Bitwarden"; }
-    Mod+Shift+C             hotkey-overlay-title="Calculator"            { spawn "sh" "-c" "$HOME/bin/wm-minimize -R galculator"; }
-    Mod+Shift+Return        hotkey-overlay-title="Terminal Scratchpad"   { spawn "sh" "-c" "$HOME/bin/wm-minimize term-scratchpad"; }
-    Mod+Shift+BracketLeft   hotkey-overlay-title="Terminal File Manager" { spawn "sh" "-c" "$HOME/bin/wm-minimize termfm"; }
-    Mod+Shift+B             hotkey-overlay-title="Bluetooth Manager"     { spawn "sh" "-c" "$HOME/bin/wm-minimize blueman-manager"; }
-    Mod+Shift+N             hotkey-overlay-title="Nvtop"                 { spawn "sh" "-c" "$HOME/bin/wm-minimize nvtop"; }
-    Mod+Shift+D             hotkey-overlay-title="Htop"                  { spawn "sh" "-c" "$HOME/bin/wm-minimize htop"; }
-    Mod+Shift+Q             hotkey-overlay-title="Logseq"                { spawn "sh" "-c" "$HOME/bin/wm-minimize com.logseq.Logseq Logseq"; }
-    Mod+Shift+I             hotkey-overlay-title="Audio Mixer"           { spawn "sh" "-c" "$HOME/bin/wm-minimize org.pulseaudio.pavucontrol pavucontrol"; }
-    Mod+Shift+A             hotkey-overlay-title="Signal"                { spawn "sh" "-c" "$HOME/bin/wm-minimize signal-desktop signal"; }
-    Mod+Shift+U             hotkey-overlay-title="Element"               { spawn "sh" "-c" "$HOME/bin/wm-minimize io.element.Element Element"; }
+    Mod+Shift+Z             hotkey-overlay-title="Bitwarden"             { spawn "sh" "-c" "$HOME/.local/bin/wm-minimize bitwarden Bitwarden"; }
+    Mod+Shift+C             hotkey-overlay-title="Calculator"            { spawn "sh" "-c" "$HOME/.local/bin/wm-minimize -R galculator"; }
+    Mod+Shift+Return        hotkey-overlay-title="Terminal Scratchpad"   { spawn "sh" "-c" "$HOME/.local/bin/wm-minimize term-scratchpad"; }
+    Mod+Shift+BracketLeft   hotkey-overlay-title="Terminal File Manager" { spawn "sh" "-c" "$HOME/.local/bin/wm-minimize termfm"; }
+    Mod+Shift+B             hotkey-overlay-title="Bluetooth Manager"     { spawn "sh" "-c" "$HOME/.local/bin/wm-minimize blueman-manager"; }
+    Mod+Shift+N             hotkey-overlay-title="Nvtop"                 { spawn "sh" "-c" "$HOME/.local/bin/wm-minimize nvtop"; }
+    Mod+Shift+D             hotkey-overlay-title="Htop"                  { spawn "sh" "-c" "$HOME/.local/bin/wm-minimize htop"; }
+    Mod+Shift+Q             hotkey-overlay-title="Logseq"                { spawn "sh" "-c" "$HOME/.local/bin/wm-minimize com.logseq.Logseq Logseq"; }
+    Mod+Shift+I             hotkey-overlay-title="Audio Mixer"           { spawn "sh" "-c" "$HOME/.local/bin/wm-minimize org.pulseaudio.pavucontrol pavucontrol"; }
+    Mod+Shift+A             hotkey-overlay-title="Signal"                { spawn "sh" "-c" "$HOME/.local/bin/wm-minimize signal-desktop signal"; }
+    Mod+Shift+U             hotkey-overlay-title="Element"               { spawn "sh" "-c" "$HOME/.local/bin/wm-minimize io.element.Element Element"; }
 
     // Niri Shortcuts
-    Alt+Shift+Slash      hotkey-overlay-title="Niri Help: A+Sh"          { spawn "sh" "-c" "$HOME/bin/view-wm-help Alt-Shift"; }
-    Alt+Slash            hotkey-overlay-title="Niri Help: A"             { spawn "sh" "-c" "$HOME/bin/view-wm-help Alt"; }
-    Ctrl+Alt+Slash       hotkey-overlay-title="Niri Help: C+A"           { spawn "sh" "-c" "$HOME/bin/view-wm-help Control-Alt"; }
-    Ctrl+Shift+Slash     hotkey-overlay-title="Niri Help: C+Sh"          { spawn "sh" "-c" "$HOME/bin/view-wm-help Control-Shift"; }
-    Ctrl+Slash           hotkey-overlay-title="Niri Help: C"             { spawn "sh" "-c" "$HOME/bin/view-wm-help Control"; }
-    Mod+Alt+Slash        hotkey-overlay-title="Niri Help: Su+A"          { spawn "sh" "-c" "$HOME/bin/view-wm-help Super-Alt"; }
-    Mod+Backslash        hotkey-overlay-title="Niri Help: none"          { spawn "sh" "-c" "$HOME/bin/view-wm-help None"; }
-    Mod+Ctrl+Shift+Slash hotkey-overlay-title="Niri Help: Su+C+Sh"       { spawn "sh" "-c" "$HOME/bin/view-wm-help Super-Control-Shift"; }
-    Mod+Ctrl+Slash       hotkey-overlay-title="Niri Help: Su+C"          { spawn "sh" "-c" "$HOME/bin/view-wm-help Super-Control"; }
-    Mod+Shift+Slash      hotkey-overlay-title="Niri Help: Su+Sh"         { spawn "sh" "-c" "$HOME/bin/view-wm-help Super-Shift"; }
-    Mod+Slash            hotkey-overlay-title="Niri Help: Su"            { spawn "sh" "-c" "$HOME/bin/view-wm-help Super"; }
-    Mod+Ctrl+Alt+Shift+Slash hotkey-overlay-title="Generate Niri Help"   { spawn "sh" "-c" "$HOME/bin/gen-wm-help"; }
+    Alt+Shift+Slash      hotkey-overlay-title="Niri Help: A+Sh"          { spawn "sh" "-c" "$HOME/.local/bin/view-wm-help Alt-Shift"; }
+    Alt+Slash            hotkey-overlay-title="Niri Help: A"             { spawn "sh" "-c" "$HOME/.local/bin/view-wm-help Alt"; }
+    Ctrl+Alt+Slash       hotkey-overlay-title="Niri Help: C+A"           { spawn "sh" "-c" "$HOME/.local/bin/view-wm-help Control-Alt"; }
+    Ctrl+Shift+Slash     hotkey-overlay-title="Niri Help: C+Sh"          { spawn "sh" "-c" "$HOME/.local/bin/view-wm-help Control-Shift"; }
+    Ctrl+Slash           hotkey-overlay-title="Niri Help: C"             { spawn "sh" "-c" "$HOME/.local/bin/view-wm-help Control"; }
+    Mod+Alt+Slash        hotkey-overlay-title="Niri Help: Su+A"          { spawn "sh" "-c" "$HOME/.local/bin/view-wm-help Super-Alt"; }
+    Mod+Backslash        hotkey-overlay-title="Niri Help: none"          { spawn "sh" "-c" "$HOME/.local/bin/view-wm-help None"; }
+    Mod+Ctrl+Shift+Slash hotkey-overlay-title="Niri Help: Su+C+Sh"       { spawn "sh" "-c" "$HOME/.local/bin/view-wm-help Super-Control-Shift"; }
+    Mod+Ctrl+Slash       hotkey-overlay-title="Niri Help: Su+C"          { spawn "sh" "-c" "$HOME/.local/bin/view-wm-help Super-Control"; }
+    Mod+Shift+Slash      hotkey-overlay-title="Niri Help: Su+Sh"         { spawn "sh" "-c" "$HOME/.local/bin/view-wm-help Super-Shift"; }
+    Mod+Slash            hotkey-overlay-title="Niri Help: Su"            { spawn "sh" "-c" "$HOME/.local/bin/view-wm-help Super"; }
+    Mod+Ctrl+Alt+Shift+Slash hotkey-overlay-title="Generate Niri Help"   { spawn "sh" "-c" "$HOME/.local/bin/gen-wm-help"; }
 
     // Screenshots
     Mod+Shift+S      hotkey-overlay-title="Screenshot Selection"         { screenshot show-pointer=false; }
@@ -362,10 +362,12 @@ binds {
     Mod+Alt+Shift+L  hotkey-overlay-title="Move Column to Last"          { move-column-to-last; }
 
     // Move Window/Column
-    Mod+Shift+H      hotkey-overlay-title="Move Column Left"             { move-column-left-or-to-monitor-left; }
+    // Mod+Shift+H      hotkey-overlay-title="Move Column Left"             { move-column-left-or-to-monitor-left; }
+    Mod+Shift+H      hotkey-overlay-title="Move Column Left"             { move-column-left; }
     Mod+Shift+J      hotkey-overlay-title="Move Column Down"             { move-window-down; }
     Mod+Shift+K      hotkey-overlay-title="Move Column Up"               { move-window-up; }
-    Mod+Shift+L      hotkey-overlay-title="Move Column Right"            { move-column-right-or-to-monitor-right; }
+    Mod+Shift+L      hotkey-overlay-title="Move Column Right"            { move-column-right; }
+    // Mod+Shift+L      hotkey-overlay-title="Move Column Right"            { move-column-right-or-to-monitor-right; }
 
     // Resize Window/Column
     Mod+Ctrl+H       hotkey-overlay-title="Resize Column Left"           { set-column-width "-10%"; }
@@ -469,7 +471,7 @@ binds {
     // Media Control
     XF86AudioPrev    allow-when-locked=true hotkey-overlay-title="Previous Track"            { spawn "playerctl" "previous"; }
     XF86AudioNext    allow-when-locked=true hotkey-overlay-title="Next Track"                { spawn "playerctl" "next"; }
-    XF86AudioPause   allow-when-locked=true hotkey-overlay-title="Play/Pause Media"          { spawn "sh" "-c" "$HOME/bin/play_pause_media.sh"; }
-    XF86AudioPlay    allow-when-locked=true hotkey-overlay-title="Play/Pause Media"          { spawn "sh" "-c" "$HOME/bin/play_pause_media.sh"; }
+    XF86AudioPause   allow-when-locked=true hotkey-overlay-title="Play/Pause Media"          { spawn "sh" "-c" "$HOME/.local/bin/play_pause_media.sh"; }
+    XF86AudioPlay    allow-when-locked=true hotkey-overlay-title="Play/Pause Media"          { spawn "sh" "-c" "$HOME/.local/bin/play_pause_media.sh"; }
 
 }
