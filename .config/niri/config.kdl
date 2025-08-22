@@ -348,12 +348,12 @@ binds {
 
     // Change Window/Column Focus
     // Mod+H            hotkey-overlay-title="Focus Column Left"            { focus-column-or-monitor-left; }
-    Mod+H            hotkey-overlay-title="Focus Column Left"            { focus-column-left-or-last; }
-    // Mod+H            hotkey-overlay-title="Focus Column Left"            { focus-column-left; }
+    // Mod+H            hotkey-overlay-title="Focus Column Left"            { focus-column-left-or-last; }
+    Mod+H            hotkey-overlay-title="Focus Column Left"            { focus-column-left; }
     Mod+J            hotkey-overlay-title="Focus Column Down"            { focus-window-or-workspace-down; }
     Mod+K            hotkey-overlay-title="Focus Column Up"              { focus-window-or-workspace-up; }
-    // Mod+L            hotkey-overlay-title="Focus Column Right"           { focus-column-right; }
-    Mod+L            hotkey-overlay-title="Focus Column Right"           { focus-column-right-or-first; }
+    Mod+L            hotkey-overlay-title="Focus Column Right"           { focus-column-right; }
+    // Mod+L            hotkey-overlay-title="Focus Column Right"           { focus-column-right-or-first; }
     // Mod+L            hotkey-overlay-title="Focus Column Right"           { focus-column-or-monitor-right; }
 
     Mod+Alt+H        hotkey-overlay-title="Focus First Column"           { focus-column-first; }
