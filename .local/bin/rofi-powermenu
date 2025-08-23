@@ -13,7 +13,7 @@ case "$choice" in
   "󰍃 Logout")
     case "$XDG_CURRENT_DESKTOP" in
       Hyprland|hyprland)
-        $HOME/bin/wm-closeapps
+        $HOME/.local/bin/wm-closeapps
         hyprctl dispatch exit
         ;;
       KDE)
@@ -26,7 +26,7 @@ case "$choice" in
         fi
         ;;
       niri)
-        $HOME/bin/wm-closeapps
+        $HOME/.local/bin/wm-closeapps
         niri msg action quit
         ;;
       i3)
@@ -42,7 +42,7 @@ case "$choice" in
     ;;
   "󰤄 Suspend") systemctl suspend-then-hibernate ;;
   " Hibernate") systemctl hibernate ;;
-  "  Reboot") $HOME/bin/wm-closeapps ; systemctl reboot ;;
-  "  Halt") $HOME/bin/wm-closeapps ; systemctl poweroff ;;
+  "  Reboot") $HOME/.local/bin/wm-closeapps ; systemctl reboot ;;
+  "  Halt") $HOME/.local/bin/wm-closeapps ; systemctl poweroff ;;
   *) exit 1 ;;
 esac

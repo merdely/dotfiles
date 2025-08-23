@@ -1,0 +1,9 @@
+#!/bin/bash
+
+[ -z "$SSH_AUTH_SOCK" ] && export SSH_AUTH_SOCK=$XDG_RUNTIME_DIR/ssh-agent.socket
+[ -z "$SSH_ASKPASS" ] && export SSH_ASKPASS=$HOME/.local/bin/yad-askpass
+
+set > /tmp/$(basename $0).log
+
+timeout 1 ssh-add -l > /dev/null 2>&1 && exit 0
+env SSH_AUTH_SOCK=$SSH_AUTH_SOCK SSH_ASKPASS=$SSH_ASKPASS ssh-add < /dev/null

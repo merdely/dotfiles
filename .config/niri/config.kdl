@@ -131,7 +131,7 @@ spawn-at-startup "bash" "-c" "[[ $(hostname -s) =~ ^(mercury)$ ]] && gtk-launch 
 spawn-at-startup "bash" "-c" "[[ $(hostname -s) =~ ^(mercury)$ ]] && { sleep 1; gtk-launch librewolf-media; }"
 
 spawn-at-startup "sh" "-c" "$HOME/.local/bin/run_terminal"
-spawn-at-startup "bash" "-c" "sleep 1; env SSH_AUTH_SOCK=$XDG_RUNTIME_DIR/ssh-agent.socket SSH_ASKPASS=$HOME/.local/bin/yad-askpass ssh-add < /dev/null"
+spawn-at-startup "bash" "-c" "sleep 1; $HOME/.local/bin/run_ssh_add"
 
 spawn-at-startup "bash" "-c" "[[ $(hostname -s) =~ ^(neptune|styx)$ ]] && systemctl --user start watch_tablet.service"
 spawn-at-startup "bash" "-c" "[[ $(hostname -s) =~ ^(neptune|styx)$ ]] && systemctl --user start screen-rotation.service"
@@ -266,11 +266,16 @@ binds {
     Mod+P                    { spawn "true"; }
     Mod+S                    { spawn "true"; }
     Mod+U                    { spawn "true"; }
+    Mod+W                    { spawn "true"; }
     Mod+Z                    { spawn "true"; }
     Mod+Semicolon            { spawn "true"; }
     Mod+Apostrophe           { spawn "true"; }
     Mod+Shift+Semicolon      { spawn "true"; }
     Mod+Shift+Apostrophe     { spawn "true"; }
+    Alt+Shift+H              { spawn "true"; }
+    Alt+Shift+L              { spawn "true"; }
+    Alt+Shift+P              { spawn "true"; }
+    Alt+Shift+S              { spawn "true"; }
 
     // WM Management
     Mod+Ctrl+Shift+B hotkey-overlay-title="Reload Waybar"                { spawn "pkill" "-SIGUSR2" "waybar"; }
@@ -282,23 +287,24 @@ binds {
     Mod+Ctrl+B       hotkey-overlay-title="Hide Waybar"                  { spawn "pkill" "-SIGUSR1" "waybar"; }
     Mod+Q            repeat=false hotkey-overlay-title="Close Window"    { close-window; }
     Mod+M            hotkey-overlay-title="Minimize Window"              { spawn "sh" "-c" "$HOME/.local/bin/wm-minimize ACTIVE"; }
-    Mod+W            hotkey-overlay-title="Toggle Tabbed Display"        { toggle-column-tabbed-display; }
+    // Mod+W            hotkey-overlay-title="Toggle Tabbed Display"        { toggle-column-tabbed-display; }
     Mod+Shift+O      hotkey-overlay-title="Show Hotkey Overlay"          { show-hotkey-overlay; }
 
     Mod+O            repeat=false hotkey-overlay-title="Toggle Overview" { toggle-overview; }
     Mod+R            hotkey-overlay-title="Toggle Preset Widths"         { switch-preset-column-width; }
     Mod+Shift+R      hotkey-overlay-title="Toggle Preset Heights"        { switch-preset-window-height; }
     Mod+Ctrl+R       hotkey-overlay-title="Reset Window Height"          { reset-window-height; }
-    Mod+Shift+P      hotkey-overlay-title="Power Off Monitors"           { power-off-monitors; }
+    // Mod+Shift+P      hotkey-overlay-title="Power Off Monitors"           { power-off-monitors; }
 
     // Locking
-    Alt+Shift+S      hotkey-overlay-title="Lock the Screen"              { spawn "loginctl" "lock-session"; }
-    Alt+Shift+L      hotkey-overlay-title="Lock the Screen"              { spawn "loginctl" "lock-session"; }
-    Alt+Shift+H      allow-when-locked=true hotkey-overlay-title="Hibernate"  { spawn "systemctl" "hibernate"; }
+    // Alt+Shift+S      hotkey-overlay-title="Lock the Screen"              { spawn "loginctl" "lock-session"; }
+    // Alt+Shift+L      hotkey-overlay-title="Lock the Screen"              { spawn "loginctl" "lock-session"; }
+    // Alt+Shift+H      allow-when-locked=true hotkey-overlay-title="Hibernate"  { spawn "systemctl" "hibernate"; }
 
     // Apps
-    Alt+Shift+P      hotkey-overlay-title="Power Menu"                   { spawn "sh" "-c" "$HOME/.local/bin/rofi-powermenu"; }
-    Ctrl+Alt+Delete  hotkey-overlay-title="Power Menu"                   { spawn "sh" "-c" "$HOME/.local/bin/run_nwg_bar"; }
+    // Alt+Shift+P      hotkey-overlay-title="Power Menu"                   { spawn "sh" "-c" "$HOME/.local/bin/rofi-powermenu"; }
+    Mod+Shift+P      hotkey-overlay-title="Power Menu"                   { spawn "sh" "-c" "$HOME/.local/bin/run_wleave"; }
+    Ctrl+Alt+Delete  hotkey-overlay-title="Power Menu"                   { spawn "sh" "-c" "$HOME/.local/bin/run_wleave"; }
     Ctrl+Space       hotkey-overlay-title="Clear Notifications"          { spawn "sh" "-c" "swaync-client --close-all ; swaync-client --close-panel"; }
     Mod+N            hotkey-overlay-title="Rofi Bitwarden"               { spawn "sh" "-c" "$HOME/.local/bin/run-app-toggle -P rofi-rbw --use-notify-send"; }
     Mod+Shift+X      hotkey-overlay-title="Camera Chooser"               { spawn "sh" "-c" "$HOME/.local/bin/rofi-cams"; }

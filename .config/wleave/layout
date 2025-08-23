@@ -1,0 +1,52 @@
+{
+    "buttons": [
+        {
+            "label" : "lock",
+            "action" : "loginctl lock-session",
+            "text" : "<u>L</u>ock",
+            "keybind" : "l"
+        },
+        {
+            "label" : "screen-off",
+            "action" : "niri msg action power-off-monitors",
+            "text" : "Screen <u>O</u>ff",
+            "keybind" : "o"
+        },
+        {
+            "label" : "logout",
+            "action" : "$HOME/.local/bin/wm-logout",
+            "text" : "L<u>o</u>gout",
+            "keybind" : "e"
+        },
+        {
+            "label" : "suspend",
+            "action" : "systemctl suspend",
+            "text" : "<u>S</u>uspend",
+            "keybind" : "s"
+        },
+        {
+            "label" : "hibernate",
+            "action" : "systemctl hibernate",
+            "text" : "<u>H</u>ibernate",
+            "keybind" : "h"
+        },
+        {
+            "label" : "reboot",
+            "action" : "systemctl reboot",
+            "text" : "<u>R</u>eboot",
+            "keybind" : "r"
+        },
+        {
+            "label" : "shutdown",
+            "action" : "systemctl poweroff",
+            "text" : "Sh<u>u</u>tdown",
+            "keybind" : "u"
+        },
+        {
+            "label" : "cancel",
+            "action" : "true",
+            "text" : "<u>C</u>ancel",
+            "keybind" : "c"
+        }
+    ]
+}
