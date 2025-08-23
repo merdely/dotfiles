@@ -60,6 +60,7 @@ HISTCONTROL=ignoreboth
 HISTFILE=$XDG_CACHE_HOME/shell_history
 user_dot_profile=$HOME/.profile
 [ -r $HOME/.bash_profile ] && user_dot_profile=$HOME/.bash_profile
+! which which > /dev/null 2>&1 && alias which='command -v'
 
 if [ -n "$BASH_VERSION" ]; then
   HISTCONTROL=ignoreboth:erasedups
