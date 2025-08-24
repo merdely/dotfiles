@@ -473,3 +473,5 @@ if [ "$ID" != OpenBSD ] && [ -n "$SSH_CONNECTION" ]; then
     fi
   fi
 fi
+
+true
