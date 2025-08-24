@@ -54,8 +54,8 @@ export XDG_DATA_DIRS=$XDG_DATA_HOME:${XDG_DATA_DIRS:=/usr/local/share:/usr/share
 [ ! -w $XDG_STATE_HOME ] && export XDG_STATE_HOME=$XDG_RUNTIME_DIR/.state && mkdir -p -m 700 $XDG_STATE_HOME
 
 # History stuff
-HISTFILESIZE=100000
 HISTSIZE=100000
+HISTFILESIZE=$HISTSIZE
 HISTCONTROL=ignoreboth
 HISTFILE=$XDG_CACHE_HOME/shell_history
 user_dot_profile=$HOME/.profile
@@ -306,7 +306,7 @@ if [ -r /boot/cmdline.txt ] && grep -qE "\<ro\>" /boot/cmdline.txt; then
 fi
 
 # Configuration settings to not pollute $HOME
-# $HOME/.config
+# XDG_CONFIG_HOME ($HOME/.config)
 export ANSIBLE_CONFIG=$XDG_CONFIG_HOME/ansible.cfg
 export ANSIBLE_HOME=$XDG_CONFIG_HOME/ansible
 export DOCKER_CONFIG=$XDG_CONFIG_HOME/docker
@@ -315,27 +315,27 @@ export NPM_CONFIG_USERCONFIG=$XDG_CONFIG_HOME/npm/npmrc
 export SCREENRC=$XDG_CONFIG_HOME/screen/screenrc
 export WGETRC=$XDG_CONFIG_HOME/wget/wgetrc
 export PSQLRC=$XDG_CONFIG_HOME/pg/psqlrc
-# $HOME/.cache
+# XDG_CACHE_HOME $($HOME/.cache)
 export ANSIBLE_GALAXY_CACHE_DIR=$XDG_CACHE_HOME/ansible/galaxy_cache
+export CUDA_CACHE_PATH=$XDG_CACHE_HOME/nv
 export DEAD=$XDG_CACHE_HOME/dead.letter
 export LESSHISTFILE=$XDG_CACHE_HOME/less-history
+export MYSQL_HISTFILE=$XDG_CACHE_HOME/mysql_history
+export PSQL_HISTORY=$XDG_CACHE_HOME/psql_history
 export PYTHON_HISTORY=$XDG_CACHE_HOME/python-history
-# $HOME/.local/state
-export MYSQL_HISTFILE=$XDG_STATE_HOME/mysql_history
-export PSQL_HISTORY=$XDG_STATE_HOME/psql_history
-export SQLITE_HISTORY=$XDG_STATE_HOME/sqlite_history
-# $HOME/.local/share
-export CARGO_HOME=$XDG_DATA_HOME/cargo
-export CUDA_CACHE_PATH=$XDG_CACHE_HOME/nv
-export DVDCSS_CACHE=$XDG_DATA_HOME/dvdcss
+export SQLITE_HISTORY=$XDG_CACHE_HOME/sqlite_history
+# XDG_STATE_HOME ($HOME/.local/state)
+export CARGO_HOME=$XDG_STATE_HOME/cargo
+export DVDCSS_CACHE=$XDG_STATE_HOME/dvdcss
+export GNUPGHOME=$XDG_STATE_HOME/gnupg
+# XDG_DATA_HOME ($HOME/.local/share)
 export ELECTRUMDIR=$XDG_DATA_HOME/electrum
-export GNUPGHOME=$XDG_DATA_HOME/gnupg
-export GOBIN=$GOPATH/bin
 export GOPATH=$XDG_DATA_HOME/go
+export GOBIN=$XDG_DATA_HOME/go/bin
 export LEIN_HOME=$XDG_DATA_HOME/lein
 export MACHINE_STORAGE_PATH=$XDG_DATA_HOME/docker-machine
 export VSCODE_PORTABLE=$XDG_DATA_HOME/vscode
-# /run/user/1000 or /tmp/.1000
+# XDG_RUNTIME_DIR (/run/user/1000 or /tmp/.1000)
 export SCREENDIR=$XDG_RUNTIME_DIR/screen
 
 # Create SSH ctl directory
