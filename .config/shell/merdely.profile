@@ -240,6 +240,7 @@ if which docker > /dev/null 2>&1; then
   [ -r /srv/docker/docker-compose.yaml ] && export COMPOSE_FILE=/srv/docker/docker-compose.yaml
   [ -r /srv/docker/compose.yaml ] && export COMPOSE_FILE=/srv/docker/compose.yaml
   export COMPOSE_DOCKER_CLI_BUILD=0
+  alias dc='docker compose'
   if docker ps --format "{{.Names}}" 2> /dev/null | grep -q "^naemon$"; then
     alias naemoncheck='docker compose exec naemon runuser -u naemon -- naemon -v /etc/naemon/naemon.cfg'
     alias naemonreload='docker compose exec naemon pkill -P 1 -x naemon'
