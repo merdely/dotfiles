@@ -8,8 +8,8 @@ ConditionEnvironment=WAYLAND_DISPLAY
 [Service]
 Type=simple
 Environment=SSH_AUTH_SOCK=%t/ssh-agent.socket
-Environment=SSH_ASKPASS=%h/bin/yad-askpass
-ExecStart=/usr/bin/swayidle -w
+Environment=SSH_ASKPASS=%h/.local/bin/yad-askpass
+ExecStart=/usr/bin/swayidle -w -d
 Restart=on-failure
 
 [Install]
