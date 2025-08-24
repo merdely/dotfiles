@@ -1,9 +1,12 @@
 #!/bin/bash
 
+margin=330
+[[ $(hostname -s) =~ ^(dia)$ ]] && margin=230
+
 open_wleave() {
   open_cmd=wleave
-  opts="-f -m 330 -b 4"
-  rot_opts="-f -m 330 -b 2"
+  opts="-f -m $margin -b 4"
+  rot_opts="-f -m $margin -b 2"
   case $XDG_CURRENT_DESKTOP in
     sway*)
       xform=$(swaymsg -r -t get_outputs | jq -r '.[] | select(.focused == "true" | .transform')
