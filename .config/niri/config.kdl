@@ -8,7 +8,7 @@ environment {
     QT_QPA_PLATFORMTHEME "kde"
     QT_QPA_PLATFORM "wayland"
 
-    SSH_ASKPASS "/home/mike/bin/yad-askpass"
+    SSH_ASKPASS "/home/mike/.local/bin/yad-askpass"
     SSH_AUTH_SOCK "/run/user/1000/ssh-agent.socket"
 
     TERMINAL "kitty"
@@ -480,4 +480,9 @@ binds {
     XF86AudioPause   allow-when-locked=true hotkey-overlay-title="Play/Pause Media"          { spawn "sh" "-c" "$HOME/.local/bin/play_pause_media.sh"; }
     XF86AudioPlay    allow-when-locked=true hotkey-overlay-title="Play/Pause Media"          { spawn "sh" "-c" "$HOME/.local/bin/play_pause_media.sh"; }
 
+    // Brightness Control
+    XF86MonBrightnessDown allow-when-locked=true hotkey-overlay-title="Decrease Brightness"  { spawn "brightnessctl" "-n1" "set" "10%-"; }
+    Super+Down allow-when-locked=true hotkey-overlay-title="Decrease Brightness" { spawn "brightnessctl" "-n1" "set" "10%-"; }
+    XF86MonBrightnessUp allow-when-locked=true hotkey-overlay-title="Decrease Brightness" { spawn "brightnessctl" "-n1" "set" "10%+"; }
+    Super+Up allow-when-locked=true hotkey-overlay-title="Decrease Brightness" { spawn "brightnessctl" "-n1" "set" "10%+"; }
 }
