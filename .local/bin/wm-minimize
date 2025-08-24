@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 progname=$(basename $0)
 usage() {
@@ -10,6 +10,10 @@ usage() {
 }
 
 niri_floating_ws="🗒️"
+
+resize_height=90%
+resize_width=$resize_height
+[ -r $HOME/.config/wm-minimize.conf ] && source $HOME/.config/wm-minimize.conf
 
 mode=desktop
 resize=1
@@ -63,8 +67,9 @@ toggle_minimize() {
       niri msg action move-window-to-monitor --id $app_id $cur_mon
       niri msg action focus-window --id $app_id
       if [ $resize = 1 ]; then
-        niri msg action set-window-height --id $app_id 90%
-        niri msg action set-window-width --id $app_id 90%
+        niri msg action set-window-height --id $app_id $resize_height
+        niri msg action set-window-width --id $app_id $resize_width
+        sleep .1
       fi
       niri msg action center-window --id $app_id
     else
@@ -107,6 +112,22 @@ run_cmd() {
     swaymsg exec $(do_exec $1)
   elif [[ "$XDG_CURRENT_DESKTOP" =~ ^niri ]]; then
     niri msg action spawn -- $(do_exec $1)
+    unset app_id
+    count=0
+    while [ -z "$app_id" ] && [ $count -le 100 ]; do
+      app_id=$(niri msg -j windows | jq -r --arg c "$2" '.[] | select(.app_id==$c) | .id')
+      [ -z "$app_id" ] && count=$((count+1)) && sleep .1
+    done
+    if [ $count -ge 100 ]; then
+      echo "Warning: Could not get window id" > /dev/stderr
+    else
+      if [ $resize = 1 ]; then
+        niri msg action set-window-height --id $app_id $resize_height
+        niri msg action set-window-width --id $app_id $resize_width
+        sleep .1
+      fi
+      niri msg action center-window --id $app_id
+    fi
   else
     hyprctl dispatch exec $(do_exec $1)
   fi
@@ -134,8 +155,9 @@ if [ $cmd = ACTIVE ]; then
       # niri msg action move-window-to-monitor --id $app_id $cur_mon
       niri msg action focus-window --id $app_id
       if [ $resize = 1 ]; then
-        niri msg action set-window-height --id $app_id 90%
-        niri msg action set-window-width --id $app_id 90%
+        niri msg action set-window-height --id $app_id $resize_height
+        niri msg action set-window-width --id $app_id $resize_width
+        sleep .1
       fi
       niri msg action center-window --id $app_id
     else

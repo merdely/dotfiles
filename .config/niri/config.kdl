@@ -180,8 +180,6 @@ window-rule {
 window-rule {
     match app-id=r#"^(Bitwarden|blueman-manager|Element|io.missioncenter.MissionCenter|Logseq|signal|pavucontrol|htop|btop|net.nokyan.Resources|nvtop|term-scratchpad|termfm)$"#
     open-floating true
-    default-column-width { proportion 0.95; }
-    default-window-height { proportion 0.90; }
     open-maximized false
 }
 
@@ -190,10 +188,10 @@ window-rule {
     open-on-workspace "🗒️"
     open-floating false
     open-focused false
+    open-maximized true
 }
 
-/*
-window-rule {
+/-window-rule {
     match app-id="virt-manager" title="Virtual Machine Manager"
     open-floating true
     default-column-width { proportion 0.95; }
@@ -201,15 +199,12 @@ window-rule {
 
     open-maximized false
 }
-*/
 
-/*
-window-rule {
+/-window-rule {
     match app-id="virt-manager" title="Virtual Machine Manager" at-startup=true
     open-on-workspace "🗒️"
     open-focused false
 }
-*/
 
 window-rule {
     match app-id=r#"^(com.mitchellh.ghostty|kitty)$"# at-startup=true
