@@ -54,8 +54,8 @@ export XDG_DATA_DIRS=$XDG_DATA_HOME:${XDG_DATA_DIRS:=/usr/local/share:/usr/share
 [ ! -w $XDG_STATE_HOME ] && export XDG_STATE_HOME=$XDG_RUNTIME_DIR/.state && mkdir -p -m 700 $XDG_STATE_HOME
 
 # History stuff
-HISTFILESIZE=10000
-HISTSIZE=10000
+HISTFILESIZE=100000
+HISTSIZE=100000
 HISTCONTROL=ignoreboth
 HISTFILE=$XDG_CACHE_HOME/shell_history
 user_dot_profile=$HOME/.profile
@@ -92,8 +92,78 @@ if [ -n "$BASH_VERSION" ]; then
   # bash vi-mode
   set -o vi  # vi mode for command line editing
 elif [ -n "$ZSH_VERSION" ]; then
+  zmodload zsh/complist
+  autoload -U compinit && compinit
+  autoload -U colors && colors
+
+  zstyle ':completion:*' menu select # tab opens cmp menu
+  zstyle ':completion:*' special-dirs true # force . and .. to show in cmp menu
+  zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS} ma=0\;33 # colorize cmp menu
+  # zstyle ':completion:*' file-list true # more detailed list
+  zstyle ':completion:*' squeeze-slashes false # explicit disable to allow /*/ expansion
+
+  SAVEHIST=$HISTFILESIZE
   HISTFILE=$XDG_CACHE_HOME/zsh_history
-  [ -r $HOME/.zprofile ] && user_dot_profile=$HOME/.zprofile
+  user_dot_profile=$HOME/.zprofile
+
+  # main opts
+  setopt append_history inc_append_history share_history # better history
+  # on exit, history appends rather than overwrites; history is appended as soon as cmds executed; history shared across sessions
+  setopt auto_menu menu_complete # autocmp first menu match
+  setopt autocd # type a dir to cd
+  setopt auto_pushd # push the old directory into the directory stack
+  setopt cd_silent # don't print dir
+  setopt pushd_silent # don't print dir
+  setopt auto_param_slash # when a dir is completed, add a / instead of a trailing space
+  setopt no_case_glob no_case_match # make cmp case insensitive
+  setopt globdots # include dotfiles
+  setopt extended_glob # match ~ # ^
+  setopt interactive_comments # allow comments in shell
+  unsetopt prompt_sp # don't autoclean blanklines
+  stty stop undef # disable accidental ctrl s
+
+  setopt PROMPT_SUBST
+  __git_ps1() { true; }
+  pcharr='%B>%b'
+  pcharl='%B<%b'
+  if echo $TERM | grep -Eq "^(xterm|tmux|screen)"; then
+    pcharr='❱'
+    pcharl='❰'
+  fi
+
+  __set_prompt() {
+    pchar=$pcharr
+    [[ $KEYMAP = vicmd ]] && pchar=$pcharl
+    PROMPT='[%B%F{cyan}%n%b%f@%B%F{green}%m%f%b %B%F{blue}%2~%f%b]$(__git_ps1 " (%s)" 2>/dev/null) %(?.%F{green}.%F{red})${pchar}%f '
+  }
+  __set_prompt
+
+  bindkey -v
+  bindkey -M vicmd j vi-down-line-or-history
+  bindkey -M vicmd k vi-up-line-or-history
+
+  # When sharing this config with bash, it does not like the "function name1 name2 ()" definition
+  function zle-line-init () { __set_prompt; zle reset-prompt; }
+  function zle-keymap-select () { __set_prompt; zle reset-prompt; }
+  zle -N zle-line-init
+  zle -N zle-keymap-select
+
+  source <(fzf --zsh)
+
+  hash -d bin=$HOME/.local/bin
+  hash -d config=$XDG_CONFIG_HOME
+  hash -d shell=$XDG_CONFIG_HOME/shell
+
+  [ -r /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ] && \
+    source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+  [ -r /usr/share/zsh/plugins/zsh-autocomplete/zsh-autocomplete.plugin.zsh ] && \
+    source /usr/share/zsh/plugins/zsh-autocomplete/zsh-autocomplete.plugin.zsh
+  [ -r /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh ] && \
+    source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
+
+  bindkey -M vicmd "j" vi-down-line-or-history
+  bindkey -M vicmd "k" vi-up-line-or-history
+  bindkey -M vicmd "/" vi-history-search-backward
 fi
 
 # General settings
