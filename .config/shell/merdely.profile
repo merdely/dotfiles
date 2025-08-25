@@ -241,26 +241,26 @@ if which docker > /dev/null 2>&1; then
   [ -r /srv/docker/compose.yaml ] && export COMPOSE_FILE=/srv/docker/compose.yaml
   export COMPOSE_DOCKER_CLI_BUILD=0
   alias dc='docker compose'
-  if docker ps --format "{{.Names}}" 2> /dev/null | grep -q "^naemon$"; then
+  if [ -d /srv/docker/naemon ]; then
     alias naemoncheck='docker compose exec naemon runuser -u naemon -- naemon -v /etc/naemon/naemon.cfg'
     alias naemonreload='docker compose exec naemon pkill -P 1 -x naemon'
   fi
 
-  if docker ps --format "{{.Names}}" 2> /dev/null | grep -q "^nagios$"; then
+  if [ -d /srv/docker/nagios ]; then
     alias nagioscheck='docker compose exec nagios nagioscheck'
     alias nagiosreload='docker compose exec nagios nagiosreload'
   fi
 
-  if docker ps --format "{{.Names}}" 2> /dev/null | grep -q "^nginx$"; then
+  if [ -d /srv/docker/nginx ]; then
     alias nginxcheck='docker compose exec nginx nginx -t'
     alias nginxreload='docker compose exec nginx nginx -s reload'
   fi
 
-  if ! which ollama > /dev/null 2>&1 && docker ps --format "{{.Names}}" 2> /dev/null | grep -q "^ollama$"; then
+  if ! which ollama > /dev/null 2>&1 && [ -d /srv/docker/ollama ]; then
     alias ollama='docker compose -f $COMPOSE_FILE exec -it ollama ollama'
   fi
 
-  if ! which psql > /dev/null 2>&1 && docker ps --format "{{.Names}}" 2> /dev/null | grep -q "^postgres$"; then
+  if ! which psql > /dev/null 2>&1 && [ -d /srv/docker/postgres ]; then
     alias psql='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres env HISTSIZE=10000 HISTFILE=~/.psql_history psql'
     alias pbash='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres bash'
     alias pg_dump='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres pg_dump'
@@ -272,7 +272,7 @@ if which docker > /dev/null 2>&1; then
     alias dropdb='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres dropdb'
   fi
 
-  if docker ps --format "{{.Names}}" 2> /dev/null | grep -Eq "^(mysql|mariadb)$"; then
+  if [ -d /srv/docker/mysql ]; then
     which mariadb > /dev/null 2>&1 || alias mariadb="docker compose exec -it -u mysql mysql mariadb"
     which mariadb-dump > /dev/null 2>&1 || alias mariadb-dump="docker compose exec -it -u mysql mysql mariadb-dump"
   fi
