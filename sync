@@ -1,50 +1,77 @@
 #!/bin/sh
 
 # Sync my dotfiles into the dotfiles repo
-unset DOTFILES
-DOTFILES="$DOTFILES $HOME/.config/kitty"
-DOTFILES="$DOTFILES $HOME/.config/local/waybar*"
-DOTFILES="$DOTFILES $HOME/.config/local/wb_*"
-DOTFILES="$DOTFILES $HOME/.config/niri/config.kdl"
-DOTFILES="$DOTFILES $HOME/.config/niri/scripts"
-DOTFILES="$DOTFILES $HOME/.config/nvim"
-DOTFILES="$DOTFILES $HOME/.config/shell/merdely.profile"
-DOTFILES="$DOTFILES $HOME/.config/systemd/user/swaybg.service"
-DOTFILES="$DOTFILES $HOME/.config/systemd/user/swayidle.service"
-DOTFILES="$DOTFILES $HOME/.config/systemd/user/syncthingtray.service"
-DOTFILES="$DOTFILES $HOME/.config/systemd/user/wl-paste.service"
-DOTFILES="$DOTFILES $HOME/.config/systemd/user/wm-session.target"
-DOTFILES="$DOTFILES $HOME/.config/tmux/tmux.conf"
-DOTFILES="$DOTFILES $HOME/.config/vim/vimrc"
-DOTFILES="$DOTFILES $HOME/.config/waybar"
-DOTFILES="$DOTFILES $HOME/.config/wleave"
+CONFIGS=(
+  $HOME/.config/kitty/
+  $HOME/.config/local/waybar*
+  $HOME/.config/local/wb_*
+  $HOME/.config/niri/config.kdl
+  $HOME/.config/niri/scripts/
+  $HOME/.config/nwg-drawer/
+  $HOME/.config/nvim/
+  $HOME/.config/shell/merdely.profile
+  $HOME/.config/systemd/user/lisgd.service
+  $HOME/.config/systemd/user/screen-rotation.service
+  $HOME/.config/systemd/user/squeekboard.service
+  $HOME/.config/systemd/user/swaybg.service
+  $HOME/.config/systemd/user/swayidle.service
+  $HOME/.config/systemd/user/syncthingtray.service
+  $HOME/.config/systemd/user/watch_tablet.service
+  $HOME/.config/systemd/user/wl-paste.service
+  $HOME/.config/systemd/user/wm-session.target
+  $HOME/.config/tmux/tmux.conf
+  $HOME/.config/vim/vimrc
+  $HOME/.config/waybar/
+  $HOME/.config/wleave/
 
-DOTFILES="$DOTFILES $HOME/.bashrc"
+  $HOME/.bashrc
 
-DOTFILES="$DOTFILES $HOME/.local/bin/gen-wm-help"
-DOTFILES="$DOTFILES $HOME/.local/bin/play_pause_media.sh"
-DOTFILES="$DOTFILES $HOME/.local/bin/rofi-launcher"
-DOTFILES="$DOTFILES $HOME/.local/bin/rofi-powermenu"
-DOTFILES="$DOTFILES $HOME/.local/bin/rofi-windows"
-DOTFILES="$DOTFILES $HOME/.local/bin/run-app-toggle"
-DOTFILES="$DOTFILES $HOME/.local/bin/run_ssh_add"
-DOTFILES="$DOTFILES $HOME/.local/bin/run_terminal"
-DOTFILES="$DOTFILES $HOME/.local/bin/run_wleave"
-DOTFILES="$DOTFILES $HOME/.local/bin/view-cheatsheet"
-DOTFILES="$DOTFILES $HOME/.local/bin/view-wm-help"
-DOTFILES="$DOTFILES $HOME/.local/bin/wm-closeapps"
-DOTFILES="$DOTFILES $HOME/.local/bin/wm-minimize"
-DOTFILES="$DOTFILES $HOME/.local/bin/yad-askpass"
+  $HOME/.local/bin/gen-wm-help
+  $HOME/.local/bin/play_pause_media.sh
+  $HOME/.local/bin/rofi-launcher
+  $HOME/.local/bin/rofi-powermenu
+  $HOME/.local/bin/rofi-windows
+  $HOME/.local/bin/run-app-toggle
+  $HOME/.local/bin/run_lisgd
+  $HOME/.local/bin/run_nwg_drawer
+  $HOME/.local/bin/run_ssh_add
+  $HOME/.local/bin/run_terminal
+  $HOME/.local/bin/run_wleave
+  $HOME/.local/bin/view-cheatsheet
+  $HOME/.local/bin/view-wm-help
+  $HOME/.local/bin/wm-closeapps
+  $HOME/.local/bin/wm-minimize
+  $HOME/.local/bin/yad-askpass
+)
 
-DOTFILES="$DOTFILES /srv/scripts/bin/tmux_groupssh"
-DOTFILES="$DOTFILES /srv/scripts/bin/tmux_reorder"
-DOTFILES="$DOTFILES /srv/scripts/bin/tmux_winsplit"
-DOTFILES="$DOTFILES /srv/scripts/bin/sudo_with_sudoedit"
+SCRIPTS=(
+  /srv/scripts/bin/tmux_groupssh
+  /srv/scripts/bin/tmux_reorder
+  /srv/scripts/bin/tmux_winsplit
+  /srv/scripts/bin/sudo_with_sudoedit
+)
+
+# add files in the format of --exclude="pat" or --exclude="/path/to/file"
+EXCLUDE=(
+  --exclude='*~'
+  --exclude='*.bad'
+  --exclude='*.bak'
+  --exclude='*.lock'
+  --exclude='*.old'
+  --exclude='*.orig'
+  --exclude='*.testing'
+  --exclude='*.tmp'
+)
+
+unset dryrun
+[ "$1" = "--dry-run" ] && dryrun="--dry-run"
+[ "$1" = "-n" ] && dryrun="--dry-run"
 
 dest_dir=$(dirname "$(realpath "$0")")
 
-for dotfile in $DOTFILES; do
-  relative_path=${dotfile/$HOME/}
-  mkdir -p "$dest_dir""$(dirname "$relative_path")"
-  rsync -a --info=NAME "$dotfile" "$dest_dir""$(dirname "$relative_path")"
-done
+tmpfile=$(mktemp)
+printf "%s\n" "${CONFIGS[@]/#${HOME}\//}" > $tmpfile
+
+rsync -av --recursive --relative $dryrun "${EXCLUDE[@]}" --files-from=$tmpfile $HOME/ $dest_dir/
+rsync -av --relative $dryrun "${EXCLUDE[@]}" "${SCRIPTS[@]}" $dest_dir/
+rm -f $tmpfile
