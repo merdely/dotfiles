@@ -20,7 +20,7 @@
         },
         {
             "label" : "suspend",
-            "action" : "systemctl suspend",
+            "action" : "systemctl suspend-then-hibernate",
             "text" : "<u>S</u>uspend",
             "keybind" : "s"
         },
