@@ -4,5 +4,10 @@ return {
   -- dependencies = { "nvim-tree/nvim-web-devicons" },
   -- or if using mini.icons/mini.nvim
   dependencies = { "echasnovski/mini.icons" },
-  opts = {}
+  opts = {},
+  keys = {
+    { "<leader>ff", ":FzfLua files<CR>", desc = "Find files (current)" },
+    { "<leader>fc", ":FzfLua files cwd=~/.config<CR>", desc = "Find file (.config)" },
+    { "<leader>fh", ":FzfLua files cwd=~<CR>", desc = "Find file (home)" },
+  },
 }

@@ -117,12 +117,14 @@ end
 -- ============================================================================
 -- SETUP lazy.nvim
 -- ============================================================================
+-- Leader must be set here for plugins to be able to use it
+vim.g.mapleader = " "                              -- Set leader key to space
+vim.g.maplocalleader = " "                         -- Set local leader key (NEW)
 require("lazy_setup")
 
 -- ============================================================================
 -- THEME & TRANSPARENCY
 -- ============================================================================
-vim.cmd.colorscheme("nightfly")
 vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
 vim.api.nvim_set_hl(0, "NormalNC", { bg = "none" })
 vim.api.nvim_set_hl(0, "EndOfBuffer", { bg = "none" })
@@ -130,9 +132,6 @@ vim.api.nvim_set_hl(0, "EndOfBuffer", { bg = "none" })
 -- ============================================================================
 -- KEY MAPPINGS
 -- ============================================================================
-vim.g.mapleader = " "                              -- Set leader key to space
-vim.g.maplocalleader = " "                         -- Set local leader key (NEW)
-
 -- Normal mode mappings
 vim.keymap.set("n", "<leader>c", ":nohlsearch<CR>", { desc = "Clear search highlights" })
 
@@ -184,13 +183,6 @@ vim.keymap.set("v", "<C-k>", ":m '<-2<CR>gv=gv", { desc = "Move selection up" })
 -- Better indenting in visual mode
 vim.keymap.set("v", "<", "<gv", { desc = "Indent left and reselect" })
 vim.keymap.set("v", ">", ">gv", { desc = "Indent right and reselect" })
-
--- Quick file navigation
-vim.keymap.set("n", "-", "<CMD>Oil --float<CR>", { desc = "Use Oil file manager" })
-vim.keymap.set("n", "<leader>e", ":Oil --float<CR>", { desc = "Open file explorer" })
-vim.keymap.set("n", "<leader>ff", ":FzfLua files<CR>", { desc = "Find files (current)" })
-vim.keymap.set("n", "<leader>fc", ":FzfLua files cwd=~/.config<CR>", { desc = "Find file (.config)" })
-vim.keymap.set("n", "<leader>fh", ":FzfLua files cwd=~<CR>", { desc = "Find file (home)" })
 
 -- Clear some customizations to make copying easier
 vim.keymap.set('n', '<leader>cp', function() vim.cmd(":set cursorline! list! number! breakindent! " .. (vim.o.colorcolumn == '' and "colorcolumn=80 " or "colorcolumn= ") .. (vim.o.signcolumn == 'number' and "signcolumn=no " or "signcolumn=number ")) end, { silent = true, expr = false })

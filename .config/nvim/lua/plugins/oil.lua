@@ -8,6 +8,10 @@ return {
       show_hidden = true,
     }
   },
+  keys = {
+    { "-", "<CMD>Oil --float<CR>", desc = "Use Oil file manager" },
+    { "<leader>e", ":Oil --float<CR>", desc = "Open file explorer" },
+  },
   -- Optional dependencies
   dependencies = { { "echasnovski/mini.icons", opts = {} } },
   -- dependencies = { "nvim-tree/nvim-web-devicons" }, -- use if you prefer nvim-web-devicons
