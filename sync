@@ -72,6 +72,6 @@ dest_dir=$(dirname "$(realpath "$0")")
 tmpfile=$(mktemp)
 printf "%s\n" "${CONFIGS[@]/#${HOME}\//}" > $tmpfile
 
-rsync -av --recursive --relative --delete $dryrun "${EXCLUDE[@]}" --files-from=$tmpfile $HOME/ $dest_dir/
-rsync -av --recursive --relative --delete $dryrun "${EXCLUDE[@]}" "${SCRIPTS[@]}" $dest_dir/
+rsync -a --info=NAME --recursive --relative --delete $dryrun "${EXCLUDE[@]}" --files-from=$tmpfile $HOME/ $dest_dir/
+rsync -a --info=NAME --recursive --relative --delete $dryrun "${EXCLUDE[@]}" "${SCRIPTS[@]}" $dest_dir/
 rm -f $tmpfile
