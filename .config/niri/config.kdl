@@ -123,7 +123,7 @@ spawn-at-startup "gtk-launch" "udiskie-applet"
 spawn-at-startup "gtk-launch" "polkit-gnome-authentication-agent-1"
 
 spawn-at-startup "sh" "-c" "$HOME/.local/bin/wm-minimize com.logseq.Logseq Logseq"
-spawn-at-startup "sh" "-c" "$HOME/.local/bin/wm-minimize signal-desktop signal"
+spawn-at-startup "sh" "-c" "$HOME/.local/bin/wm-minimize org.signal.Signal"
 spawn-at-startup "sh" "-c" "$HOME/.local/bin/wm-minimize io.element.Element Element"
 spawn-at-startup "sh" "-c" "$HOME/.local/bin/wm-minimize bitwarden"
 
@@ -152,7 +152,7 @@ window-rule {
 }
 
 window-rule {
-    match app-id=r#"^(firefox|fr.handbrake.ghb|gimp|labwc|librewolf|obsidian|vlc)$"#
+    match app-id=r#"^(chromium|firefox|fr.handbrake.ghb|io.github.ungoogled_software.ungoogled_chromium|gimp|labwc|librewolf|obsidian|vlc)$"#
     open-maximized true
 }
 
@@ -178,13 +178,13 @@ window-rule {
 }
 
 window-rule {
-    match app-id=r#"^(Bitwarden|blueman-manager|Element|io.missioncenter.MissionCenter|Logseq|signal|pavucontrol|htop|btop|net.nokyan.Resources|nvtop|term-scratchpad|termfm)$"#
+    match app-id=r#"^(Bitwarden|blueman-manager|Element|io.missioncenter.MissionCenter|Logseq|signal|org.signal.Signal|pavucontrol|htop|btop|net.nokyan.Resources|nvtop|term-scratchpad|termfm)$"#
     open-floating true
     open-maximized false
 }
 
 window-rule {
-    match app-id=r#"^(Bitwarden|blueman-manager|Element|io.missioncenter.MissionCenter|Logseq|signal|pavucontrol|htop|btop|net.nokyan.Resources|nvtop|term-scratchpad|termfm)$"# at-startup=true
+    match app-id=r#"^(Bitwarden|blueman-manager|Element|io.missioncenter.MissionCenter|Logseq|signal|org.signal.Signal|pavucontrol|htop|btop|net.nokyan.Resources|nvtop|term-scratchpad|termfm)$"# at-startup=true
     open-on-workspace "🗒️"
     open-floating false
     open-focused false
@@ -230,6 +230,7 @@ window-rule {
     match app-id=r#"^org\.gnome\.World\.Secrets$"#
     match app-id=r#"^Bitwarden$"#
     match app-id=r#"^signal$"#
+    match app-id=r#"^org\.signal\.Signal$"#
     match app-id=r#"^yad$"# title=r#"^Enter SSH Key Passphrase$"#
 
     block-out-from "screen-capture"
@@ -320,7 +321,7 @@ binds {
     Mod+Shift+D             hotkey-overlay-title="Htop"                  { spawn "sh" "-c" "$HOME/.local/bin/wm-minimize htop"; }
     Mod+Shift+Q             hotkey-overlay-title="Logseq"                { spawn "sh" "-c" "$HOME/.local/bin/wm-minimize com.logseq.Logseq Logseq"; }
     Mod+Shift+I             hotkey-overlay-title="Audio Mixer"           { spawn "sh" "-c" "$HOME/.local/bin/wm-minimize org.pulseaudio.pavucontrol pavucontrol"; }
-    Mod+Shift+A             hotkey-overlay-title="Signal"                { spawn "sh" "-c" "$HOME/.local/bin/wm-minimize signal-desktop signal"; }
+    Mod+Shift+A             hotkey-overlay-title="Signal"                { spawn "sh" "-c" "$HOME/.local/bin/wm-minimize org.signal.Signal"; }
     Mod+Shift+U             hotkey-overlay-title="Element"               { spawn "sh" "-c" "$HOME/.local/bin/wm-minimize io.element.Element Element"; }
 
     // Niri Shortcuts
