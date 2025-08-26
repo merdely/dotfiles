@@ -80,7 +80,7 @@ if [ -n "$BASH_VERSION" ]; then
   __update_prompt () {
     ec='\1\e[32m\2'
     [ "$1" != 0 ] && ec='\1\e[31m\2'
-    EMBEDDED_PS1='[\1\e[1;36m\2\u\1\e[0m\2@\1\e[1;32m\2\h\1\e[0m\2 \1\e[1;34m\2\w\1\e[0m\2]$(__git_ps1 " (%s)" 2> /dev/null)${ec}'
+    EMBEDDED_PS1='[\1\e[1;36m\2\u\1\e[0m\2@\1\e[1;32m\2\h\1\e[0m\2 \1\e[1;34m\2\w\1\e[0m\2]$(__git_ps1 " ( %s)" 2> /dev/null)${ec}'
     bind "set vi-ins-mode-string \"${EMBEDDED_PS1@P} ${pcharr}\1\e[0m\2\""
     bind "set vi-cmd-mode-string \"${EMBEDDED_PS1@P} ${pcharl}\1\e[0m\2\""
   }
@@ -134,7 +134,7 @@ elif [ -n "$ZSH_VERSION" ]; then
   __set_prompt() {
     pchar=$pcharr
     [[ $KEYMAP = vicmd ]] && pchar=$pcharl
-    PROMPT='[%B%F{cyan}%n%b%f@%B%F{green}%m%f%b %B%F{blue}%2~%f%b]$(__git_ps1 " (%s)" 2>/dev/null) %(?.%F{green}.%F{red})${pchar}%f '
+    PROMPT='[%B%F{cyan}%n%b%f@%B%F{green}%m%f%b %B%F{blue}%2~%f%b]$(__git_ps1 " ( %s)" 2>/dev/null) %(?.%F{green}.%F{red})${pchar}%f '
   }
   __set_prompt
 
@@ -153,6 +153,11 @@ elif [ -n "$ZSH_VERSION" ]; then
   hash -d bin=$HOME/.local/bin
   hash -d config=$XDG_CONFIG_HOME
   hash -d shell=$XDG_CONFIG_HOME/shell
+
+  # Use XDG dirs for completion and history files
+  [ -d "$XDG_CACHE_HOME"/zsh ] || mkdir -p "$XDG_CACHE_HOME"/zsh
+  zstyle ':completion:*' cache-path "$XDG_CACHE_HOME"/zsh/zcompcache
+  compinit -d "$XDG_CACHE_HOME"/zsh/zcompdump-$ZSH_VERSION
 
   [ -r /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ] && \
     source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
