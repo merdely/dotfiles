@@ -1,2 +1,5 @@
 {
+  "include": [
+    "$HOME/.config/local/wb_mode.jsonc"
+  ]
 }

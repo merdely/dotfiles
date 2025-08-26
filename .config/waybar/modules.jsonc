@@ -48,10 +48,6 @@
     },
 
     // Custom Modules
-    "custom/toggle_winchooser": {
-        "format": "",
-        "on-click": "$HOME/.local/bin/rofi-windows"
-    },
     "custom/clock": {
         "hide-empty-text": true,
         "format": "{}",

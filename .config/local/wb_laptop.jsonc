@@ -1,2 +1,6 @@
 {
+    "custom/toggle_winchooser": {
+        "format": "",
+        "on-click": "$HOME/.local/bin/rofi-windows"
+    }
 }
