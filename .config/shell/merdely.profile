@@ -66,6 +66,8 @@ if [ -n "$BASH_VERSION" ]; then
   HISTCONTROL=ignoreboth:erasedups
   shopt -s autocd cdspell extglob histappend
 
+  # Colors: black:30, blue:34, cyan:36, green:32, purple:35, red:31, white:37, yellow:33
+  #         orange:38;2;255;165;0 (foreground:38, background:48)
   # Set up prompt
   __git_ps1() { true; }
   pcharr='\1\e[1m\2>\1\e[0m\2'
@@ -82,7 +84,7 @@ if [ -n "$BASH_VERSION" ]; then
   __update_prompt () {
     ec='\1\e[32m\2'
     [ "$1" != 0 ] && ec='\1\e[31m\2'
-    EMBEDDED_PS1='[\1\e[1;36m\2\u\1\e[0m\2@\1\e[1;32m\2\h\1\e[0m\2 \1\e[1;34m\2\w\1\e[0m\2]$(__git_ps1 " (${gchar}%s)" 2> /dev/null)${ec}'
+    EMBEDDED_PS1='[\1\e[1;36m\2\u\1\e[0m\2@\1\e[1;32m\2\h\1\e[0m\2 \1\e[1;34m\2\w\1\e[0m\2]$(__git_ps1 " (\1\e[38;2;255;165;0m\2${gchar}\1\e[0m\2%s)" 2> /dev/null)${ec}'
     bind "set vi-ins-mode-string \"${EMBEDDED_PS1@P} ${pcharr}\1\e[0m\2\""
     bind "set vi-cmd-mode-string \"${EMBEDDED_PS1@P} ${pcharl}\1\e[0m\2\""
   }
