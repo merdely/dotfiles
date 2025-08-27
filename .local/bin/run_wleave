@@ -1,7 +1,21 @@
 #!/bin/bash
 
 margin=330
-[[ $(hostname -s) =~ ^(dia)$ ]] && margin=230
+
+case $XDG_CURRENT_DESKTOP in
+  sway*)
+    eval $(swaymsg -r -t get_outputs | jq -r '.[] | select(.active==true) | "w=\(.rect.width) h=\(.rect.height)"')
+    ;;
+  niri*)
+    eval $(niri msg -j focused-output | jq -r '"w=\(.logical.width) h=\(.logical.height)"')
+    ;;
+  Hyprland*)
+    eval $(hyprctl -j monitors | jq -r '.[] | select(.focused==true) | "w=\(.width) h=\(.height)"')
+    ;;
+esac
+
+[ $w -lt 1400 ] && margin=230
+[ $h -lt 800 ] && margin=230
 
 open_wleave() {
   open_cmd=wleave
