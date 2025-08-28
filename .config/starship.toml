@@ -1,0 +1,46 @@
+"$schema" = 'https://starship.rs/config-schema.json'
+add_newline = false
+
+format = '\[$username@$hostname $directory\] $git_branch$git_status$jobs$cmd_duration$character'
+
+[fill]
+symbol = ' '
+
+[username]
+format = '[$user]($style)'
+style_user = 'bold cyan'
+show_always = true
+disabled = false
+
+[hostname]
+ssh_only = false
+format = '[$hostname]($style)' #$ssh_symbol'
+style = 'bold green'
+#ssh_symbol = '🌐'
+trim_at = '.erdely.in'
+disabled = false
+
+[directory]
+format = '[$path]($style)[$read_only]($read_only_style)'
+style = 'bold blue'
+truncation_length = 2
+truncation_symbol = '…/'
+
+[git_branch]
+format = '\($symbol[$branch(:$remote_branch)]($style) '
+symbol = '[](fg:214) '
+style = 'green'
+
+[git_status]
+format = '([$all_status$ahead_behind]($style))\) '
+modified = '*'
+untracked = "%"
+
+[jobs]
+symbol = ''
+style = 'bold red'
+disabled = false
+
+[cmd_duration]
+format = '[$duration]($style) '
+disabled = false

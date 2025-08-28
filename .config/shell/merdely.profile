@@ -122,6 +122,13 @@ elif [ -n "$ZSH_VERSION" ]; then
   zmodload zsh/complist
   autoload -U compinit && compinit
   autoload -U colors && colors
+  autoload -U edit-command-line && zle -N edit-command-line
+  edit-and-execute() {
+    zle edit-command-line
+    zle accept-line
+  }
+  zle -N edit-and-execute
+  bindkey -M vicmd '^v' edit-and-execute
 
   zstyle ':completion:*' menu select # tab opens cmp menu
   zstyle ':completion:*' special-dirs true # force . and .. to show in cmp menu
@@ -148,31 +155,37 @@ elif [ -n "$ZSH_VERSION" ]; then
   setopt interactive_comments # allow comments in shell
   unsetopt prompt_sp # don't autoclean blanklines
   stty stop undef # disable accidental ctrl s
-  setopt PROMPT_SUBST
 
-  __set_prompt() {
-    if echo $TERM | grep -Eq "^(xterm|tmux|screen)"; then
-      pcharr=$pcharr_user_gui && pcharl=$pcharl_user_gui && gchar=$gchar_gui
-      [ $UID = 0 ] && pcharr=$pcharr_root_gui && pcharl=$pcharl_root_gui
-    else
-      pcharr=$pcharr_user_text && pcharl=$pcharl_user_text && gchar=$gchar_text
-      [ $UID = 0 ] && pcharr=$pcharr_root_text && pcharl=$pcharl_root_text
-    fi
-    pchar=$pcharr
-    [[ $KEYMAP = vicmd ]] && pchar=$pcharl
-    PROMPT='[%B%F{cyan}%n%b%f@%B%F{green}%m%f%b %B%F{blue}%2~%f%b]$(__git_ps1 " (${gchar}%s)" 2>/dev/null) %(?.%F{green}.%F{red})${pchar}%f '
-  }
-  __set_prompt
+  use_starship=1
+  if [ "$use_starship" = 1 ] && which starship > /dev/null 2>&1 && [ -r $HOME/.config/starship.toml ]; then
+    eval "$(starship init zsh)"
+  else
+    setopt PROMPT_SUBST
+    __set_prompt() {
+      if echo $TERM | grep -Eq "^(xterm|tmux|screen)"; then
+        pcharr=$pcharr_user_gui && pcharl=$pcharl_user_gui && gchar=$gchar_gui
+        [ $UID = 0 ] && pcharr=$pcharr_root_gui && pcharl=$pcharl_root_gui
+      else
+        pcharr=$pcharr_user_text && pcharl=$pcharl_user_text && gchar=$gchar_text
+        [ $UID = 0 ] && pcharr=$pcharr_root_text && pcharl=$pcharl_root_text
+      fi
+      pchar=$pcharr
+      [[ $KEYMAP = vicmd ]] && pchar=$pcharl
+      PROMPT='[%B%F{cyan}%n%b%f@%B%F{green}%m%f%b %B%F{blue}%2~%f%b]$(__git_ps1 " (${gchar}%s)" 2>/dev/null) %(?.%F{green}.%F{red})${pchar}%f '
+    }
+    __set_prompt
+
+    # When sharing this config with bash, it does not like the "function name1 name2 ()" definition
+    # Set the prompt automatically
+    function zle-line-init () { __set_prompt; zle reset-prompt; }
+    function zle-keymap-select () { __set_prompt; zle reset-prompt; }
+    zle -N zle-line-init
+    zle -N zle-keymap-select
+  fi
 
   bindkey -v
   bindkey -M vicmd j vi-down-line-or-history
   bindkey -M vicmd k vi-up-line-or-history
-
-  # When sharing this config with bash, it does not like the "function name1 name2 ()" definition
-  function zle-line-init () { __set_prompt; zle reset-prompt; }
-  function zle-keymap-select () { __set_prompt; zle reset-prompt; }
-  zle -N zle-line-init
-  zle -N zle-keymap-select
 
   source <(fzf --zsh)
 
@@ -185,13 +198,18 @@ elif [ -n "$ZSH_VERSION" ]; then
   zstyle ':completion:*' cache-path "$XDG_CACHE_HOME"/zsh/zcompcache
   compinit -d "$XDG_CACHE_HOME"/zsh/zcompdump-$ZSH_VERSION
 
-  #[ -r /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ] && \
-  #  source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+  # ZSH Syntax Highlighting
+  [ -r /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ] && \
+    source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+  # ZSH Auto Suggestions
+  [ -r /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh ] && \
+    source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
+  bindkey -M viins '^y' autosuggest-execute
+
+  # Really breaks vi-mode history searching
   #[ -r /usr/share/zsh/plugins/zsh-autocomplete/zsh-autocomplete.plugin.zsh ] && \
   #  source /usr/share/zsh/plugins/zsh-autocomplete/zsh-autocomplete.plugin.zsh
-  #[ -r /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh ] && \
-  #  source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
-
   #bindkey -M vicmd "j" vi-down-line-or-history
   #bindkey -M vicmd "k" vi-up-line-or-history
   #bindkey -M vicmd "/" vi-history-search-backward
@@ -430,7 +448,7 @@ case "$HOSTNAME" in
         alias bootwindows='sudo /srv/scripts/sbin/boot-to-windows'
         alias bootlinux='sudo /srv/scripts/sbin/boot-to-arch'
         alias bootarch='sudo /srv/scripts/sbin/boot-to-arch'
-        alias pushprofile='for f in pluto jupiter earth dione carme metis sinope tarvos; do echo $f; scp $HOME/.config/shell/merdely.profile $f:.config/shell/; done; for f in carme metis sinope tarvos; do echo $f: sync_home; ssh -o ClearAllForwardings=yes root@$f /home/mike/.local/bin/sync_home > /dev/null; done'
+        alias pushprofile='for f in pluto jupiter earth dione carme metis sinope tarvos; do echo $f; scp $HOME/.config/shell/merdely.profile $f:.config/shell/; scp $HOME/.config/starship.toml $f:.config/; done; for f in carme metis sinope tarvos; do echo $f: sync_home; ssh -o ClearAllForwardings=yes root@$f /home/mike/.local/bin/sync_home > /dev/null; done'
         alias pushknownhosts='for f in pluto jupiter mercury earth dione; do echo $f; scp $HOME/src/ansible/system-setup/roles/sshclient/files/ssh_known_hosts root@$f:/etc/ssh/ssh_known_hosts; done; for f in carme metis tarvos; do echo $f; ssh -o ClearAllForwardings=yes root@$f /usr/local/bin/rw; scp $HOME/src/ansible/system-setup/roles/sshclient/files/ssh_known_hosts root@$f:/etc/ssh/ssh_known_hosts; ssh -o ClearAllForwardings=yes root@$f /usr/local/bin/ro; done'
         alias pushvimrc='for f in jupiter earth pluto carme metis sinope tarvos; do echo $f; scp $HOME/.config/vim/vimrc $f:.config/vim/; done; for f in carme metis sinope tarvos; do echo $f: sync_home; ssh -o ClearAllForwardings=yes root@$f /home/mike/.local/bin/sync_home > /dev/null; done'
         ;;

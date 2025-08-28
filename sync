@@ -10,6 +10,7 @@ CONFIGS=(
   $HOME/.config/nwg-drawer/
   $HOME/.config/nvim/
   $HOME/.config/shell/merdely.profile
+  $HOME/.config/starship.toml
   $HOME/.config/systemd/user/lisgd.service
   $HOME/.config/systemd/user/screen-rotation.service
   $HOME/.config/systemd/user/squeekboard.service
@@ -23,8 +24,10 @@ CONFIGS=(
   $HOME/.config/vim/vimrc
   $HOME/.config/waybar/
   $HOME/.config/wleave/
+  $HOME/.config/zsh/.zshrc
 
   $HOME/.bashrc
+  $HOME/.zprofile
 
   $HOME/.local/bin/gen-wm-help
   $HOME/.local/bin/play_pause_media.sh
