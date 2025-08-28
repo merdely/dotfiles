@@ -1,6 +1,6 @@
 ## Mike's Master merdely.profile
 # This script only works with bash now
-[ -z "$BASH_VERSION" ] && [ -z "$ZSH_VERSION" ] && return
+[ -z "$BASH_VERSION" ] && [ $SHELL != /bin/ksh ] && [ -z "$ZSH_VERSION" ] && return
 
 # Add '[[ $- == *i* ]] && [ -r $HOME/.config/shell/merdely.profile ] && . $HOME/.config/shell/merdely.profile'
 # to the bottom of $HOME/.profile or $HOME/.bashrc
@@ -62,36 +62,59 @@ user_dot_profile=$HOME/.profile
 [ -r $HOME/.bash_profile ] && user_dot_profile=$HOME/.bash_profile
 ! which which > /dev/null 2>&1 && alias which='command -v'
 
-if [ -n "$BASH_VERSION" ]; then
+pcharr_user_text='>'
+pcharl_user_text='<'
+pcharr_root_text='>>'
+pcharl_root_text='<<'
+gchar_text=''
+pcharr_user_gui='❱'
+pcharl_user_gui='❰'
+pcharr_root_gui='≫'
+pcharl_root_gui='≪'
+gchar_gui=' '
+__git_ps1() { true; }
+
+if [ -n "$BASH_VERSION" ] || [ $SHELL = /bin/ksh ]; then
   HISTCONTROL=ignoreboth:erasedups
   shopt -s autocd cdspell extglob histappend
+  PROMPT_DIRTRIM=2
 
+  # \1 & \2 are good for the vi-ins-mode-string but \[ and \] are good for PS1
   # Colors: black:30, blue:34, cyan:36, green:32, purple:35, red:31, white:37, yellow:33
   #         orange:38;2;255;165;0 (foreground:38, background:48)
   # Set up prompt
-  __git_ps1() { true; }
-  pcharr='\1\e[1m\2>\1\e[0m\2'
-  pcharl='\1\e[1m\2<\1\e[0m\2'
-  gchar=''
-  if echo $TERM | grep -Eq "^(xterm|tmux|screen)"; then
-    pcharr='❱'
-    pcharl='❰'
-    gchar=' '
+
+  show_vi_mode=0
+  [ -r $XDG_CONFIG_HOME/shell/show_vi_mode ] && show_vi_mode=1
+  if [ $show_vi_mode = 1 ]; then
+    bind 'set show-mode-in-prompt on'
+    bind 'set keymap vi-insert'
+    PS1=' '
   fi
-  bind 'set show-mode-in-prompt on'
-  bind 'set keymap vi-insert'
-  PROMPT_DIRTRIM=2
   __update_prompt () {
-    ec='\1\e[32m\2'
-    [ "$1" != 0 ] && ec='\1\e[31m\2'
-    EMBEDDED_PS1='[\1\e[1;36m\2\u\1\e[0m\2@\1\e[1;32m\2\h\1\e[0m\2 \1\e[1;34m\2\w\1\e[0m\2]$(__git_ps1 " (\1\e[38;2;255;165;0m\2${gchar}\1\e[0m\2%s)" 2> /dev/null)${ec}'
-    bind "set vi-ins-mode-string \"${EMBEDDED_PS1@P} ${pcharr}\1\e[0m\2\""
-    bind "set vi-cmd-mode-string \"${EMBEDDED_PS1@P} ${pcharl}\1\e[0m\2\""
+    ec=32
+    [ "$1" != 0 ] && ec=31
+
+    if echo $TERM | grep -Eq "^(xterm|tmux|screen)"; then
+      pcharr=$pcharr_user_gui && pcharl=$pcharl_user_gui && gchar=$gchar_gui
+      [ $UID = 0 ] && pcharr=$pcharr_root_gui && pcharl=$pcharl_root_gui
+    else
+      pcharr=$pcharr_user_text && pcharl=$pcharl_user_text && gchar=$gchar_text
+      [ $UID = 0 ] && pcharr=$pcharr_root_text && pcharl=$pcharl_root_text
+    fi
+    local EMBEDDED_PS1='[\[\e[1;36m\]\u\[\e[0m\]@\[\e[1;32m\]\h\[\e[0m\] \[\e[1;34m\]\w\[\e[0m\]]$(__git_ps1 " (\[\e[38;2;255;165;0m\]${gchar}\[\e[0m\]%s)" 2> /dev/null)\[\e[${ec}m\]'
+    if [ $show_vi_mode = 0 ]; then
+      PS1=${EMBEDDED_PS1}' '${pcharr}'\[\e[0m\] '
+    else
+      EMBEDDED_PS1=${EMBEDDED_PS1//\\[/\\1}
+      EMBEDDED_PS1=${EMBEDDED_PS1//\\]/\\2}
+      bind "set vi-ins-mode-string \"${EMBEDDED_PS1@P} ${pcharr}\1\e[0m\2\""
+      bind "set vi-cmd-mode-string \"${EMBEDDED_PS1@P} ${pcharl}\1\e[0m\2\""
+    fi
   }
   __update_prompt
   PROMPT_COMMAND="code=\$?;__update_prompt \$code;unset code;history -a; history -c; history -r"
   which fzf > /dev/null 2>&1 && eval "$(fzf --bash)"
-  PS1=' '
 
   # bash vi-mode
   set -o vi  # vi mode for command line editing
@@ -125,19 +148,16 @@ elif [ -n "$ZSH_VERSION" ]; then
   setopt interactive_comments # allow comments in shell
   unsetopt prompt_sp # don't autoclean blanklines
   stty stop undef # disable accidental ctrl s
-
   setopt PROMPT_SUBST
-  __git_ps1() { true; }
-  pcharr='%B>%b'
-  pcharl='%B<%b'
-  gchar=''
-  if echo $TERM | grep -Eq "^(xterm|tmux|screen)"; then
-    pcharr='❱'
-    pcharl='❰'
-    gchar=' '
-  fi
 
   __set_prompt() {
+    if echo $TERM | grep -Eq "^(xterm|tmux|screen)"; then
+      pcharr=$pcharr_user_gui && pcharl=$pcharl_user_gui && gchar=$gchar_gui
+      [ $UID = 0 ] && pcharr=$pcharr_root_gui && pcharl=$pcharl_root_gui
+    else
+      pcharr=$pcharr_user_text && pcharl=$pcharl_user_text && gchar=$gchar_text
+      [ $UID = 0 ] && pcharr=$pcharr_root_text && pcharl=$pcharl_root_text
+    fi
     pchar=$pcharr
     [[ $KEYMAP = vicmd ]] && pchar=$pcharl
     PROMPT='[%B%F{cyan}%n%b%f@%B%F{green}%m%f%b %B%F{blue}%2~%f%b]$(__git_ps1 " (${gchar}%s)" 2>/dev/null) %(?.%F{green}.%F{red})${pchar}%f '
@@ -165,16 +185,16 @@ elif [ -n "$ZSH_VERSION" ]; then
   zstyle ':completion:*' cache-path "$XDG_CACHE_HOME"/zsh/zcompcache
   compinit -d "$XDG_CACHE_HOME"/zsh/zcompdump-$ZSH_VERSION
 
-  [ -r /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ] && \
-    source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-  [ -r /usr/share/zsh/plugins/zsh-autocomplete/zsh-autocomplete.plugin.zsh ] && \
-    source /usr/share/zsh/plugins/zsh-autocomplete/zsh-autocomplete.plugin.zsh
-  [ -r /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh ] && \
-    source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
+  #[ -r /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ] && \
+  #  source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+  #[ -r /usr/share/zsh/plugins/zsh-autocomplete/zsh-autocomplete.plugin.zsh ] && \
+  #  source /usr/share/zsh/plugins/zsh-autocomplete/zsh-autocomplete.plugin.zsh
+  #[ -r /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh ] && \
+  #  source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
 
-  bindkey -M vicmd "j" vi-down-line-or-history
-  bindkey -M vicmd "k" vi-up-line-or-history
-  bindkey -M vicmd "/" vi-history-search-backward
+  #bindkey -M vicmd "j" vi-down-line-or-history
+  #bindkey -M vicmd "k" vi-up-line-or-history
+  #bindkey -M vicmd "/" vi-history-search-backward
 fi
 
 # General settings
@@ -311,7 +331,7 @@ ret_doas=$?
 alias sudo='sudo '
 [ $ret_sudo != 0 -a $ret_doas = 0 ] && alias sudo='doas '
 [ $ret_sudo = 0 -a $ret_doas != 0 ] && alias doas='sudo '
-if [ -x /srv/scripts/bin/sudo_with_sudoedit ]; then
+if which sudo > /dev/null 2>&1 && [ -x /srv/scripts/bin/sudo_with_sudoedit ]; then
   alias sudo='/srv/scripts/bin/sudo_with_sudoedit '
   [ $ret_sudo = 0 -a $ret_doas != 0 ] && alias doas='/srv/scripts/bin/sudo_with_sudoedit '
 fi
@@ -388,6 +408,7 @@ if which git > /dev/null 2>&1; then
     [ -e /usr/lib/git-core/git-sh-prompt ] && . /usr/lib/git-core/git-sh-prompt
     [ -e /usr/share/git/completion/git-prompt.sh ] && . /usr/share/git/completion/git-prompt.sh
     [ -e $HOME/.local/bin/git-prompt.sh ] && . $HOME/.local/bin/git-prompt.sh
+    [ -e $HOME/bin/git-prompt.sh ] && . $HOME/bin/git-prompt.sh
   fi
   if ! pgrep -x gpg-agent > /dev/null 2>&1; then
     export GPG_TTY=$(tty)
@@ -467,7 +488,7 @@ if [ "$XDG_SESSION_TYPE" = wayland ]; then
 fi
 
 # Wayland stuff over SSH
-if [ "$ID" != OpenBSD ] && [ -n "$SSH_CONNECTION" ]; then
+if [ "$ID" != OpenBSD ] && [ -z "$SUDO_USER" ] && [ -n "$DOAS_USER" ] && [ -n "$SSH_CONNECTION" ]; then
   WAYLAND_DISPLAY_FILE=$(find $XDG_RUNTIME_DIR -maxdepth 1 -regex ".*/wayland-[0-9]+")
   if [ -n "$WAYLAND_DISPLAY_FILE" ]; then
     export XDG_SESSION_TYPE=wayland
