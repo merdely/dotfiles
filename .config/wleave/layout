@@ -15,8 +15,8 @@
         {
             "label" : "logout",
             "action" : "$HOME/.local/bin/wm-logout",
-            "text" : "L<u>o</u>gout",
-            "keybind" : "e"
+            "text" : "Lo<u>g</u>out",
+            "keybind" : "g"
         },
         {
             "label" : "suspend",
