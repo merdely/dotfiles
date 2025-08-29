@@ -1,6 +1,11 @@
 ## Mike's Master merdely.profile
-# This script only works with bash now
-[ -z "$BASH_VERSION" ] && [ $SHELL != /bin/ksh ] && [ -z "$ZSH_VERSION" ] && return
+
+# Define running shell and exit if not bash, zsh, or ksh
+running_shell=unknown
+[ ${SHELL##*/} = bash -o -n "$BASH_VERSION" ] && running_shell=bash
+[ ${SHELL##*/} = zsh -o -n "$ZSH_VERSION" ] && running_shell=zsh
+[ ${SHELL##*/} = ksh -o -n "$KSH_VERSION" ] && running_shell=ksh
+[ $running_shell = unknown ] && return
 
 # Add '[[ $- == *i* ]] && [ -r $HOME/.config/shell/merdely.profile ] && . $HOME/.config/shell/merdely.profile'
 # to the bottom of $HOME/.profile or $HOME/.bashrc
@@ -53,18 +58,19 @@ export XDG_DATA_DIRS=$XDG_DATA_HOME:${XDG_DATA_DIRS:=/usr/local/share:/usr/share
 [ ! -w $XDG_CACHE_HOME ] && export XDG_CACHE_HOME=$XDG_RUNTIME_DIR/.cache && mkdir -p -m 700 $XDG_CACHE_HOME
 [ ! -w $XDG_STATE_HOME ] && export XDG_STATE_HOME=$XDG_RUNTIME_DIR/.state && mkdir -p -m 700 $XDG_STATE_HOME
 
+# Use 'command -v' instead of which with bash and zsh
+[ $running_shell != ksh ] && alias which='command -v'
+
 # Git stuff
 if which git > /dev/null 2>&1; then
-  if echo $SHELL | grep -Eq "^.*/(bash|ksh|zsh)$"; then
-    GIT_PS1_SHOWDIRTYSTATE=true
-    GIT_PS1_SHOWUNTRACKEDFILES=true
-    GIT_PS1_SHOWSTASHSTATE=true
-    GIT_PS1_SHOWCOLORHINTS=true
-    [ -e /usr/lib/git-core/git-sh-prompt ] && . /usr/lib/git-core/git-sh-prompt
-    [ -e /usr/share/git/completion/git-prompt.sh ] && . /usr/share/git/completion/git-prompt.sh
-    [ -e $HOME/.local/bin/git-prompt.sh ] && . $HOME/.local/bin/git-prompt.sh
-    [ -e $HOME/bin/git-prompt.sh ] && . $HOME/bin/git-prompt.sh
-  fi
+  GIT_PS1_SHOWDIRTYSTATE=true
+  GIT_PS1_SHOWUNTRACKEDFILES=true
+  GIT_PS1_SHOWSTASHSTATE=true
+  GIT_PS1_SHOWCOLORHINTS=true
+  [ -e /usr/lib/git-core/git-sh-prompt ] && . /usr/lib/git-core/git-sh-prompt
+  [ -e /usr/share/git/completion/git-prompt.sh ] && . /usr/share/git/completion/git-prompt.sh
+  [ -e $HOME/.local/bin/git-prompt.sh ] && . $HOME/.local/bin/git-prompt.sh
+  [ -e $HOME/bin/git-prompt.sh ] && . $HOME/bin/git-prompt.sh
   if ! pgrep -x gpg-agent > /dev/null 2>&1; then
     export GPG_TTY=$(tty)
   fi
@@ -77,7 +83,6 @@ HISTCONTROL=ignoreboth
 HISTFILE=$XDG_CACHE_HOME/shell_history
 user_dot_profile=$HOME/.profile
 [ -r $HOME/.bash_profile ] && user_dot_profile=$HOME/.bash_profile
-! which which > /dev/null 2>&1 && alias which='command -v'
 
 pcharr_user_text='>'
 pcharl_user_text='<'
@@ -90,7 +95,7 @@ pcharr_root_gui='≫'
 pcharl_root_gui='≪'
 gchar_gui=' '
 
-if [ -n "$BASH_VERSION" ] || [ $SHELL = /bin/ksh ]; then
+if [ $running_shell = bash -o $running_shell = ksh ]; then
   HISTCONTROL=ignoreboth:erasedups
   shopt -s autocd cdspell extglob histappend
   PROMPT_DIRTRIM=2
@@ -111,7 +116,7 @@ if [ -n "$BASH_VERSION" ] || [ $SHELL = /bin/ksh ]; then
     ec=32
     [ "$1" != 0 ] && ec=31
 
-    if echo $TERM | grep -Eq "^(xterm|tmux|screen)"; then
+    if [[ $TERM == xterm* ]] || [[ $TERM == tmux* ]] || [[ $TERM == screen* ]]; then
       pcharr=$pcharr_user_gui && pcharl=$pcharl_user_gui && gchar=$gchar_gui
       [ $UID = 0 ] && pcharr=$pcharr_root_gui && pcharl=$pcharl_root_gui
     else
@@ -130,11 +135,14 @@ if [ -n "$BASH_VERSION" ] || [ $SHELL = /bin/ksh ]; then
   }
   __update_prompt
   PROMPT_COMMAND="code=\$?;__update_prompt \$code;unset code;history -a; history -c; history -r"
-  which fzf > /dev/null 2>&1 && eval "$(fzf --bash)"
+  command -v fzf > /dev/null 2>&1 && eval "$(fzf --bash)"
+  if command -v fzf > /dev/null 2>&1; then
+    type __fzf_history__ > /dev/null 2>&1 || eval "$(fzf --zsh)"
+  fi
 
   # bash vi-mode
   set -o vi  # vi mode for command line editing
-elif [ -n "$ZSH_VERSION" ]; then
+elif [ $running_shell = zsh ]; then
   zmodload zsh/complist
   autoload -U compinit && compinit
   autoload -U colors && colors
@@ -154,7 +162,7 @@ elif [ -n "$ZSH_VERSION" ]; then
 
   SAVEHIST=$HISTFILESIZE
   HISTFILE=$XDG_CACHE_HOME/zsh_history
-  user_dot_profile=$HOME/.zprofile
+  user_dot_profile=$HOME/.config/zsh/.zshrc
 
   # main opts
   setopt append_history inc_append_history share_history # better history
@@ -173,13 +181,13 @@ elif [ -n "$ZSH_VERSION" ]; then
   stty stop undef # disable accidental ctrl s
 
   use_starship=1
-  if echo $TERM | grep -Eq "^(xterm|tmux|screen)" && \
+  if { [[ $TERM == xterm* ]] || [[ $TERM == tmux* ]] || [[ $TERM == screen* ]]; } && \
      [ "$use_starship" = 1 ] && which starship > /dev/null 2>&1 && [ -r $HOME/.config/starship.toml ]; then
-    eval "$(starship init zsh)"
+    type starship_zle-keymap-select > /dev/null 2>&1 || eval "$(starship init zsh)"
   else
     setopt PROMPT_SUBST
     __set_prompt() {
-      if echo $TERM | grep -Eq "^(xterm|tmux|screen)"; then
+      if [[ $TERM == xterm* ]] || [[ $TERM == tmux* ]] || [[ $TERM == screen* ]]; then
         pcharr=$pcharr_user_gui && pcharl=$pcharl_user_gui && gchar=$gchar_gui
         [ $UID = 0 ] && pcharr=$pcharr_root_gui && pcharl=$pcharl_root_gui
       else
@@ -194,8 +202,8 @@ elif [ -n "$ZSH_VERSION" ]; then
 
     # When sharing this config with bash, it does not like the "function name1 name2 ()" definition
     # Set the prompt automatically
-    function zle-line-init () { __set_prompt; zle reset-prompt; }
-    function zle-keymap-select () { __set_prompt; zle reset-prompt; }
+    zle-line-init() { __set_prompt; zle reset-prompt; }
+    zle-keymap-select() { __set_prompt; zle reset-prompt; }
     zle -N zle-line-init
     zle -N zle-keymap-select
   fi
@@ -204,7 +212,9 @@ elif [ -n "$ZSH_VERSION" ]; then
   bindkey -M vicmd j vi-down-line-or-history
   bindkey -M vicmd k vi-up-line-or-history
 
-  source <(fzf --zsh)
+  if command -v fzf > /dev/null 2>&1; then
+    type fzf-history-widget > /dev/null 2>&1 || eval "$(fzf --zsh)"
+  fi
 
   hash -d bin=$HOME/.local/bin
   hash -d config=$XDG_CONFIG_HOME
@@ -259,8 +269,8 @@ alias ls='ls -F'
 ! which mail > /dev/null 2>&1 && which s-nail > /dev/null 2>&1 && alias mail=s-nail
 alias check_reboot='sudo /srv/scripts/sbin/daily_report_linux reboot'
 alias check_restart='sudo /srv/scripts/sbin/daily_report_linux restart'
-getent passwd splunk > /dev/null && alias susplunk='sudo su - splunk'
-getent passwd acme > /dev/null && alias suacme='sudo su - -s /bin/bash -l acme'
+[ -d /opt/splunk -o -d /opt/splunkforwarder ] && alias susplunk='sudo su - splunk'
+[ -d /etc/acme ] && alias suacme='sudo su - -s /bin/bash -l acme'
 which python2 > /dev/null 2>&1 && alias python=python2
 which python3 > /dev/null 2>&1 && alias python=python3
 which rsync > /dev/null 2>&1 && alias dos_rsync='rsync -rtcvP'
@@ -449,9 +459,59 @@ case "$HOSTNAME" in
         alias bootwindows='sudo /srv/scripts/sbin/boot-to-windows'
         alias bootlinux='sudo /srv/scripts/sbin/boot-to-arch'
         alias bootarch='sudo /srv/scripts/sbin/boot-to-arch'
-        alias pushprofile='for f in pluto jupiter earth dione carme metis sinope tarvos; do echo $f; scp $HOME/.config/shell/merdely.profile $f:.config/shell/; scp $HOME/.config/starship.toml $f:.config/; done; for f in carme metis sinope tarvos; do echo $f: sync_home; ssh -o ClearAllForwardings=yes root@$f /home/mike/.local/bin/sync_home > /dev/null; done'
-        alias pushknownhosts='for f in pluto jupiter mercury earth dione; do echo $f; scp $HOME/src/ansible/system-setup/roles/sshclient/files/ssh_known_hosts root@$f:/etc/ssh/ssh_known_hosts; done; for f in carme metis tarvos; do echo $f; ssh -o ClearAllForwardings=yes root@$f /usr/local/bin/rw; scp $HOME/src/ansible/system-setup/roles/sshclient/files/ssh_known_hosts root@$f:/etc/ssh/ssh_known_hosts; ssh -o ClearAllForwardings=yes root@$f /usr/local/bin/ro; done'
-        alias pushvimrc='for f in jupiter earth pluto carme metis sinope tarvos; do echo $f; scp $HOME/.config/vim/vimrc $f:.config/vim/; done; for f in carme metis sinope tarvos; do echo $f: sync_home; ssh -o ClearAllForwardings=yes root@$f /home/mike/.local/bin/sync_home > /dev/null; done'
+
+        pushprofile() {
+          cd $HOME
+          list="pluto jupiter earth carme metis sinope tarvos"
+          [ -n "$1" ] && list="$@"
+          unset ros
+          roh=" carme metis sinope tarvos "
+          for f in $(echo $list); do
+            echo $f
+            out=$(rsync -a --info=NAME --relative --recursive \
+              .config/shell/merdely.profile .config/starship.toml $f: 2>&1 | tee /dev/stderr)
+            [ -n "$out" ] && [[ $roh == *" "$f" "* ]] && ros="$ros $f"
+          done
+          for f in $(echo $ros); do
+            echo $f: sync_home
+            ssh -o ClearAllForwardings=yes root@$f /home/mike/.local/bin/sync_home > /dev/null
+          done
+        }
+
+        pushknownhosts() {
+          list="pluto jupiter mercury earth"
+          [ -n "$1" ] && list="$@"
+          for f in $(echo $list); do
+            echo $f
+            scp $HOME/src/ansible/system-setup/roles/sshclient/files/ssh_known_hosts \
+              root@$f:/etc/ssh/ssh_known_hosts
+          done
+          for f in carme metis tarvos; do
+            echo $f
+            ssh -o ClearAllForwardings=yes root@$f /usr/local/bin/rw
+            scp $HOME/src/ansible/system-setup/roles/sshclient/files/ssh_known_hosts \
+              root@$f:/etc/ssh/ssh_known_hosts
+            ssh -o ClearAllForwardings=yes root@$f /usr/local/bin/ro
+          done
+        }
+
+        pushvimrc() {
+          cd $HOME
+          list="jupiter earth pluto carme metis sinope tarvos"
+          [ -n "$1" ] && list="$@"
+          unset ros
+          roh=" carme metis sinope tarvos "
+          for f in $(echo $list); do
+            echo $f
+            out=$(rsync -a --info=NAME --relative --recursive \
+              .config/vim/vimrc $f: 2>&1 | tee /dev/stderr)
+            [ -n "$out" ] && [[ $roh == *" "$f" "* ]] && ros="$ros $f"
+          done
+          for f in $(echo $ros); do
+            echo $f: sync_home
+            ssh -o ClearAllForwardings=yes root@$f /home/mike/.local/bin/sync_home > /dev/null
+          done
+        }
         ;;
     esac
     alias change_password='tmux neww -d -n chpass ; for f in earth jupiter dione venus tarvos sinope carme metis; do tmux splitw -d -t:$ "ssh $f"; tmux select-layout -t:$ tiled; done; tmux set -w -t:$ synchronize-panes; tmux set -w -t:$ pane-active-border-style fg=red; tmux select-layout -t:$ main-vertical; tmux select-window -t:$'
@@ -482,7 +542,7 @@ case "$ID" in
     # Print status of command without interrupting it (e.g. ping)
     stty status '^T'
     export LESS=FRSXc
-    alias updates='doas syspatch ; doas pkg_add -u'
+    alias updates="echo running syspatch; doas syspatch; echo running pkg_add -u; doas pkg_add -ui"
 
     # Allow ps on OpenBSD to accept -ef
     ps() {
