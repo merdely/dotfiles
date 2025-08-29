@@ -377,7 +377,8 @@ ret_doas=$?
 alias sudo='sudo '
 [ $ret_sudo != 0 -a $ret_doas = 0 ] && alias sudo='doas '
 [ $ret_sudo = 0 -a $ret_doas != 0 ] && alias doas='sudo '
-if which sudo > /dev/null 2>&1 && [ -x /srv/scripts/bin/sudo_with_sudoedit ]; then
+if [ -x /bin/sudo -o -x /usr/bin/sudo -o -x /usr/local/bin/sudo ] && \
+    [ -x /srv/scripts/bin/sudo_with_sudoedit ]; then
   alias sudo='/srv/scripts/bin/sudo_with_sudoedit '
   [ $ret_sudo = 0 -a $ret_doas != 0 ] && alias doas='/srv/scripts/bin/sudo_with_sudoedit '
 fi
