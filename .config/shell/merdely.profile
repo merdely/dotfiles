@@ -53,6 +53,23 @@ export XDG_DATA_DIRS=$XDG_DATA_HOME:${XDG_DATA_DIRS:=/usr/local/share:/usr/share
 [ ! -w $XDG_CACHE_HOME ] && export XDG_CACHE_HOME=$XDG_RUNTIME_DIR/.cache && mkdir -p -m 700 $XDG_CACHE_HOME
 [ ! -w $XDG_STATE_HOME ] && export XDG_STATE_HOME=$XDG_RUNTIME_DIR/.state && mkdir -p -m 700 $XDG_STATE_HOME
 
+# Git stuff
+if which git > /dev/null 2>&1; then
+  if echo $SHELL | grep -Eq "^.*/(bash|ksh|zsh)$"; then
+    GIT_PS1_SHOWDIRTYSTATE=true
+    GIT_PS1_SHOWUNTRACKEDFILES=true
+    GIT_PS1_SHOWSTASHSTATE=true
+    GIT_PS1_SHOWCOLORHINTS=true
+    [ -e /usr/lib/git-core/git-sh-prompt ] && . /usr/lib/git-core/git-sh-prompt
+    [ -e /usr/share/git/completion/git-prompt.sh ] && . /usr/share/git/completion/git-prompt.sh
+    [ -e $HOME/.local/bin/git-prompt.sh ] && . $HOME/.local/bin/git-prompt.sh
+    [ -e $HOME/bin/git-prompt.sh ] && . $HOME/bin/git-prompt.sh
+  fi
+  if ! pgrep -x gpg-agent > /dev/null 2>&1; then
+    export GPG_TTY=$(tty)
+  fi
+fi
+
 # History stuff
 HISTSIZE=100000
 HISTFILESIZE=$HISTSIZE
@@ -72,7 +89,6 @@ pcharl_user_gui='❰'
 pcharr_root_gui='≫'
 pcharl_root_gui='≪'
 gchar_gui=' '
-__git_ps1() { true; }
 
 if [ -n "$BASH_VERSION" ] || [ $SHELL = /bin/ksh ]; then
   HISTCONTROL=ignoreboth:erasedups
@@ -157,7 +173,8 @@ elif [ -n "$ZSH_VERSION" ]; then
   stty stop undef # disable accidental ctrl s
 
   use_starship=1
-  if [ "$use_starship" = 1 ] && which starship > /dev/null 2>&1 && [ -r $HOME/.config/starship.toml ]; then
+  if echo $TERM | grep -Eq "^(xterm|tmux|screen)" && \
+     [ "$use_starship" = 1 ] && which starship > /dev/null 2>&1 && [ -r $HOME/.config/starship.toml ]; then
     eval "$(starship init zsh)"
   else
     setopt PROMPT_SUBST
@@ -206,6 +223,7 @@ elif [ -n "$ZSH_VERSION" ]; then
   [ -r /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh ] && \
     source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
   bindkey -M viins '^y' autosuggest-execute
+  bindkey -M viins "^Xy" autosuggest-accept
 
   # Really breaks vi-mode history searching
   #[ -r /usr/share/zsh/plugins/zsh-autocomplete/zsh-autocomplete.plugin.zsh ] && \
@@ -413,23 +431,6 @@ if which tmux > /dev/null 2>&1; then
 
   if [ "${HOSTNAME%%.*}" = mercury ] && [ "${SSH_CLIENT%% *}" = 192.168.25.38 -o "${SSH_CLIENT%% *}" = 192.168.25.38 ]; then
     alias tmux='ssh carme tmux'
-  fi
-fi
-
-# Git stuff
-if which git > /dev/null 2>&1; then
-  if echo $SHELL | grep -Eq "^.*/bash$" || echo $SHELL | grep -Eq "^.*/ksh$"; then
-    GIT_PS1_SHOWDIRTYSTATE=true
-    GIT_PS1_SHOWUNTRACKEDFILES=true
-    GIT_PS1_SHOWSTASHSTATE=true
-    GIT_PS1_SHOWCOLORHINTS=true
-    [ -e /usr/lib/git-core/git-sh-prompt ] && . /usr/lib/git-core/git-sh-prompt
-    [ -e /usr/share/git/completion/git-prompt.sh ] && . /usr/share/git/completion/git-prompt.sh
-    [ -e $HOME/.local/bin/git-prompt.sh ] && . $HOME/.local/bin/git-prompt.sh
-    [ -e $HOME/bin/git-prompt.sh ] && . $HOME/bin/git-prompt.sh
-  fi
-  if ! pgrep -x gpg-agent > /dev/null 2>&1; then
-    export GPG_TTY=$(tty)
   fi
 fi
 
