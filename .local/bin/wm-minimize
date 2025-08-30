@@ -17,7 +17,7 @@ resize_width=$resize_height
 
 mode=desktop
 resize=1
-[ "$1" = "-h" ] && usage
+[ "$1" = "-h" -o "$1" = "--help" ] && usage
 [ "$1" = "-c" ] && mode=cmdline && shift
 [ "$1" = "-R" ] && resize=0 && shift
 [ "$1" = "-c" ] && mode=cmdline && shift

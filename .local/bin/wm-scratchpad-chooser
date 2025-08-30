@@ -1,0 +1,13 @@
+#!/bin/bash
+
+scratchpad="🗒️"
+ws_id=$(niri msg -j workspaces | jq -r --arg sp "$scratchpad" '.[] | select(.name==$sp) | .id')
+[ -z "$ws_id" ] && echo "Error: Could not determine Scratchpad Workspace" && exit 1
+
+apps=$(niri msg -j windows | jq -r --arg ws "$ws_id" '.[] | select(.workspace_id|tostring==$ws) | "\(.app_id)\t\(.title)"')
+[ -z "$apps" ] && echo "Error: Could not get list of Scratchpad Workspace Apps" && exit 1
+app_id=$(echo "$apps" | fuzzel --prompt "Scratchpad App > " -d --with-nth=2 --accept-nth=1)
+
+[ -z "$app_id" ] && exit 0
+
+$HOME/.local/bin/wm-minimize foo $app_id

@@ -17,7 +17,11 @@
 #
 for terminal in "$TERMINAL" x-terminal-emulator kitty ghostty alacritty foot wezterm konsole mate-terminal gnome-terminal xfce4-terminal wayst urxvt rxvt Eterm aterm uxterm xterm roxterm termite lxterminal terminology st qterminal lilyterm tilix terminix guake tilda hyper rio; do
     if command -v "$terminal" &> /dev/null; then
-        exec "$terminal" "$@"
+        if [ $terminal = kitty ] && [[ ! " $@ " == " --title " ]]; then
+            exec "$terminal" --title Kitty "$@"
+        else
+            exec "$terminal" "$@"
+        fi
     fi
 done
 

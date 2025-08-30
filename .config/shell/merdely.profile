@@ -154,7 +154,7 @@ elif [ $running_shell = zsh ]; then
   zle -N edit-and-execute
   bindkey -M vicmd '^v' edit-and-execute
 
-  zstyle ':completion:*' menu select # tab opens cmp menu
+  #zstyle ':completion:*' menu select # tab opens cmp menu
   zstyle ':completion:*' special-dirs true # force . and .. to show in cmp menu
   zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS} ma=0\;33 # colorize cmp menu
   # zstyle ':completion:*' file-list true # more detailed list
@@ -567,26 +567,30 @@ if [ "$XDG_SESSION_TYPE" = wayland ]; then
 fi
 
 # Wayland stuff over SSH
-if [ "$ID" != OpenBSD ] && [ -z "$SUDO_USER" ] && [ -n "$DOAS_USER" ] && [ -n "$SSH_CONNECTION" ]; then
+if [ "$ID" != OpenBSD ] && [ -z "$SUDO_USER" ] && [ -z "$DOAS_USER" ] && [ -n "$SSH_CONNECTION" ]; then
   WAYLAND_DISPLAY_FILE=$(find $XDG_RUNTIME_DIR -maxdepth 1 -regex ".*/wayland-[0-9]+")
   if [ -n "$WAYLAND_DISPLAY_FILE" ]; then
     export XDG_SESSION_TYPE=wayland
     export WAYLAND_DISPLAY=$(basename "$WAYLAND_DISPLAY_FILE")
 
-    if which niri > /dev/null 2>&1; then
-      NIRI_SOCKET=$(find $XDG_RUNTIME_DIR -maxdepth 1 -name "niri.wayland-*.sock")
-      [ -n "$NIRI_SOCKET" ] && export NIRI_SOCKET
+    if which swaymsg > /dev/null 2>&1; then
+      SWAYSOCK=$(find $XDG_RUNTIME_DIR -maxdepth 1 -name "sway-ipc.*.*.sock")
+      [ -n "$SWAYSOCK" ] && export SWAYSOCK
+      export XDG_CURRENT_DESKTOP=sway
     fi
 
     if which hyprctl > /dev/null 2>&1; then
       HYPRLAND_INSTANCE_SIGNATURE=$(hyprctl -j instances 2>/dev/null | jq -r '.[-1].instance' 2> /dev/null)
       [ -n "$HYPRLAND_INSTANCE_SIGNATURE" ] && export HYPRLAND_INSTANCE_SIGNATURE
+      export XDG_CURRENT_DESKTOP=Hyprland
     fi
 
-    if which swaymsg > /dev/null 2>&1; then
-      SWAYSOCK=$(find $XDG_RUNTIME_DIR -maxdepth 1 -name "sway-ipc.*.*.sock")
-      [ -n "$SWAYSOCK" ] && export SWAYSOCK
+    if which niri > /dev/null 2>&1; then
+      NIRI_SOCKET=$(find $XDG_RUNTIME_DIR -maxdepth 1 -name "niri.wayland-*.sock")
+      [ -n "$NIRI_SOCKET" ] && export NIRI_SOCKET
+      export XDG_CURRENT_DESKTOP=niri
     fi
+
   fi
 fi
 

@@ -260,7 +260,7 @@ binds {
     Mod+E                    { spawn "true"; }
     Mod+I                    { spawn "true"; }
     Mod+P                    { spawn "true"; }
-    Mod+S                    { spawn "true"; }
+    // Mod+S                    { spawn "true"; }
     Mod+U                    { spawn "true"; }
     Mod+W                    { spawn "true"; }
     Mod+Z                    { spawn "true"; }
@@ -282,6 +282,7 @@ binds {
     Mod+T            hotkey-overlay-title="Launch Terminal"              { spawn "sh" "-c" "$HOME/.local/bin/run_terminal"; }
     Mod+Ctrl+B       hotkey-overlay-title="Hide Waybar"                  { spawn "pkill" "-SIGUSR1" "waybar"; }
     Mod+Q            repeat=false hotkey-overlay-title="Close Window"    { close-window; }
+    Mod+S            hotkey-overlay-title="Scratchpad Chooser"           { spawn "sh" "-c" "$HOME/.local/bin/run-app-toggle -S \"^fuzzel --prompt Scratchpad App > \" wm-scratchpad-chooser"; }
     Mod+M            hotkey-overlay-title="Minimize Window"              { spawn "sh" "-c" "$HOME/.local/bin/wm-minimize ACTIVE"; }
     // Mod+W            hotkey-overlay-title="Toggle Tabbed Display"        { toggle-column-tabbed-display; }
     Mod+Shift+O      hotkey-overlay-title="Show Hotkey Overlay"          { show-hotkey-overlay; }

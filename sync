@@ -44,6 +44,7 @@ CONFIGS=(
   $HOME/.local/bin/view-wm-help
   $HOME/.local/bin/wm-closeapps
   $HOME/.local/bin/wm-minimize
+  $HOME/.local/bin/wm-scratchpad-chooser
   $HOME/.local/bin/yad-askpass
 )
 
