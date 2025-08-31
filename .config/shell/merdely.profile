@@ -135,9 +135,8 @@ if [ $running_shell = bash -o $running_shell = ksh ]; then
   }
   __update_prompt
   PROMPT_COMMAND="code=\$?;__update_prompt \$code;unset code;history -a; history -c; history -r"
-  command -v fzf > /dev/null 2>&1 && eval "$(fzf --bash)"
   if command -v fzf > /dev/null 2>&1; then
-    type __fzf_history__ > /dev/null 2>&1 || eval "$(fzf --zsh)"
+    type __fzf_history__ > /dev/null 2>&1 || eval "$(fzf --bash)"
   fi
 
   # bash vi-mode
@@ -172,9 +171,10 @@ elif [ $running_shell = zsh ]; then
   setopt auto_pushd # push the old directory into the directory stack
   setopt cd_silent # don't print dir
   setopt pushd_silent # don't print dir
+  setopt rmstarsilent # don't prompt to delete
   setopt auto_param_slash # when a dir is completed, add a / instead of a trailing space
   setopt no_case_glob no_case_match # make cmp case insensitive
-  setopt globdots # include dotfiles
+  #setopt globdots # include dotfiles
   setopt extended_glob # match ~ # ^
   setopt interactive_comments # allow comments in shell
   unsetopt prompt_sp # don't autoclean blanklines
@@ -216,6 +216,7 @@ elif [ $running_shell = zsh ]; then
     type fzf-history-widget > /dev/null 2>&1 || eval "$(fzf --zsh)"
   fi
 
+  hash -d tmp=$XDG_RUNTIME_DIR/tmp
   hash -d bin=$HOME/.local/bin
   hash -d config=$XDG_CONFIG_HOME
   hash -d shell=$XDG_CONFIG_HOME/shell
