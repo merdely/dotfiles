@@ -6,7 +6,11 @@ return {
     skip_confirm_for_simple_edits = true,
     view_options = {
       show_hidden = true,
-    }
+    },
+    keymaps = {
+      ["<C-v>"] = { "actions.select", opts = { vertical = true } },
+      ["<C-s>"] = { "actions.select", opts = { horizontal = true } },
+    },
   },
   keys = {
     { "-", "<CMD>Oil --float<CR>", desc = "Use Oil file manager" },
