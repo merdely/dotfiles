@@ -2,5 +2,9 @@
     "custom/toggle_winchooser": {
         "format": "",
         "on-click": "$HOME/.local/bin/rofi-windows"
+    },
+    "custom/toggle_scratchchooser": {
+        "format": "",
+        "on-click": "$HOME/.local/bin/run-app-toggle -S \"^fuzzel --prompt Scratchpad App > \" $HOME/.local/bin/wm-scratchpad-chooser"
     }
 }

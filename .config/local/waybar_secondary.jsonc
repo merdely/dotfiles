@@ -20,6 +20,7 @@
     "modules-left": [
         // "custom/toggle_keyboard",
         "custom/toggle_winchooser",
+        "custom/toggle_scratchchooser",
         "hyprland/workspaces",
         "hyprland/window",
         "sway/workspaces",

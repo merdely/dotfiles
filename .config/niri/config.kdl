@@ -255,14 +255,14 @@ window-rule {
 
 binds {
     // Place holders for older keybindings
-    Mod+A                    { spawn "true"; }
+    // Mod+A                    { spawn "true"; }
     Mod+B                    { spawn "true"; }
     Mod+E                    { spawn "true"; }
     Mod+I                    { spawn "true"; }
     Mod+P                    { spawn "true"; }
     // Mod+S                    { spawn "true"; }
     Mod+U                    { spawn "true"; }
-    Mod+W                    { spawn "true"; }
+    // Mod+W                    { spawn "true"; }
     Mod+Z                    { spawn "true"; }
     Mod+Semicolon            { spawn "true"; }
     Mod+Apostrophe           { spawn "true"; }
@@ -272,18 +272,21 @@ binds {
     Alt+Shift+L              { spawn "true"; }
     Alt+Shift+P              { spawn "true"; }
     Alt+Shift+S              { spawn "true"; }
+    Alt+Shift+W              { spawn "true"; }
 
     // WM Management
     Mod+Ctrl+Shift+B hotkey-overlay-title="Reload Waybar"                { spawn "pkill" "-SIGUSR2" "waybar"; }
     Mod+Shift+E      hotkey-overlay-title="Quit Niri"                    { quit; }
     Mod+D            hotkey-overlay-title="Fuzzel Program Launcher"      { spawn "sh" "-c" "$HOME/.local/bin/run-app-toggle fuzzel"; }
-    Mod+Shift+W      hotkey-overlay-title="Rofi Window Chooser"          { spawn "sh" "-c" "$HOME/.local/bin/rofi-windows"; }
+    Mod+W            hotkey-overlay-title="Rofi Window Chooser"          { spawn "sh" "-c" "$HOME/.local/bin/rofi-windows"; }
     Mod+Return       hotkey-overlay-title="Launch Terminal"              { spawn "sh" "-c" "$HOME/.local/bin/run_terminal"; }
     Mod+T            hotkey-overlay-title="Launch Terminal"              { spawn "sh" "-c" "$HOME/.local/bin/run_terminal"; }
     Mod+Ctrl+B       hotkey-overlay-title="Hide Waybar"                  { spawn "pkill" "-SIGUSR1" "waybar"; }
     Mod+Q            repeat=false hotkey-overlay-title="Close Window"    { close-window; }
     Mod+S            hotkey-overlay-title="Scratchpad Chooser"           { spawn "sh" "-c" "$HOME/.local/bin/run-app-toggle -S \"^fuzzel --prompt Scratchpad App > \" wm-scratchpad-chooser"; }
+    Mod+A            hotkey-overlay-title="Minimize Window"              { spawn "sh" "-c" "$HOME/.local/bin/wm-minimize ACTIVE"; }
     Mod+M            hotkey-overlay-title="Minimize Window"              { spawn "sh" "-c" "$HOME/.local/bin/wm-minimize ACTIVE"; }
+    MouseMiddle            hotkey-overlay-title="Minimize Window"              { spawn "sh" "-c" "$HOME/.local/bin/wm-minimize ACTIVE"; }
     // Mod+W            hotkey-overlay-title="Toggle Tabbed Display"        { toggle-column-tabbed-display; }
     Mod+Shift+O      hotkey-overlay-title="Show Hotkey Overlay"          { show-hotkey-overlay; }
 
