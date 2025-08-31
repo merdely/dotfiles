@@ -145,6 +145,10 @@ isrunning() {
 
 if [ $cmd = ACTIVE ]; then
   if [[ "$XDG_CURRENT_DESKTOP" =~ ^niri ]]; then
+    if [ $(niri msg -j focused-window | jq -r .is_floating) = false ]; then
+      echo "Warning: The active window is not a floating window... not minimizing" > /dev/stderr
+      exit 0
+    fi
     app_id=$(niri msg -j focused-window | jq '.id')
     ws_id=$(niri msg -j focused-window | jq '.workspace_id')
     [[ $ws_id ]] && ws_name=$(niri msg -j workspaces | jq -r --arg c $ws_id '.[] | select(.id|tostring==$c) | .name')
