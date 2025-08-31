@@ -19,8 +19,8 @@ esac
 
 open_wleave() {
   open_cmd=wleave
-  opts="-f -m $margin -b 4"
-  rot_opts="-f -m $margin -b 2"
+  opts="-x -f -m $margin -b 4"
+  rot_opts="-x -f -m $margin -b 2"
   case $XDG_CURRENT_DESKTOP in
     sway*)
       xform=$(swaymsg -r -t get_outputs | jq -r '.[] | select(.focused == "true" | .transform')

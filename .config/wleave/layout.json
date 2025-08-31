@@ -4,49 +4,57 @@
             "label" : "lock",
             "action" : "loginctl lock-session",
             "text" : "<u>L</u>ock",
-            "keybind" : "l"
+            "keybind" : "l",
+            "icon": "/usr/share/wleave/icons/lock.svg"
         },
         {
             "label" : "screen-off",
             "action" : "niri msg action power-off-monitors",
             "text" : "Screen <u>O</u>ff",
-            "keybind" : "o"
+            "keybind" : "o",
+            "icon": "/home/mike/.config/wleave/screen-off.svg"
         },
         {
             "label" : "logout",
             "action" : "$HOME/.local/bin/wm-logout",
             "text" : "Lo<u>g</u>out",
-            "keybind" : "g"
+            "keybind" : "g",
+            "icon": "/usr/share/wleave/icons/logout.svg"
         },
         {
             "label" : "suspend",
             "action" : "systemctl suspend-then-hibernate",
             "text" : "<u>S</u>uspend",
-            "keybind" : "s"
+            "keybind" : "s",
+            "icon": "/usr/share/wleave/icons/suspend.svg"
         },
         {
             "label" : "hibernate",
             "action" : "systemctl hibernate",
             "text" : "<u>H</u>ibernate",
-            "keybind" : "h"
+            "keybind" : "h",
+            "icon": "/usr/share/wleave/icons/hibernate.svg"
         },
         {
             "label" : "reboot",
             "action" : "systemctl reboot",
             "text" : "<u>R</u>eboot",
-            "keybind" : "r"
+            "keybind" : "r",
+            "icon": "/usr/share/wleave/icons/reboot.svg"
         },
         {
             "label" : "shutdown",
             "action" : "systemctl poweroff",
             "text" : "Sh<u>u</u>tdown",
-            "keybind" : "u"
+            "keybind" : "u",
+            "icon": "/usr/share/wleave/icons/shutdown.svg"
         },
         {
             "label" : "cancel",
             "action" : "true",
             "text" : "<u>C</u>ancel",
-            "keybind" : "c"
+            "keybind" : "c",
+            "icon": "/home/mike/.config/wleave/cancel.svg"
         }
     ]
 }
