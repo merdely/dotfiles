@@ -220,6 +220,8 @@ elif [ $running_shell = zsh ]; then
   hash -d bin=$HOME/.local/bin
   hash -d config=$XDG_CONFIG_HOME
   hash -d shell=$XDG_CONFIG_HOME/shell
+  [ -d $XDG_DATA_HOME/Syncthing/Logseq ] && hash -d logseq=$XDG_DATA_HOME/Syncthing/Logseq
+  [ -d $XDG_DATA_HOME/Seafile ] && hash -d seafile=$XDG_DATA_HOME/Seafile
 
   # Use XDG dirs for completion and history files
   [ -d "$XDG_CACHE_HOME"/zsh ] || mkdir -p "$XDG_CACHE_HOME"/zsh
