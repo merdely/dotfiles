@@ -41,6 +41,11 @@ add_to_path() {
   fi
 }
 
+gui_terminal=0
+if [[ $TERM == xterm* ]] || [[ $TERM == tmux* ]] || [[ $TERM == screen* ]] || [[ $TERM == alacritty ]]; then
+  gui_terminal=1
+fi
+
 # Used in aliases below
 [ -z "$HOSTNAME" ] && HOSTNAME="$(hostname -s)"
 export HOSTNAME=${HOSTNAME%%.*}
@@ -116,7 +121,7 @@ if [ $running_shell = bash -o $running_shell = ksh ]; then
     ec=32
     [ "$1" != 0 ] && ec=31
 
-    if [[ $TERM == xterm* ]] || [[ $TERM == tmux* ]] || [[ $TERM == screen* ]]; then
+    if [ $gui_terminal = 1 ]; then
       pcharr=$pcharr_user_gui && pcharl=$pcharl_user_gui && gchar=$gchar_gui
       [ $UID = 0 ] && pcharr=$pcharr_root_gui && pcharl=$pcharl_root_gui
     else
@@ -153,11 +158,17 @@ elif [ $running_shell = zsh ]; then
   zle -N edit-and-execute
   bindkey -M vicmd '^v' edit-and-execute
 
-  #zstyle ':completion:*' menu select # tab opens cmp menu
-  zstyle ':completion:*' special-dirs true # force . and .. to show in cmp menu
-  zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS} ma=0\;33 # colorize cmp menu
-  # zstyle ':completion:*' file-list true # more detailed list
-  zstyle ':completion:*' squeeze-slashes false # explicit disable to allow /*/ expansion
+  if [ -r ~/.config/zsh/plugins/fzf-tab/fzf-tab.plugin.zsh ]; then
+    source ~/.config/zsh/plugins/fzf-tab/fzf-tab.plugin.zsh
+    zstyle ":fzf-tab:*" use-fzf-default-opts yes
+    zstyle ":fzf-tab:complete:cd:*" fzf-preview "ls --color=always \${realpath}"
+  else
+    #zstyle ':completion:*' menu select # tab opens cmp menu
+    zstyle ':completion:*' special-dirs true # force . and .. to show in cmp menu
+    zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS} ma=0\;33 # colorize cmp menu
+    # zstyle ':completion:*' file-list true # more detailed list
+    zstyle ':completion:*' squeeze-slashes false # explicit disable to allow /*/ expansion
+  fi
 
   SAVEHIST=$HISTFILESIZE
   HISTFILE=$XDG_CACHE_HOME/zsh_history
@@ -166,7 +177,7 @@ elif [ $running_shell = zsh ]; then
   # main opts
   setopt append_history inc_append_history share_history # better history
   # on exit, history appends rather than overwrites; history is appended as soon as cmds executed; history shared across sessions
-  setopt auto_menu menu_complete # autocmp first menu match
+  #setopt auto_menu menu_complete # autocmp first menu match
   setopt autocd # type a dir to cd
   setopt auto_pushd # push the old directory into the directory stack
   setopt cd_silent # don't print dir
@@ -181,13 +192,13 @@ elif [ $running_shell = zsh ]; then
   stty stop undef # disable accidental ctrl s
 
   use_starship=1
-  if { [[ $TERM == xterm* ]] || [[ $TERM == tmux* ]] || [[ $TERM == screen* ]]; } && \
+  if [ $gui_terminal = 1 ] && \
      [ "$use_starship" = 1 ] && which starship > /dev/null 2>&1 && [ -r $HOME/.config/starship.toml ]; then
     type starship_zle-keymap-select > /dev/null 2>&1 || eval "$(starship init zsh)"
   else
     setopt PROMPT_SUBST
     __set_prompt() {
-      if [[ $TERM == xterm* ]] || [[ $TERM == tmux* ]] || [[ $TERM == screen* ]]; then
+      if [ $gui_terminal = 1 ]; then
         pcharr=$pcharr_user_gui && pcharl=$pcharl_user_gui && gchar=$gchar_gui
         [ $UID = 0 ] && pcharr=$pcharr_root_gui && pcharl=$pcharl_root_gui
       else
@@ -214,6 +225,9 @@ elif [ $running_shell = zsh ]; then
 
   if command -v fzf > /dev/null 2>&1; then
     type fzf-history-widget > /dev/null 2>&1 || eval "$(fzf --zsh)"
+    export FZF_DEFAULT_OPTS="--highlight-line --info=inline-right --ansi --layout=reverse --border=none"
+    bindkey -M viins '^p' history-search-backward
+    bindkey -M viins '^n' history-search-forward
   fi
 
   hash -d tmp=$XDG_RUNTIME_DIR/tmp
@@ -288,19 +302,20 @@ which sway > /dev/null 2>&1 && alias sss='sway'
 # Editor aliases
 which view > /dev/null 2>&1 || alias view='vi -R'
 if which nvim > /dev/null 2>&1; then
-  alias vi=nvim
-  alias nvi=/usr/bin/vi
+  # alias vi=nvim
+  # alias nvi=/usr/bin/vi
   export EDITOR=nvim
   export SUDO_EDITOR=nvim
 elif which vim > /dev/null 2>&1; then
-  alias vi=vim
-  alias nvi=/usr/bin/vi
+  # alias vi=vim
+  # alias nvi=/usr/bin/vi
   export EDITOR=vim
   export SUDO_EDITOR=vim
 else
   export EDITOR=vi
   export SUDO_EDITOR=vi
 fi
+alias vi='id -u | grep -q \^0\$ && { echo Use \"sudoedit\" instead of \"sudo vi\"; } || $EDITOR'
 
 # Editor aliases
 alias vip='vi $HOME/.config/shell/merdely.profile'
@@ -328,6 +343,10 @@ if which docker > /dev/null 2>&1; then
   if [ -d /srv/docker/naemon ]; then
     alias naemoncheck='docker compose exec naemon runuser -u naemon -- naemon -v /etc/naemon/naemon.cfg'
     alias naemonreload='docker compose exec naemon pkill -P 1 -x naemon'
+    if [ ! -d /srv/docker/nagios ]; then
+      alias nagioscheck='docker compose exec naemon runuser -u naemon -- naemon -v /etc/naemon/naemon.cfg'
+      alias nagiosreload='docker compose exec naemon pkill -P 1 -x naemon'
+    fi
   fi
 
   if [ -d /srv/docker/nagios ]; then
@@ -380,10 +399,6 @@ ret_doas=$?
 [ $ret_sudo = 0 ] && alias sudo='sudo '
 [ $ret_sudo != 0 -a $ret_doas = 0 ] && alias sudo='doas '
 [ $ret_sudo = 0 -a $ret_doas != 0 ] && alias doas='sudo '
-if [ $ret_sudo = 0 ] && [ -x /srv/scripts/bin/sudo_with_sudoedit ]; then
-  alias sudo='/srv/scripts/bin/sudo_with_sudoedit '
-  [ $ret_sudo = 0 -a $ret_doas != 0 ] && alias doas='/srv/scripts/bin/sudo_with_sudoedit '
-fi
 
 # Handle with / is read-only
 if [ -r /boot/cmdline.txt ] && grep -qE "\<ro\>" /boot/cmdline.txt; then
@@ -452,6 +467,7 @@ passgen() {
   LENGTH=$1
   tr -cd '[:alnum:]' < /dev/urandom | fold -w ${LENGTH:-64} | head -n 1 | tr -d '\n' ; echo
 }
+alias genpass=passgen
 
 # Some host-specific settings
 case "$HOSTNAME" in
@@ -465,7 +481,7 @@ case "$HOSTNAME" in
 
         pushprofile() {
           cd $HOME
-          list="pluto jupiter earth carme metis sinope tarvos"
+          list="jupiter earth carme metis sinope tarvos"
           [ -n "$1" ] && list="$@"
           unset ros
           roh=" carme metis sinope tarvos "
@@ -482,7 +498,7 @@ case "$HOSTNAME" in
         }
 
         pushknownhosts() {
-          list="pluto jupiter mercury earth"
+          list="jupiter mercury earth"
           [ -n "$1" ] && list="$@"
           for f in $(echo $list); do
             echo $f
@@ -500,7 +516,7 @@ case "$HOSTNAME" in
 
         pushvimrc() {
           cd $HOME
-          list="jupiter earth pluto carme metis sinope tarvos"
+          list="jupiter earth carme metis sinope tarvos"
           [ -n "$1" ] && list="$@"
           unset ros
           roh=" carme metis sinope tarvos "
