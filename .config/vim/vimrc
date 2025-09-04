@@ -12,6 +12,9 @@ call plug#begin()
   Plug 'liuchengxu/vim-which-key'
   Plug 'itchyny/lightline.vim'
   Plug 'lambdalisue/vim-suda'
+  Plug 'tpope/vim-vinegar'
+  Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+  Plug 'junegunn/fzf.vim'
 call plug#end()
 
 syntax enable
@@ -152,12 +155,16 @@ set splitright
 " Leader Key
 " ===============================
 let mapleader = " "
-let maplocalleader = " "
+let maplocalleader = ","
 
 " ===============================
 " Key Mappings
 " ===============================
 nnoremap <leader>c :nohlsearch<CR>
+
+" Which Key
+nnoremap <silent> <leader>      :<c-u>WhichKey '<Space>'<CR>
+nnoremap <silent> <localleader> :<c-u>WhichKey ','<CR>
 
 " Yank to EOL
 nnoremap Y y$
@@ -216,8 +223,9 @@ vnoremap > >gv
 
 " Quick file navigation
 nnoremap <leader>e :Explore<CR>
-nnoremap <leader>ff :find 
-nnoremap - :Explore<CR>
+nnoremap <leader>ff :Files<Cr>
+nnoremap <leader>fc :Files ~/.config<Cr>
+nnoremap <leader>fh :Files ~/<Cr>
 
 " Make file executable
 nnoremap <leader>x :!chmod +x %<CR>
@@ -248,6 +256,12 @@ augroup UserConfig
   " autocmd TermOpen * setlocal nonumber norelativenumber signcolumn=no
   autocmd VimResized * tabdo wincmd =
   autocmd BufWritePre * call mkdir(expand('<afile>:p:h'), 'p')
+augroup END
+
+" Put this in your vimrc/init.vim
+augroup netrw_mappings
+  autocmd!
+  autocmd FileType netrw nnoremap <buffer> <Esc> :bd<CR>
 augroup END
 
 " ===============================
