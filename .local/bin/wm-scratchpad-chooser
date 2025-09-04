@@ -4,10 +4,35 @@ scratchpad="🗒️"
 ws_id=$(niri msg -j workspaces | jq -r --arg sp "$scratchpad" '.[] | select(.name==$sp) | .id')
 [ -z "$ws_id" ] && echo "Error: Could not determine Scratchpad Workspace" && exit 1
 
-apps=$(niri msg -j windows | jq -r --arg ws "$ws_id" '.[] | select(.workspace_id|tostring==$ws) | "\(.app_id)\t\(.title)"')
-[ -z "$apps" ] && echo "Error: Could not get list of Scratchpad Workspace Apps" && exit 1
-app_id=$(echo "$apps" | fuzzel --prompt "Scratchpad App > " -d --cache=$HOME/.cache/fuzzel_scratchpad_chooser --with-nth=2 --accept-nth=1)
+# List of running minimized apps
+apps=$(niri msg -j windows | jq -r --arg ws "$ws_id" '.[] | select(.workspace_id|tostring==$ws) | "foo\t\(.app_id)\t\(.title)"')
 
+# List of apps defined as minimizable apps in niri/config.kdl
+apps2=$(awk '/^\s+[^#].*wm-minimize/ && ! /wm-minimize ACTIVE/ {a=b=$0;sub(/^.*hotkey-overlay-title="/,"",a);sub(/".*$/,"",a);sub(/^.*wm-minimize( -R)?/,"",b);sub(/"; }.*$/,"",b);split(b,z," ");b=c=z[1];if (z[2]) c=z[2];print b"\t"c"\t"a}' $HOME/.config/niri/config.kdl)
+
+IFS="
+"
+unset running
+# Grab the first column (app-id) of running apps into a list
+for app in $apps; do 
+  running="$running $(echo $app | awk '{print $2}')"
+done
+# Add any defined apps that are not running into the apps list
+for app in $apps2; do 
+  if ! echo "$running " | grep -q "$(echo $app | awk '{print $2}')"; then
+    apps="$apps
+$app"
+  fi
+done
+
+# Print meaningless message about no apps find
+[ -z "$apps" ] && echo "Error: Could not get list of Scratchpad Workspace Apps/Or no apps minimized" > /dev/stderr && exit 1
+
+# Pipe list of apps through fuzzel
+app_id=$(echo "$apps" | fuzzel --prompt "Scratchpad App > " -d --cache=$HOME/.cache/fuzzel_scratchpad_chooser --with-nth=3 --accept-nth="{1..2}")
+
+# Exit if cancel
 [ -z "$app_id" ] && exit 0
 
-$HOME/.local/bin/wm-minimize foo $app_id
+# Launch or unminimize an app
+$HOME/.local/bin/wm-minimize $(echo $app_id | awk '{print $1}') $(echo $app_id | awk '{print $2}')
