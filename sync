@@ -52,7 +52,6 @@ SCRIPTS=(
   /srv/scripts/bin/tmux_groupssh
   /srv/scripts/bin/tmux_reorder
   /srv/scripts/bin/tmux_winsplit
-  /srv/scripts/bin/sudo_with_sudoedit
 )
 
 # add files in the format of --exclude="pat" or --exclude="/path/to/file"
