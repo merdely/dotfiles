@@ -27,14 +27,14 @@ truncation_length = 2
 truncation_symbol = '…/'
 
 [git_branch]
-format = '\($symbol[$branch(:$remote_branch)]($style) '
+format = '\($symbol[$branch(:$remote_branch)]($style)'
 symbol = '[](fg:214) '
 style = 'green'
 
 [git_status]
-format = '([$all_status$ahead_behind]($style))\) '
+format = '([ $all_status$ahead_behind]($style))\) '
 modified = '*'
-untracked = "%"
+untracked = '%'
 
 [jobs]
 symbol = ''
