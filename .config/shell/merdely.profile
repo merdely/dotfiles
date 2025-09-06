@@ -219,9 +219,11 @@ elif [ $running_shell = zsh ]; then
     zle -N zle-keymap-select
   fi
 
+  # Enable vi-mode (like set -o vi)
   bindkey -v
   bindkey -M vicmd j vi-down-line-or-history
   bindkey -M vicmd k vi-up-line-or-history
+  bindkey -v '^?' backward-delete-char       # Allow backspace character to work
 
   if command -v fzf > /dev/null 2>&1; then
     type fzf-history-widget > /dev/null 2>&1 || eval "$(fzf --zsh)"
