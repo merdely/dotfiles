@@ -129,7 +129,7 @@ spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && $HOME/.local/bin/wm-minimize i
 spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && $HOME/.local/bin/wm-minimize bitwarden"
 
 spawn-sh-at-startup "[ $(hostname -s) = mercury -a ! -r $HOME/quickstart ] && gtk-launch librewolf-mike"
-spawn-sh-at-startup "[ $(hostname -s) = mercury -a ! -r $HOME/quickstart ] && { sleep 1; gtk-launch librewolf-media; }"
+spawn-sh-at-startup "[ $(hostname -s) = mercury -a ! -r $HOME/quickstart ] && { sleep 2; gtk-launch librewolf-media; }"
 
 spawn-sh-at-startup "$HOME/.local/bin/run_terminal"
 spawn-sh-at-startup "sleep 1; $HOME/.local/bin/run_ssh_add"
@@ -158,7 +158,7 @@ window-rule {
 }
 
 window-rule {
-    match app-id=r#"^(chromium|firefox|fr\.handbrake\.ghb|io\.github\.ungoogled_software\.ungoogled_chromium|gimp|labwc|librewolf|obsidian|vlc)$"#
+    match app-id=r#"^(chromium|firefox|fr\.handbrake\.ghb|io\.github\.celluloid_player\.Celluloid|io\.github\.ungoogled_software\.ungoogled_chromium|gimp|labwc|librewolf|obsidian|vlc)$"#
     open-maximized true
 }
 
@@ -262,10 +262,10 @@ window-rule {
 binds {
     // Place holders for older keybindings
     // Mod+A                    { spawn "true"; }
-    Mod+B                    { spawn "true"; }
+    // Mod+B                    { spawn "true"; }
     Mod+E                    { spawn "true"; }
     Mod+I                    { spawn "true"; }
-    Mod+P                    { spawn "true"; }
+    // Mod+P                    { spawn "true"; }
     // Mod+S                    { spawn "true"; }
     Mod+U                    { spawn "true"; }
     // Mod+W                    { spawn "true"; }
@@ -284,7 +284,7 @@ binds {
     Mod+Ctrl+Shift+B hotkey-overlay-title="Reload Waybar"                { spawn "pkill" "-SIGUSR2" "waybar"; }
     Mod+Shift+E      hotkey-overlay-title="Quit Niri"                    { quit; }
     Mod+D            hotkey-overlay-title="Fuzzel Program Launcher"      { spawn-sh "$HOME/.local/bin/run-app-toggle fuzzel"; }
-    // Mod+P            hotkey-overlay-title="Fuzzel Program Launcher"      { spawn-sh "$HOME/.local/bin/run-app-toggle fuzzel"; }
+    Mod+P            hotkey-overlay-title="Fuzzel Program Launcher"      { spawn-sh "$HOME/.local/bin/run-app-toggle fuzzel"; }
     Mod+W            hotkey-overlay-title="Window Chooser"               { spawn-sh "$HOME/.local/bin/rofi-windows"; }
     Mod+Return       hotkey-overlay-title="Launch Terminal"              { spawn-sh "$HOME/.local/bin/run_terminal"; }
     Mod+T            hotkey-overlay-title="Launch Terminal"              { spawn-sh "$HOME/.local/bin/run_terminal"; }
@@ -458,6 +458,7 @@ binds {
     // Move the focused window between the floating and the tiling layout.
     Mod+V             hotkey-overlay-title="Toggle Floating"             { toggle-window-floating; }
     Mod+Shift+V       hotkey-overlay-title="Switch Focus Float/Tile"     { switch-focus-between-floating-and-tiling; }
+    Mod+B             hotkey-overlay-title="Switch Focus Float/Tile"     { switch-focus-between-floating-and-tiling; }
     Mod+C             hotkey-overlay-title="Center Window"               { center-window; }
     Mod+Ctrl+C        hotkey-overlay-title="Center Visible Columns"      { center-visible-columns; }
 
