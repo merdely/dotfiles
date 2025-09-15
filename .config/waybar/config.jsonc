@@ -27,6 +27,7 @@
 
     "modules-right": [
         "idle_inhibitor",
+        "custom/toggle_rotate",
         "pulseaudio",
         "custom/laptopbattery",
         "custom/idle-blockers",

@@ -1,0 +1,34 @@
+#!/bin/sh
+
+wait=1
+if [ -r "$HOME/.config/waybar/settings/$(basename "$0" .sh)" ]; then
+  source "$HOME/.config/waybar/settings/$(basename "$0" .sh)"
+fi
+
+getvalue() {
+  value=1
+  [ -e $XDG_RUNTIME_DIR/stop_rotation ] && value=0
+}
+
+print_output() {
+  local count=$1
+  local tooltip="Screen Rotation Enabled"
+  local class=enabled
+  local perc=100
+
+  if [ $count = 0 ]; then
+    tooltip="Screen Rotation Disabled"
+    class=disabled
+    perc=0
+  fi
+
+  printf '{ "text": "%s", "alt": "%s", "tooltip": "%s", "class": "%s", "percentage": %d }\n' \
+    "$count" "$class" "$tooltip" "$class" "$perc"
+}
+
+while true; do
+  getvalue
+  print_output "$value"
+  [ "$1" != "loop" ] && break
+  sleep $wait
+done
