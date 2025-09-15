@@ -104,6 +104,7 @@ gestures { hot-corners { off; }; }
 
 workspace "1"    { open-on-output "DP-3"; }
 workspace "🗒️"   { open-on-output "DP-3"; }
+workspace ""    { open-on-output "DP-3"; }
 prefer-no-csd
 screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 
@@ -179,6 +180,14 @@ window-rule {
 }
 
 window-rule {
+    match title="Howdy Test" app-id="python3"
+    open-floating true
+    min-width 1280
+    min-height 1024
+    default-floating-position x=32 y=32 relative-to="top-left"
+}
+
+window-rule {
     match app-id=r#"(firefox|librewolf)$"# title="^Picture-in-Picture$"
     open-floating true
 }
@@ -187,6 +196,12 @@ window-rule {
     match app-id=r#"^(Bitwarden|blueman-manager|Element|io\.missioncenter\.MissionCenter|Logseq|signal|org\.signal\.Signal|pavucontrol|htop|btop|net\.nokyan\.Resources|nvtop|term-scratchpad|termfm)$"#
     open-floating true
     open-maximized false
+}
+
+window-rule {
+    match app-id=r#"^(steam)$"#
+    open-on-workspace ""
+    open-floating true
 }
 
 window-rule {
@@ -269,29 +284,37 @@ binds {
     // Mod+S                    { spawn "true"; }
     Mod+U                    { spawn "true"; }
     // Mod+W                    { spawn "true"; }
-    Mod+Z                    { spawn "true"; }
-    Mod+Semicolon            { spawn "true"; }
+    // Mod+Z                    { spawn "true"; }
+    // Mod+Semicolon            { spawn "true"; }
     Mod+Apostrophe           { spawn "true"; }
-    Mod+Shift+Semicolon      { spawn "true"; }
-    Mod+Shift+Apostrophe     { spawn "true"; }
+    // Mod+Shift+Semicolon      { spawn "true"; }
+    // Mod+Shift+Apostrophe     { spawn "true"; }
+    Mod+Shift+B              { spawn "true"; }
+    Mod+Shift+I              { spawn "true"; }
     Alt+Shift+H              { spawn "true"; }
     Alt+Shift+L              { spawn "true"; }
     Alt+Shift+P              { spawn "true"; }
     Alt+Shift+S              { spawn "true"; }
-    Alt+Shift+W              { spawn "true"; }
+    Alt+Shift+U              { spawn "true"; }
 
     // WM Management
     Mod+Ctrl+Shift+B hotkey-overlay-title="Reload Waybar"                { spawn "pkill" "-SIGUSR2" "waybar"; }
     Mod+Shift+E      hotkey-overlay-title="Quit Niri"                    { quit; }
-    Mod+D            hotkey-overlay-title="Fuzzel Program Launcher"      { spawn-sh "$HOME/.local/bin/run-app-toggle fuzzel"; }
-    Mod+P            hotkey-overlay-title="Fuzzel Program Launcher"      { spawn-sh "$HOME/.local/bin/run-app-toggle fuzzel"; }
+    // Mod+D            hotkey-overlay-title="Program Launcher"      { spawn-sh "$HOME/.local/bin/run-app-toggle fuzzel"; }
+    // Mod+P            hotkey-overlay-title="Program Launcher"      { spawn-sh "$HOME/.local/bin/run-app-toggle fuzzel"; }
+    Mod+D            hotkey-overlay-title="Program Launcher"      { spawn-sh "$HOME/.local/bin/rofi-launcher"; }
+    Mod+P            hotkey-overlay-title="Program Launcher"      { spawn-sh "$HOME/.local/bin/rofi-launcher"; }
     Mod+W            hotkey-overlay-title="Window Chooser"               { spawn-sh "$HOME/.local/bin/rofi-windows"; }
     Mod+Return       hotkey-overlay-title="Launch Terminal"              { spawn-sh "$HOME/.local/bin/run_terminal"; }
     Mod+T            hotkey-overlay-title="Launch Terminal"              { spawn-sh "$HOME/.local/bin/run_terminal"; }
     Mod+Ctrl+B       hotkey-overlay-title="Hide Waybar"                  { spawn "pkill" "-SIGUSR1" "waybar"; }
     Mod+Q            repeat=false hotkey-overlay-title="Close Window"    { close-window; }
-    Mod+S            hotkey-overlay-title="Scratchpad Chooser"           { spawn-sh "$HOME/.local/bin/run-app-toggle -S \"^fuzzel --prompt Scratchpad App > \" wm-scratchpad-chooser"; }
+    Mod+MouseMiddle  repeat=false hotkey-overlay-title="Close Window"    { close-window; }
+    // MouseMiddle      repeat=false hotkey-overlay-title="Close Window"    { close-window; }
+    // Mod+S            hotkey-overlay-title="Scratchpad Chooser"           { spawn-sh "$HOME/.local/bin/run-app-toggle -S \"^[f]uzzel --prompt Scratchpad App >  -d\" wm-scratchpad-chooser"; }
+    Mod+S            hotkey-overlay-title="Scratchpad Chooser"           { spawn-sh "$HOME/.local/bin/run-app-toggle -S \"[r]ofi -p Scratchpad App > -dmenu\" wm-scratchpad-chooser rofi"; }
     Mod+A            hotkey-overlay-title="Minimize Window"              { spawn-sh "$HOME/.local/bin/wm-minimize ACTIVE"; }
+    Mod+Z            hotkey-overlay-title="Duplicate Window"             { spawn-sh "$HOME/.local/bin/wm-duplicate-app"; }
     Mod+M            hotkey-overlay-title="Minimize Window"              { spawn-sh "$HOME/.local/bin/wm-minimize ACTIVE"; }
     MouseMiddle            hotkey-overlay-title="Minimize Window"              { spawn-sh "$HOME/.local/bin/wm-minimize ACTIVE"; }
     // Mod+W            hotkey-overlay-title="Toggle Tabbed Display"        { toggle-column-tabbed-display; }
@@ -314,26 +337,28 @@ binds {
     Mod+Shift+3             hotkey-overlay-title="Focus Second Browser"  { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app -c '-P Media' librewolf-media.desktop librewolf"; }
 
     // Apps
-    Mod+Shift+P      hotkey-overlay-title="Power Menu"                   { spawn-sh "$HOME/.local/bin/run_wleave"; }
-    Ctrl+Alt+Delete  hotkey-overlay-title="Power Menu"                   { spawn-sh "$HOME/.local/bin/run_wleave"; }
-    Ctrl+Space       hotkey-overlay-title="Clear Notifications"          { spawn-sh "swaync-client --close-latest"; }
-    Mod+Shift+Space  hotkey-overlay-title="Clear Notifications"          { spawn-sh "swaync-client --close-all ; swaync-client --close-panel"; }
-    Mod+N            hotkey-overlay-title="Bitwarden Chooser"            { spawn-sh "$HOME/.local/bin/run-app-toggle -P rofi-rbw --use-notify-send"; }
-    Mod+Space        hotkey-overlay-title="Notification Panel"           { spawn "swaync-client" "-t" "-sw"; }
-    Mod+X            hotkey-overlay-title="Clipboard Manager"            { spawn-sh "cliphist list | fuzzel -d | cliphist decode | wl-copy"; }
-    Mod+Shift+X      hotkey-overlay-title="Camera Chooser"               { spawn-sh "$HOME/.local/bin/wm-cam-chooser"; }
+    Mod+Shift+P         hotkey-overlay-title="Power Menu"                        { spawn-sh "$HOME/.local/bin/run_wleave"; }
+    Ctrl+Alt+Delete     hotkey-overlay-title="Power Menu"                        { spawn-sh "$HOME/.local/bin/run_wleave"; }
+    Mod+Shift+Backslash allow-when-locked=true hotkey-overlay-title="Hibernate"  { spawn "systemctl" "hibernate"; }
+    Ctrl+Space          hotkey-overlay-title="Clear Notifications"               { spawn-sh "swaync-client --close-latest"; }
+    Mod+Shift+Space     hotkey-overlay-title="Clear Notifications"               { spawn-sh "swaync-client --close-all ; swaync-client --close-panel"; }
+    Mod+N               hotkey-overlay-title="Bitwarden Chooser"                 { spawn-sh "$HOME/.local/bin/run-app-toggle -P rofi-rbw --use-notify-send"; }
+    Mod+Space           hotkey-overlay-title="Notification Panel"                { spawn "swaync-client" "-t" "-sw"; }
+    Mod+X               hotkey-overlay-title="Clipboard Manager"                 { spawn-sh "cliphist list | rofi -dmenu | cliphist decode | wl-copy"; }
+    // Mod+Shift+X         hotkey-overlay-title="Camera Chooser"                    { spawn-sh "$HOME/.local/bin/run-app-toggle -S \"[f]uzzel -p View Camera >  -d\" wm-cam-chooser"; }
+    Mod+Shift+X         hotkey-overlay-title="Camera Chooser"                    { spawn-sh "$HOME/.local/bin/run-app-toggle -S \"[r]ofi -p View Camera > -dmenu\" wm-cam-chooser rofi"; }
 
     Mod+Shift+Z             hotkey-overlay-title="Bitwarden"             { spawn-sh "$HOME/.local/bin/wm-minimize bitwarden Bitwarden"; }
     Mod+Shift+C             hotkey-overlay-title="Calculator"            { spawn-sh "$HOME/.local/bin/wm-minimize -R galculator"; }
     Mod+Shift+Return        hotkey-overlay-title="Terminal Scratchpad"   { spawn-sh "$HOME/.local/bin/wm-minimize term-scratchpad"; }
     Mod+Shift+BracketLeft   hotkey-overlay-title="Terminal File Manager" { spawn-sh "$HOME/.local/bin/wm-minimize termfm"; }
-    Mod+Shift+B             hotkey-overlay-title="Bluetooth Manager"     { spawn-sh "$HOME/.local/bin/wm-minimize blueman-manager"; }
+    Mod+Shift+Apostrophe    hotkey-overlay-title="Bluetooth Manager"     { spawn-sh "$HOME/.local/bin/wm-minimize blueman-manager"; }
     Mod+Shift+N             hotkey-overlay-title="Nvtop"                 { spawn-sh "$HOME/.local/bin/wm-minimize nvtop"; }
     Mod+Shift+D             hotkey-overlay-title="Htop"                  { spawn-sh "$HOME/.local/bin/wm-minimize htop"; }
     Mod+Shift+Q             hotkey-overlay-title="Logseq"                { spawn-sh "$HOME/.local/bin/wm-minimize com.logseq.Logseq Logseq"; }
-    Mod+Shift+I             hotkey-overlay-title="Audio Mixer"           { spawn-sh "$HOME/.local/bin/wm-minimize org.pulseaudio.pavucontrol pavucontrol"; }
+    Mod+Shift+SemiColon     hotkey-overlay-title="Audio Mixer"           { spawn-sh "$HOME/.local/bin/wm-minimize org.pulseaudio.pavucontrol pavucontrol"; }
     Mod+Shift+A             hotkey-overlay-title="Signal"                { spawn-sh "$HOME/.local/bin/wm-minimize org.signal.Signal"; }
-    Mod+Shift+U             hotkey-overlay-title="Element"               { spawn-sh "$HOME/.local/bin/wm-minimize io.element.Element Element"; }
+    Mod+Shift+W             hotkey-overlay-title="Element"               { spawn-sh "$HOME/.local/bin/wm-minimize io.element.Element Element"; }
 
     // Niri Shortcuts
     Alt+Shift+Slash      hotkey-overlay-title="Niri Help: A+Sh"          { spawn-sh "$HOME/.local/bin/view-wm-help Alt-Shift"; }
@@ -459,6 +484,7 @@ binds {
     Mod+V             hotkey-overlay-title="Toggle Floating"             { toggle-window-floating; }
     Mod+Shift+V       hotkey-overlay-title="Switch Focus Float/Tile"     { switch-focus-between-floating-and-tiling; }
     Mod+B             hotkey-overlay-title="Switch Focus Float/Tile"     { switch-focus-between-floating-and-tiling; }
+    Mod+SemiColon     hotkey-overlay-title="Resize/Center Window"        { spawn-sh "$HOME/.local/bin/wm-resize-window"; }
     Mod+C             hotkey-overlay-title="Center Window"               { center-window; }
     Mod+Ctrl+C        hotkey-overlay-title="Center Visible Columns"      { center-visible-columns; }
 
