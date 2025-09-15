@@ -304,13 +304,9 @@ which sway > /dev/null 2>&1 && alias sss='sway'
 # Editor aliases
 which view > /dev/null 2>&1 || alias view='vi -R'
 if which nvim > /dev/null 2>&1; then
-  # alias vi=nvim
-  # alias nvi=/usr/bin/vi
   export EDITOR=nvim
   export SUDO_EDITOR=nvim
 elif which vim > /dev/null 2>&1; then
-  # alias vi=vim
-  # alias nvi=/usr/bin/vi
   export EDITOR=vim
   export SUDO_EDITOR=vim
 else
@@ -318,6 +314,7 @@ else
   export SUDO_EDITOR=vi
 fi
 alias vi='id -u | grep -q \^0\$ && { echo Use \"sudoedit\" instead of \"sudo vi\"; } || $EDITOR'
+alias sudovi=sudoedit
 
 # Editor aliases
 alias vip='vi $HOME/.config/shell/merdely.profile'
