@@ -29,5 +29,7 @@ lisgd -d $device \
   -g "3,UD,*,*,R,$HOME/.local/bin/wm-swipe UP" \
   -g "3,DU,*,*,R,$HOME/.local/bin/wm-swipe DOWN" \
   -g "3,ULDR,*,*,R,$HOME/.local/bin/wm-swipe ULDR" \
-  -g "3,URDL,*,*,R,$HOME/.local/bin/wm-swipe URDL"
+  -g "3,URDL,*,*,R,$HOME/.local/bin/wm-swipe URDL" \
+  -g "3,DLUR,*,*,R,$HOME/.local/bin/wm-swipe DLUR" \
+  -g "3,DRUL,*,*,R,$HOME/.local/bin/wm-swipe DRUL"
 
