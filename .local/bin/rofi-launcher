@@ -1,7 +1,7 @@
 #!/bin/sh
 
 rofi_launcher() {
-  rofi -combi-modi drun,run -modi combi -show combi -display-combi Application\ Launcher "$*"
+  rofi -combi-modi drun,run -modi combi -show combi -display-combi "Application Launcher >" "$*"
 }
 
 pgrep -u $LOGNAME -f "^rofi -combi-modi drun,run -modi combi -show combi -display-combi Application Launcher" && \
