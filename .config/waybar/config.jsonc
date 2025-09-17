@@ -28,9 +28,10 @@
     "modules-right": [
         "idle_inhibitor",
         "custom/toggle_rotate",
+        "pulseaudio/slider",
         "pulseaudio",
+        "pulseaudio#mic",
         "custom/laptopbattery",
-        "custom/idle-blockers",
         "privacy",
         "custom/pacman",
         "tray",

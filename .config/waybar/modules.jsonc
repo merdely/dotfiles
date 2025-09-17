@@ -41,7 +41,7 @@
     },
 
     "niri/window": {
-        "on-click": "$HOME/.local/bin/run_nwg_drawer",
+        "on-click": "niri msg action toggle-overview",
         "separate-outputs": true,
         "icon": true,
         "icon-size": 18
@@ -207,14 +207,24 @@
         "format": "{}% "
     },
 
+    "pulseaudio/slider": {
+        "min": 0,
+        "max": 100,
+        "orientation": "horizontal"
+    },
+
     "pulseaudio": {
         // "scroll-step": 1, // %, can be a float
-        "format": "{volume}% {icon} {format_source}",
-        "format-bluetooth": "{volume}% {icon} {format_source}",
-        "format-bluetooth-muted": " {icon} {format_source}",
-        "format-muted": "🔇 {format_source}",
-        "format-source": " {volume}% ",
-        "format-source-muted": " ---- ",
+        // "format": "{volume}% {icon} {format_source}",
+        "format": "{volume}% {icon}",
+        // "format-bluetooth": "{volume}% {icon} {format_source}",
+        "format-bluetooth": "{volume}% {icon}",
+        // "format-bluetooth-muted": " {icon} {format_source}",
+        "format-bluetooth-muted": " {icon}",
+        // "format-muted": "🔇 {format_source}",
+        "format-muted": "🔇",
+        // "format-source": " {volume}% ",
+        // "format-source-muted": " --- ",
         "format-icons": {
             "headphone": "",
             "hands-free": "",
@@ -224,7 +234,27 @@
             "car": "",
             "default": ["", "", ""]
         },
-        "on-click": "pavucontrol"
+        "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+        "on-click-right": "pavucontrol"
+    },
+
+    "pulseaudio#mic": {
+        // "scroll-step": 1, // %, can be a float
+        "format": "{format_source}",
+        "format-muted": "{format_source}",
+        "format-source": "{volume}% ",
+        "format-source-muted": "--- ",
+        "format-icons": {
+            "headphone": "",
+            "hands-free": "",
+            "headset": "",
+            "phone": "",
+            "portable": "",
+            "car": "",
+            "default": ["", "", ""]
+        },
+        "on-click": "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle",
+        "on-click-right": "pavucontrol"
     },
 
     "temperature": {

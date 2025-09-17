@@ -90,19 +90,20 @@ button:hover {
 #cpu,
 #custom-clock,
 #custom-hypridle-blockers,
-#custom-toggle_rotate,
+#custom-laptopbattery,
 #custom-launcher_button,
-#custom-toggle_winchooser,
-#custom-toggle_scratchchooser,
 #custom-media,
 #custom-notification,
 #custom-nvidiatemp,
 #custom-pacman,
 #custom-power,
+#custom-power_button,
 #custom-razermouse,
 #custom-toggle_applauncher,
 #custom-toggle_keyboard,
-#custom-power_button,
+#custom-toggle_rotate,
+#custom-toggle_scratchchooser,
+#custom-toggle_winchooser,
 #custom-updates,
 #custom-upsbattery,
 #custom-weather,
@@ -114,7 +115,10 @@ button:hover {
 #mpd,
 #network,
 #power-profiles-daemon,
+#privacy,
 #pulseaudio,
+#pulseaudio.mic,
+#pulseaudio-slider,
 #scratchpad,
 #temperature,
 #tray,
@@ -123,13 +127,21 @@ button:hover {
     color: #ffffff;
 }
 
-#custom-power_button,
-#custom-toggle_winchooser,
 #custom-toggle_applauncher,
-#custom-toggle_keyboard {
+#custom-toggle_keyboard,
+#custom-power_button,
+#custom-toggle_scratchchooser,
+#custom-toggle_winchooser {
+    padding: 0;
+    font-size: 22px;
+}
+
+#custom-toggle_applauncher {
     margin-left: 10px;
+}
+
+#custom-power_button {
     margin-right: 10px;
-    font-size: 24px;
 }
 
 label:focus {
@@ -156,14 +168,9 @@ label:focus {
     color: orange;
 }
 
-#custom-toggle_rotate.enabled {
-    font-size: 24px;
-}
-
 #custom-toggle_rotate.disabled {
     color: white;
     background-color: #64727D;
-    font-size: 24px;
 }
 
 #custom-upsbattery.low {
@@ -227,13 +234,9 @@ label:focus {
     background-color: #64727D;
 }
 
-#privacy {
-    padding: 0;
-}
-
 #privacy-item {
-    padding: 0 5px;
     color: white;
+    padding: 0;
 }
 
 #privacy-item.screenshare {
@@ -246,6 +249,29 @@ label:focus {
 
 #privacy-item.audio-out {
     background-color: #0069d4;
+}
+
+#pulseaudio-slider {
+    margin: 0;
+}
+#pulseaudio-slider slider {
+    min-height: 0px;
+    min-width: 0px;
+    opacity: 0;
+    background-image: none;
+    border: none;
+    box-shadow: none;
+}
+#pulseaudio-slider trough {
+    min-height: 10px;
+    min-width: 80px;
+    border-radius: 5px;
+    background-color: black;
+}
+#pulseaudio-slider highlight {
+    min-width: 10px;
+    border-radius: 5px;
+    background-color: green;
 }
 
 @import url('../local/waybar.css');

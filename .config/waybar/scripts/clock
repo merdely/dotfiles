@@ -7,6 +7,11 @@ if [ -r "$HOME/.config/waybar/settings/$(basename "$0" .sh)" ]; then
   source "$HOME/.config/waybar/settings/$(basename "$0" .sh)"
 fi
 
+if [[ $1 =~ ^% ]]; then
+  format="$1"
+  shift
+fi
+
 getvalue() {
   true
 }
