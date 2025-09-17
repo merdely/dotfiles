@@ -1,0 +1,77 @@
+#!/bin/bash
+
+replay_pid() {
+    local pid=$1
+    local args=()
+    local cmd=""
+    local firejail=""
+
+    # Read argv[] from /proc
+    #IFS=$'\0' read -d '' -r -a args < /proc/$pid/cmdline || return 1
+    # IFS=$'\0' read -r -a args < /proc/$pid/cmdline
+    mapfile -d '' -t args < /proc/$pid/cmdline
+
+    # If no args, nothing to do
+    [[ ${#args[@]} -eq 0 ]] && return 1
+
+
+    # Check if firejail app
+    ppid=$(ps -p $pid -o ppid=)
+    ppid="${ppid#"${ppid%%[! ]*}"}"
+    if [[ $ppid =~ ^[0-9]+$ ]] && [ "$(ps -p $ppid -o comm=)" = firejail ]; then
+      firejail=1
+      gpid=$(ps -p $ppid -o ppid=)
+      gpid="${gpid#"${gpid%%[! ]*}"}"
+      [[ ! $gpid =~ ^[0-9]+$ ]] && echo "Error: Cannot get pid of firejail process" && return 1
+      cmd=$(firejail --list | awk -v p="${gpid#"${gpid%%[! ]*}"}" -F: '$1==p{sub(/^((\/usr(\/local)?)?\/bin\/)?firejail /,"",$NF);print $NF}')
+    # Check if it's a Flatpak app
+    elif tr '\0' '\n' < /proc/$pid/environ 2>/dev/null | grep -q '^FLATPAK_ID='; then
+        local appid=$(tr '\0' '\n' < /proc/$pid/environ | awk -F= '/^FLATPAK_ID=/ {print $2}')
+        #echo "Detected Flatpak app: $appid"
+        #echo "Running: flatpak run $appid"
+        #echo flatpak run "$appid"
+        #return
+    fi
+
+    # Otherwise, rebuild command line with quoting
+    if [[ $appid ]]; then
+      echo ${args[@]}
+      for arg in "${args[@]:1}"; do
+        echo arg=$arg
+        cmd+=" $(printf '%q' "$arg")"
+      done
+      cmd=${cmd# }   # strip leading space
+      echo "Running: flatpak run --command=\"${args[0]}\" $appid $cmd"
+      eval "flatpak run --command=\"${args[0]}\" $appid $cmd"
+      # eval "$cmd"
+    elif [[ $firejail ]]; then
+      echo "Running: firejail --join=$gpid $cmd"
+      eval "firejail --join=$gpid $cmd"
+    else
+      for arg in "${args[@]}"; do
+        cmd+=" $(printf '%q' "$arg")"
+      done
+      cmd=${cmd# }   # strip leading space
+      echo "Running: $cmd"
+      eval "$cmd"
+    fi
+}
+
+if [[ "$XDG_CURRENT_DESKTOP" =~ ^niri ]]; then
+  pid=$(niri msg -j focused-window | jq -r .pid)
+  [ -n "$2" -a "$1" = "-p" ] && pid=$2 && shift 2
+
+  # Build command line from /proc/$pid/cmdline with proper quoting
+  #cmd=""
+  #while IFS=$'\0' read -r -d '' arg; do
+  #  echo "arg: [$arg]"
+  #  cmd+=" $(printf '%q' "$arg")"
+  #done < /proc/$pid/cmdline
+
+  ## Run command
+  #echo eval "${cmd# }"
+  replay_pid $pid
+else
+  echo "Error: $XDG_CURRENT_DESKTOP is not supported" > /dev/stderr
+  exit 1
+fi
