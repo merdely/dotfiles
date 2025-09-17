@@ -491,20 +491,23 @@ case "$HOSTNAME" in
             [ -n "$out" ] && [[ $roh == *" "$f" "* ]] && ros="$ros $f"
           done
           for f in $(echo $ros); do
+            echo " $list " | grep -q " $f " || continue
             echo $f: sync_home
             ssh -o ClearAllForwardings=yes root@$f /home/mike/.local/bin/sync_home > /dev/null
           done
         }
 
         pushknownhosts() {
-          list="jupiter mercury earth"
+          list="jupiter mercury earth carme metis tarvos"
           [ -n "$1" ] && list="$@"
           for f in $(echo $list); do
+            echo " $f " | grep -Eq " (carme|metis|tarvos) " && continue
             echo $f
             scp $HOME/src/ansible/system-setup/roles/sshclient/files/ssh_known_hosts \
               root@$f:/etc/ssh/ssh_known_hosts
           done
           for f in carme metis tarvos; do
+            echo " $list " | grep -q " $f " || continue
             echo $f
             ssh -o ClearAllForwardings=yes root@$f /usr/local/bin/rw
             scp $HOME/src/ansible/system-setup/roles/sshclient/files/ssh_known_hosts \
@@ -526,6 +529,7 @@ case "$HOSTNAME" in
             [ -n "$out" ] && [[ $roh == *" "$f" "* ]] && ros="$ros $f"
           done
           for f in $(echo $ros); do
+            echo " $list " | grep -q " $f " || continue
             echo $f: sync_home
             ssh -o ClearAllForwardings=yes root@$f /home/mike/.local/bin/sync_home > /dev/null
           done
