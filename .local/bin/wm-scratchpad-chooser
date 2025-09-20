@@ -1,6 +1,9 @@
 #!/bin/bash
 
-chooser=fuzzel
+[ -r $XDG_CONFIG_HOME/app-launcher.conf ] && source $XDG_CONFIG_HOME/app-launcher.conf
+chooser=$app_launcher
+
+[ -z "$chooser" ] && chooser=fuzzel
 [ "$1" = rofi ] && shift && chooser=rofi
 
 scratchpad="🗒️"
