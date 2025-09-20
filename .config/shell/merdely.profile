@@ -298,7 +298,7 @@ which bat > /dev/null 2>&1 && alias cat='bat --paging=never --plain'
 which bat > /dev/null 2>&1 && export PAGER='bat'
 # Window Manager aliases
 which Hyprland > /dev/null 2>&1 && alias hhh='Hyprland'
-which niri-session > /dev/null 2>&1 && alias nnn='niri-session'
+which niri-session > /dev/null 2>&1 && alias nnn='while true; do niri-session; echo; echo Restarting Niri, press Ctrl+C to cancel; sleep 5; done'
 which sway > /dev/null 2>&1 && alias sss='sway'
 
 # Editor aliases
