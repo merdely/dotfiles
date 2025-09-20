@@ -6,7 +6,7 @@ Requisite=graphical-session.target
 
 [Service]
 Environment=WAYLAND_DISPLAY=wayland-1
-ExecStart=%h/bin/watch_tablet.sh
+ExecStart=%h/.local/bin/watch_tablet.sh service
 Restart=on-failure
 RestartSec=5s
 
