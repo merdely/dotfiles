@@ -210,6 +210,7 @@ window-rule {
     open-floating false
     open-focused false
     open-maximized true
+    default-window-height { proportion 1.00; }
 }
 
 /-window-rule {
@@ -302,8 +303,8 @@ binds {
     Mod+Shift+E      hotkey-overlay-title="Quit Niri"                    { quit; }
     // Mod+D            hotkey-overlay-title="Program Launcher"      { spawn-sh "$HOME/.local/bin/run-app-toggle fuzzel"; }
     // Mod+P            hotkey-overlay-title="Program Launcher"      { spawn-sh "$HOME/.local/bin/run-app-toggle fuzzel"; }
-    Mod+D            hotkey-overlay-title="Program Launcher"      { spawn-sh "$HOME/.local/bin/rofi-launcher"; }
-    Mod+P            hotkey-overlay-title="Program Launcher"      { spawn-sh "$HOME/.local/bin/rofi-launcher"; }
+    Mod+D            hotkey-overlay-title="Program Launcher"      { spawn-sh "$HOME/.local/bin/wm-app-launcher"; }
+    Mod+P            hotkey-overlay-title="Program Launcher"      { spawn-sh "$HOME/.local/bin/wm-app-launcher"; }
     Mod+W            hotkey-overlay-title="Window Chooser"               { spawn-sh "$HOME/.local/bin/rofi-windows"; }
     Mod+Return       hotkey-overlay-title="Launch Terminal"              { spawn-sh "$HOME/.local/bin/run_terminal"; }
     Mod+T            hotkey-overlay-title="Launch Terminal"              { spawn-sh "$HOME/.local/bin/run_terminal"; }
@@ -312,7 +313,7 @@ binds {
     Mod+MouseMiddle  repeat=false hotkey-overlay-title="Close Window"    { close-window; }
     // MouseMiddle      repeat=false hotkey-overlay-title="Close Window"    { close-window; }
     // Mod+S            hotkey-overlay-title="Scratchpad Chooser"           { spawn-sh "$HOME/.local/bin/run-app-toggle -S \"^[f]uzzel --prompt Scratchpad App >  -d\" wm-scratchpad-chooser"; }
-    Mod+S            hotkey-overlay-title="Scratchpad Chooser"           { spawn-sh "$HOME/.local/bin/run-app-toggle -S \"[r]ofi -p Scratchpad App > -dmenu\" wm-scratchpad-chooser rofi"; }
+    Mod+S            hotkey-overlay-title="Scratchpad Chooser"           { spawn-sh "$HOME/.local/bin/run-app-toggle -S \"([r]ofi|[f]uzzel) -p Scratchpad App > ? -d(menu)?\" wm-scratchpad-chooser"; }
     Mod+A            hotkey-overlay-title="Minimize Window"              { spawn-sh "$HOME/.local/bin/wm-minimize ACTIVE"; }
     Mod+Z            hotkey-overlay-title="Duplicate Window"             { spawn-sh "$HOME/.local/bin/wm-duplicate-app"; }
     Mod+M            hotkey-overlay-title="Minimize Window"              { spawn-sh "$HOME/.local/bin/wm-minimize ACTIVE"; }
@@ -344,9 +345,9 @@ binds {
     Mod+Shift+Space     hotkey-overlay-title="Clear Notifications"               { spawn-sh "swaync-client --close-all ; swaync-client --close-panel"; }
     Mod+N               hotkey-overlay-title="Bitwarden Chooser"                 { spawn-sh "$HOME/.local/bin/run-app-toggle -P rofi-rbw --use-notify-send"; }
     Mod+Space           hotkey-overlay-title="Notification Panel"                { spawn "swaync-client" "-t" "-sw"; }
-    Mod+X               hotkey-overlay-title="Clipboard Manager"                 { spawn-sh "cliphist list | rofi -dmenu | cliphist decode | wl-copy"; }
+    Mod+X               hotkey-overlay-title="Clipboard Manager"                 { spawn-sh "cliphist list | $HOME/.local/bin/wm-fuzzy-chooser | cliphist decode | wl-copy"; }
     // Mod+Shift+X         hotkey-overlay-title="Camera Chooser"                    { spawn-sh "$HOME/.local/bin/run-app-toggle -S \"[f]uzzel -p View Camera >  -d\" wm-cam-chooser"; }
-    Mod+Shift+X         hotkey-overlay-title="Camera Chooser"                    { spawn-sh "$HOME/.local/bin/run-app-toggle -S \"[r]ofi -p View Camera > -dmenu\" wm-cam-chooser rofi"; }
+    Mod+Shift+X         hotkey-overlay-title="Camera Chooser"                    { spawn-sh "$HOME/.local/bin/run-app-toggle -S \"([r]ofi|[f]uzzel) -p View Camera > ? -d(menu)?\" wm-cam-chooser"; }
 
     Mod+Shift+Z             hotkey-overlay-title="Bitwarden"             { spawn-sh "$HOME/.local/bin/wm-minimize bitwarden Bitwarden"; }
     Mod+Shift+C             hotkey-overlay-title="Calculator"            { spawn-sh "$HOME/.local/bin/wm-minimize -R galculator"; }
