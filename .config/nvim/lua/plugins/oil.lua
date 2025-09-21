@@ -8,8 +8,9 @@ return {
       show_hidden = true,
     },
     keymaps = {
+      ["<C-s>"] = { "actions.select", opts = { vertical = true } },
       ["<C-v>"] = { "actions.select", opts = { vertical = true } },
-      ["<C-s>"] = { "actions.select", opts = { horizontal = true } },
+      ["<C-h>"] = { "actions.select", opts = { horizontal = true } },
       ["<ESC>"] = { "actions.close", mode = "n" },
     },
   },

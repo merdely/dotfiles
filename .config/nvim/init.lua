@@ -138,6 +138,9 @@ vim.keymap.set("n", "<leader>c", ":nohlsearch<CR>", { desc = "Clear search highl
 -- Switch to only one buffer (not split)
 vim.keymap.set("n", "<leader>o", ":only<CR>", { desc = "Switch to showing only one buffer" })
 
+-- Toggle to previous buffer
+vim.keymap.set('n', '<leader>p', ":buffer #<CR>", { desc = 'Switch to previous buffer' })
+
 -- Yank to EOL
 vim.keymap.set("n", "Y", "y$", { desc = "Yank to end of line" })
 
