@@ -1,10 +1,6 @@
 #!/bin/bash
 
 [ -r $XDG_CONFIG_HOME/app-launcher.conf ] && source $XDG_CONFIG_HOME/app-launcher.conf
-chooser=$app_launcher
-
-[ -z "$chooser" ] && chooser=fuzzel
-[ "$1" = rofi ] && shift && chooser=rofi
 
 scratchpad="🗒️"
 ws_id=$(niri msg -j workspaces | jq -r --arg sp "$scratchpad" '.[] | select(.name==$sp) | .id')
@@ -35,10 +31,10 @@ done
 [ -z "$apps" ] && echo "Error: Could not get list of Scratchpad Workspace Apps/Or no apps minimized" > /dev/stderr && exit 1
 
 # Pipe list of apps through fuzzel
-if [ $chooser = rofi ]; then
-  app_id=$(echo "$apps" | rofi -p "Scratchpad App >" -dmenu -cache-dir $HOME/.cache/rofi_scratchpads -display-columns 3)
-else
+if [ $app_launcher = fuzzel ]; then
   app_id=$(echo "$apps" | fuzzel -p "Scratchpad App > " -d --cache=$HOME/.cache/fuzzel_scratchpad_chooser --with-nth=3 --accept-nth="{1..2}")
+else
+  app_id=$(echo "$apps" | rofi -p "Scratchpad App >" -dmenu -cache-dir $HOME/.cache/rofi_scratchpads -display-columns 3)
 fi
 
 # Exit if cancel

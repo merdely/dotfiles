@@ -1,0 +1,15 @@
+#!/bin/sh
+
+[ -r $XDG_CONFIG_HOME/app-launcher.conf ] && source $XDG_CONFIG_HOME/app-launcher.conf
+
+rofi_launcher() {
+  rofi -combi-modi drun,run -modi combi -show combi -display-combi "Application Launcher >" "$*"
+}
+
+if [ "$app_launcher" = fuzzel ]; then
+  run-app-toggle fuzzel
+else
+  pgrep -u $LOGNAME -f "^rofi -combi-modi drun,run -modi combi -show combi -display-combi Application Launcher" && \
+    pkill -u $LOGNAME -f "^rofi -combi-modi drun,run -modi combi -show combi -display-combi Application Launcher" || \
+    rofi_launcher $*
+fi

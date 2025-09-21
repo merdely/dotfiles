@@ -305,7 +305,7 @@ binds {
     // Mod+P            hotkey-overlay-title="Program Launcher"      { spawn-sh "$HOME/.local/bin/run-app-toggle fuzzel"; }
     Mod+D            hotkey-overlay-title="Program Launcher"      { spawn-sh "$HOME/.local/bin/wm-app-launcher"; }
     Mod+P            hotkey-overlay-title="Program Launcher"      { spawn-sh "$HOME/.local/bin/wm-app-launcher"; }
-    Mod+W            hotkey-overlay-title="Window Chooser"               { spawn-sh "$HOME/.local/bin/rofi-windows"; }
+    Mod+W            hotkey-overlay-title="Window Chooser"               { spawn-sh "$HOME/.local/bin/wm-window-switcher"; }
     Mod+Return       hotkey-overlay-title="Launch Terminal"              { spawn-sh "$HOME/.local/bin/run_terminal"; }
     Mod+T            hotkey-overlay-title="Launch Terminal"              { spawn-sh "$HOME/.local/bin/run_terminal"; }
     Mod+Ctrl+B       hotkey-overlay-title="Hide Waybar"                  { spawn "pkill" "-SIGUSR1" "waybar"; }

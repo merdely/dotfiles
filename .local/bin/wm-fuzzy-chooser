@@ -1,0 +1,9 @@
+#!/bin/sh
+
+[ -r $XDG_CONFIG_HOME/app-launcher.conf ] && source $XDG_CONFIG_HOME/app-launcher.conf
+
+if [ "$app_launcher" = fuzzel ]; then
+  cat - | fuzzel -d
+else
+  cat - | rofi -dmenu
+fi

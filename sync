@@ -2,6 +2,7 @@
 
 # Sync my dotfiles into the dotfiles repo
 CONFIGS=(
+  $HOME/.config/app-launcher.conf
   $HOME/.config/kitty/
   $HOME/.config/local/waybar*
   $HOME/.config/local/wb_*
@@ -42,11 +43,7 @@ CONFIGS=(
   $HOME/.local/bin/run_wleave
   $HOME/.local/bin/view-cheatsheet
   $HOME/.local/bin/view-wm-help
-  $HOME/.local/bin/wm-closeapps
-  $HOME/.local/bin/wm-duplicate-app
-  $HOME/.local/bin/wm-minimize
-  $HOME/.local/bin/wm-swipe
-  $HOME/.local/bin/wm-scratchpad-chooser
+  $HOME/.local/bin/wm-*
   $HOME/.local/bin/yad-askpass
 )
 
