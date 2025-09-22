@@ -13,6 +13,7 @@ niri_floating_ws="🗒️"
 
 resize_height=90%
 resize_width=$resize_height
+resize[galculator]="640|480"
 [ -r $HOME/.config/wm-minimize.conf ] && source $HOME/.config/wm-minimize.conf
 
 mode=desktop
@@ -66,7 +67,10 @@ toggle_minimize() {
       niri msg action move-window-to-floating --id $app_id
       niri msg action move-window-to-monitor --id $app_id $cur_mon
       niri msg action focus-window --id $app_id
-      if [ $resize = 1 ]; then
+      if [ -n "${new_height[$app_id]}" ]; then
+        niri msg action set-window-height --id $app_id ${resize[$1]#*|}
+        niri msg action set-window-width --id $app_id ${resize[$1]%|*}
+      elif [ $resize = 1 ]; then
         niri msg action set-window-height --id $app_id $resize_height
         niri msg action set-window-width --id $app_id $resize_width
         sleep .1
@@ -121,7 +125,10 @@ run_cmd() {
     if [ $count -ge 100 ]; then
       echo "Warning: Could not get window id" > /dev/stderr
     else
-      if [ $resize = 1 ]; then
+      if [ -n "${new_height[$app_id]}" ]; then
+        niri msg action set-window-height --id $app_id ${resize[$1]#*|}
+        niri msg action set-window-width --id $app_id ${resize[$1]%|*}
+      elif [ $resize = 1 ]; then
         niri msg action set-window-height --id $app_id $resize_height
         niri msg action set-window-width --id $app_id $resize_width
         sleep .1
@@ -158,7 +165,10 @@ if [ $cmd = ACTIVE ]; then
       niri msg action move-window-to-floating --id $app_id
       # niri msg action move-window-to-monitor --id $app_id $cur_mon
       niri msg action focus-window --id $app_id
-      if [ $resize = 1 ]; then
+      if [ -n "${new_height[$app_id]}" ]; then
+        niri msg action set-window-height --id $app_id ${resize[$1]#*|}
+        niri msg action set-window-width --id $app_id ${resize[$1]%|*}
+      elif [ $resize = 1 ]; then
         niri msg action set-window-height --id $app_id $resize_height
         niri msg action set-window-width --id $app_id $resize_width
         sleep .1
