@@ -338,8 +338,11 @@ binds {
     Mod+Shift+3             hotkey-overlay-title="Focus Second Browser"  { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app -c '-P Media' librewolf-media.desktop librewolf"; }
 
     // Apps
+    XF86Tools                                                                    { spawn-sh "loginctl lock-session && $HOME/.local/bin/screen-off"; }
+    F12                 hotkey-overlay-title="Lock Screen"                       { spawn-sh "loginctl lock-session && $HOME/.local/bin/screen-off"; }
+    F11                                                                          { spawn-sh "$HOME/.local/bin/run_wleave"; }
     Mod+Shift+P         hotkey-overlay-title="Power Menu"                        { spawn-sh "$HOME/.local/bin/run_wleave"; }
-    Ctrl+Alt+Delete     hotkey-overlay-title="Power Menu"                        { spawn-sh "$HOME/.local/bin/run_wleave"; }
+    Ctrl+Alt+Delete                                                              { spawn-sh "$HOME/.local/bin/run_wleave"; }
     Mod+Shift+Backslash allow-when-locked=true hotkey-overlay-title="Hibernate"  { spawn "systemctl" "hibernate"; }
     Ctrl+Space          hotkey-overlay-title="Clear Notifications"               { spawn-sh "swaync-client --close-latest"; }
     Mod+Shift+Space     hotkey-overlay-title="Clear Notifications"               { spawn-sh "swaync-client --close-all ; swaync-client --close-panel"; }
