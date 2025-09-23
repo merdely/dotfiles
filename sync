@@ -19,6 +19,7 @@ CONFIGS=(
   $HOME/.config/systemd/user/swayidle.service
   $HOME/.config/systemd/user/syncthingtray.service
   $HOME/.config/systemd/user/watch_tablet.service
+  $HOME/.config/systemd/user/wl-clip-persist.service
   $HOME/.config/systemd/user/wl-paste.service
   $HOME/.config/systemd/user/wm-session.target
   $HOME/.config/tmux/tmux.conf

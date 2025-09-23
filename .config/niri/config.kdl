@@ -113,7 +113,7 @@ spawn-at-startup "systemctl" "--user" "start" "waybar.service"
 spawn-at-startup "systemctl" "--user" "start" "swaybg.service"
 spawn-at-startup "systemctl" "--user" "start" "swayidle.service"
 spawn-sh-at-startup "[ $(hostname -s) = mercury ] && systemctl --user start firefox-info.service"
-spawn-at-startup "systemctl" "--user" "start" "wl-paste.service"
+spawn-at-startup "systemctl" "--user" "start" "wl-clip-persist.service"
 spawn-at-startup "systemctl" "--user" "start" "ydotool.service"
 spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && sleep 10 && systemctl --user start syncthingtray.service"
 
