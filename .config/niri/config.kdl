@@ -125,7 +125,7 @@ spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && gtk-launch solaar-applet"
 spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && gtk-launch udiskie-applet"
 
 spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && $HOME/.local/bin/wm-minimize com.logseq.Logseq Logseq"
-spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && $HOME/.local/bin/wm-minimize org.signal.Signal"
+spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && $HOME/.local/bin/wm-minimize org.signal.Signal Signal"
 spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && $HOME/.local/bin/wm-minimize io.element.Element Element"
 spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && $HOME/.local/bin/wm-minimize bitwarden"
 
@@ -159,7 +159,7 @@ window-rule {
 }
 
 window-rule {
-    match app-id=r#"^(chromium|firefox|fr\.handbrake\.ghb|io\.github\.celluloid_player\.Celluloid|io\.github\.ungoogled_software\.ungoogled_chromium|gimp|labwc|librewolf|obsidian|vlc)$"#
+    match app-id=r#"^(code-oss|chromium|firefox|fr\.handbrake\.ghb|io\.github\.celluloid_player\.Celluloid|io\.github\.ungoogled_software\.ungoogled_chromium|gimp|labwc|librewolf|obsidian|vlc)$"#
     open-maximized true
 }
 
@@ -193,7 +193,7 @@ window-rule {
 }
 
 window-rule {
-    match app-id=r#"^(Bitwarden|blueman-manager|Element|io\.missioncenter\.MissionCenter|Logseq|signal|org\.signal\.Signal|pavucontrol|htop|btop|net\.nokyan\.Resources|nvtop|term-scratchpad|termfm)$"#
+    match app-id=r#"^(Bitwarden|blueman-manager|Element|io\.missioncenter\.MissionCenter|Logseq|signal|org\.signal\.Signal|Signal|pavucontrol|htop|btop|net\.nokyan\.Resources|nvtop|term-scratchpad|termfm)$"#
     open-floating true
     open-maximized false
 }
@@ -205,7 +205,7 @@ window-rule {
 }
 
 window-rule {
-    match app-id=r#"^(Bitwarden|blueman-manager|Element|io\.missioncenter\.MissionCenter|Logseq|signal|org\.signal\.Signal|pavucontrol|htop|btop|net\.nokyan\.Resources|nvtop|term-scratchpad|termfm)$"# at-startup=true
+    match app-id=r#"^(Bitwarden|blueman-manager|Element|io\.missioncenter\.MissionCenter|Logseq|signal|org\.signal\.Signal|Signal|pavucontrol|htop|btop|net\.nokyan\.Resources|nvtop|term-scratchpad|termfm)$"# at-startup=true
     open-on-workspace "🗒️"
     open-floating false
     open-focused false
@@ -252,6 +252,7 @@ window-rule {
     match app-id=r#"^org\.gnome\.World\.Secrets$"#
     match app-id=r#"^Bitwarden$"#
     match app-id=r#"^signal$"#
+    match app-id=r#"^Signal$"#
     match app-id=r#"^org\.signal\.Signal$"#
     match app-id=r#"^yad$"# title=r#"^Enter SSH Key Passphrase$"#
 
@@ -332,11 +333,6 @@ binds {
     // Alt+Shift+L      hotkey-overlay-title="Lock the Screen"              { spawn "loginctl" "lock-session"; }
     // Alt+Shift+H      allow-when-locked=true hotkey-overlay-title="Hibernate"  { spawn "systemctl" "hibernate"; }
 
-    // Quick Apps
-    Mod+Shift+1             hotkey-overlay-title="Focus First Terminal"  { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app preferred-terminal.desktop kitty"; }
-    Mod+Shift+2             hotkey-overlay-title="Focus First Browser"   { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app -c '-P Mike' librewolf-mike.desktop librewolf"; }
-    Mod+Shift+3             hotkey-overlay-title="Focus Second Browser"  { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app -c '-P Media' librewolf-media.desktop librewolf"; }
-
     // Apps
     XF86Tools                                                                    { spawn-sh "loginctl lock-session && $HOME/.local/bin/screen-off"; }
     F12                 hotkey-overlay-title="Lock Screen"                       { spawn-sh "loginctl lock-session && $HOME/.local/bin/screen-off"; }
@@ -348,7 +344,7 @@ binds {
     Mod+Shift+Space     hotkey-overlay-title="Clear Notifications"               { spawn-sh "swaync-client --close-all ; swaync-client --close-panel"; }
     Mod+N               hotkey-overlay-title="Bitwarden Chooser"                 { spawn-sh "$HOME/.local/bin/run-app-toggle -P rofi-rbw --use-notify-send"; }
     Mod+Space           hotkey-overlay-title="Notification Panel"                { spawn "swaync-client" "-t" "-sw"; }
-    Mod+X               hotkey-overlay-title="Clipboard Manager"                 { spawn-sh "cliphist list | $HOME/.local/bin/wm-fuzzy-chooser | cliphist decode | wl-copy"; }
+    // Mod+X               hotkey-overlay-title="Clipboard Manager"                 { spawn-sh "cliphist list | $HOME/.local/bin/wm-fuzzy-chooser | cliphist decode | wl-copy"; }
     // Mod+Shift+X         hotkey-overlay-title="Camera Chooser"                    { spawn-sh "$HOME/.local/bin/run-app-toggle -S \"[f]uzzel -p View Camera >  -d\" wm-cam-chooser"; }
     Mod+Shift+X         hotkey-overlay-title="Camera Chooser"                    { spawn-sh "$HOME/.local/bin/run-app-toggle -S \"([r]ofi|[f]uzzel) -p View Camera > ? -d(menu)?\" wm-cam-chooser"; }
 
@@ -361,7 +357,7 @@ binds {
     Mod+Shift+D             hotkey-overlay-title="Htop"                  { spawn-sh "$HOME/.local/bin/wm-minimize htop"; }
     Mod+Shift+Q             hotkey-overlay-title="Logseq"                { spawn-sh "$HOME/.local/bin/wm-minimize com.logseq.Logseq Logseq"; }
     Mod+Shift+SemiColon     hotkey-overlay-title="Audio Mixer"           { spawn-sh "$HOME/.local/bin/wm-minimize org.pulseaudio.pavucontrol pavucontrol"; }
-    Mod+Shift+A             hotkey-overlay-title="Signal"                { spawn-sh "$HOME/.local/bin/wm-minimize org.signal.Signal"; }
+    Mod+Shift+A             hotkey-overlay-title="Signal"                { spawn-sh "$HOME/.local/bin/wm-minimize org.signal.Signal Signal"; }
     Mod+Shift+W             hotkey-overlay-title="Element"               { spawn-sh "$HOME/.local/bin/wm-minimize io.element.Element Element"; }
 
     // Niri Shortcuts
@@ -387,6 +383,10 @@ binds {
     Mod+F            hotkey-overlay-title="Maximize Column"              { maximize-column; }
     Mod+Shift+F      hotkey-overlay-title="Fullscreen Window"            { fullscreen-window; }
     Mod+Ctrl+F       hotkey-overlay-title="Expand Column to Width"       { expand-column-to-available-width; }
+
+    // Keybindings for my mouse buttons
+    Mod+Ctrl+Alt+Shift+H                                                 { focus-column-or-monitor-left; }
+    Mod+Ctrl+Alt+Shift+L                                                 { focus-column-or-monitor-right; }
 
     // Change Window/Column Focus
     Mod+H            hotkey-overlay-title="Focus Column Left"            { focus-column-or-monitor-left; }
@@ -454,15 +454,20 @@ binds {
     Mod+Ctrl+Comma    hotkey-overlay-title="Focus Previous Workspace"    { focus-workspace-up; }
     Mod+Ctrl+Period   hotkey-overlay-title="Focus Previous Workspace"    { focus-workspace-down; }
 
-    Mod+1             hotkey-overlay-title="Focus WS 1"                  { focus-workspace 1; }
-    Mod+2             hotkey-overlay-title="Focus WS 2"                  { focus-workspace 2; }
-    Mod+3             hotkey-overlay-title="Focus WS 3"                  { focus-workspace 3; }
-    Mod+4             hotkey-overlay-title="Focus WS 4"                  { focus-workspace 4; }
-    Mod+5             hotkey-overlay-title="Focus WS 5"                  { focus-workspace 5; }
-    Mod+6             hotkey-overlay-title="Focus WS 6"                  { focus-workspace 6; }
-    Mod+7             hotkey-overlay-title="Focus WS 7"                  { focus-workspace 7; }
-    Mod+8             hotkey-overlay-title="Focus WS 8"                  { focus-workspace 8; }
-    Mod+9             hotkey-overlay-title="Focus WS 9"                  { focus-workspace 9; }
+    // Quick Apps
+    Mod+1             hotkey-overlay-title="Focus First Terminal"  { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app preferred-terminal.desktop kitty"; }
+    Mod+2             hotkey-overlay-title="Focus First Browser"   { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app -c '-P Mike' librewolf-mike.desktop librewolf"; }
+    Mod+3             hotkey-overlay-title="Focus Second Browser"  { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app -c '-P Media' librewolf-media.desktop librewolf"; }
+
+    Mod+Shift+1       hotkey-overlay-title="Focus WS 1"                  { focus-workspace 1; }
+    Mod+Shift+2       hotkey-overlay-title="Focus WS 2"                  { focus-workspace 2; }
+    Mod+Shift+3       hotkey-overlay-title="Focus WS 3"                  { focus-workspace 3; }
+    Mod+Shift+4       hotkey-overlay-title="Focus WS 4"                  { focus-workspace 4; }
+    Mod+Shift+5       hotkey-overlay-title="Focus WS 5"                  { focus-workspace 5; }
+    Mod+Shift+6       hotkey-overlay-title="Focus WS 6"                  { focus-workspace 6; }
+    Mod+Shift+7       hotkey-overlay-title="Focus WS 7"                  { focus-workspace 7; }
+    Mod+Shift+8       hotkey-overlay-title="Focus WS 8"                  { focus-workspace 8; }
+    Mod+Shift+9       hotkey-overlay-title="Focus WS 9"                  { focus-workspace 9; }
 
     Mod+Alt+1         hotkey-overlay-title="Move Window to WS 1"         { move-window-to-workspace 1; }
     Mod+Alt+2         hotkey-overlay-title="Move Window to WS 2"         { move-window-to-workspace 2; }
