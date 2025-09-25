@@ -113,7 +113,7 @@ spawn-at-startup "systemctl" "--user" "start" "waybar.service"
 spawn-at-startup "systemctl" "--user" "start" "swaybg.service"
 spawn-at-startup "systemctl" "--user" "start" "swayidle.service"
 spawn-sh-at-startup "[ $(hostname -s) = mercury ] && systemctl --user start firefox-info.service"
-spawn-at-startup "systemctl" "--user" "start" "wl-clip-persist.service"
+spawn-at-startup "systemctl" "--user" "start" "wl-paste.service"
 spawn-at-startup "systemctl" "--user" "start" "ydotool.service"
 spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && sleep 10 && systemctl --user start syncthingtray.service"
 
@@ -344,7 +344,7 @@ binds {
     Mod+Shift+Space     hotkey-overlay-title="Clear Notifications"               { spawn-sh "swaync-client --close-all ; swaync-client --close-panel"; }
     Mod+N               hotkey-overlay-title="Bitwarden Chooser"                 { spawn-sh "$HOME/.local/bin/run-app-toggle -P rofi-rbw --use-notify-send"; }
     Mod+Space           hotkey-overlay-title="Notification Panel"                { spawn "swaync-client" "-t" "-sw"; }
-    // Mod+X               hotkey-overlay-title="Clipboard Manager"                 { spawn-sh "cliphist list | $HOME/.local/bin/wm-fuzzy-chooser | cliphist decode | wl-copy"; }
+    Mod+X               hotkey-overlay-title="Clipboard Manager"                 { spawn-sh "cliphist list | $HOME/.local/bin/wm-fuzzy-chooser | cliphist decode | wl-copy"; }
     // Mod+Shift+X         hotkey-overlay-title="Camera Chooser"                    { spawn-sh "$HOME/.local/bin/run-app-toggle -S \"[f]uzzel -p View Camera >  -d\" wm-cam-chooser"; }
     Mod+Shift+X         hotkey-overlay-title="Camera Chooser"                    { spawn-sh "$HOME/.local/bin/run-app-toggle -S \"([r]ofi|[f]uzzel) -p View Camera > ? -d(menu)?\" wm-cam-chooser"; }
 
