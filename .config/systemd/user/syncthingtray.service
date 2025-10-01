@@ -9,7 +9,8 @@ ConditionEnvironment=WAYLAND_DISPLAY
 Type=simple
 Environment=QT_QPA_PLATFORMTHEME=kde
 Environment=QT_QPA_PLATFORM=wayland
-ExecStart=flatpak run io.github.martchus.syncthingtray --wait --single-instance
+# ExecStart=flatpak run io.github.martchus.syncthingtray --wait --single-instance
+ExecStart=syncthingtray-qt6 --wait --single-instance
 Slice=session.slice
 Restart=on-failure
 
