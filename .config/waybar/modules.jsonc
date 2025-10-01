@@ -65,6 +65,19 @@
         "exec": "~/.config/waybar/scripts/idle-blockers loop"
     },
 
+    "custom/idle_inhibitor": {
+        // "hide-empty-text": true,
+        "format": "{icon}",
+        "format-icons": {
+            "activated": "",
+            "deactivated": ""
+        },
+        "return-type": "json",
+        "exec-if": "test -x ~/.config/waybar/scripts/idle-inhibitor",
+        "exec": "~/.config/waybar/scripts/idle-inhibitor loop",
+        "on-click": "pgrep -f '^((/usr)?/bin/)?systemd-inhibit --who=user-idle-inhibit --why=Prevent screenlock' > /dev/null 2>&1 && pkill -f '^((/usr)?/bin/)?systemd-inhibit --who=user-idle-inhibit --why=Prevent screenlock' || systemd-inhibit --who=user-idle-inhibit --why='Prevent screenlock' --what=idle sleep $((4*3600))"
+    },
+
     "custom/laptopbattery": {
         "hide-empty-text": true,
         "format": "{}% {icon}",
@@ -116,7 +129,8 @@
             "updated": ""
         },
         "exec-if": "which waybar-updates",
-        "exec": "waybar-updates --flatpak --notify --packages-limit 30"
+        // "exec": "waybar-updates --flatpak --notify --packages-limit 30"
+        "exec": "waybar-updates  --notify --packages-limit 30"
     },
 
     "custom/razermouse": {

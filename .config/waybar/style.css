@@ -90,6 +90,7 @@ button:hover {
 #cpu,
 #custom-clock,
 #custom-hypridle-blockers,
+#custom-idle_inhibitor,
 #custom-laptopbattery,
 #custom-launcher_button,
 #custom-media,
@@ -229,6 +230,7 @@ label:focus {
     background-color: #eb4d4b;
 }
 
+#custom-idle_inhibitor.activated,
 #idle_inhibitor.activated {
     color: white;
     background-color: #64727D;

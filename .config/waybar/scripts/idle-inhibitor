@@ -1,0 +1,33 @@
+#!/bin/sh
+
+wait=1
+if [ -r "$HOME/.config/waybar/settings/$(basename "$0" .sh)" ]; then
+  source "$HOME/.config/waybar/settings/$(basename "$0" .sh)"
+fi
+
+getvalue() {
+  pgrep -f "^((/usr)?/bin/)?systemd-inhibit --who=user-idle-inhibit --why=Prevent screenlock" > /dev/null 2>&1
+  if [ $? = 0 ]; then
+    value=activated
+  else
+    value=deactivated
+  fi
+}
+
+print_output() {
+  local tooltip="Idle Inhibitor $value"
+  local class=$value
+  local perc=0
+
+  [ $value = activated ] && perc=100
+
+  printf '{ "text": "%s", "alt": "%s", "tooltip": "%s", "class": "%s", "percentage": %d }\n' \
+    "$value" "$value" "$tooltip" "$class" "$perc"
+}
+
+while true; do
+  getvalue
+  print_output
+  [ "$1" != "loop" ] && break
+  sleep $wait
+done

@@ -26,7 +26,7 @@
     ],
 
     "modules-right": [
-        "idle_inhibitor",
+        "custom/idle_inhibitor",
         "custom/toggle_rotate",
         "pulseaudio/slider",
         "pulseaudio",

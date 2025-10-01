@@ -286,7 +286,7 @@ binds {
     // Mod+A                    { spawn "true"; }
     // Mod+B                    { spawn "true"; }
     Mod+E                    { spawn "true"; }
-    Mod+I                    { spawn "true"; }
+    // Mod+I                    { spawn "true"; }
     // Mod+P                    { spawn "true"; }
     // Mod+S                    { spawn "true"; }
     Mod+U                    { spawn "true"; }
@@ -327,6 +327,7 @@ binds {
     // Mod+W            hotkey-overlay-title="Toggle Tabbed Display"        { toggle-column-tabbed-display; }
     Mod+Shift+O      hotkey-overlay-title="Show Hotkey Overlay"          { show-hotkey-overlay; }
 
+    Mod+I            hotkey-overlay-title="Toggle Idle Inhibitor"        { spawn-sh "pgrep -f '^((/usr)?/bin/)?systemd-inhibit --who=user-idle-inhibit --why=Prevent screenlock' > /dev/null 2>&1 && pkill -f '^((/usr)?/bin/)?systemd-inhibit --who=user-idle-inhibit --why=Prevent screenlock' || systemd-inhibit --who=user-idle-inhibit --why='Prevent screenlock' --what=idle sleep $((4*3600))"; }
     Mod+O            repeat=false hotkey-overlay-title="Toggle Overview" { toggle-overview; }
     Mod+R            hotkey-overlay-title="Toggle Preset Widths"         { switch-preset-column-width; }
     Mod+Shift+R      hotkey-overlay-title="Toggle Preset Heights"        { switch-preset-window-height; }
