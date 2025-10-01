@@ -1,0 +1,11 @@
+#!/bin/sh
+
+if which wpctl &>/dev/null; then
+  wpctl set-mute @DEFAULT_AUDIO_SOURCE@ 1
+elif which pactl &>/dev/null; then
+  pactl set-source-mute @DEFAULT_SOURCE@ on
+elif which amixer &>/dev/null; then
+  amixer sset Capture nocap
+else
+  echo "Error: Cannot determine method to mute mic"
+fi

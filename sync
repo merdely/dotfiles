@@ -12,6 +12,8 @@ CONFIGS=(
   $HOME/.config/nvim/
   $HOME/.config/shell/merdely.profile
   $HOME/.config/starship.toml
+  $HOME/.config/swayidle
+  $HOME/.config/swaylock
   $HOME/.config/systemd/user/lisgd.service
   $HOME/.config/systemd/user/screen-rotation.service
   $HOME/.config/systemd/user/squeekboard.service
@@ -32,6 +34,8 @@ CONFIGS=(
   $HOME/.zprofile
 
   $HOME/.local/bin/gen-wm-help
+  $HOME/.local/bin/mic-mute
+  $HOME/.local/bin/mic-unmute
   $HOME/.local/bin/play_pause_media.sh
   $HOME/.local/bin/rofi-launcher
   $HOME/.local/bin/rofi-powermenu
@@ -39,9 +43,16 @@ CONFIGS=(
   $HOME/.local/bin/run-app-toggle
   $HOME/.local/bin/run_lisgd
   $HOME/.local/bin/run_nwg_drawer
+  $HOME/.local/bin/run_screenlock
   $HOME/.local/bin/run_ssh_add
   $HOME/.local/bin/run_terminal
   $HOME/.local/bin/run_wleave
+  $HOME/.local/bin/screen-dim
+  $HOME/.local/bin/screen-off
+  $HOME/.local/bin/screen-on
+  $HOME/.local/bin/screen-undim
+  $HOME/.local/bin/speaker-mute
+  $HOME/.local/bin/speaker-unmute
   $HOME/.local/bin/view-cheatsheet
   $HOME/.local/bin/view-wm-help
   $HOME/.local/bin/wm-*

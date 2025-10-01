@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# Prep for locking
+ssh-add -D
+keyctl purge user bw_session
+rbw lock
+[ "$(playerctl -a status 2> /dev/null)" = "Playing" ] && playerctl -a pause
+$HOME/.local/bin/speaker-mute
+$HOME/.local/bin/mic-mute
+
+# Lock screen
+setsid swaylock -f
+$HOME/.local/bin/run_ssh_add &

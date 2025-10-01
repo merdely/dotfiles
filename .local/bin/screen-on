@@ -1,0 +1,13 @@
+#!/bin/sh
+
+case "$XDG_CURRENT_DESKTOP" in
+  niri*)
+    niri msg action power-on-monitors
+    ;;
+  Hyprland)
+    hyprctl dispatch dpms on
+    ;;
+  sway*)
+    swaymsg "output * power on"
+    ;;
+esac

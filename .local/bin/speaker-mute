@@ -1,0 +1,11 @@
+#!/bin/sh
+
+if which wpctl &>/dev/null; then
+  wpctl set-mute @DEFAULT_AUDIO_SINK@ 1
+elif which pactl &>/dev/null; then
+  pactl set-sink-mute @DEFAULT_SINK@ on
+elif which amixer &>/dev/null; then
+  amixer sset Master mute
+else
+  echo "Error: Cannot determine method to mute speakers"
+fi

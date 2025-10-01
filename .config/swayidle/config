@@ -1,0 +1,10 @@
+lock '$HOME/.local/bin/run_screenlock'
+unlock '$HOME/.local/bin/screen-on;$HOME/.local/bin/screen-undim;$HOME/.local/bin/speaker-unmute;$HOME/.local/bin/run_ssh_add'
+
+before-sleep 'loginctl lock-session'
+after-resume '$HOME/.local/bin/screen-on;$HOME/.local/bin/screen-undim;$HOME/.local/bin/speaker-unmute;$HOME/.local/bin/run_ssh_add'
+
+timeout 750 '$HOME/.local/bin/screen-dim' resume '$HOME/.local/bin/screen-on;$HOME/.local/bin/screen-undim;$HOME/.local/bin/speaker-unmute;$HOME/.local/bin/run_ssh_add'
+timeout 900 'loginctl lock-session'
+timeout 1200 '$HOME/.local/bin/screen-off'
+# timeout 14400 'systemctl suspend-then-hibernate'
