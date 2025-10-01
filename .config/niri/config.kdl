@@ -16,7 +16,9 @@ environment {
 
 input {
     keyboard {
-        xkb { }
+        xkb {
+          options "menu:super"
+        }
         numlock
     }
 
@@ -95,11 +97,14 @@ layout {
 
 animations { }
 hotkey-overlay {
-  skip-at-startup;
-  hide-not-bound;
+  skip-at-startup
+  hide-not-bound
+}
+cursor {
+  hide-when-typing
+  hide-after-inactive-ms 3000
 }
 debug { wait-for-frame-completion-before-queueing; }
-cursor { hide-after-inactive-ms 3000; }
 gestures { hot-corners { off; }; }
 
 workspace "1"    { open-on-output "DP-3"; }
@@ -115,17 +120,17 @@ spawn-at-startup "systemctl" "--user" "start" "swayidle.service"
 spawn-sh-at-startup "[ $(hostname -s) = mercury ] && systemctl --user start firefox-info.service"
 spawn-at-startup "systemctl" "--user" "start" "wl-paste.service"
 spawn-at-startup "systemctl" "--user" "start" "ydotool.service"
+spawn-at-startup "systemctl" "--user" "start" "polkit-gnome.service"
 spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && sleep 10 && systemctl --user start syncthingtray.service"
 
 spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && gtk-launch blueman-applet"
 spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && gtk-launch nm-applet"
-spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && gtk-launch polkit-gnome-authentication-agent-1"
 spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && gtk-launch seafile-applet"
 spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && gtk-launch solaar-applet"
 spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && gtk-launch udiskie-applet"
 
-spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && $HOME/.local/bin/wm-minimize com.logseq.Logseq Logseq"
-spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && $HOME/.local/bin/wm-minimize org.signal.Signal Signal"
+spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && $HOME/.local/bin/wm-minimize logseq-desktop Logseq"
+spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && $HOME/.local/bin/wm-minimize signal-desktop signal"
 spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && $HOME/.local/bin/wm-minimize io.element.Element Element"
 spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && $HOME/.local/bin/wm-minimize bitwarden"
 
@@ -355,9 +360,9 @@ binds {
     Mod+Shift+Apostrophe    hotkey-overlay-title="Bluetooth Manager"     { spawn-sh "$HOME/.local/bin/wm-minimize blueman-manager"; }
     Mod+Shift+N             hotkey-overlay-title="Nvtop"                 { spawn-sh "$HOME/.local/bin/wm-minimize nvtop"; }
     Mod+Shift+D             hotkey-overlay-title="Htop"                  { spawn-sh "$HOME/.local/bin/wm-minimize htop"; }
-    Mod+Shift+Q             hotkey-overlay-title="Logseq"                { spawn-sh "$HOME/.local/bin/wm-minimize com.logseq.Logseq Logseq"; }
+    Mod+Shift+Q             hotkey-overlay-title="Logseq"                { spawn-sh "$HOME/.local/bin/wm-minimize logseq-desktop Logseq"; }
     Mod+Shift+SemiColon     hotkey-overlay-title="Audio Mixer"           { spawn-sh "$HOME/.local/bin/wm-minimize org.pulseaudio.pavucontrol pavucontrol"; }
-    Mod+Shift+A             hotkey-overlay-title="Signal"                { spawn-sh "$HOME/.local/bin/wm-minimize org.signal.Signal Signal"; }
+    Mod+Shift+A             hotkey-overlay-title="Signal"                { spawn-sh "$HOME/.local/bin/wm-minimize signal-desktop signal"; }
     Mod+Shift+W             hotkey-overlay-title="Element"               { spawn-sh "$HOME/.local/bin/wm-minimize io.element.Element Element"; }
 
     // Niri Shortcuts
@@ -404,12 +409,12 @@ binds {
     Mod+Alt+Shift+L  hotkey-overlay-title="Move Column to Last"          { move-column-to-last; }
 
     // Move Window/Column
-    // Mod+Shift+H      hotkey-overlay-title="Move Column Left"             { move-column-left-or-to-monitor-left; }
-    Mod+Shift+H      hotkey-overlay-title="Move Column Left"             { move-column-left; }
+    Mod+Shift+H      hotkey-overlay-title="Move Column Left"             { move-column-left-or-to-monitor-left; }
+    // Mod+Shift+H      hotkey-overlay-title="Move Column Left"             { move-column-left; }
     Mod+Shift+J      hotkey-overlay-title="Move Column Down"             { move-window-down; }
     Mod+Shift+K      hotkey-overlay-title="Move Column Up"               { move-window-up; }
-    Mod+Shift+L      hotkey-overlay-title="Move Column Right"            { move-column-right; }
-    // Mod+Shift+L      hotkey-overlay-title="Move Column Right"            { move-column-right-or-to-monitor-right; }
+    // Mod+Shift+L      hotkey-overlay-title="Move Column Right"            { move-column-right; }
+    Mod+Shift+L      hotkey-overlay-title="Move Column Right"            { move-column-right-or-to-monitor-right; }
 
     // Resize Window/Column
     Mod+Ctrl+H       hotkey-overlay-title="Resize Column Left"           { set-column-width "-10%"; }
