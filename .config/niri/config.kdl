@@ -287,7 +287,7 @@ binds {
     // Mod+B                    { spawn "true"; }
     Mod+E                    { spawn "true"; }
     // Mod+I                    { spawn "true"; }
-    // Mod+P                    { spawn "true"; }
+    Mod+P                    { spawn "true"; }
     // Mod+S                    { spawn "true"; }
     Mod+U                    { spawn "true"; }
     // Mod+W                    { spawn "true"; }
@@ -309,8 +309,7 @@ binds {
     Mod+Shift+E      hotkey-overlay-title="Quit Niri"                    { quit; }
     // Mod+D            hotkey-overlay-title="Program Launcher"      { spawn-sh "$HOME/.local/bin/run-app-toggle fuzzel"; }
     // Mod+P            hotkey-overlay-title="Program Launcher"      { spawn-sh "$HOME/.local/bin/run-app-toggle fuzzel"; }
-    Mod+D            hotkey-overlay-title="Program Launcher"      { spawn-sh "$HOME/.local/bin/wm-app-launcher"; }
-    Mod+P            hotkey-overlay-title="Program Launcher"      { spawn-sh "$HOME/.local/bin/wm-app-launcher"; }
+    Mod+D            hotkey-overlay-title="Program Launcher"      { spawn-sh "$HOME/.local/bin/wm-app-launcher -p \"Launch >\""; }
     Mod+W            hotkey-overlay-title="Window Chooser"               { spawn-sh "$HOME/.local/bin/wm-window-switcher"; }
     Mod+Return       hotkey-overlay-title="Launch Terminal"              { spawn-sh "$HOME/.local/bin/run_terminal"; }
     Mod+T            hotkey-overlay-title="Launch Terminal"              { spawn-sh "$HOME/.local/bin/run_terminal"; }
@@ -350,7 +349,8 @@ binds {
     Mod+Shift+Space     hotkey-overlay-title="Clear Notifications"               { spawn-sh "swaync-client --close-all ; swaync-client --close-panel"; }
     Mod+N               hotkey-overlay-title="Bitwarden Chooser"                 { spawn-sh "$HOME/.local/bin/run-app-toggle -P rofi-rbw --use-notify-send"; }
     Mod+Space           hotkey-overlay-title="Notification Panel"                { spawn "swaync-client" "-t" "-sw"; }
-    Mod+X               hotkey-overlay-title="Clipboard Manager"                 { spawn-sh "cliphist list | $HOME/.local/bin/wm-fuzzy-chooser | cliphist decode | wl-copy"; }
+    Mod+X               hotkey-overlay-title="Clipboard Manager"                 { spawn-sh "cliphist list | $HOME/.local/bin/wm-fuzzy-chooser -p \"Clipboard History >\" | cliphist decode | wl-copy"; }
+    Mod+Ctrl+X          hotkey-overlay-title="Delete from Clipboard History"     { spawn-sh "cliphist list | $HOME/.local/bin/wm-fuzzy-chooser -p \"Delete from History >\" | cliphist delete"; }
     // Mod+Shift+X         hotkey-overlay-title="Camera Chooser"                    { spawn-sh "$HOME/.local/bin/run-app-toggle -S \"[f]uzzel -p View Camera >  -d\" wm-cam-chooser"; }
     Mod+Shift+X         hotkey-overlay-title="Camera Chooser"                    { spawn-sh "$HOME/.local/bin/run-app-toggle -S \"([r]ofi|[f]uzzel) -p View Camera > ? -d(menu)?\" wm-cam-chooser"; }
 

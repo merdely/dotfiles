@@ -2,8 +2,38 @@
 
 [ -r $XDG_CONFIG_HOME/app-launcher.conf ] && source $XDG_CONFIG_HOME/app-launcher.conf
 
+unset pswitch parg fset rset
+while getopts ":hp:fr" opt; do
+  case $opt in
+    f)
+      app_launcher=fuzzel
+      fset=1
+      ;;
+    r)
+      app_launcher=rofi
+      rset=1
+      ;;
+    p)
+      pswitch="-p"
+      parg="$OPTARG"
+      ;;
+    *)
+      echo "usage: $(basename $0) [-h] [-p PROMPT] [-f|-r]"
+      exit
+      ;;
+  esac
+done
+shift $((OPTIND -1))
+
+if [ -n "$fset" ] && [ -n "$rset" ]; then
+  echo "Error: Only one of -f and -r can be specified"
+  exit 1
+fi
+
+[ "$app_launcher" = fuzzel ] && [ -n "$parg" ] && parg="$parg "
+
 if [ "$app_launcher" = fuzzel ]; then
-  cat - | fuzzel -d
+  cat - | fuzzel -d $pswitch "$parg"
 else
-  cat - | rofi -dmenu
+  cat - | rofi -dmenu $pswitch "$parg"
 fi
