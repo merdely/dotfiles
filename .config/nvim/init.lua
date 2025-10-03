@@ -138,8 +138,15 @@ vim.keymap.set("n", "<leader>c", ":nohlsearch<CR>", { desc = "Clear search highl
 -- Switch to only one buffer (not split)
 vim.keymap.set("n", "<leader>o", ":only<CR>", { desc = "Switch to showing only one buffer" })
 
--- Toggle to previous buffer
-vim.keymap.set('n', '<leader>p', ":buffer #<CR>", { desc = 'Switch to previous buffer' })
+-- Toggle to previous buffer (inspired from Sylvan)
+vim.keymap.set('n', '<leader>p', "<Cmd>e #<CR>", { desc = 'Switch to previous buffer' })
+vim.keymap.set('n', '<leader>s', '<Cmd>vert sf #<CR>', { desc = 'alternate buffers' })
+vim.keymap.set('n', '<leader>S', '<Cmd>bot sf #<CR>', { desc = 'split buffers' })
+
+-- Writing and quitting
+vim.keymap.set('n', '<leader>w', '<Cmd>update<CR>', { desc = 'Write the current buffer' })
+vim.keymap.set('n', '<leader>q', '<Cmd>:quit<CR>', { desc = 'Quit the current buffer' })
+vim.keymap.set('n', '<leader>Q', '<Cmd>:wqa<CR>', { desc = 'Quit all buffers and write' })
 
 -- Yank to EOL
 vim.keymap.set("n", "Y", "y$", { desc = "Yank to end of line" })
@@ -381,7 +388,7 @@ local function CloseFloatingTerminal()
 end
 
 -- Key mappings
-vim.keymap.set("n", "<leader>t", FloatingTerminal, { noremap = true, silent = true, desc = "Toggle floating terminal" })
+vim.keymap.set("n", "<leader>T", FloatingTerminal, { noremap = true, silent = true, desc = "Toggle floating terminal" })
 vim.keymap.set("t", "<Esc>", function()
   if terminal_state.is_open then
     vim.api.nvim_win_close(terminal_state.win, false)
@@ -401,8 +408,15 @@ vim.cmd([[
 ]])
 
 -- Alternative navigation (more intuitive)
-vim.keymap.set('n', '<leader>tn', ':tabnew<CR>', { desc = 'New tab' })
+vim.keymap.set('n', '<leader>tt', ':tabnew<CR>', { desc = 'New tab' })
 vim.keymap.set('n', '<leader>tx', ':tabclose<CR>', { desc = 'Close tab' })
+
+-- Tab focus
+vim.keymap.set('n', '<leader>tp', ':tabprev<CR>', { desc = 'Previous tab' })
+vim.keymap.set('n', '<leader>tn', ':tabnext<CR>', { desc = 'Next tab' })
+for i = 1, 9 do
+  vim.keymap.set({ "n", "t" }, "<leader>t" .. i, "<Cmd>tabnext " .. i .. "<CR>")
+end
 
 -- Tab moving
 vim.keymap.set('n', '<leader>tm', ':tabmove<CR>', { desc = 'Move tab' })
