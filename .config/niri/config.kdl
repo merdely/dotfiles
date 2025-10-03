@@ -107,7 +107,7 @@ cursor {
 debug { wait-for-frame-completion-before-queueing; }
 gestures { hot-corners { off; }; }
 
-xwayland-satellite { off; }
+// xwayland-satellite { off; }
 
 workspace "1"    { open-on-output "DP-3"; }
 workspace "🗒️"   { open-on-output "DP-3"; }
