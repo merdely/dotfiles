@@ -3,6 +3,21 @@
 [ -r $XDG_CONFIG_HOME/fuzzy-chooser.conf ] && source $XDG_CONFIG_HOME/fuzzy-chooser.conf
 [ -z "$chooser" ] && chooser=$fuzzy_chooser
 
+while getopts ":hfr" opt; do
+  case $opt in
+    f) chooser=fuzzel ;;
+    r) chooser=rofi ;;
+    *)
+      echo "usage: $(basename $0) [-h] [-f|-r]"
+      echo "          -h     : show this help text"
+      echo "          -f     : use fuzzel"
+      echo "          -r     : use rofi"
+      exit
+      ;;
+  esac
+done
+shift $((OPTIND -1))
+
 scratchpad="🗒️"
 ws_id=$(niri msg -j workspaces | jq -r --arg sp "$scratchpad" '.[] | select(.name==$sp) | .id')
 [ -z "$ws_id" ] && echo "Error: Could not determine Scratchpad Workspace" && exit 1

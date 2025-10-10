@@ -3,6 +3,21 @@
 [ -r $XDG_CONFIG_HOME/fuzzy-chooser.conf ] && source $XDG_CONFIG_HOME/fuzzy-chooser.conf
 [ -z "$chooser" ] && chooser=$fuzzy_chooser
 
+while getopts ":hfr" opt; do
+  case $opt in
+    f) chooser=fuzzel ;;
+    r) chooser=rofi ;;
+    *)
+      echo "usage: $(basename $0) [-h] [-f|-r]"
+      echo "          -h     : show this help text"
+      echo "          -f     : use fuzzel"
+      echo "          -r     : use rofi"
+      exit
+      ;;
+  esac
+done
+shift $((OPTIND -1))
+
 get_window_list() {
   if [[ "$XDG_CURRENT_DESKTOP" =~ ^niri ]]; then
     niri msg -j windows | jq -r '.[] | "\(.id)\t\(.app_id) - \(.title)"'
