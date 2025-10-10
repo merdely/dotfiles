@@ -2,14 +2,14 @@
 
 # Sync my dotfiles into the dotfiles repo
 CONFIGS=(
-  $HOME/.config/app-launcher.conf
+  $HOME/.config/fuzzy-chooser.conf
   $HOME/.config/kitty/
   $HOME/.config/local/waybar*
   $HOME/.config/local/wb_*
   $HOME/.config/niri/config.kdl
   $HOME/.config/niri/scripts/
-  $HOME/.config/nwg-drawer/
   $HOME/.config/nvim/
+  $HOME/.config/nwg-drawer/
   $HOME/.config/shell/merdely.profile
   $HOME/.config/starship.toml
   $HOME/.config/swayidle
