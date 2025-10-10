@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-[ -r $XDG_CONFIG_HOME/app-launcher.conf ] && source $XDG_CONFIG_HOME/app-launcher.conf
+[ -r $XDG_CONFIG_HOME/fuzzy-chooser.conf ] && source $XDG_CONFIG_HOME/fuzzy-chooser.conf
+[ -z "$chooser" ] && chooser=$fuzzy_chooser
 
 camlist="󰞮  Garage Camera	garagecam
 󰞮  Backyard Camera	backyardcam
@@ -12,19 +13,19 @@ camlist="󰞮  Garage Camera	garagecam
 󰞮  Chimney Camera	chimneycam
 󰞮  Close Camera Window	quit"
 
-pgrep -u $LOGNAME -f -- "([r]ofi|[f]uzzel) -p View Camera > ? -d(menu)?" && \
-  pkill -u $LOGNAME -f -- "([r]ofi|[f]uzzel) -p View Camera > ? -d(menu)?" || \
+pgrep -u $LOGNAME -f -- "([r]ofi|[f]uzzel) -p View Camera ?>? ? -d(menu)?" && \
+  pkill -u $LOGNAME -f -- "([r]ofi|[f]uzzel) -p View Camera ?>? ? -d(menu)?" || \
     choice=$(
-      if [ $app_launcher = fuzzel ]; then
+      if [ $chooser = fuzzel ]; then
         echo "$camlist" | fuzzel -p "View Camera > " -d --with-nth=1 --accept-nth=2 --cache=$HOME/.cache/fuzzel_cams
       else
-        echo "$camlist" | rofi -p "View Camera >" -dmenu -i -display-columns 1 -display-column-separator '\t' -cache-dir $HOME/.cache/rofi_cams
+        echo "$camlist" | rofi -p "View Camera" -dmenu -i -display-columns 1 -display-column-separator '\t' -cache-dir $HOME/.cache/rofi_cams
       fi
     )
 
 [ -z "$choice" -o "$choice" = -1 ] && exit 0
 
-if [ $app_launcher = fuzzel ]; then
+if [ $chooser = fuzzel ]; then
   cam=$choice
 else
   cam=$(echo "$choice" | awk -F'\t' '{print $2}')

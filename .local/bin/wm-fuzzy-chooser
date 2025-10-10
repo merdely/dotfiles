@@ -1,16 +1,17 @@
 #!/bin/sh
 
-[ -r $XDG_CONFIG_HOME/app-launcher.conf ] && source $XDG_CONFIG_HOME/app-launcher.conf
+[ -r $XDG_CONFIG_HOME/fuzzy-chooser.conf ] && source $XDG_CONFIG_HOME/fuzzy-chooser.conf
+[ -z "$chooser" ] && chooser=$fuzzy_chooser
 
 unset pswitch parg fset rset
 while getopts ":hp:fr" opt; do
   case $opt in
     f)
-      app_launcher=fuzzel
+      chooser=fuzzel
       fset=1
       ;;
     r)
-      app_launcher=rofi
+      chooser=rofi
       rset=1
       ;;
     p)
@@ -30,9 +31,9 @@ if [ -n "$fset" ] && [ -n "$rset" ]; then
   exit 1
 fi
 
-[ "$app_launcher" = fuzzel ] && [ -n "$parg" ] && parg="$parg "
+[ "$chooser" = fuzzel ] && [ -n "$parg" ] && parg="$parg "
 
-if [ "$app_launcher" = fuzzel ]; then
+if [ "$chooser" = fuzzel ]; then
   cat - | fuzzel -d $pswitch "$parg"
 else
   cat - | rofi -dmenu $pswitch "$parg"
