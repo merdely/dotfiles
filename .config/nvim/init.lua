@@ -139,7 +139,8 @@ vim.keymap.set("n", "<leader>c", ":nohlsearch<CR>", { desc = "Clear search highl
 vim.keymap.set("n", "<leader>o", ":only<CR>", { desc = "Switch to showing only one buffer" })
 
 -- Toggle to previous buffer (inspired from Sylvan)
-vim.keymap.set('n', '<leader>p', "<Cmd>e #<CR>", { desc = 'Switch to previous buffer' })
+-- vim.keymap.set('n', '<leader>p', "<Cmd>e #<CR>", { desc = 'Switch to previous buffer' })
+vim.keymap.set('n', '<leader>;', "<Cmd>e #<CR>", { desc = 'Switch to previous buffer' })
 vim.keymap.set('n', '<leader>s', '<Cmd>vert sf #<CR>', { desc = 'alternate buffers' })
 vim.keymap.set('n', '<leader>S', '<Cmd>bot sf #<CR>', { desc = 'split buffers' })
 
