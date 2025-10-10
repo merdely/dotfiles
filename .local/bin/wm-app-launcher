@@ -1,18 +1,67 @@
 #!/bin/sh
 
-[ -r $XDG_CONFIG_HOME/app-launcher.conf ] && source $XDG_CONFIG_HOME/app-launcher.conf
+[ -r $XDG_CONFIG_HOME/fuzzy-chooser.conf ] && source $XDG_CONFIG_HOME/fuzzy-chooser.conf
+[ -z "$chooser" ] && chooser=$fuzzy_chooser
 
-rofi_launcher() {
-  rofi -combi-modi drun,run -modi combi -show combi -display-combi "App Launcher >" "$*"
-}
+show_actions=0
+unset fuzzel_actions rofi_actions fuzzel_prompt rofi_prompt prompt_string
+while getopts ":hfra" opt; do
+  case $opt in
+    f) chooser=fuzzel ;;
+    r) chooser=rofi ;;
+    a)
+      show_actions=1
+      fuzzel_actions="--show-actions"
+      rofi_actions="-drun-show-actions"
+      ;;
+    #p)
+    #  fuzzel_prompt="-p"
+    #  rofi_prompt="-display-drun"
+    #  prompt_string=$OPTARG
+    #  shift ;;
+    *)
+      echo "usage: $(basename $0) [-h] [-a] [-f|-r]"
+      echo "          -h     : show this help text"
+      echo "          -f     : use fuzzel"
+      echo "          -r     : use rofi"
+      echo "          -a     : show desktop file actions"
+      exit
+      ;;
+  esac
+done
+shift $((OPTIND -1))
 
-if [ "$app_launcher" = fuzzel ]; then
+if [ "$chooser" = fuzzel ]; then
   #run-app-toggle fuzzel
-  pgrep -u $LOGNAME -f "^fuzzel -p App Launcher > " && \
-    pkill -u $LOGNAME -f "^fuzzel -p App Launcher > " || \
-    fuzzel -p "App Launcher > "
+  replace=0
+  running=0
+  pgrep -u $LOGNAME -f "^fuzzel -p App Launcher >" && running=1
+  pgrep -u $LOGNAME -f "^fuzzel -p App Launcher >.*-show-actions" && running=2
+
+  echo running=$running > /dev/stderr
+  echo fuzzel_actions=$fuzzel_actions > /dev/stderr
+
+  if [ $running = 1 -a -z "$fuzzel_actions" ] || [ $running = 2 -a -n "$fuzzel_actions" ]; then
+    pkill -u $LOGNAME -f "^fuzzel -p App Launcher >"
+  else
+    [ $running != 0 ] && pkill -u $LOGNAME -f "^fuzzel -p App Launcher >"
+    fuzzel -p "App Launcher > " $fuzzel_actions
+  fi
 else
-  pgrep -u $LOGNAME -f "^rofi -combi-modi drun,run -modi combi -show combi -display-combi Application Launcher" && \
-    pkill -u $LOGNAME -f "^rofi -combi-modi drun,run -modi combi -show combi -display-combi Application Launcher" || \
-    rofi_launcher $*
+  rofi_modes="-modes drun,ssh,run,window -show drun"
+  # 0 = not running, 1 = running without actions, 2 = running with actions
+  unset replace
+  running=0
+  pgrep -u $LOGNAME -f "^rofi $rofi_modes -theme-str window.*" && running=1
+  pgrep -u $LOGNAME -f "^rofi $rofi_modes -theme-str window.*-drun-show-actions" && running=2
+
+  echo running=$running > /dev/stderr
+  echo rofi_actions=$rofi_actions > /dev/stderr
+
+  if [ $running = 1 -a -z "$rofi_actions" ] || [ $running = 2 -a -n "$rofi_actions" ]; then
+    pkill -u $LOGNAME -f "^rofi $rofi_modes -theme-str window"
+  else
+    [ $running != 0 ] && replace="-replace"
+    rofi $rofi_modes -theme-str "window { width: 500px;}" $rofi_actions $replace $rofi_prompt $prompt_string $*
+  fi
 fi

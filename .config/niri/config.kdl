@@ -44,10 +44,12 @@ input {
     touch { }
     trackpoint { }
 
-    // focus-follows-mouse max-scroll-amount="95%"
-    focus-follows-mouse max-scroll-amount="95%"
-    warp-mouse-to-focus
     workspace-auto-back-and-forth
+    focus-follows-mouse max-scroll-amount="49%"
+    // Disabled because when clicking on icons in waybar-niri-taskbar
+    // it immediately puts the cursor in the middle of the window making it
+    // difficult to click on multiple icons to look at windows quickly
+    // warp-mouse-to-focus
 }
 
 output "eDP-1" {
@@ -137,8 +139,8 @@ spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && $HOME/.local/bin/wm-minimize s
 spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && $HOME/.local/bin/wm-minimize io.element.Element Element"
 spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && $HOME/.local/bin/wm-minimize bitwarden"
 
-spawn-sh-at-startup "[ $(hostname -s) = mercury -a ! -r $HOME/quickstart ] && gtk-launch librewolf-mike"
-spawn-sh-at-startup "[ $(hostname -s) = mercury -a ! -r $HOME/quickstart ] && { sleep 2; gtk-launch librewolf-media; }"
+spawn-sh-at-startup "[ $(hostname -s) = mercury -a ! -r $HOME/quickstart ] && gtk-launch firefox-mike"
+spawn-sh-at-startup "[ $(hostname -s) = mercury -a ! -r $HOME/quickstart ] && { sleep 2; gtk-launch firefox-media; }"
 
 spawn-sh-at-startup "$HOME/.local/bin/run_terminal"
 spawn-sh-at-startup "sleep 1; $HOME/.local/bin/run_ssh_add"
@@ -250,6 +252,12 @@ window-rule {
 
 window-rule {
     match app-id="virt-manager"
+    match title="^Virtual Machine Manager$"
+    open-maximized true
+}
+
+window-rule {
+    match app-id="virt-manager"
     exclude title="^Virtual Machine Manager$"
     open-maximized true
 }
@@ -296,11 +304,11 @@ binds {
     // Mod+W                    { spawn "true"; }
     // Mod+Z                    { spawn "true"; }
     // Mod+Semicolon            { spawn "true"; }
-    Mod+Apostrophe           { spawn "true"; }
+    // Mod+Apostrophe           { spawn "true"; }
     // Mod+Shift+Semicolon      { spawn "true"; }
     // Mod+Shift+Apostrophe     { spawn "true"; }
     Mod+Shift+B              { spawn "true"; }
-    Mod+Shift+I              { spawn "true"; }
+    // Mod+Shift+I              { spawn "true"; }
     Alt+Shift+H              { spawn "true"; }
     Alt+Shift+L              { spawn "true"; }
     Alt+Shift+P              { spawn "true"; }
@@ -312,7 +320,13 @@ binds {
     Mod+Shift+E      hotkey-overlay-title="Quit Niri"                    { quit; }
     // Mod+D            hotkey-overlay-title="Program Launcher"      { spawn-sh "$HOME/.local/bin/run-app-toggle fuzzel"; }
     // Mod+P            hotkey-overlay-title="Program Launcher"      { spawn-sh "$HOME/.local/bin/run-app-toggle fuzzel"; }
-    Mod+D            hotkey-overlay-title="Program Launcher"      { spawn-sh "$HOME/.local/bin/wm-app-launcher -p \"Launch >\""; }
+    Mod+D            hotkey-overlay-title="Program Launcher"      { spawn-sh "$HOME/.local/bin/wm-app-launcher "; }
+    Mod+Shift+D      hotkey-overlay-title="Program Launcher"      { spawn-sh "$HOME/.local/bin/wm-app-launcher -a"; }
+
+    Mod+G            hotkey-overlay-title="Program Launcher Fuzzel" { spawn-sh "$HOME/.local/bin/wm-app-launcher -f"; }
+    Mod+Shift+G      hotkey-overlay-title="Program Launcher Actions Fuzzel" { spawn-sh "$HOME/.local/bin/wm-app-launcher -f -a"; }
+
+    // Mod+Shift+D            hotkey-overlay-title="Program Launcher"      { spawn-sh "rofi -show drun -theme-str \"window { width: 500px;}\" -replace -drun-show-actions"; }
     Mod+W            hotkey-overlay-title="Window Chooser"               { spawn-sh "$HOME/.local/bin/wm-window-switcher"; }
     Mod+Return       hotkey-overlay-title="Launch Terminal"              { spawn-sh "$HOME/.local/bin/run_terminal"; }
     Mod+T            hotkey-overlay-title="Launch Terminal"              { spawn-sh "$HOME/.local/bin/run_terminal"; }
@@ -321,7 +335,8 @@ binds {
     Mod+MouseMiddle  repeat=false hotkey-overlay-title="Close Window"    { close-window; }
     // MouseMiddle      repeat=false hotkey-overlay-title="Close Window"    { close-window; }
     // Mod+S            hotkey-overlay-title="Scratchpad Chooser"           { spawn-sh "$HOME/.local/bin/run-app-toggle -S \"^[f]uzzel --prompt Scratchpad App >  -d\" wm-scratchpad-chooser"; }
-    Mod+S            hotkey-overlay-title="Scratchpad Chooser"           { spawn-sh "$HOME/.local/bin/run-app-toggle -S \"([r]ofi|[f]uzzel) -p Scratchpad App > ? -d(menu)?\" wm-scratchpad-chooser"; }
+    Mod+S            hotkey-overlay-title="Scratchpad Chooser"           { spawn-sh "$HOME/.local/bin/run-app-toggle -S \"([r]ofi|[f]uzzel) -p Scratchpad App ?>? ? -d(menu)?\" wm-scratchpad-chooser"; }
+    Mod+Apostrophe   hotkey-overlay-title="SSH Chooser"                  { spawn-sh "$HOME/.local/bin/run-app-toggle rofi -show ssh"; }
     Mod+A            hotkey-overlay-title="Minimize Window"              { spawn-sh "$HOME/.local/bin/wm-minimize ACTIVE"; }
     Mod+Z            hotkey-overlay-title="Duplicate Window"             { spawn-sh "$HOME/.local/bin/wm-duplicate-app"; }
     Mod+M            hotkey-overlay-title="Minimize Window"              { spawn-sh "$HOME/.local/bin/wm-minimize ACTIVE"; }
@@ -358,7 +373,7 @@ binds {
     // Mod+Ctrl+X          hotkey-overlay-title="Delete from Clipboard History"     { spawn-sh "cliphist list | $HOME/.local/bin/wm-fuzzy-chooser -p \"Delete from History >\" | cliphist delete"; }
     Mod+Ctrl+X               { spawn "true"; }
     // Mod+Shift+X         hotkey-overlay-title="Camera Chooser"                    { spawn-sh "$HOME/.local/bin/run-app-toggle -S \"[f]uzzel -p View Camera >  -d\" wm-cam-chooser"; }
-    Mod+Shift+X         hotkey-overlay-title="Camera Chooser"                    { spawn-sh "$HOME/.local/bin/run-app-toggle -S \"([r]ofi|[f]uzzel) -p View Camera > ? -d(menu)?\" wm-cam-chooser"; }
+    Mod+Shift+X         hotkey-overlay-title="Camera Chooser"                    { spawn-sh "$HOME/.local/bin/run-app-toggle -S \"([r]ofi|[f]uzzel) -p View Camera ?>? ? -d(menu)?\" wm-cam-chooser"; }
 
     Mod+Shift+Z             hotkey-overlay-title="Bitwarden"             { spawn-sh "$HOME/.local/bin/wm-minimize bitwarden Bitwarden"; }
     Mod+Shift+C             hotkey-overlay-title="Calculator"            { spawn-sh "$HOME/.local/bin/wm-minimize -R galculator"; }
@@ -366,7 +381,7 @@ binds {
     Mod+Shift+BracketLeft   hotkey-overlay-title="Terminal File Manager" { spawn-sh "$HOME/.local/bin/wm-minimize termfm"; }
     Mod+Shift+Apostrophe    hotkey-overlay-title="Bluetooth Manager"     { spawn-sh "$HOME/.local/bin/wm-minimize blueman-manager"; }
     Mod+Shift+N             hotkey-overlay-title="Nvtop"                 { spawn-sh "$HOME/.local/bin/wm-minimize nvtop"; }
-    Mod+Shift+D             hotkey-overlay-title="Htop"                  { spawn-sh "$HOME/.local/bin/wm-minimize htop"; }
+    Mod+Shift+I             hotkey-overlay-title="Htop"                  { spawn-sh "$HOME/.local/bin/wm-minimize htop"; }
     Mod+Shift+Q             hotkey-overlay-title="Logseq"                { spawn-sh "$HOME/.local/bin/wm-minimize logseq-desktop Logseq"; }
     Mod+Shift+SemiColon     hotkey-overlay-title="Audio Mixer"           { spawn-sh "$HOME/.local/bin/wm-minimize org.pulseaudio.pavucontrol pavucontrol"; }
     Mod+Shift+A             hotkey-overlay-title="Signal"                { spawn-sh "$HOME/.local/bin/wm-minimize signal-desktop signal"; }
@@ -468,8 +483,8 @@ binds {
 
     // Quick Apps
     Mod+1             hotkey-overlay-title="Focus First Terminal"  { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app preferred-terminal.desktop kitty"; }
-    Mod+2             hotkey-overlay-title="Focus First Browser"   { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app -c '-P Mike' librewolf-mike.desktop librewolf"; }
-    Mod+3             hotkey-overlay-title="Focus Second Browser"  { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app -c '-P Media' librewolf-media.desktop librewolf"; }
+    Mod+2             hotkey-overlay-title="Focus First Browser"   { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app -c '-P Mike' firefox-mike.desktop firefox"; }
+    Mod+3             hotkey-overlay-title="Focus Second Browser"  { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app -c '-P Media' firefox-media.desktop firefox"; }
 
     Mod+Shift+1       hotkey-overlay-title="Focus WS 1"                  { focus-workspace 1; }
     Mod+Shift+2       hotkey-overlay-title="Focus WS 2"                  { focus-workspace 2; }
