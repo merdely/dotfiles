@@ -47,7 +47,21 @@
         "icon-size": 18
     },
 
+    "wlr/taskbar": {
+        "format": "{icon}",
+        "icon-size": 18,
+        "icon-theme": "Numix-Circle",
+        "tooltip-format": "{title}",
+        "on-click": "activate",
+        "on-click-right": "close"
+    },
+
     // Custom Modules
+    "cffi/niri-taskbar": {
+      "module_path": "/usr/lib/waybar/libniri_taskbar.so",
+      "format": "{icon}"
+    },
+
     "custom/clock": {
         "hide-empty-text": true,
         "format": "{}",

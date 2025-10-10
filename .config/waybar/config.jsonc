@@ -12,17 +12,19 @@
     "modules-left": [
         "custom/toggle_applauncher",
         // "custom/toggle_keyboard",
-        "custom/toggle_winchooser",
+        // "custom/toggle_winchooser",
         "custom/toggle_scratchchooser",
-        "hyprland/workspaces",
-        "hyprland/window",
-        "sway/workspaces",
-        "sway/window",
+        // "hyprland/workspaces",
+        // "hyprland/window",
+        // "sway/workspaces",
+        // "sway/window",
         "niri/workspaces",
         "niri/window"
     ],
 
     "modules-center": [
+        // "wlr/taskbar"
+        "cffi/niri-taskbar"
     ],
 
     "modules-right": [

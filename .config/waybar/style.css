@@ -80,6 +80,10 @@ button:hover {
     background-color: #eb4d4b;
 }
 
+#taskbar button.active {
+    background-color: rgba(255,255,255,0.10);
+}
+
 #mode {
     background-color: #64727D;
 }
