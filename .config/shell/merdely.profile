@@ -468,6 +468,38 @@ passgen() {
 }
 alias genpass=passgen
 
+# OS Specific Commands
+case "$ID" in
+  arch|archarm)
+    alias ls_aur='pacman -Qm'
+    alias ls_orphans='pacman -Qdtq'
+    alias rm_orphans='pacman -Qdtq > /dev/null 2>&1 && sudo pacman -Rcns $(pacman -Qdtq)'
+    alias ru='sudo reflector -c US -p https -f 5 --sort rate --save /etc/pacman.d/reflector.list'
+    alias updates='echo Using pacman; sudo pacman -Syu --noconfirm'
+    ;;
+  debian|ubuntu)
+    alias updates='echo Using apt dist-upgrade; sudo apt update && sudo apt dist-upgrade -y'
+    ;;
+  OpenBSD)
+    # Print status of command without interrupting it (e.g. ping)
+    stty status '^T'
+    export LESS=FRSXc
+    alias updates="echo running syspatch; doas syspatch; echo running pkg_add -u; doas pkg_add -ui"
+
+    # Allow ps on OpenBSD to accept -ef
+    ps() {
+      local W
+      if [ $(echo "$1" | cut -b 1-3) = "-ef" ]; then
+        [[ "$@" == *"w"* ]] && W=-w
+        [[ "$@" == *"ww" ]] && W=-ww
+        /bin/ps -A -o user,pid,ppid,pcpu,start,tty,time,args $W
+      else
+        /bin/ps "$@"
+      fi
+    }
+    ;;
+esac
+
 # Some host-specific settings
 case "$HOSTNAME" in
   mercury)
@@ -477,6 +509,8 @@ case "$HOSTNAME" in
         alias bootwindows='sudo /srv/scripts/sbin/boot-to-windows'
         alias bootlinux='sudo /srv/scripts/sbin/boot-to-arch'
         alias bootarch='sudo /srv/scripts/sbin/boot-to-arch'
+        which paru &>/dev/null && alias paru='env PKGDEST=$HOME/paru paru --needed --mflags OPTIONS=-debug'
+        alias pu='git commit -m "Package updates" $HOME/.config/pacman_mercury.list'
 
         pushprofile() {
           cd $HOME
@@ -503,14 +537,14 @@ case "$HOSTNAME" in
           for f in $(echo $list); do
             echo " $f " | grep -Eq " (carme|metis|tarvos) " && continue
             echo $f
-            scp $HOME/src/ansible/system-setup/roles/sshclient/files/ssh_known_hosts \
+            scp $HOME/Work/src/ansible/system-setup/roles/sshclient/files/ssh_known_hosts \
               root@$f:/etc/ssh/ssh_known_hosts
           done
           for f in carme metis tarvos; do
             echo " $list " | grep -q " $f " || continue
             echo $f
             ssh -o ClearAllForwardings=yes root@$f /usr/local/bin/rw
-            scp $HOME/src/ansible/system-setup/roles/sshclient/files/ssh_known_hosts \
+            scp $HOME/Work/src/ansible/system-setup/roles/sshclient/files/ssh_known_hosts \
               root@$f:/etc/ssh/ssh_known_hosts
             ssh -o ClearAllForwardings=yes root@$f /usr/local/bin/ro
           done
@@ -540,43 +574,6 @@ case "$HOSTNAME" in
     ;;
   pluto)
     alias pubip='ifconfig egress | awk "\$1==\"inet\"{print \$2}"'
-    ;;
-esac
-
-# OS Specific Commands
-case "$ID" in
-  arch|archarm)
-    alias ls_aur='pacman -Qm'
-    alias ls_orphans='pacman -Qdtq'
-    alias rm_orphans='pacman -Qdtq > /dev/null 2>&1 && sudo pacman -Rcns $(pacman -Qdtq)'
-    alias ru='sudo reflector -c US -p https -f 5 --sort rate --save /etc/pacman.d/reflector.list'
-    if which paru > /dev/null 2>&1; then
-      alias updates='echo Using paru; paru'
-    else
-      alias updates='echo Using pacman; sudo pacman -Syu --noconfirm'
-      alias paru='echo paru not installed; sudo pacman -Syu'
-    fi
-    ;;
-  debian|ubuntu)
-    alias updates='echo Using apt dist-upgrade; sudo apt update && sudo apt dist-upgrade -y'
-    ;;
-  OpenBSD)
-    # Print status of command without interrupting it (e.g. ping)
-    stty status '^T'
-    export LESS=FRSXc
-    alias updates="echo running syspatch; doas syspatch; echo running pkg_add -u; doas pkg_add -ui"
-
-    # Allow ps on OpenBSD to accept -ef
-    ps() {
-      local W
-      if [ $(echo "$1" | cut -b 1-3) = "-ef" ]; then
-        [[ "$@" == *"w"* ]] && W=-w
-        [[ "$@" == *"ww" ]] && W=-ww
-        /bin/ps -A -o user,pid,ppid,pcpu,start,tty,time,args $W
-      else
-        /bin/ps "$@"
-      fi
-    }
     ;;
 esac
 
