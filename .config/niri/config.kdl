@@ -82,6 +82,13 @@ layout {
         proportion 0.33333
         proportion 0.5
         proportion 0.66667
+        proportion 1.0
+    }
+    preset-window-heights {
+        proportion 0.33333
+        proportion 0.5
+        proportion 0.66667
+        proportion 1.0
     }
 
     focus-ring { off; }
@@ -112,7 +119,8 @@ gestures { hot-corners { off; }; }
 // xwayland-satellite { off; }
 
 workspace "1"    { open-on-output "DP-3"; }
-workspace "🗒️"   { open-on-output "DP-3"; }
+workspace "9"    { open-on-output "eDP-1"; }
+workspace "🗒️"   { open-on-output "eDP-1"; }
 workspace ""    { open-on-output "DP-3"; }
 prefer-no-csd
 screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
@@ -121,9 +129,7 @@ spawn-at-startup "systemctl" "--user" "start" "wm-session.target"
 spawn-at-startup "systemctl" "--user" "start" "waybar.service"
 spawn-at-startup "systemctl" "--user" "start" "swaybg.service"
 spawn-at-startup "systemctl" "--user" "start" "swayidle.service"
-spawn-sh-at-startup "[ $(hostname -s) = mercury ] && systemctl --user start firefox-info.service"
 spawn-at-startup "systemctl" "--user" "start" "wl-clip-persist.service"
-// spawn-at-startup "systemctl" "--user" "start" "wl-paste.service"
 spawn-at-startup "systemctl" "--user" "start" "ydotool.service"
 spawn-at-startup "systemctl" "--user" "start" "polkit-gnome.service"
 spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && sleep 10 && systemctl --user start syncthingtray.service"
@@ -294,21 +300,10 @@ window-rule {
 
 binds {
     // Place holders for older keybindings
-    // Mod+A                    { spawn "true"; }
-    // Mod+B                    { spawn "true"; }
     Mod+E                    { spawn "true"; }
-    // Mod+I                    { spawn "true"; }
-    Mod+P                    { spawn "true"; }
-    // Mod+S                    { spawn "true"; }
+    Mod+Shift+P              { spawn "true"; }
     Mod+U                    { spawn "true"; }
-    // Mod+W                    { spawn "true"; }
-    // Mod+Z                    { spawn "true"; }
-    // Mod+Semicolon            { spawn "true"; }
-    // Mod+Apostrophe           { spawn "true"; }
-    // Mod+Shift+Semicolon      { spawn "true"; }
-    // Mod+Shift+Apostrophe     { spawn "true"; }
     Mod+Shift+B              { spawn "true"; }
-    // Mod+Shift+I              { spawn "true"; }
     Alt+Shift+H              { spawn "true"; }
     Alt+Shift+L              { spawn "true"; }
     Alt+Shift+P              { spawn "true"; }
@@ -318,15 +313,12 @@ binds {
     // WM Management
     Mod+Ctrl+Shift+B hotkey-overlay-title="Reload Waybar"                { spawn "pkill" "-SIGUSR2" "waybar"; }
     Mod+Shift+E      hotkey-overlay-title="Quit Niri"                    { quit; }
-    // Mod+D            hotkey-overlay-title="Program Launcher"      { spawn-sh "$HOME/.local/bin/run-app-toggle fuzzel"; }
-    // Mod+P            hotkey-overlay-title="Program Launcher"      { spawn-sh "$HOME/.local/bin/run-app-toggle fuzzel"; }
-    Mod+D            hotkey-overlay-title="Program Launcher"      { spawn-sh "$HOME/.local/bin/wm-app-launcher "; }
-    Mod+Shift+D      hotkey-overlay-title="Program Launcher"      { spawn-sh "$HOME/.local/bin/wm-app-launcher -a"; }
+    Mod+D            hotkey-overlay-title="Program Launcher"             { spawn-sh "$HOME/.local/bin/wm-app-launcher"; }
+    Mod+Shift+D      hotkey-overlay-title="Program Launcher"             { spawn-sh "$HOME/.local/bin/wm-app-launcher -a"; }
 
-    Mod+G            hotkey-overlay-title="Program Launcher Fuzzel" { spawn-sh "$HOME/.local/bin/wm-app-launcher -f"; }
+    Mod+G            hotkey-overlay-title="Program Launcher Fuzzel"         { spawn-sh "$HOME/.local/bin/wm-app-launcher -f"; }
     Mod+Shift+G      hotkey-overlay-title="Program Launcher Actions Fuzzel" { spawn-sh "$HOME/.local/bin/wm-app-launcher -f -a"; }
 
-    // Mod+Shift+D            hotkey-overlay-title="Program Launcher"      { spawn-sh "rofi -show drun -theme-str \"window { width: 500px;}\" -replace -drun-show-actions"; }
     Mod+W            hotkey-overlay-title="Window Chooser"               { spawn-sh "$HOME/.local/bin/wm-window-switcher"; }
     Mod+Return       hotkey-overlay-title="Launch Terminal"              { spawn-sh "$HOME/.local/bin/run_terminal"; }
     Mod+T            hotkey-overlay-title="Launch Terminal"              { spawn-sh "$HOME/.local/bin/run_terminal"; }
@@ -334,7 +326,6 @@ binds {
     Mod+Q            repeat=false hotkey-overlay-title="Close Window"    { close-window; }
     Mod+MouseMiddle  repeat=false hotkey-overlay-title="Close Window"    { close-window; }
     // MouseMiddle      repeat=false hotkey-overlay-title="Close Window"    { close-window; }
-    // Mod+S            hotkey-overlay-title="Scratchpad Chooser"           { spawn-sh "$HOME/.local/bin/run-app-toggle -S \"^[f]uzzel --prompt Scratchpad App >  -d\" wm-scratchpad-chooser"; }
     Mod+S            hotkey-overlay-title="Scratchpad Chooser"           { spawn-sh "$HOME/.local/bin/run-app-toggle -S \"([r]ofi|[f]uzzel) -p Scratchpad App ?>? ? -d(menu)?\" wm-scratchpad-chooser"; }
     Mod+Apostrophe   hotkey-overlay-title="SSH Chooser"                  { spawn-sh "$HOME/.local/bin/run-app-toggle rofi -show ssh"; }
     Mod+A            hotkey-overlay-title="Minimize Window"              { spawn-sh "$HOME/.local/bin/wm-minimize ACTIVE"; }
@@ -349,20 +340,14 @@ binds {
     Mod+R            hotkey-overlay-title="Toggle Preset Widths"         { switch-preset-column-width; }
     Mod+Shift+R      hotkey-overlay-title="Toggle Preset Heights"        { switch-preset-window-height; }
     Mod+Ctrl+R       hotkey-overlay-title="Reset Window Height"          { reset-window-height; }
-    // Mod+Shift+P      hotkey-overlay-title="Power Off Monitors"           { power-off-monitors; }
-
-    // Locking
-    // Alt+Shift+S      hotkey-overlay-title="Lock the Screen"              { spawn "loginctl" "lock-session"; }
-    // Alt+Shift+L      hotkey-overlay-title="Lock the Screen"              { spawn "loginctl" "lock-session"; }
-    // Alt+Shift+H      allow-when-locked=true hotkey-overlay-title="Hibernate"  { spawn "systemctl" "hibernate"; }
 
     // Apps
     XF86Tools                                                                    { spawn-sh "loginctl lock-session && $HOME/.local/bin/screen-off"; }
     F12                 hotkey-overlay-title="Lock Screen"                       { spawn-sh "loginctl lock-session && $HOME/.local/bin/screen-off"; }
-    F11                                                                          { spawn-sh "$HOME/.local/bin/run_wleave"; }
-    Mod+Shift+P         hotkey-overlay-title="Power Menu"                        { spawn-sh "$HOME/.local/bin/run_wleave"; }
+    // F11                                                                          { spawn-sh "$HOME/.local/bin/run_wleave"; }
+    Mod+P               hotkey-overlay-title="Power Menu"                        { spawn-sh "$HOME/.local/bin/run_wleave"; }
     Ctrl+Alt+Delete                                                              { spawn-sh "$HOME/.local/bin/run_wleave"; }
-    Mod+Shift+Backslash allow-when-locked=true hotkey-overlay-title="Hibernate"  { spawn "systemctl" "hibernate"; }
+    Mod+Backspace       allow-when-locked=true hotkey-overlay-title="Hibernate"  { spawn "systemctl" "hibernate"; }
     Ctrl+Space          hotkey-overlay-title="Clear Notifications"               { spawn-sh "swaync-client --close-latest"; }
     Mod+Shift+Space     hotkey-overlay-title="Clear Notifications"               { spawn-sh "swaync-client --close-all ; swaync-client --close-panel"; }
     Mod+N               hotkey-overlay-title="Bitwarden Chooser"                 { spawn-sh "$HOME/.local/bin/run-app-toggle -P rofi-rbw --use-notify-send"; }
