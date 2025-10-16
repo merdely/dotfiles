@@ -300,15 +300,17 @@ window-rule {
 
 binds {
     // Place holders for older keybindings
-    Mod+E                    { spawn "true"; }
-    Mod+Shift+P              { spawn "true"; }
-    Mod+U                    { spawn "true"; }
-    Mod+Shift+B              { spawn "true"; }
     Alt+Shift+H              { spawn "true"; }
     Alt+Shift+L              { spawn "true"; }
     Alt+Shift+P              { spawn "true"; }
     Alt+Shift+S              { spawn "true"; }
     Alt+Shift+U              { spawn "true"; }
+    Mod+Ctrl+X               { spawn "true"; }
+    Mod+Shift+B              { spawn "true"; }
+    Mod+Shift+P              { spawn "true"; }
+    Mod+E                    { spawn "true"; }
+    Mod+U                    { spawn "true"; }
+    Mod+X                    { spawn "true"; }
 
     // WM Management
     Mod+Ctrl+Shift+B hotkey-overlay-title="Reload Waybar"                { spawn "pkill" "-SIGUSR2" "waybar"; }
@@ -348,15 +350,13 @@ binds {
     Mod+P               hotkey-overlay-title="Power Menu"                        { spawn-sh "$HOME/.local/bin/run_wleave"; }
     Ctrl+Alt+Delete                                                              { spawn-sh "$HOME/.local/bin/run_wleave"; }
     Mod+Backspace       allow-when-locked=true hotkey-overlay-title="Hibernate"  { spawn "systemctl" "hibernate"; }
-    Ctrl+Space          hotkey-overlay-title="Clear Notifications"               { spawn-sh "swaync-client --close-latest"; }
-    Mod+Shift+Space     hotkey-overlay-title="Clear Notifications"               { spawn-sh "swaync-client --close-all ; swaync-client --close-panel"; }
+    Ctrl+Space          hotkey-overlay-title="Clear Notification"                { spawn-sh "swaync-client --close-latest"; }
+    Mod+Shift+Space     hotkey-overlay-title="Clear All Notifications"           { spawn-sh "swaync-client --close-all ; swaync-client --close-panel"; }
     Mod+N               hotkey-overlay-title="Bitwarden Chooser"                 { spawn-sh "$HOME/.local/bin/run-app-toggle -P rofi-rbw --use-notify-send"; }
     Mod+Space           hotkey-overlay-title="Notification Panel"                { spawn "swaync-client" "-t" "-sw"; }
 
     // Mod+X               hotkey-overlay-title="Clipboard Manager"                 { spawn-sh "cliphist list | $HOME/.local/bin/wm-fuzzy-chooser -p \"Clipboard History >\" | cliphist decode | wl-copy"; }
-    Mod+X                    { spawn "true"; }
     // Mod+Ctrl+X          hotkey-overlay-title="Delete from Clipboard History"     { spawn-sh "cliphist list | $HOME/.local/bin/wm-fuzzy-chooser -p \"Delete from History >\" | cliphist delete"; }
-    Mod+Ctrl+X               { spawn "true"; }
     // Mod+Shift+X         hotkey-overlay-title="Camera Chooser"                    { spawn-sh "$HOME/.local/bin/run-app-toggle -S \"[f]uzzel -p View Camera >  -d\" wm-cam-chooser"; }
     Mod+Shift+X         hotkey-overlay-title="Camera Chooser"                    { spawn-sh "$HOME/.local/bin/run-app-toggle -S \"([r]ofi|[f]uzzel) -p View Camera ?>? ? -d(menu)?\" wm-cam-chooser"; }
 
@@ -471,25 +471,25 @@ binds {
     Mod+2             hotkey-overlay-title="Focus First Browser"   { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app -c '-P Mike' firefox-mike.desktop firefox"; }
     Mod+3             hotkey-overlay-title="Focus Second Browser"  { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app -c '-P Media' firefox-media.desktop firefox"; }
 
-    Mod+Shift+1       hotkey-overlay-title="Focus WS 1"                  { focus-workspace 1; }
-    Mod+Shift+2       hotkey-overlay-title="Focus WS 2"                  { focus-workspace 2; }
-    Mod+Shift+3       hotkey-overlay-title="Focus WS 3"                  { focus-workspace 3; }
-    Mod+Shift+4       hotkey-overlay-title="Focus WS 4"                  { focus-workspace 4; }
-    Mod+Shift+5       hotkey-overlay-title="Focus WS 5"                  { focus-workspace 5; }
-    Mod+Shift+6       hotkey-overlay-title="Focus WS 6"                  { focus-workspace 6; }
-    Mod+Shift+7       hotkey-overlay-title="Focus WS 7"                  { focus-workspace 7; }
-    Mod+Shift+8       hotkey-overlay-title="Focus WS 8"                  { focus-workspace 8; }
-    Mod+Shift+9       hotkey-overlay-title="Focus WS 9"                  { focus-workspace 9; }
+    Mod+Alt+1         hotkey-overlay-title="Focus WS 1"                  { focus-workspace 1; }
+    Mod+Alt+2         hotkey-overlay-title="Focus WS 2"                  { focus-workspace 2; }
+    Mod+Alt+3         hotkey-overlay-title="Focus WS 3"                  { focus-workspace 3; }
+    Mod+Alt+4         hotkey-overlay-title="Focus WS 4"                  { focus-workspace 4; }
+    Mod+Alt+5         hotkey-overlay-title="Focus WS 5"                  { focus-workspace 5; }
+    Mod+Alt+6         hotkey-overlay-title="Focus WS 6"                  { focus-workspace 6; }
+    Mod+Alt+7         hotkey-overlay-title="Focus WS 7"                  { focus-workspace 7; }
+    Mod+Alt+8         hotkey-overlay-title="Focus WS 8"                  { focus-workspace 8; }
+    Mod+Alt+9         hotkey-overlay-title="Focus WS 9"                  { focus-workspace 9; }
 
-    Mod+Alt+1         hotkey-overlay-title="Move Window to WS 1"         { move-window-to-workspace 1; }
-    Mod+Alt+2         hotkey-overlay-title="Move Window to WS 2"         { move-window-to-workspace 2; }
-    Mod+Alt+3         hotkey-overlay-title="Move Window to WS 3"         { move-window-to-workspace 3; }
-    Mod+Alt+4         hotkey-overlay-title="Move Window to WS 4"         { move-window-to-workspace 4; }
-    Mod+Alt+5         hotkey-overlay-title="Move Window to WS 5"         { move-window-to-workspace 5; }
-    Mod+Alt+6         hotkey-overlay-title="Move Window to WS 6"         { move-window-to-workspace 6; }
-    Mod+Alt+7         hotkey-overlay-title="Move Window to WS 7"         { move-window-to-workspace 7; }
-    Mod+Alt+8         hotkey-overlay-title="Move Window to WS 8"         { move-window-to-workspace 8; }
-    Mod+Alt+9         hotkey-overlay-title="Move Window to WS 9"         { move-window-to-workspace 9; }
+    Mod+Shift+1       hotkey-overlay-title="Move Window to WS 1"         { move-window-to-workspace 1; }
+    Mod+Shift+2       hotkey-overlay-title="Move Window to WS 2"         { move-window-to-workspace 2; }
+    Mod+Shift+3       hotkey-overlay-title="Move Window to WS 3"         { move-window-to-workspace 3; }
+    Mod+Shift+4       hotkey-overlay-title="Move Window to WS 4"         { move-window-to-workspace 4; }
+    Mod+Shift+5       hotkey-overlay-title="Move Window to WS 5"         { move-window-to-workspace 5; }
+    Mod+Shift+6       hotkey-overlay-title="Move Window to WS 6"         { move-window-to-workspace 6; }
+    Mod+Shift+7       hotkey-overlay-title="Move Window to WS 7"         { move-window-to-workspace 7; }
+    Mod+Shift+8       hotkey-overlay-title="Move Window to WS 8"         { move-window-to-workspace 8; }
+    Mod+Shift+9       hotkey-overlay-title="Move Window to WS 9"         { move-window-to-workspace 9; }
 
     Mod+Ctrl+1        hotkey-overlay-title="Move Column to WS 1"         { move-column-to-workspace 1; }
     Mod+Ctrl+2        hotkey-overlay-title="Move Column to WS 2"         { move-column-to-workspace 2; }
