@@ -44,6 +44,7 @@ CONFIGS=(
   $HOME/.local/bin/run_lisgd
   $HOME/.local/bin/run_nwg_drawer
   $HOME/.local/bin/run_screenlock
+  $HOME/.local/bin/run_screenunlock
   $HOME/.local/bin/run_ssh_add
   $HOME/.local/bin/run_terminal
   $HOME/.local/bin/run_wleave
