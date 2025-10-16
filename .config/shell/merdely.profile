@@ -236,6 +236,8 @@ elif [ $running_shell = zsh ]; then
   hash -d bin=$HOME/.local/bin
   hash -d config=$XDG_CONFIG_HOME
   hash -d shell=$XDG_CONFIG_HOME/shell
+  hash -d src=$HOME/Work/src
+  hash -d git=$HOME/Work/git
   [ -d $XDG_DATA_HOME/Syncthing/Logseq ] && hash -d logseq=$XDG_DATA_HOME/Syncthing/Logseq
   [ -d $XDG_DATA_HOME/Seafile ] && hash -d seafile=$XDG_DATA_HOME/Seafile
 
@@ -296,10 +298,16 @@ which rsync > /dev/null 2>&1 && alias dos_rsync='rsync -rtcvP'
 which batman > /dev/null 2>&1 && eval "$(batman --export-env)"
 which bat > /dev/null 2>&1 && alias cat='bat --paging=never --plain'
 which bat > /dev/null 2>&1 && export PAGER='bat'
+
 # Window Manager aliases
 which Hyprland > /dev/null 2>&1 && alias hhh='Hyprland'
-which niri-session > /dev/null 2>&1 && alias nnn='while true; do niri-session; echo; echo Restarting Niri, press Ctrl+C to cancel; sleep 5; done'
+which Hyprland > /dev/null 2>&1 && alias h='Hyprland'
+which mango > /dev/null 2>&1 && alias mmm='mango'
+which mango > /dev/null 2>&1 && alias m='mango'
+which niri-session > /dev/null 2>&1 && alias nnn='niri-session'
+which niri-session > /dev/null 2>&1 && alias n='niri-session'
 which sway > /dev/null 2>&1 && alias sss='sway'
+which sway > /dev/null 2>&1 && alias S='sway'
 
 # Editor aliases
 which view > /dev/null 2>&1 || alias view='vi -R'
@@ -510,7 +518,12 @@ case "$HOSTNAME" in
         alias bootlinux='sudo /srv/scripts/sbin/boot-to-arch'
         alias bootarch='sudo /srv/scripts/sbin/boot-to-arch'
         which paru &>/dev/null && alias paru='env PKGDEST=$HOME/paru paru --needed --mflags OPTIONS=-debug'
-        alias pu='git commit -m "Package updates" $HOME/.config/pacman_mercury.list'
+        alias pu='pacman -Q > $HOME/.config/pacman_$(hostname -s).list;git commit -m "Package updates" $HOME/.config/pacman_mercury.list'
+        alias ya=ytdlalbum
+        alias ys=ytdlsong
+        alias yy=ytdlartist
+        alias fp=fix-music-perms
+        alias sunrpe='sudo su - -s /bin/bash -l nrpe'
 
         pushprofile() {
           cd $HOME
