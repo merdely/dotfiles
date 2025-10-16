@@ -1,11 +1,24 @@
 #!/bin/sh
 
+muted=0
+
 if which wpctl &>/dev/null; then
-  wpctl set-mute @DEFAULT_AUDIO_SINK@ 1
+  if ! wpctl get-volume @DEFAULT_AUDIO_SINK@ | grep -q "\[MUTED\]$"; then
+    wpctl set-mute @DEFAULT_AUDIO_SINK@ 1
+    muted=1
+  fi
 elif which pactl &>/dev/null; then
-  pactl set-sink-mute @DEFAULT_SINK@ on
+  if ! pactl get-sink-mute @DEFAULT_SINK@ | grep -q "Mute: yes"; then
+    pactl set-sink-mute @DEFAULT_SINK@ on
+    muted=1
+  fi
 elif which amixer &>/dev/null; then
-  amixer sset Master mute
+  if ! amixer sget Master | grep -qE "Playback.*\[off\]$"; then
+    amixer sset Master mute
+    muted=1
+  fi
 else
   echo "Error: Cannot determine method to mute speakers"
 fi
+
+[ $muted = 1 ] && touch $XDG_RUNTIME_DIR/.speaker-mute

@@ -1,0 +1,17 @@
+#!/bin/bash
+
+screen_on=1
+screen_undim=1
+speaker_unmute=0
+mic_unmute=0
+ssh_add=1
+
+[ -r $HOME/.config/screenunlockrc ] && source $HOME/.config/screenunlockrc
+
+[ $screen_on = 1 ]      && $HOME/.local/bin/screen-on
+[ $screen_undim = 1 ]   && $HOME/.local/bin/screen-undim
+[ $speaker_unmute = 1 ] && $HOME/.local/bin/speaker-unmute -c
+[ $mic_unmute = 1 ]     && $HOME/.local/bin/mic-unmute
+[ $ssh_add = 1 ]        && $HOME/.local/bin/run_ssh_add
+
+

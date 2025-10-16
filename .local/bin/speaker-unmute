@@ -1,5 +1,18 @@
 #!/bin/sh
 
+check_mute=0
+
+while getopts ":hc" opt; do
+  case $opt in
+    c) check_mute=1 ;;
+    *) echo "usage: $(basename $0) [-h] [-c]"
+       echo "           -c        : check if speaker-mute was used to mute"
+       exit ;;
+  esac
+done
+shift $((OPTIND -1))
+
+[ $check_mute = 1 ] && [ ! -r $XDG_RUNTIME_DIR/.speaker-mute ] && exit
 if which wpctl &>/dev/null; then
   wpctl set-mute @DEFAULT_AUDIO_SINK@ 0
 elif which pactl &>/dev/null; then
@@ -9,3 +22,4 @@ elif which amixer &>/dev/null; then
 else
   echo "Error: Cannot determine method to unmute speakers"
 fi
+[ $check_mute = 1 ] && [ -r $XDG_RUNTIME_DIR/.speaker-mute ] && rm $XDG_RUNTIME_DIR/.speaker-mute
