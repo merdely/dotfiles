@@ -58,8 +58,9 @@
 
     // Custom Modules
     "cffi/niri-taskbar": {
-      "module_path": "/usr/lib/waybar/libniri_taskbar.so",
-      "format": "{icon}"
+        "icon-size": 8,
+        "module_path": "/usr/lib/waybar/libniri_taskbar.so",
+        "format": "{icon}"
     },
 
     "custom/clock": {
@@ -247,8 +248,8 @@
         "format": "{volume}% {icon}",
         // "format-bluetooth": "{volume}% {icon} {format_source}",
         "format-bluetooth": "{volume}% {icon}",
-        // "format-bluetooth-muted": " {icon} {format_source}",
-        "format-bluetooth-muted": " {icon}",
+        // "format-bluetooth-muted": "🔇 {icon} {format_source}",
+        "format-bluetooth-muted": "🔇 {icon}",
         // "format-muted": "🔇 {format_source}",
         "format-muted": "🔇",
         // "format-source": " {volume}% ",

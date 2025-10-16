@@ -63,10 +63,13 @@ button:hover {
     background: rgba(0, 0, 0, 0.2);
 }
 
-#workspaces button.empty {
+    /* original color for button.empty */
     /* color: #2b303b; */
+/*
+#workspaces button.empty {
     color: #232833;
 }
+*/
 
 #workspaces button.visible {
     background-color: rgba(255,255,255,0.10);
@@ -83,6 +86,11 @@ button:hover {
 #taskbar button.active {
     background-color: rgba(255,255,255,0.10);
 }
+
+/*
+.niri-taskbar button {
+}
+*/
 
 #mode {
     background-color: #64727D;
