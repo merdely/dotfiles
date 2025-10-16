@@ -18,7 +18,7 @@ elif [[ "$XDG_CURRENT_DESKTOP" =~ ^niri ]]; then
 fi
 
 imgdir=$HOME/.config/$mode/help
-scriptdir=$HOME/git/gen-keybinding-img
+scriptdir=$HOME/Work/git/gen-keybinding-img
 
 unset msg
 ! python -c 'import PIL' &> /dev/null && msg="$msg PIL(python-pillow)"
