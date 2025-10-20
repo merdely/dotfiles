@@ -140,7 +140,7 @@ spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && gtk-launch seafile-applet"
 spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && gtk-launch solaar-applet"
 spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && gtk-launch udiskie-applet"
 
-spawn-sh-at-startup "[ ! -r $HOME/quickstart ] $HOME/.local/bin/wm-minimize logseq-desktop Logseq"
+spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && $HOME/.local/bin/wm-minimize logseq-desktop Logseq"
 spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && sleep 1 && $HOME/.local/bin/wm-minimize signal-desktop signal"
 spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && sleep 2 && $HOME/.local/bin/wm-minimize bitwarden"
 spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && sleep 3 && $HOME/.local/bin/wm-minimize io.element.Element Element"
@@ -346,9 +346,9 @@ binds {
     // Apps
     XF86Tools                                                                    { spawn-sh "loginctl lock-session && $HOME/.local/bin/screen-off"; }
     F12                 hotkey-overlay-title="Lock Screen"                       { spawn-sh "loginctl lock-session && $HOME/.local/bin/screen-off"; }
-    // F11                                                                          { spawn-sh "$HOME/.local/bin/run_wleave"; }
-    Mod+P               hotkey-overlay-title="Power Menu"                        { spawn-sh "$HOME/.local/bin/run_wleave"; }
-    Ctrl+Alt+Delete                                                              { spawn-sh "$HOME/.local/bin/run_wleave"; }
+    // F11                                                                          { spawn-sh "$HOME/.local/bin/wm-power-menu"; }
+    Mod+P               hotkey-overlay-title="Power Menu"                        { spawn-sh "$HOME/.local/bin/wm-power-menu"; }
+    Ctrl+Alt+Delete                                                              { spawn-sh "$HOME/.local/bin/wm-power-menu"; }
     Mod+Backspace       allow-when-locked=true hotkey-overlay-title="Hibernate"  { spawn "systemctl" "hibernate"; }
     Ctrl+Space          hotkey-overlay-title="Clear Notification"                { spawn-sh "swaync-client --close-latest"; }
     Mod+Shift+Space     hotkey-overlay-title="Clear All Notifications"           { spawn-sh "swaync-client --close-all ; swaync-client --close-panel"; }
