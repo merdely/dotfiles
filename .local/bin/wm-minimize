@@ -22,7 +22,7 @@ resize=1
 while getopts ":hcR" opt; do
   case $opt in
     c) mode=cmdline ;;
-    r) resize=0 ;;
+    R) resize=0 ;;
     *) usage ;;
   esac
 done
