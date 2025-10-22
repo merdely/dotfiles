@@ -10,6 +10,8 @@ locker="swaylock -f"
 
 [ -r $HOME/.config/screenlockrc ] && source $HOME/.config/screenlockrc
 
+pgrep -u $LOGNAME -f -- "$locker" && exit
+
 # Prep for locking
 [ $forget_ssh = 1 ]       && ssh-add -D
 [ $forget_bitwarden = 1 ] && keyctl purge user bw_session

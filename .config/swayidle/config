@@ -1,10 +1,11 @@
 lock '$HOME/.local/bin/run_screenlock'
 unlock '$HOME/.local/bin/run_screenunlock'
 
-before-sleep 'loginctl lock-session'
+before-sleep '$HOME/.local/bin/run_screenlock'
 after-resume '$HOME/.local/bin/run_screenunlock'
 
-timeout 750 '$HOME/.local/bin/screen-dim' resume '$HOME/.local/bin/run_screenunlock'
-timeout 900 'loginctl lock-session'
-timeout 1200 '$HOME/.local/bin/screen-off'
+timeout 750 '$HOME/.local/bin/screen-dim' resume '$HOME/.local/bin/screen-undim'
+timeout 900 '$HOME/.local/bin/run_screenlock' resume '$HOME/.local/bin/run_screenunlock'
+timeout 1200 '$HOME/.local/bin/screen-off' resume '$HOME/.local/bin/screen-on'
+
 # timeout 14400 'systemctl suspend-then-hibernate'
