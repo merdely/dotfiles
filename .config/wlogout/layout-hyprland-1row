@@ -1,0 +1,36 @@
+{
+    "label" : "lock",
+    "action" : "$HOME/.local/bin/run_screenlock",
+    "text" : "[L]ock ",
+    "keybind" : "l"
+}
+{
+    "label" : "logout",
+    "action" : "$HOME/.config/hypr/scripts/closeallapps ; hyprctl dispatch exit",
+    "text" : "Lo[g]out ",
+    "keybind" : "g"
+}
+{
+    "label" : "reboot",
+    "action" : "$HOME/.config/hypr/scripts/closeallapps ; systemctl reboot",
+    "text" : "[R]eboot ",
+    "keybind" : "r"
+}
+{
+    "label" : "hibernate",
+    "action" : "systemctl hibernate",
+    "text" : "[H]ibernate ",
+    "keybind" : "h"
+}
+{
+    "label" : "suspend",
+    "action" : "systemctl suspend-then-hibernate",
+    "text" : "[S]uspend ",
+    "keybind" : "s"
+}
+{
+    "label" : "shutdown",
+    "action" : "$HOME/.config/hypr/scripts/closeallapps ; systemctl poweroff",
+    "text" : "Sh[u]tdown ",
+    "keybind" : "u"
+}

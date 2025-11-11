@@ -1,14 +1,16 @@
 {
+  /*
     "custom/toggle_winchooser": {
         "format": "",
         "tooltip": true,
         "tooltip-format": "Window Switcher",
-        "on-click": "$HOME/.local/bin/wm-window-switcher"
+        "on-click": "wm-window-switcher"
     },
     "custom/toggle_scratchchooser": {
         "format": "",
         "tooltip": true,
         "tooltip-format": "Scratchpad Chooser",
-        "on-click": "$HOME/.local/bin/run-app-toggle -S \"([r]ofi|[f]uzzel) -p Scratchpad App > ? -d(menu)?\" wm-scratchpad-chooser"
+        "on-click": "wm-app-toggle -S \"([r]ofi|[f]uzzel) -p Scratchpad App > ? -d(menu)?\" wm-scratchpad-chooser"
     }
+    */
 }

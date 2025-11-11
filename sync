@@ -20,7 +20,7 @@ CONFIGS=(
   $HOME/.config/systemd/user/swaybg.service
   $HOME/.config/systemd/user/swayidle.service
   $HOME/.config/systemd/user/syncthingtray.service
-  $HOME/.config/systemd/user/watch_tablet.service
+  $HOME/.config/systemd/user/watch-tablet.service
   $HOME/.config/systemd/user/wl-clip-persist.service
   $HOME/.config/systemd/user/wl-paste.service
   $HOME/.config/systemd/user/wm-session.target
@@ -28,42 +28,25 @@ CONFIGS=(
   $HOME/.config/vim/vimrc
   $HOME/.config/waybar/
   $HOME/.config/wleave/
+  $HOME/.config/wlogout/
   $HOME/.config/zsh/.zshrc
 
   $HOME/.bashrc
   $HOME/.zprofile
 
-  $HOME/.local/bin/gen-wm-help
-  $HOME/.local/bin/mic-mute
-  $HOME/.local/bin/mic-unmute
-  $HOME/.local/bin/play_pause_media.sh
-  $HOME/.local/bin/rofi-launcher
-  $HOME/.local/bin/rofi-powermenu
-  $HOME/.local/bin/rofi-windows
-  $HOME/.local/bin/run-app-toggle
-  $HOME/.local/bin/run_lisgd
-  $HOME/.local/bin/run_nwg_drawer
-  $HOME/.local/bin/run_screenlock
-  $HOME/.local/bin/run_screenunlock
-  $HOME/.local/bin/run_ssh_add
-  $HOME/.local/bin/run_terminal
-  $HOME/.local/bin/run_wleave
-  $HOME/.local/bin/screen-dim
-  $HOME/.local/bin/screen-off
-  $HOME/.local/bin/screen-on
-  $HOME/.local/bin/screen-undim
-  $HOME/.local/bin/speaker-mute
-  $HOME/.local/bin/speaker-unmute
-  $HOME/.local/bin/view-cheatsheet
-  $HOME/.local/bin/view-wm-help
-  $HOME/.local/bin/wm-*
-  $HOME/.local/bin/yad-askpass
 )
 
 SCRIPTS=(
+  /srv/scripts/bin/mic-mute
+  /srv/scripts/bin/mic-unmute
+  /srv/scripts/bin/play-pause-media
+  /srv/scripts/bin/speaker-mute
+  /srv/scripts/bin/speaker-unmute
   /srv/scripts/bin/tmux_groupssh
   /srv/scripts/bin/tmux_reorder
   /srv/scripts/bin/tmux_winsplit
+  /srv/scripts/bin/wm-*
+  /srv/scripts/bin/yad-askpass
 )
 
 # add files in the format of --exclude="pat" or --exclude="/path/to/file"

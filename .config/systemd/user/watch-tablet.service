@@ -1,11 +1,12 @@
 [Unit]
-Description=Bind gestures on touchscreens
+Description=Watch for tablet mode
 PartOf=graphical-session.target
 After=graphical-session.target
 Requisite=graphical-session.target
 
 [Service]
-ExecStart=wm-touchscreen-gestures
+Environment=WAYLAND_DISPLAY=wayland-1
+ExecStart=wm-watch-tablet
 Restart=on-failure
 RestartSec=5s
 

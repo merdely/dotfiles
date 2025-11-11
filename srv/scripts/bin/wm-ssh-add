@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+KEYS=(
+  $HOME/.ssh/id_rsa
+  $HOME/.ssh/id_ecdsa
+  $HOME/.ssh/id_ecdsa_sk
+  $HOME/.ssh/id_ed25519
+  $HOME/.ssh/id_ed25519_sk
+)
+
+pgrep -x ssh-add && exit
+pgrep -f -- "yad --title Enter SSH Key Passphrase" && exit
+
+[ -z "$SSH_AUTH_SOCK" ] && export SSH_AUTH_SOCK=$XDG_RUNTIME_DIR/ssh-agent.socket
+[ -z "$SSH_ASKPASS" ] && export SSH_ASKPASS=yad-askpass
+
+# Get a list of loaded keys
+keylist=$(timeout 1 ssh-add -l 2> /dev/null)
+
+# Loop through possible keys and see if all found keys are loaded
+found=0
+loaded=0
+for file in ${KEYS[@]}; do
+  if [ -r $file ]; then
+    found=$((found+1))
+    if echo $keylist | grep -q "$(ssh-keygen -l -f $file 2>/dev/null)"; then
+      loaded=$((loaded+1))
+    fi
+  fi
+done
+
+# If all keys are loaded in the agent, exit
+[ $found = $loaded ] && exit 0
+
+# Otherwise, ask for key passphrases
+env SSH_AUTH_SOCK=$SSH_AUTH_SOCK SSH_ASKPASS=$SSH_ASKPASS ssh-add < /dev/null

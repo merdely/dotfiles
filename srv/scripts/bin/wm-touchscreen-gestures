@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+devices=(
+  "GXTP7386:00 27C6:0111"
+  "Wacom HID 48EB Finger"
+  "Wacom quicki2c-hid 056A:53F5 Finger"
+)
+
+if ! which lisgd &> /dev/null; then
+  echo "Error: lisgd not installed"
+  exit 1
+fi
+
+if ! python -c 'import pyudev' &> /dev/null; then
+  echo "Error: pyudev not installed"
+  exit 1
+fi
+
+device=$(libinput list-kernel-devices | awk -F: "/[[:space:]]+($(IFS='|'; echo "${devices[*]}"))$/{print \$1}")
+
+[[ ! $device ]] && echo "Error: Cannot determine input device for $device_string"
+
+lisgd -d $device \
+  -g "3,LR,*,*,R,wm-swipe LEFT" \
+  -g "3,RL,*,*,R,wm-swipe RIGHT" \
+  -g "3,UD,*,*,R,wm-swipe UP" \
+  -g "3,DU,*,*,R,wm-swipe DOWN" \
+  -g "3,ULDR,*,*,R,wm-swipe ULDR" \
+  -g "3,URDL,*,*,R,wm-swipe URDL" \
+  -g "3,DLUR,*,*,R,wm-swipe DLUR" \
+  -g "3,DRUL,*,*,R,wm-swipe DRUL"
+

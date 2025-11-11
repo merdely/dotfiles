@@ -1,0 +1,36 @@
+{
+    "label" : "lock",
+    "action" : "wm-screen-lock",
+    "text" : "[L]ock ",
+    "keybind" : "l"
+}
+{
+    "label" : "hibernate",
+    "action" : "systemctl hibernate",
+    "text" : "[H]ibernate ",
+    "keybind" : "h"
+}
+{
+    "label" : "logout",
+    "action" : "wm-closeapps ; hyprctl dispatch exit",
+    "text" : "Lo[g]out ",
+    "keybind" : "g"
+}
+{
+    "label" : "reboot",
+    "action" : "wm-closeapps ; systemctl reboot",
+    "text" : "[R]eboot ",
+    "keybind" : "r"
+}
+{
+    "label" : "suspend",
+    "action" : "systemctl suspend-then-hibernate",
+    "text" : "[S]uspend ",
+    "keybind" : "s"
+}
+{
+    "label" : "shutdown",
+    "action" : "wm-closeapps ; systemctl poweroff",
+    "text" : "Sh[u]tdown ",
+    "keybind" : "u"
+}

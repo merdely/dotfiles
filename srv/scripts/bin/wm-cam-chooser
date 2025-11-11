@@ -1,0 +1,144 @@
+#!/usr/bin/env bash
+
+[ -r $XDG_CONFIG_HOME/fuzzy-chooser.conf ] && source $XDG_CONFIG_HOME/fuzzy-chooser.conf
+[ -z "$chooser" ] && chooser=$fuzzy_chooser
+
+declare -A cameras
+cameras[chimneycam]=rtsp://rtsp:rtspviewer@frigate.erdely.in:8554/chimneycam
+cameras[garagecam2]=rtsp://rtsp:rtspviewer@frigate.erdely.in:8554/garagecam2
+cameras[shedcam]=rtsp://rtsp:rtspviewer@frigate.erdely.in:8554/shedcam
+cameras[garagedoorcam]=rtsp://rtsp:rtspviewer@frigate.erdely.in:8554/garagedoorcam
+
+#cameras[backyardcam]=rtsp://rtsp:rtspviewer@frigate.erdely.in:8554/backyardcam
+#cameras[frontdoorcam]=rtsp://rtsp:rtspviewer@frigate.erdely.in:8554/frontdoorcam
+#cameras[frontdoorcam2]=rtsp://rtsp:rtspviewer@frigate.erdely.in:8554/frontdoorcam2
+#cameras[garagecam]=rtsp://rtsp:rtspviewer@frigate.erdely.in:8554/garagecam
+
+cameras[backyardcam]="rtsp://frigate:Verbose8Freeze_Clad95Coy7Trust51@backyardcam.erdely.in:554/cam/realmonitor?channel=1&subtype=0"
+cameras[frontdoorcam]="rtsp://frigate:Verbose8Freeze_Clad95Coy7Trust51@frontdoorcam.erdely.in:554/cam/realmonitor?channel=1&subtype=0"
+cameras[frontdoorcam2]="rtsp://frigate:Verbose8Freeze_Clad95Coy7Trust51@frontdoorcam2.erdely.in:554/cam/realmonitor?channel=1&subtype=0"
+cameras[garagecam]="rtsp://frigate:Verbose8Freeze_Clad95Coy7Trust51@garagecam.erdely.in:554/cam/realmonitor?channel=1&subtype=0"
+
+[ -r $XDG_CONFIG_HOME/cam-chooser.conf ] && source $XDG_CONFIG_HOME/cam-chooser.conf
+
+testmode=0
+while getopts ":hfrt" opt; do
+  case $opt in
+    f) chooser=fuzzel ;;
+    r) chooser=rofi ;;
+    t) testmode=1 ;;
+    *)
+      echo "usage: $(basename $0) [-h] [-f|-r]"
+      echo "          -h     : show this help text"
+      echo "          -f     : use fuzzel"
+      echo "          -r     : use rofi"
+      exit
+      ;;
+  esac
+done
+shift $((OPTIND -1))
+
+if [ -z "$1" ]; then
+  camlist="󰞮  Garage Camera	garagecam
+󰞮  Backyard Camera	backyardcam
+󰕰  Back View	backview
+󰕰  Front View	frontview
+󰞮  Front Door Camera	frontdoorcam
+󰞮  Front Door Camera 2	frontdoorcam2
+󰞮  Shed Camera	shedcam
+󰞮  Chimney Camera	chimneycam
+󰞮  Garage Door Camera	garagedoorcam
+󰞮  Close Camera Window	quit"
+
+  pgrep -u $LOGNAME -f -- "([r]ofi|[f]uzzel) -p View Camera ?>? ? -d(menu)?" && \
+    pkill -u $LOGNAME -f -- "([r]ofi|[f]uzzel) -p View Camera ?>? ? -d(menu)?" || \
+      choice=$(
+        if [ $chooser = fuzzel ]; then
+          echo "$camlist" | fuzzel -p "View Camera > " -d --with-nth=1 --accept-nth=2 --cache=$HOME/.cache/fuzzel_cams
+        else
+          echo "$camlist" | rofi -p "View Camera" -dmenu -i -display-columns 1 -display-column-separator '\t' -cache-dir $HOME/.cache/rofi_cams
+        fi
+      )
+
+  [ -z "$choice" -o "$choice" = -1 ] && exit 0
+
+  if [ $chooser = fuzzel ]; then
+    cam=$choice
+  else
+    cam=$(echo "$choice" | awk -F'\t' '{print $2}')
+  fi
+
+  if [ $testmode = 1 ]; then
+    echo "cam='$cam'"
+    exit
+  fi
+fi
+
+[ -z "$cam" ] && cam=$1
+
+pkill -f "mpv .*--(x11-name|title)=mpvcam"
+[ "$cam" = quit ] && exit
+
+multiview=0
+case $cam in
+  *cam|*cam2)
+    rtsp_url=${cameras[$cam]}
+    ;;
+  multiview|backview)
+    echo "loading multiview..." > /dev/stderr
+    multiview=1
+    rtsp_url=${garagecam}_sub
+    rtsp_url2=${shedcam}_sub
+    rtsp_url3=${backyardcam}_sub
+    rtsp_url4=${chimneycam}_sub
+    ;;
+  frontview)
+    echo "loading multiview..." > /dev/stderr
+    multiview=1
+    rtsp_url=${garagecam}_sub
+    rtsp_url2=${frontdoorcam2}_sub
+    rtsp_url3=${frontdoorcam}_sub
+    rtsp_url4=${backyardcam}_sub
+    ;;
+  *)
+    if [[ $1 =~ ^(https?|rtsp):// ]]; then
+      rtsp_url=$1
+      cam=$1
+    else
+      rtsp_url=${cameras[garagecam]}
+      cam=garagecam
+    fi
+    ;;
+esac
+
+if [[ $XDG_CURRENT_DESKTOP = niri ]]; then
+  curwinid=$(niri msg -j focused-window | jq -r .id)
+fi
+
+if [ $multiview = 0 ]; then
+  DBUS_FATAL_WARNINGS=0 /usr/bin/mpv --mute=yes --stop-screensaver=no --title="mpvcam $cam" $rtsp_url &
+else
+  DBUS_FATAL_WARNINGS=0 /usr/bin/mpv --mute=yes --stop-screensaver=no --title="mpvcam $cam" $rtsp_url \
+    --external-file={$rtsp_url2,$rtsp_url3,$rtsp_url4} \
+    --lavfi-complex="[vid1][vid2]hstack=[top];[vid3][vid4]hstack=[bottom];[top][bottom]vstack[vo]" &
+fi
+pid=$!
+
+if [[ $XDG_CURRENT_DESKTOP = niri ]]; then
+  which jq &> /dev/null || { echo "Error: jq command required" && exit 1; }
+  unset w
+  count=0
+  while [ -z "$w" ] && [ $count -le 100 ]; do
+    w=$(niri msg -j windows | jq --arg pid $pid -r '.[] | select(.pid|tostring == $pid) | .id')
+    [ -z "$w" ] && count=$((count+1)) && sleep .1
+  done
+  [ $count -ge 100 ] && echo "Error: Could not get window id" && exit 1
+  echo window-id=$w
+  set -o xtrace
+  niri msg action move-window-to-monitor --id $w eDP-1
+  niri msg action set-window-width --id $w 100%
+  [ -n "$curwinid" ] && niri msg action focus-window --id $curwinid
+  set +o xtrace
+fi
+
+

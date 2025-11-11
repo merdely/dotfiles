@@ -6,3 +6,7 @@
     font-size: 18px;
 }
 
+window#waybar {
+  border-radius: 0px;
+}
+

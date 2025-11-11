@@ -1,0 +1,13 @@
+#!/bin/sh
+
+[ ! -d $HOME/.config/autostart ] && mkdir -p $HOME/.config/autostart
+
+for f in $HOME/.config/autostart/*.desktop; do
+  echo "[Desktop Entry]" > $f
+  echo "Hidden=true" >> $f
+done
+
+for f in /etc/xdg/autostart/*.desktop; do
+  echo "[Desktop Entry]" > $HOME/.config/autostart/$(basename $f)
+  echo "Hidden=true" >> $HOME/.config/autostart/$(basename $f)
+done

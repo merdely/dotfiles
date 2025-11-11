@@ -1,57 +1,3 @@
-environment {
-    XDG_CURRENT_DESKTOP "niri"
-    XDG_SESSION_DESKTOP "niri"
-    XDG_SESSION_TYPE "wayland"
-    ELECTRON_OZONE_PLATFORM_HINT "wayland"
-    MOZ_DISABLE_RDD_SANDBOX "1"
-
-    QT_QPA_PLATFORMTHEME "kde"
-    QT_QPA_PLATFORM "wayland"
-
-    SSH_ASKPASS "/home/mike/.local/bin/yad-askpass"
-    SSH_AUTH_SOCK "/run/user/1000/ssh-agent.socket"
-
-    TERMINAL "kitty"
-}
-
-input {
-    keyboard {
-        xkb {
-          options "menu:super"
-        }
-        numlock
-    }
-
-    touchpad {
-        tap
-        dwt  // disable while typing
-        click-method "clickfinger" // vs "button-areas"
-        // natural-scroll
-        // accel-speed 0.2
-        // accel-profile "flat"
-        scroll-method "two-finger"
-        // disabled-on-external-mouse
-    }
-
-    mouse {
-        // natural-scroll
-        // accel-speed 0.2
-        // accel-profile "flat"
-        // scroll-method "no-scroll"
-    }
-
-    tablet { }
-    touch { }
-    trackpoint { }
-
-    workspace-auto-back-and-forth
-    focus-follows-mouse max-scroll-amount="49%"
-    // Disabled because when clicking on icons in waybar-niri-taskbar
-    // it immediately puts the cursor in the middle of the window making it
-    // difficult to click on multiple icons to look at windows quickly
-    // warp-mouse-to-focus
-}
-
 output "eDP-1" {
     position x=0 y=0
     background-color "black"
@@ -60,70 +6,25 @@ output "eDP-1" {
 
 output "DP-3" {
     focus-at-startup
-    // position x=0 y=0
     position x=1920 y=0
     background-color "black"
     scale 1
 }
 
 output "DP-4" {
-    // position x=1920 y=0
     position x=3840 y=0
     background-color "black"
     scale 1
 }
 
-layout {
-    gaps 8
-    center-focused-column "never"
-    // always-center-single-column
-    default-column-width { proportion 0.5; }
-    preset-column-widths {
-        proportion 0.33333
-        proportion 0.5
-        proportion 0.66667
-        proportion 1.0
-    }
-    preset-window-heights {
-        proportion 0.33333
-        proportion 0.5
-        proportion 0.66667
-        proportion 1.0
-    }
-
-    focus-ring { off; }
-
-    border {
-        width 1
-        active-color "#3daee9"
-        inactive-color "#31363b"
-        urgent-color "#9b0000"
-    }
-
-    shadow { }
-    struts { }
-}
-
-animations { }
-hotkey-overlay {
-  skip-at-startup
-  hide-not-bound
-}
-cursor {
-  hide-when-typing
-  hide-after-inactive-ms 3000
-}
-debug { wait-for-frame-completion-before-queueing; }
-gestures { hot-corners { off; }; }
-
-// xwayland-satellite { off; }
-
 workspace "1"    { open-on-output "DP-3"; }
-// workspace "9"    { open-on-output "eDP-1"; }
 workspace "🗒️"   { open-on-output "eDP-1"; }
-// workspace ""    { open-on-output "DP-3"; }
 prefer-no-csd
 screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
+// xwayland-satellite { off; }
+
+spawn-sh-at-startup "[[ $(hostname -s) = neptune ]] && niri msg output eDP-1 scale 1.75"
+spawn-sh-at-startup "[[ $(hostname -s) = styx    ]] && niri msg output eDP-1 scale 1.3"
 
 spawn-at-startup "systemctl" "--user" "start" "wm-session.target"
 spawn-at-startup "systemctl" "--user" "start" "waybar.service"
@@ -132,171 +33,30 @@ spawn-at-startup "systemctl" "--user" "start" "swayidle.service"
 spawn-at-startup "systemctl" "--user" "start" "wl-clip-persist.service"
 spawn-at-startup "systemctl" "--user" "start" "ydotool.service"
 spawn-at-startup "systemctl" "--user" "start" "polkit-gnome.service"
-spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && sleep 10 && systemctl --user start syncthingtray.service"
+spawn-sh-at-startup "[[ ! -r $HOME/quickstart ]] && sleep 10 && systemctl --user start syncthingtray.service"
 
-spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && gtk-launch blueman-applet"
-spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && gtk-launch nm-applet"
-spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && gtk-launch seafile-applet"
-spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && gtk-launch solaar-applet"
-spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && gtk-launch udiskie-applet"
+spawn-sh-at-startup "[[ ! -r $HOME/quickstart ]] && gtk-launch blueman-applet"
+spawn-sh-at-startup "[[ ! -r $HOME/quickstart ]] && gtk-launch nm-applet"
+spawn-sh-at-startup "[[ ! -r $HOME/quickstart ]] && gtk-launch seafile-applet"
+spawn-sh-at-startup "[[ ! -r $HOME/quickstart ]] && gtk-launch solaar-applet"
+spawn-sh-at-startup "[[ ! -r $HOME/quickstart ]] && gtk-launch udiskie-applet"
 
-spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && $HOME/.local/bin/wm-minimize logseq-desktop Logseq"
-spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && sleep 1 && $HOME/.local/bin/wm-minimize signal-desktop signal"
-spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && sleep 2 && $HOME/.local/bin/wm-minimize bitwarden"
-spawn-sh-at-startup "[ ! -r $HOME/quickstart ] && sleep 3 && $HOME/.local/bin/wm-minimize io.element.Element Element"
+spawn-sh-at-startup "[[ $(hostname -s) =~ mercury|neptune && ! -r $HOME/quickstart ]] && sleep 1 && wm-minimize signal-desktop signal"
+spawn-sh-at-startup "[[ $(hostname -s) =~ mercury && ! -r $HOME/quickstart ]] && wm-minimize logseq-desktop Logseq"
+spawn-sh-at-startup "[[ $(hostname -s) =~ mercury && ! -r $HOME/quickstart ]] && sleep 2 && wm-minimize bitwarden"
+spawn-sh-at-startup "[[ $(hostname -s) =~ mercury && ! -r $HOME/quickstart ]] && sleep 3 && wm-minimize io.element.Element Element"
 
-spawn-sh-at-startup "[ $(hostname -s) = mercury -a ! -r $HOME/quickstart ] && gtk-launch firefox-mike"
-spawn-sh-at-startup "[ $(hostname -s) = mercury -a ! -r $HOME/quickstart ] && sleep 2 && gtk-launch firefox-media"
+spawn-sh-at-startup "[[ $(hostname -s) =~ mercury && ! -r $HOME/quickstart ]] && gtk-launch firefox-mike"
+spawn-sh-at-startup "[[ $(hostname -s) =~ mercury && ! -r $HOME/quickstart ]] && sleep 2 && gtk-launch firefox-media"
 
-spawn-sh-at-startup "$HOME/.local/bin/run_terminal"
-spawn-sh-at-startup "sleep 1; $HOME/.local/bin/run_ssh_add"
+spawn-sh-at-startup "wm-terminal"
+spawn-sh-at-startup "sleep 1; wm-ssh-add"
 
-spawn-sh-at-startup "[ $(hostname -s) = neptune ] && systemctl --user start watch_tablet.service"
-spawn-sh-at-startup "[ $(hostname -s) = styx    ] && systemctl --user start watch_tablet.service"
-spawn-sh-at-startup "[ $(hostname -s) = neptune ] && systemctl --user start screen-rotation.service"
-spawn-sh-at-startup "[ $(hostname -s) = styx    ] && systemctl --user start screen-rotation.service"
-spawn-sh-at-startup "[ $(hostname -s) = neptune ] && systemctl --user start squeekboard.service"
-spawn-sh-at-startup "[ $(hostname -s) = styx    ] && systemctl --user start squeekboard.service"
-spawn-sh-at-startup "[ $(hostname -s) = neptune ] && systemctl --user start lisgd.service"
-spawn-sh-at-startup "[ $(hostname -s) = styx    ] && systemctl --user start lisgd.service"
-
-spawn-sh-at-startup "[ $(hostname -s) = neptune ] && niri msg output eDP-1 scale 1.2"
-spawn-sh-at-startup "[ $(hostname -s) = styx    ] && niri msg output eDP-1 scale 1.3"
-
-window-rule {
-    match app-id=r#"^(com\.seafile\.seafile-applet|galculator|imv|nm-connection-editor|nwg-drawer|nwg-look|onboard|org\.gnome\.Nautilus|org\.kde\.kdeconnect\..*|org\.kde\.plasma\.emojier|piper|thunar|solaar|syncthingtray|vimiv)$"#
-    match app-id=r#"^(librewolf|firefox)$"# title=r#"^($|(Firefox|LibreWolf) - Choose User Profile|Enter name of file to save to…|Library$|Page Info)"#
-    match app-id="org.remmina.Remmina" title="Remmina Remote Desktop Client"
-    match title=r#"^(Open File|Open|Save|Save As|Export|Import|Choose File|Rename)"#
-    match title=r#"^[Xx]dg-desktop-portal-(gnome|gtk|hyprland|wlr)"#
-    open-floating true
-    min-width 640
-    min-height 480
-}
-
-window-rule {
-    match app-id=r#"^(code-oss|chromium|firefox|fr\.handbrake\.ghb|io\.github\.celluloid_player\.Celluloid|io\.github\.ungoogled_software\.ungoogled_chromium|gimp|labwc|librewolf|obsidian|vlc)$"#
-    open-maximized true
-}
-
-window-rule {
-    match app-id=r#"^(firefox|librewolf)$"# at-startup=true
-    open-on-output "DP-4"
-}
-
-window-rule {
-    match app-id=r#"^org\.wezfurlong\.wezterm$"#
-    default-column-width {}
-}
-
-window-rule {
-    match title="Enter SSH Key Passphrase" at-startup=true
-    open-floating true
-    open-focused true
-}
-
-window-rule {
-    match title="Howdy Test" app-id="python3"
-    open-floating true
-    min-width 1280
-    min-height 1024
-    default-floating-position x=32 y=32 relative-to="top-left"
-}
-
-window-rule {
-    match app-id=r#"(firefox|librewolf)$"# title="^Picture-in-Picture$"
-    open-floating true
-}
-
-window-rule {
-    match app-id=r#"^(Bitwarden|blueman-manager|Element|io\.missioncenter\.MissionCenter|Logseq|signal|org\.signal\.Signal|Signal|pavucontrol|htop|btop|net\.nokyan\.Resources|nvtop|term-scratchpad|termfm)$"#
-    open-floating true
-    open-maximized false
-}
-
-window-rule {
-    match app-id=r#"^(steam)$"#
-    // open-on-workspace ""
-    open-floating true
-}
-
-window-rule {
-    match app-id=r#"^(Bitwarden|blueman-manager|Element|io\.missioncenter\.MissionCenter|Logseq|signal|org\.signal\.Signal|Signal|pavucontrol|htop|btop|net\.nokyan\.Resources|nvtop|term-scratchpad|termfm)$"# at-startup=true
-    open-on-workspace "🗒️"
-    open-floating false
-    open-focused false
-    open-maximized true
-    default-window-height { proportion 1.00; }
-}
-
-/-window-rule {
-    match app-id="virt-manager" title="Virtual Machine Manager"
-    open-floating true
-    default-column-width { proportion 0.95; }
-    default-window-height { proportion 0.90; }
-
-    open-maximized false
-}
-
-/-window-rule {
-    match app-id="virt-manager" title="Virtual Machine Manager" at-startup=true
-    open-on-workspace "🗒️"
-    open-focused false
-}
-
-window-rule {
-    match app-id=r#"^(com\.mitchellh\.ghostty|kitty)$"# at-startup=true
-    open-maximized true
-}
-
-/-window-rule {
-    match title="^mpvcam .*"
-    open-fullscreen true
-    open-focused false
-    open-on-output "eDP-1"
-}
-
-window-rule {
-    match app-id="virt-manager"
-    match title="^Virtual Machine Manager$"
-    open-maximized true
-}
-
-window-rule {
-    match app-id="virt-manager"
-    exclude title="^Virtual Machine Manager$"
-    open-maximized true
-}
-
-// (This example rule is commented out with a "/-" in front.)
-window-rule {
-    match app-id=r#"^org\.keepassxc\.KeePassXC$"#
-    match app-id=r#"^org\.gnome\.World\.Secrets$"#
-    match app-id=r#"^Bitwarden$"#
-    match app-id=r#"^signal$"#
-    match app-id=r#"^Signal$"#
-    match app-id=r#"^org\.signal\.Signal$"#
-    match app-id=r#"^yad$"# title=r#"^Enter SSH Key Passphrase$"#
-
-    block-out-from "screen-capture"
-    // block-out-from "screencast"
-}
-
-window-rule {
-    match is-window-cast-target=true
-
-    border {
-        width 6
-        active-color "#f38ba8"
-        inactive-color "#7d0d2d"
-    }
-
-}
-
-window-rule {
-    geometry-corner-radius 8
-    clip-to-geometry true
-}
+spawn-sh-at-startup "[[ $(hostname -s) =~ neptune|styx ]] && systemctl --user start watch-power.service"
+spawn-sh-at-startup "[[ $(hostname -s) =~ neptune|styx ]] && systemctl --user start watch-tablet.service"
+spawn-sh-at-startup "[[ $(hostname -s) =~ neptune|styx ]] && systemctl --user start screen-rotation.service"
+spawn-sh-at-startup "[[ $(hostname -s) =~ neptune|styx ]] && systemctl --user start squeekboard.service"
+spawn-sh-at-startup "[[ $(hostname -s) =~ neptune|styx ]] && systemctl --user start lisgd.service"
 
 binds {
     // Place holders for older keybindings
@@ -315,25 +75,25 @@ binds {
     // WM Management
     Mod+Ctrl+Shift+B hotkey-overlay-title="Reload Waybar"                { spawn "pkill" "-SIGUSR2" "waybar"; }
     Mod+Shift+E      hotkey-overlay-title="Quit Niri"                    { quit; }
-    Mod+D            hotkey-overlay-title="Program Launcher"             { spawn-sh "$HOME/.local/bin/wm-app-launcher"; }
-    Mod+Shift+D      hotkey-overlay-title="Program Launcher"             { spawn-sh "$HOME/.local/bin/wm-app-launcher -a"; }
+    Mod+D            hotkey-overlay-title="Program Launcher"             { spawn-sh "wm-app-launcher"; }
+    Mod+Shift+D      hotkey-overlay-title="Program Launcher"             { spawn-sh "wm-app-launcher -a"; }
 
-    Mod+G            hotkey-overlay-title="Program Launcher Fuzzel"         { spawn-sh "$HOME/.local/bin/wm-app-launcher -f"; }
-    Mod+Shift+G      hotkey-overlay-title="Program Launcher Actions Fuzzel" { spawn-sh "$HOME/.local/bin/wm-app-launcher -f -a"; }
+    Mod+G            hotkey-overlay-title="Program Launcher Fuzzel"         { spawn-sh "wm-app-launcher -f"; }
+    Mod+Shift+G      hotkey-overlay-title="Program Launcher Actions Fuzzel" { spawn-sh "wm-app-launcher -f -a"; }
 
-    Mod+W            hotkey-overlay-title="Window Chooser"               { spawn-sh "$HOME/.local/bin/wm-window-switcher"; }
-    Mod+Return       hotkey-overlay-title="Launch Terminal"              { spawn-sh "$HOME/.local/bin/run_terminal"; }
-    Mod+T            hotkey-overlay-title="Launch Terminal"              { spawn-sh "$HOME/.local/bin/run_terminal"; }
+    Mod+W            hotkey-overlay-title="Window Chooser"               { spawn-sh "wm-window-switcher"; }
+    Mod+Return       hotkey-overlay-title="Launch Terminal"              { spawn-sh "wm-terminal"; }
+    Mod+T            hotkey-overlay-title="Launch Terminal"              { spawn-sh "wm-terminal"; }
     Mod+Ctrl+B       hotkey-overlay-title="Hide Waybar"                  { spawn "pkill" "-SIGUSR1" "waybar"; }
     Mod+Q            repeat=false hotkey-overlay-title="Close Window"    { close-window; }
     Mod+MouseMiddle  repeat=false hotkey-overlay-title="Close Window"    { close-window; }
     // MouseMiddle      repeat=false hotkey-overlay-title="Close Window"    { close-window; }
-    Mod+S            hotkey-overlay-title="Scratchpad Chooser"           { spawn-sh "$HOME/.local/bin/run-app-toggle -S \"([r]ofi|[f]uzzel) -p Scratchpad App ?>? ? -d(menu)?\" wm-scratchpad-chooser"; }
-    Mod+Apostrophe   hotkey-overlay-title="SSH Chooser"                  { spawn-sh "$HOME/.local/bin/run-app-toggle rofi -show ssh"; }
-    Mod+A            hotkey-overlay-title="Minimize Window"              { spawn-sh "$HOME/.local/bin/wm-minimize ACTIVE"; }
-    Mod+Z            hotkey-overlay-title="Duplicate Window"             { spawn-sh "$HOME/.local/bin/wm-duplicate-app"; }
-    Mod+M            hotkey-overlay-title="Minimize Window"              { spawn-sh "$HOME/.local/bin/wm-minimize ACTIVE"; }
-    MouseMiddle            hotkey-overlay-title="Minimize Window"              { spawn-sh "$HOME/.local/bin/wm-minimize ACTIVE"; }
+    Mod+S            hotkey-overlay-title="Scratchpad Chooser"           { spawn-sh "wm-app-toggle -S \"([r]ofi|[f]uzzel) -p Scratchpad App ?>? ? -d(menu)?\" wm-scratchpad-chooser"; }
+    Mod+Apostrophe   hotkey-overlay-title="SSH Chooser"                  { spawn-sh "wm-app-toggle rofi -show ssh"; }
+    Mod+A            hotkey-overlay-title="Minimize Window"              { spawn-sh "wm-minimize ACTIVE"; }
+    Mod+Z            hotkey-overlay-title="Duplicate Window"             { spawn-sh "wm-duplicate-app"; }
+    Mod+M            hotkey-overlay-title="Minimize Window"              { spawn-sh "wm-minimize ACTIVE"; }
+    MouseMiddle            hotkey-overlay-title="Minimize Window"              { spawn-sh "wm-minimize ACTIVE"; }
     // Mod+W            hotkey-overlay-title="Toggle Tabbed Display"        { toggle-column-tabbed-display; }
     Mod+Shift+O      hotkey-overlay-title="Show Hotkey Overlay"          { show-hotkey-overlay; }
 
@@ -344,47 +104,49 @@ binds {
     Mod+Ctrl+R       hotkey-overlay-title="Reset Window Height"          { reset-window-height; }
 
     // Apps
-    XF86Tools                                                                    { spawn-sh "loginctl lock-session && $HOME/.local/bin/screen-off"; }
-    F12                 hotkey-overlay-title="Lock Screen"                       { spawn-sh "loginctl lock-session && $HOME/.local/bin/screen-off"; }
-    // F11                                                                          { spawn-sh "$HOME/.local/bin/wm-power-menu"; }
-    Mod+P               hotkey-overlay-title="Power Menu"                        { spawn-sh "$HOME/.local/bin/wm-power-menu"; }
-    Ctrl+Alt+Delete                                                              { spawn-sh "$HOME/.local/bin/wm-power-menu"; }
-    Mod+Backspace       allow-when-locked=true hotkey-overlay-title="Hibernate"  { spawn "systemctl" "hibernate"; }
-    Ctrl+Space          hotkey-overlay-title="Clear Notification"                { spawn-sh "swaync-client --close-latest"; }
-    Mod+Shift+Space     hotkey-overlay-title="Clear All Notifications"           { spawn-sh "swaync-client --close-all ; swaync-client --close-panel"; }
-    Mod+N               hotkey-overlay-title="Bitwarden Chooser"                 { spawn-sh "$HOME/.local/bin/run-app-toggle -P rofi-rbw --use-notify-send"; }
-    Mod+Space           hotkey-overlay-title="Notification Panel"                { spawn "swaync-client" "-t" "-sw"; }
+    XF86Tools                                                                    { spawn-sh "wm-screen-dim ; sleep 1 ; loginctl lock-session ; sleep 1 ; wm-screen-off"; }
+    F12                 hotkey-overlay-title="Lock Screen"                       { spawn-sh "wm-screen-dim ; sleep 1 ; loginctl lock-session ; sleep 1 ; wm-screen-off"; }
+    // F11                                                                          { spawn-sh "wm-power-menu"; }
+    Mod+P               hotkey-overlay-title="Power Menu"                        { spawn-sh "wm-power-menu"; }
+    Ctrl+Alt+Delete                                                              { spawn-sh "wm-power-menu"; }
+    Mod+Backspace        allow-when-locked=true hotkey-overlay-title="Hibernate"  { spawn "systemctl" "hibernate"; }
+    Ctrl+Space           hotkey-overlay-title="Hide Notification"                 { spawn-sh "swaync-client --hide-latest"; }
+    Mod+Shift+Space      hotkey-overlay-title="Hide All Notifications"            { spawn-sh "swaync-client --hide-all ; swaync-client --close-panel"; }
+    Mod+Ctrl+Space       hotkey-overlay-title="Clear Notification"                { spawn-sh "swaync-client --close-latest"; }
+    Mod+Ctrl+Shift+Space hotkey-overlay-title="Clear All Notifications"           { spawn-sh "swaync-client --close-all ; swaync-client --close-panel"; }
+    Mod+N                hotkey-overlay-title="Bitwarden Chooser"                 { spawn-sh "wm-app-toggle -P rofi-rbw --use-notify-send"; }
+    Mod+Space            hotkey-overlay-title="Notification Panel"                { spawn "swaync-client" "-t" "-sw"; }
 
-    // Mod+X               hotkey-overlay-title="Clipboard Manager"                 { spawn-sh "cliphist list | $HOME/.local/bin/wm-fuzzy-chooser -p \"Clipboard History >\" | cliphist decode | wl-copy"; }
-    // Mod+Ctrl+X          hotkey-overlay-title="Delete from Clipboard History"     { spawn-sh "cliphist list | $HOME/.local/bin/wm-fuzzy-chooser -p \"Delete from History >\" | cliphist delete"; }
-    // Mod+Shift+X         hotkey-overlay-title="Camera Chooser"                    { spawn-sh "$HOME/.local/bin/run-app-toggle -S \"[f]uzzel -p View Camera >  -d\" wm-cam-chooser"; }
-    Mod+Shift+X         hotkey-overlay-title="Camera Chooser"                    { spawn-sh "$HOME/.local/bin/run-app-toggle -S \"([r]ofi|[f]uzzel) -p View Camera ?>? ? -d(menu)?\" wm-cam-chooser"; }
+    // Mod+X               hotkey-overlay-title="Clipboard Manager"                 { spawn-sh "cliphist list | wm-fuzzy-chooser -p \"Clipboard History >\" | cliphist decode | wl-copy"; }
+    // Mod+Ctrl+X          hotkey-overlay-title="Delete from Clipboard History"     { spawn-sh "cliphist list | wm-fuzzy-chooser -p \"Delete from History >\" | cliphist delete"; }
+    // Mod+Shift+X         hotkey-overlay-title="Camera Chooser"                    { spawn-sh "wm-app-toggle -S \"[f]uzzel -p View Camera >  -d\" wm-cam-chooser"; }
+    Mod+Shift+X         hotkey-overlay-title="Camera Chooser"                    { spawn-sh "wm-app-toggle -S \"([r]ofi|[f]uzzel) -p View Camera ?>? ? -d(menu)?\" wm-cam-chooser"; }
 
-    Mod+Shift+Z             hotkey-overlay-title="Bitwarden"             { spawn-sh "$HOME/.local/bin/wm-minimize bitwarden Bitwarden"; }
-    Mod+Shift+C             hotkey-overlay-title="Calculator"            { spawn-sh "$HOME/.local/bin/wm-minimize -R galculator"; }
-    Mod+Shift+Return        hotkey-overlay-title="Terminal Scratchpad"   { spawn-sh "$HOME/.local/bin/wm-minimize term-scratchpad"; }
-    Mod+Shift+BracketLeft   hotkey-overlay-title="Terminal File Manager" { spawn-sh "$HOME/.local/bin/wm-minimize termfm"; }
-    Mod+Shift+Apostrophe    hotkey-overlay-title="Bluetooth Manager"     { spawn-sh "$HOME/.local/bin/wm-minimize blueman-manager"; }
-    Mod+Shift+N             hotkey-overlay-title="Nvtop"                 { spawn-sh "$HOME/.local/bin/wm-minimize nvtop"; }
-    Mod+Shift+I             hotkey-overlay-title="Htop"                  { spawn-sh "$HOME/.local/bin/wm-minimize htop"; }
-    Mod+Shift+Q             hotkey-overlay-title="Logseq"                { spawn-sh "$HOME/.local/bin/wm-minimize logseq-desktop Logseq"; }
-    Mod+Shift+SemiColon     hotkey-overlay-title="Audio Mixer"           { spawn-sh "$HOME/.local/bin/wm-minimize org.pulseaudio.pavucontrol pavucontrol"; }
-    Mod+Shift+A             hotkey-overlay-title="Signal"                { spawn-sh "$HOME/.local/bin/wm-minimize signal-desktop signal"; }
-    Mod+Shift+W             hotkey-overlay-title="Element"               { spawn-sh "$HOME/.local/bin/wm-minimize io.element.Element Element"; }
+    Mod+Shift+Z             hotkey-overlay-title="Bitwarden"             { spawn-sh "wm-minimize bitwarden Bitwarden"; }
+    Mod+Shift+C             hotkey-overlay-title="Calculator"            { spawn-sh "wm-minimize -R galculator"; }
+    Mod+Shift+Return        hotkey-overlay-title="Terminal Scratchpad"   { spawn-sh "wm-minimize term-scratchpad"; }
+    Mod+Shift+BracketLeft   hotkey-overlay-title="Terminal File Manager" { spawn-sh "wm-minimize termfm"; }
+    Mod+Shift+Apostrophe    hotkey-overlay-title="Bluetooth Manager"     { spawn-sh "wm-minimize blueman-manager"; }
+    Mod+Shift+N             hotkey-overlay-title="Nvtop"                 { spawn-sh "wm-minimize nvtop"; }
+    Mod+Shift+I             hotkey-overlay-title="Htop"                  { spawn-sh "wm-minimize htop"; }
+    Mod+Shift+Q             hotkey-overlay-title="Logseq"                { spawn-sh "wm-minimize logseq-desktop Logseq"; }
+    Mod+Shift+SemiColon     hotkey-overlay-title="Audio Mixer"           { spawn-sh "wm-minimize org.pulseaudio.pavucontrol pavucontrol"; }
+    Mod+Shift+A             hotkey-overlay-title="Signal"                { spawn-sh "wm-minimize signal-desktop signal"; }
+    Mod+Shift+W             hotkey-overlay-title="Element"               { spawn-sh "wm-minimize io.element.Element Element"; }
 
     // Niri Shortcuts
-    Alt+Shift+Slash      hotkey-overlay-title="Niri Help: A+Sh"          { spawn-sh "$HOME/.local/bin/view-wm-help Alt-Shift"; }
-    Alt+Slash            hotkey-overlay-title="Niri Help: A"             { spawn-sh "$HOME/.local/bin/view-wm-help Alt"; }
-    Ctrl+Alt+Slash       hotkey-overlay-title="Niri Help: C+A"           { spawn-sh "$HOME/.local/bin/view-wm-help Control-Alt"; }
-    Ctrl+Shift+Slash     hotkey-overlay-title="Niri Help: C+Sh"          { spawn-sh "$HOME/.local/bin/view-wm-help Control-Shift"; }
-    Ctrl+Slash           hotkey-overlay-title="Niri Help: C"             { spawn-sh "$HOME/.local/bin/view-wm-help Control"; }
-    Mod+Alt+Slash        hotkey-overlay-title="Niri Help: Su+A"          { spawn-sh "$HOME/.local/bin/view-wm-help Super-Alt"; }
-    Mod+Backslash        hotkey-overlay-title="Niri Help: none"          { spawn-sh "$HOME/.local/bin/view-wm-help None"; }
-    Mod+Ctrl+Shift+Slash hotkey-overlay-title="Niri Help: Su+C+Sh"       { spawn-sh "$HOME/.local/bin/view-wm-help Super-Control-Shift"; }
-    Mod+Ctrl+Slash       hotkey-overlay-title="Niri Help: Su+C"          { spawn-sh "$HOME/.local/bin/view-wm-help Super-Control"; }
-    Mod+Shift+Slash      hotkey-overlay-title="Niri Help: Su+Sh"         { spawn-sh "$HOME/.local/bin/view-wm-help Super-Shift"; }
-    Mod+Slash            hotkey-overlay-title="Niri Help: Su"            { spawn-sh "$HOME/.local/bin/view-wm-help Super"; }
-    Mod+Ctrl+Alt+Shift+Slash hotkey-overlay-title="Generate Niri Help"   { spawn-sh "$HOME/.local/bin/gen-wm-help"; }
+    Alt+Shift+Slash      hotkey-overlay-title="Niri Help: A+Sh"          { spawn-sh "wm-view-help Alt-Shift"; }
+    Alt+Slash            hotkey-overlay-title="Niri Help: A"             { spawn-sh "wm-view-help Alt"; }
+    Ctrl+Alt+Slash       hotkey-overlay-title="Niri Help: C+A"           { spawn-sh "wm-view-help Control-Alt"; }
+    Ctrl+Shift+Slash     hotkey-overlay-title="Niri Help: C+Sh"          { spawn-sh "wm-view-help Control-Shift"; }
+    Ctrl+Slash           hotkey-overlay-title="Niri Help: C"             { spawn-sh "wm-view-help Control"; }
+    Mod+Alt+Slash        hotkey-overlay-title="Niri Help: Su+A"          { spawn-sh "wm-view-help Super-Alt"; }
+    Mod+Backslash        hotkey-overlay-title="Niri Help: none"          { spawn-sh "wm-view-help None"; }
+    Mod+Ctrl+Shift+Slash hotkey-overlay-title="Niri Help: Su+C+Sh"       { spawn-sh "wm-view-help Super-Control-Shift"; }
+    Mod+Ctrl+Slash       hotkey-overlay-title="Niri Help: Su+C"          { spawn-sh "wm-view-help Super-Control"; }
+    Mod+Shift+Slash      hotkey-overlay-title="Niri Help: Su+Sh"         { spawn-sh "wm-view-help Super-Shift"; }
+    Mod+Slash            hotkey-overlay-title="Niri Help: Su"            { spawn-sh "wm-view-help Super"; }
+    Mod+Ctrl+Alt+Shift+Slash hotkey-overlay-title="Generate Niri Help"   { spawn-sh "wm-gen-help"; }
 
     // Screenshots
     Mod+Shift+S      hotkey-overlay-title="Screenshot Selection"         { screenshot show-pointer=false; }
@@ -505,7 +267,7 @@ binds {
     Mod+V             hotkey-overlay-title="Toggle Floating"             { toggle-window-floating; }
     Mod+Shift+V       hotkey-overlay-title="Switch Focus Float/Tile"     { switch-focus-between-floating-and-tiling; }
     Mod+B             hotkey-overlay-title="Switch Focus Float/Tile"     { switch-focus-between-floating-and-tiling; }
-    Mod+SemiColon     hotkey-overlay-title="Resize/Center Window"        { spawn-sh "$HOME/.local/bin/wm-resize-window"; }
+    Mod+SemiColon     hotkey-overlay-title="Resize/Center Window"        { spawn-sh "wm-resize-window"; }
     Mod+C             hotkey-overlay-title="Center Window"               { center-window; }
     Mod+Ctrl+C        hotkey-overlay-title="Center Visible Columns"      { center-visible-columns; }
 
@@ -532,8 +294,8 @@ binds {
     // Media Control
     XF86AudioPrev    allow-when-locked=true hotkey-overlay-title="Previous Track"            { spawn "playerctl" "previous"; }
     XF86AudioNext    allow-when-locked=true hotkey-overlay-title="Next Track"                { spawn "playerctl" "next"; }
-    XF86AudioPause   allow-when-locked=true hotkey-overlay-title="Play/Pause Media"          { spawn-sh "$HOME/.local/bin/play_pause_media.sh"; }
-    XF86AudioPlay    allow-when-locked=true hotkey-overlay-title="Play/Pause Media"          { spawn-sh "$HOME/.local/bin/play_pause_media.sh"; }
+    XF86AudioPause   allow-when-locked=true hotkey-overlay-title="Play/Pause Media"          { spawn-sh "play-pause-media"; }
+    XF86AudioPlay    allow-when-locked=true hotkey-overlay-title="Play/Pause Media"          { spawn-sh "play-pause-media"; }
 
     // Brightness Control
     XF86MonBrightnessDown allow-when-locked=true hotkey-overlay-title="Decrease Brightness"  { spawn "brightnessctl" "-n1" "set" "10%-"; }
@@ -541,3 +303,243 @@ binds {
     XF86MonBrightnessUp allow-when-locked=true hotkey-overlay-title="Decrease Brightness" { spawn "brightnessctl" "-n1" "set" "10%+"; }
     Super+Up allow-when-locked=true hotkey-overlay-title="Decrease Brightness" { spawn "brightnessctl" "-n1" "set" "10%+"; }
 }
+
+window-rule {
+    match app-id=r#"^(com\.seafile\.seafile-applet|galculator|imv|nm-connection-editor|nwg-drawer|nwg-look|onboard|org\.gnome\.Nautilus|org\.kde\.kdeconnect\..*|org\.kde\.plasma\.emojier|piper|thunar|solaar|syncthingtray|vimiv)$"#
+    match app-id=r#"^(librewolf|firefox)$"# title=r#"^($|(Firefox|LibreWolf) - Choose User Profile|Enter name of file to save to…|Library$|Page Info)"#
+    match app-id="org.remmina.Remmina" title="Remmina Remote Desktop Client"
+    match title=r#"^(Open File|Open|Save|Save As|Export|Import|Choose File|Rename)"#
+    match title=r#"^[Xx]dg-desktop-portal-(gnome|gtk|hyprland|wlr)"#
+    open-floating true
+    min-width 640
+    min-height 480
+}
+
+window-rule {
+    match app-id=r#"^(code-oss|chromium|firefox|fr\.handbrake\.ghb|io\.github\.celluloid_player\.Celluloid|io\.github\.ungoogled_software\.ungoogled_chromium|gimp|labwc|librewolf|obsidian|vlc)$"#
+    open-maximized true
+}
+
+window-rule {
+    match app-id=r#"^(firefox|librewolf)$"# at-startup=true
+    open-on-output "DP-4"
+}
+
+window-rule {
+    match app-id=r#"^org\.wezfurlong\.wezterm$"#
+    default-column-width {}
+}
+
+window-rule {
+    match app-id="Pinentry-gtk"
+    open-floating true
+    open-focused true
+}
+
+window-rule {
+    match title="Enter SSH Key Passphrase" at-startup=true
+    open-floating true
+    open-focused true
+}
+
+window-rule {
+    match title="Howdy Test" app-id="python3"
+    open-floating true
+    min-width 1280
+    min-height 1024
+    default-floating-position x=32 y=32 relative-to="top-left"
+}
+
+window-rule {
+    match app-id=r#"(firefox|librewolf)$"# title="^Picture-in-Picture$"
+    open-floating true
+}
+
+window-rule {
+    match app-id=r#"^(Bitwarden|blueman-manager|Element|io\.missioncenter\.MissionCenter|Logseq|signal|org\.signal\.Signal|Signal|pavucontrol|htop|btop|net\.nokyan\.Resources|nvtop|term-scratchpad|termfm)$"#
+    open-floating true
+    open-maximized false
+}
+
+window-rule {
+    match app-id=r#"^(steam)$"#
+    // open-on-workspace ""
+    open-floating true
+}
+
+window-rule {
+    match app-id=r#"^(Bitwarden|blueman-manager|Element|io\.missioncenter\.MissionCenter|Logseq|signal|org\.signal\.Signal|Signal|pavucontrol|htop|btop|net\.nokyan\.Resources|nvtop|term-scratchpad|termfm)$"# at-startup=true
+    open-on-workspace "🗒️"
+    open-floating false
+    open-focused false
+    open-maximized true
+    default-window-height { proportion 1.00; }
+}
+
+/-window-rule {
+    match app-id="virt-manager" title="Virtual Machine Manager"
+    open-floating true
+    default-column-width { proportion 0.95; }
+    default-window-height { proportion 0.90; }
+
+    open-maximized false
+}
+
+/-window-rule {
+    match app-id="virt-manager" title="Virtual Machine Manager" at-startup=true
+    open-on-workspace "🗒️"
+    open-focused false
+}
+
+window-rule {
+    match app-id=r#"^(com\.mitchellh\.ghostty|kitty)$"# at-startup=true
+    open-maximized true
+}
+
+/-window-rule {
+    match title="^mpvcam .*"
+    // open-fullscreen true
+    open-focused false
+    open-maximized true
+    open-on-output "eDP-1"
+}
+
+window-rule {
+    match app-id="virt-manager"
+    match title="^Virtual Machine Manager$"
+    open-maximized true
+}
+
+window-rule {
+    match app-id="virt-manager"
+    exclude title="^Virtual Machine Manager$"
+    open-maximized true
+}
+
+// (This example rule is commented out with a "/-" in front.)
+window-rule {
+    match app-id=r#"^org\.keepassxc\.KeePassXC$"#
+    match app-id=r#"^org\.gnome\.World\.Secrets$"#
+    match app-id=r#"^Bitwarden$"#
+    match app-id=r#"^signal$"#
+    match app-id=r#"^Signal$"#
+    match app-id=r#"^org\.signal\.Signal$"#
+    match app-id=r#"^yad$"# title=r#"^Enter SSH Key Passphrase$"#
+
+    block-out-from "screen-capture"
+    // block-out-from "screencast"
+}
+
+window-rule {
+    match is-window-cast-target=true
+
+    border {
+        width 6
+        active-color "#f38ba8"
+        inactive-color "#7d0d2d"
+    }
+
+}
+
+window-rule {
+    geometry-corner-radius 8
+    clip-to-geometry true
+}
+
+environment {
+    XDG_CURRENT_DESKTOP "niri"
+    XDG_SESSION_DESKTOP "niri"
+    XDG_SESSION_TYPE "wayland"
+    ELECTRON_OZONE_PLATFORM_HINT "wayland"
+    MOZ_DISABLE_RDD_SANDBOX "1"
+
+    QT_QPA_PLATFORMTHEME "kde"
+    QT_QPA_PLATFORM "wayland"
+
+    SSH_ASKPASS "yad-askpass"
+    SSH_AUTH_SOCK "/run/user/1000/ssh-agent.socket"
+
+    TERMINAL "kitty"
+}
+
+input {
+    keyboard {
+        xkb {
+          options "menu:super"
+        }
+        numlock
+    }
+
+    touchpad {
+        tap
+        dwt  // disable while typing
+        click-method "clickfinger" // vs "button-areas"
+        // natural-scroll
+        // accel-speed 0.2
+        // accel-profile "flat"
+        scroll-method "two-finger"
+        // disabled-on-external-mouse
+    }
+
+    mouse {
+        // natural-scroll
+        // accel-speed 0.2
+        // accel-profile "flat"
+        // scroll-method "no-scroll"
+    }
+
+    tablet { }
+    touch { }
+    trackpoint { }
+
+    workspace-auto-back-and-forth
+    focus-follows-mouse max-scroll-amount="49%"
+    // Disabled because when clicking on icons in waybar-niri-taskbar
+    // it immediately puts the cursor in the middle of the window making it
+    // difficult to click on multiple icons to look at windows quickly
+    // warp-mouse-to-focus
+}
+
+layout {
+    gaps 8
+    center-focused-column "never"
+    // always-center-single-column
+    default-column-width { proportion 0.5; }
+    preset-column-widths {
+        proportion 0.33333
+        proportion 0.5
+        proportion 0.66667
+        proportion 1.0
+    }
+    preset-window-heights {
+        proportion 0.33333
+        proportion 0.5
+        proportion 0.66667
+        proportion 1.0
+    }
+
+    focus-ring { off; }
+
+    border {
+        width 1
+        active-color "#3daee9"
+        inactive-color "#31363b"
+        urgent-color "#9b0000"
+    }
+
+    shadow { }
+    struts { }
+}
+
+animations { }
+hotkey-overlay {
+  skip-at-startup
+  hide-not-bound
+}
+cursor {
+  hide-when-typing
+  hide-after-inactive-ms 3000
+}
+debug { wait-for-frame-completion-before-queueing; }
+gestures { hot-corners { off; }; }
+

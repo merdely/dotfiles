@@ -10,7 +10,7 @@
     },
 
     "hyprland/window": {
-        "on-click": "~/.config/nwg/scripts/run-drawer",
+        "on-click": "wm-app-drawer",
         "separate-outputs": true,
         "icon": true,
         "icon-size": 18
@@ -26,7 +26,7 @@
     },
 
     "sway/window": {
-        "on-click": "$HOME/.local/bin/run_nwg_drawer",
+        "on-click": "wm-app-drawer",
         "separate-outputs": true,
         "icon": true,
         "icon-size": 18
@@ -90,7 +90,7 @@
         "return-type": "json",
         "exec-if": "test -x ~/.config/waybar/scripts/idle-inhibitor",
         "exec": "~/.config/waybar/scripts/idle-inhibitor loop",
-        "on-click": "pgrep -f '^((/usr)?/bin/)?systemd-inhibit --who=user-idle-inhibit --why=Prevent screenlock' > /dev/null 2>&1 && pkill -f '^((/usr)?/bin/)?systemd-inhibit --who=user-idle-inhibit --why=Prevent screenlock' || systemd-inhibit --who=user-idle-inhibit --why='Prevent screenlock' --what=idle sleep $((4*3600))"
+        "on-click": "wm-toggle-idle-inhibit"
     },
 
     "custom/laptopbattery": {

@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+
+if [[ "$XDG_CURRENT_DESKTOP" =~ ^sway ]]; then
+  mode=sway
+  cachedir=$HOME/.cache/sway
+elif [[ "$XDG_CURRENT_DESKTOP" =~ ^niri ]]; then
+  mode=niri
+  cachedir=$HOME/.cache/niri
+elif [[ "$XDG_CURRENT_DESKTOP" = Hyprland ]]; then
+  mode=hypr
+  cachedir=$HOME/.cache/hyprland
+fi
+
+[[ ! $mode ]] && echo "Error: Unsupported WM $XDG_CURRENT_DESKTOP" && exit 1
+
+[ ! -d $cachedir ] && mkdir -p $cachedir
+count=1
+passes=0
+maxpasses=20
+wait=2
+
+filter="htop|btop|nvtop|term-scratchpad|termfm|[Aa]lacritty|[Kk]itty|com.mitchelh.ghostty|org.wezfurlong.wezterm"
+
+logfile=$cachedir/${mode}exitwithgrace.$(date +%a).log
+if [ -e $logfile ] && \
+   [ $(( ($(date +%s) - $(stat -c %Y $logfile 2>/dev/null || stat -f %m $logfile)) / 86400 )) -gt 1 ]; then
+  rm -f $logfile
+fi
+
+while [ $count -gt 0 ] && [ $passes -lt $maxpasses ]; do
+  passes=$((passes + 1))
+  if [ $mode = hypr ]; then
+    for app in $(hyprctl -i 0 -j clients | jq -r --arg filter "$filter" '.[] | select(.initialClass | test($filter) | not) | .address'); do
+      appname=$(hyprctl -i 0 -j clients | jq --arg add $app -r '.[] | select(.address==$add) | .title')
+      echo "Running 'hyprctl -i 0 dispatch closewindow address:$app' (app: $appname)" >> $logfile
+      hyprctl -i 0 dispatch closewindow address:$app &>> $logfile
+    done
+    count=$(hyprctl -i 0 -j clients | jq -r --arg filter "$filter" '.[] | select(.initialClass | test($filter) | not) | .address' | wc -l)
+    clients=$(hyprctl -i 0 -j clients | jq -r --arg filter "$filter" '.[] | select(.app_id | test($filter) | not) | .title' | paste -sd,)
+  fi
+
+  if [ $mode = niri ]; then
+    for app in $(niri msg -j windows | jq -r --arg filter "$filter" '.[] | select(.app_id | test($filter) | not) | .id'); do
+      appname=$(niri msg -j windows | jq -r --arg app $app '.[] | select(.id | tostring == $app) | .title')
+      echo "Running 'niri msg action close-window --id $app' (app: $appname)" >> $logfile
+      niri msg action close-window --id $app
+    done
+    count=$(niri msg -j windows | jq -r --arg filter "$filter" '.[] | select(.app_id | test($filter) | not) | .id' | wc -l)
+    clients=$(niri msg -j windows | jq -r --arg filter "$filter" '.[] | select(.app_id | test($filter) | not) | .id' | paste -sd,)
+  fi
+
+  if [ $mode = sway ]; then
+    for app in $(swaymsg -r -t get_tree | jq -r --arg filter "$filter" 'recurse(.nodes[]?, .floating_nodes[]?) | select(.app_id != null) | select(.app_id | test($filter) | not) | .pid'); do
+      appname=$(swaymsg -r -t get_tree | jq -r --arg p $app 'recurse(.nodes[]?, .floating_nodes[]?) | select(.pid|tostring==$p) | .name')
+      echo "Running 'swaymsg [pid=$app] kill' (app: $appname)" >> $logfile
+      swaymsg [pid=$app] kill
+    done
+    count=$(swaymsg -r -t get_tree | jq -r --arg filter "$filter" 'recurse(.nodes[]?, .floating_nodes[]?) | select(.app_id != null) | select(.app_id | test($filter) | not) | .pid' | wc -l)
+    clients=$(swaymsg -r -t get_tree | jq -r --arg filter "$filter" 'recurse(.nodes[]?, .floating_nodes[]?) | select(.app_id != null) | select(.app_id | test($filter) | not) | .name' | paste -sd,)
+  fi
+
+  [ $count -gt 0 ] && sleep $wait
+done
+
+if [ $count -gt 0 ]; then
+  notify-send "Cannot exit; $count clients still running ($clients)"
+  echo "Cannot exit; $count clients still running ($clients)" >> $logfile
+  exit 1
+fi
+

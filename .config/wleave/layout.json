@@ -2,7 +2,7 @@
     "buttons": [
         {
             "label" : "lock",
-            "action" : "loginctl lock-session",
+            "action" : "wm-screen-dim ; loginctl lock-session ; wm-screen-off",
             "text" : "<u>L</u>ock",
             "keybind" : "l",
             "icon": "/usr/share/wleave/icons/lock.svg"
@@ -16,7 +16,7 @@
         },
         {
             "label" : "logout",
-            "action" : "$HOME/.local/bin/wm-logout",
+            "action" : "wm-logout",
             "text" : "Lo<u>g</u>out",
             "keybind" : "g",
             "icon": "/usr/share/wleave/icons/logout.svg"

@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+# 4 hours
+timeout=${timeout:-$((4 * 3600))}
+
+mode=toggle
+case "$1" in
+  "") ;;
+  start) mode=start && shift ;;
+  stop) mode=stop && shift ;;
+  *) echo "usage: $(basename $0) [-h] [stop|start]" && exit ;;
+esac
+
+search_string='^((/usr)?/bin/)?systemd-inhibit --who=user-idle-inhibit --why=Prevent screenlock'
+case $mode in
+  start)
+    if ! pgrep -f "$search_string" > /dev/null 2>&1; then
+      systemd-inhibit --who=user-idle-inhibit --why='Prevent screenlock' --what=idle sleep $timeout &
+    fi
+    ;;
+  stop)
+    if pgrep -f "$search_string" > /dev/null 2>&1; then
+      pkill -f "$search_string"
+    fi
+    ;;
+  *)
+    if pgrep -f "$search_string" > /dev/null 2>&1; then
+      pkill -f "$search_string"
+    else
+      systemd-inhibit --who=user-idle-inhibit --why='Prevent screenlock' --what=idle sleep $timeout &
+    fi
+    ;;
+esac

@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+
+[ -r $XDG_CONFIG_HOME/watch_tablet.conf ] && . $XDG_CONFIG_HOME/watch_tablet.conf && echo Reading watch_tablet.conf
+
+echo tablet_scale=$tablet_scale
+echo laptop_scale=$laptop_scale
+
+laptopmode() {
+  echo Switching to laptop
+
+  # Change screen scale
+  if [[ $XDG_CURRENT_DESKTOP =~ ^niri ]] && [ -n "$tablet_scale" ] && [ -n "$laptop_scale" ] && [ -r $XDG_RUNTIME_DIR/tablet_state ]; then
+    eval $(niri msg -j focused-output | jq -r '"current_scale=\(.logical.scale) output_name=\(.name)"')
+    niri msg output $output_name scale $laptop_scale
+    echo Changing scale from $current_scale to $laptop_scale
+  fi
+
+  echo laptop > $XDG_RUNTIME_DIR/tablet_state
+  echo $REPLY >> $XDG_RUNTIME_DIR/tablet_state
+
+  # disable onscreen keyboard
+  gsettings set org.gnome.desktop.a11y.applications screen-keyboard-enabled false
+
+  [ $XDG_CURRENT_DESKTOP = Hyprland ] && pkill -u $LOGNAME -f ^nwg-dock-hyprland
+  pkill -u $LOGNAME -f ^nwg-drawer
+  [ -r $XDG_CONFIG_HOME/local/hl_laptop.conf ] && ln -f $XDG_CONFIG_HOME/local/hl_laptop.conf $XDG_CONFIG_HOME/local/hl_mode.conf
+  [ -r $XDG_CONFIG_HOME/local/wb_laptop.jsonc ] && ln -f $XDG_CONFIG_HOME/local/wb_laptop.jsonc $XDG_CONFIG_HOME/local/wb_mode.jsonc
+  pkill -u $LOGNAME -SIGUSR2 -x waybar
+}
+
+tabletmode() {
+  echo Switching to tablet
+  echo tablet > $XDG_RUNTIME_DIR/tablet_state
+  echo $REPLY >> $XDG_RUNTIME_DIR/tablet_state
+
+  # Change screen scale
+  if [[ $XDG_CURRENT_DESKTOP =~ ^niri ]] && [ -n "$tablet_scale" ]; then
+    eval $(niri msg -j focused-output | jq -r '"current_scale=\(.logical.scale) output_name=\(.name)"')
+    niri msg output $output_name scale $tablet_scale
+    echo Changing scale from $current_scale to $tablet_scale
+  fi
+
+  # enable onscreen keyboard
+  gsettings set org.gnome.desktop.a11y.applications screen-keyboard-enabled true
+
+  [ -r $XDG_CONFIG_HOME/local/hl_tablet.conf ] && ln -f $XDG_CONFIG_HOME/local/hl_tablet.conf $XDG_CONFIG_HOME/local/hl_mode.conf
+  [ -r $XDG_CONFIG_HOME/local/wb_tablet.jsonc ] && ln -f $XDG_CONFIG_HOME/local/wb_tablet.jsonc $XDG_CONFIG_HOME/local/wb_mode.jsonc
+  pkill -u $LOGNAME -SIGUSR2 -x waybar
+  [ $XDG_CURRENT_DESKTOP = Hyprland ] && [ -x $HOME/.local/bin/run_nwg_dock ] && $HOME/.local/bin/run_nwg_dock &
+}
+
+if [ "$1" = service ]; then
+  echo laptop > $XDG_RUNTIME_DIR/tablet_state
+  while true; do
+    stdbuf -oL -eL libinput debug-events | \
+    while read; do
+      case "$REPLY" in
+        *"switch tablet-mode state 0"|*"DEVICE_ADDED                 HID 1018:1006    "*)
+          laptopmode
+          ;;
+        *"switch tablet-mode state 1"|*"DEVICE_REMOVED               HID 1018:1006    "*)
+          tabletmode
+          ;;
+      esac
+    done
+    sleep .5
+  done
+  exit
+fi
+
+if [ $(hostname -s) = neptune ]; then
+  evtest --query /dev/input/event15 EV_SW SW_TABLET_MODE
+  ret=$?
+  if [ $ret = 10 ]; then
+    tabletmode
+  else
+    laptopmode
+  fi
+  exit
+fi
+
+if [ $(hostname -s) = styx ]; then
+  ls -l /sys/class/hidraw | grep -q ":1018:1006"
+  ret=$?
+  if [ $ret = 0 ]; then
+    laptopmode
+  else
+    tabletmode
+  fi
+  exit
+fi
+

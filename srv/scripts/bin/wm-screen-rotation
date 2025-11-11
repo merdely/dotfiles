@@ -1,0 +1,115 @@
+#!/usr/bin/env bash
+
+monitor=eDP-1
+
+do_rotate() {
+  echo Setting rotation to $1
+  if [[ "$XDG_CURRENT_DESKTOP" =~ ^niri ]]; then
+    case "$1" in
+      right-up)   xform=270     ;;
+      left-up)    xform=90      ;;
+      bottom-up)  xform=180     ;;
+      *)          xform=normal  ;;
+    esac
+    niri msg output $monitor transform $xform
+    systemctl --user restart lisgd.service
+  elif [[ "$XDG_CURRENT_DESKTOP" =~ ^sway ]]; then
+    case "$1" in
+      right-up)   xform=90      ;;
+      left-up)    xform=270     ;;
+      bottom-up)  xform=180     ;;
+      *)          xform=normal  ;;
+    esac
+    swaymsg output $monitor transform $xform
+  elif [[ "$XDG_CURRENT_DESKTOP" = Hyprland ]]; then
+    case "$1" in
+      right-up)   xform=3  ;;  # 270
+      left-up)    xform=1  ;;  # 90
+      bottom-up)  xform=2  ;;  # 180
+      *)          xform=0  ;;  # normal
+    esac
+    args=$(hyprctl monitors -j | jq --arg n $monitor --arg t $xform '.[] | select(.name==$n) | "\(.name),\(.width)x\(.height),\(.x)x\(.y),\(.scale|round),transform,\($t)"')
+    eval hyprctl keyword monitor $args
+  elif [[ $DISPLAY ]]; then
+    case "$1" in
+      right-up)
+        xform=right
+        tl=0
+        tm=1
+        tr=0
+        ml=-1
+        mm=0
+        mr=1
+        bl=0
+        bm=0
+        br=1
+        ;;
+      left-up)
+        xform=left
+        tl=0
+        tm=-1
+        tr=1
+        ml=1
+        mm=0
+        mr=0
+        bl=0
+        bm=0
+        br=1
+        ;;
+      bottom-up)
+        xform=inverted
+        tl=-1
+        tm=0
+        tr=1
+        ml=0
+        mm=-1
+        mr=1
+        bl=0
+        bm=0
+        br=1
+        ;;
+      *)
+        xform=normal
+        tl=1
+        tm=0
+        tr=0
+        ml=0
+        mm=1
+        mr=0
+        bl=0
+        bm=0
+        br=1
+        ;;
+    esac
+    xrandr --display :0 --output $monitor --rotate $xform
+    DISPLAY=:0 xinput set-prop "GXTP7386:00 27C6:0111" "Coordinate Transformation Matrix" $tl $tm $tr $ml $mm $mr $bl $bm $br
+  else
+    echo "Error: Unsupported window manager"
+    exit 1
+  fi
+}
+
+orientation=normal
+monitor-sensor 2>&1 | while read -r line; do
+  test -e /run/user/1000/stop_rotation && continue
+
+  if libinput list-kernel-devices | grep -q "HID 1018:1006"; then
+    # echo "Tablet is docked"
+    continue
+  fi
+
+  new=$(echo $line | awk '/Has accelerometer \(orientation:/{sub(/,$/,"",$5);print $5} /^Accelerometer orientation changed: / {print $NF}')
+
+  [[ ! $new ]] && continue
+  if [[ $new != $orientation ]]; then
+    orientation=$new
+
+    case "$orientation" in 
+      normal)     do_rotate normal     ;;
+      right-up)   do_rotate right-up   ;;
+      left-up)    do_rotate left-up    ;;
+      bottom-up)  do_rotate bottom-up  ;;
+    esac
+  fi
+done
+

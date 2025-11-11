@@ -10,11 +10,16 @@ tooltip label {
 }
 
 window#waybar {
+  /*
     background-color: rgba(43, 48, 59, 0.9);
+    */
+    background-color: transparent;
     color: white;
+    /*
     transition-property: background-color;
     transition-duration: .5s;
     border-radius: 7px;
+    */
 }
 
 window#waybar.hidden {
@@ -33,7 +38,10 @@ button:hover {
 }
 
 #window {
+  /*
     padding-left: 20px;
+    */
+    padding-right: 20px;
 }
 
 #workspaces,

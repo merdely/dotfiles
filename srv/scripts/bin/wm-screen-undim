@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+if [ $(hostname -s) != mercury ] && which brightnessctl &> /dev/null; then
+  brightnessctl -r
+elif which gammastep &> /dev/null; then
+  pkill -u $LOGNAME -x gammastep
+else
+  echo "Error: Cannot find program to undim screen"
+fi
+

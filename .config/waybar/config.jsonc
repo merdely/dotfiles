@@ -13,12 +13,12 @@
         "custom/toggle_applauncher",
         // "custom/toggle_keyboard",
         // "custom/toggle_winchooser",
-        "custom/toggle_scratchchooser",
+        // "custom/toggle_scratchchooser",
         // "hyprland/workspaces",
         // "hyprland/window",
         // "sway/workspaces",
         // "sway/window",
-        "niri/workspaces",
+        // "niri/workspaces",
         "niri/window"
     ],
 

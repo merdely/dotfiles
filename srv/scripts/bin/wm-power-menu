@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+
+rotated=0
+case $XDG_CURRENT_DESKTOP in
+  sway*)
+    eval $(swaymsg -r -t get_outputs | jq -r '.[] | select(.active==true) | "w=\(.rect.width) h=\(.rect.height) t=\(.transform)"')
+    [[ $t = 90 || $t = 270 ]] && rotated=1
+    ;;
+  niri*)
+    eval $(niri msg -j focused-output | jq -r '"w=\(.logical.width) h=\(.logical.height) t=\(.logical.transform)"')
+    [[ $t = 90 || $t = 270 ]] && rotated=1
+    ;;
+  Hyprland*)
+    eval $(hyprctl -j monitors | jq -r '.[] | select(.focused==true) | "w=\(.width) h=\(.height) t=\(.transform)"')
+    [[ $((t % 2)) = 1 ]] && rotated=1
+    ;;
+esac
+
+margin=330
+[ $w -lt 1400 ] && margin=230
+[ $h -lt 800 ] && margin=230
+
+declare -A default_opts default_rot_opts
+default_opts[nwg-bar]=""
+default_opts[wleave]="-x -f -m $margin -b 4"
+default_opts[wlogout]="-s -m $margin -b 4"
+
+default_rot_opts[nwg-bar]="-s rotated.css"
+default_rot_opts[wleave]="-x -f -m $margin -b 2"
+default_rot_opts[wlogout]="-s -m $margin -b 2"
+
+power_menu=wleave
+[ -r $HOME/.config/powermenurc ] && source $HOME/.config/powermenurc
+
+[[ $1 =~ ^(wleave|wlogout|nwg-bar)$ ]] && power_menu=$1
+
+opts=${power_opts:-${default_opts[$power_menu]}}
+rot_opts=${power_rot_opts:-${default_rot_opts[$power_menu]}}
+
+open_power_menu() {
+  set -o xtrace
+  [[ $rotated = 1 ]] && opts=$rot_opts
+  case $XDG_CURRENT_DESKTOP in
+    sway*) swaymsg exec $power_menu $opts & ;;
+    niri*) niri msg action spawn -- $power_menu $opts & ;;
+    Hyprland) hyprctl dispatch exec $power_menu $opts & ;;
+    *) exec $power_menu $opts & ;;
+  esac
+}
+
+pgrep -u $LOGNAME -x $power_menu &> /dev/null && pkill -u $LOGNAME -x $power_menu || open_power_menu

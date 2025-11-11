@@ -8,7 +8,7 @@ After=graphical-session.target
 [Service]
 Type=simple
 Environment=SSH_AUTH_SOCK=%t/ssh-agent.socket
-Environment=SSH_ASKPASS=%h/.local/bin/yad-askpass
+Environment=SSH_ASKPASS=yad-askpass
 ExecStart=/usr/bin/swayidle -w -d
 Restart=on-failure
 

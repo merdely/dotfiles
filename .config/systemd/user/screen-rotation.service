@@ -5,7 +5,7 @@ After=graphical-session.target
 Requisite=graphical-session.target
 
 [Service]
-ExecStart=%h/bin/screen-rotation
+ExecStart=wm-screen-rotation
 Restart=on-failure
 RestartSec=5s
 

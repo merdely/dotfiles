@@ -68,6 +68,8 @@ export XDG_DATA_DIRS=$XDG_DATA_HOME:${XDG_DATA_DIRS:=/usr/local/share:/usr/share
 
 # Git stuff
 if which git > /dev/null 2>&1; then
+  export GIT_AUTHOR_NAME="Michael Erdely"
+  export GIT_AUTHOR_EMAIL="mike@erdelynet.com"
   GIT_PS1_SHOWDIRTYSTATE=true
   GIT_PS1_SHOWUNTRACKEDFILES=true
   GIT_PS1_SHOWSTASHSTATE=true
@@ -79,6 +81,7 @@ if which git > /dev/null 2>&1; then
   if ! pgrep -x gpg-agent > /dev/null 2>&1; then
     export GPG_TTY=$(tty)
   fi
+  [ -d /srv/scripts ] && alias us='sudo git -C /srv/scripts pull'
 fi
 
 # History stuff
@@ -88,6 +91,11 @@ HISTCONTROL=ignoreboth
 HISTFILE=$XDG_CACHE_HOME/shell_history
 user_dot_profile=$HOME/.profile
 [ -r $HOME/.bash_profile ] && user_dot_profile=$HOME/.bash_profile
+
+# Save current network namespace
+current_netns=$(ip netns identify $$)
+unset netnsp
+[ -n "$current_netns" ] && netnsp="-[$current_netns]"
 
 pcharr_user_text='>'
 pcharl_user_text='<'
@@ -128,7 +136,8 @@ if [ $running_shell = bash -o $running_shell = ksh ]; then
       pcharr=$pcharr_user_text && pcharl=$pcharl_user_text && gchar=$gchar_text
       [ $UID = 0 ] && pcharr=$pcharr_root_text && pcharl=$pcharl_root_text
     fi
-    local EMBEDDED_PS1='[\[\e[1;36m\]\u\[\e[0m\]@\[\e[1;32m\]\h\[\e[0m\] \[\e[1;34m\]\w\[\e[0m\]]$(__git_ps1 " (\[\e[38;2;255;165;0m\]${gchar}\[\e[0m\]%s)" 2> /dev/null)\[\e[${ec}m\]'
+    # Add netns name if in a network namespace
+    local EMBEDDED_PS1='[\[\e[1;36m\]\u\[\e[0m\]@\[\e[1;32m\]\h${netnsp}\[\e[0m\] \[\e[1;34m\]\w\[\e[0m\]]$(__git_ps1 " (\[\e[38;2;255;165;0m\]${gchar}\[\e[0m\]%s)" 2> /dev/null)\[\e[${ec}m\]'
     if [ $show_vi_mode = 0 ]; then
       PS1=${EMBEDDED_PS1}' '${pcharr}'\[\e[0m\] '
     else
@@ -188,7 +197,7 @@ elif [ $running_shell = zsh ]; then
   #setopt globdots # include dotfiles
   #setopt extended_glob # match ~ # ^
   setopt interactive_comments # allow comments in shell
-  unsetopt prompt_sp # don't autoclean blanklines
+  setopt prompt_sp # don't autoclean blanklines
   stty stop undef # disable accidental ctrl s
 
   use_starship=1
@@ -207,7 +216,7 @@ elif [ $running_shell = zsh ]; then
       fi
       pchar=$pcharr
       [[ $KEYMAP = vicmd ]] && pchar=$pcharl
-      PROMPT='[%B%F{cyan}%n%b%f@%B%F{green}%m%f%b %B%F{blue}%2~%f%b]$(__git_ps1 " (${gchar}%s)" 2>/dev/null) %(?.%F{green}.%F{red})${pchar}%f '
+      PROMPT='[%B%F{cyan}%n%b%f@%B%F{green}%m${netnsp}%f%b %B%F{blue}%2~%f%b]$(__git_ps1 " (${gchar}%s)" 2>/dev/null) %(?.%F{green}.%F{red})${pchar}%f '
     }
     __set_prompt
 
@@ -236,8 +245,12 @@ elif [ $running_shell = zsh ]; then
   hash -d bin=$HOME/.local/bin
   hash -d config=$XDG_CONFIG_HOME
   hash -d shell=$XDG_CONFIG_HOME/shell
+  hash -d Work=$HOME/Work
   hash -d src=$HOME/Work/src
   hash -d git=$HOME/Work/git
+  hash -d ansible=$HOME/Work/src/ansible
+  hash -d scripts=$HOME/Work/src/scripts
+  hash -d dotfiles=$HOME/Work/git/dotfiles
   [ -d $XDG_DATA_HOME/Syncthing/Logseq ] && hash -d logseq=$XDG_DATA_HOME/Syncthing/Logseq
   [ -d $XDG_DATA_HOME/Seafile ] && hash -d seafile=$XDG_DATA_HOME/Seafile
 
@@ -272,9 +285,9 @@ export LANG=en_US.UTF-8
 export LC_CTYPE=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 add_to_path -b $HOME/.local/bin
+[ -d /srv/scripts/sbin ] && add_to_path -b /srv/scripts/sbin
+[ -d /srv/scripts/bin ]  && add_to_path -b /srv/scripts/bin
 add_to_path -e /usr/sbin
-[ -d /srv/scripts/bin ]  && add_to_path -e /srv/scripts/bin
-[ -d /srv/scripts/sbin ] && add_to_path -e /srv/scripts/sbin
 [ -z "$EUID" ] && export EUID=$(id -u)
 [ -x /usr/lib/nagios/plugins/check_disk ] && add_to_path /usr/lib/nagios/plugins
 
@@ -450,6 +463,7 @@ export SCREENDIR=$XDG_RUNTIME_DIR/screen
 [ ! -L $HOME/.ssh/ctl ] && ln -s $XDG_RUNTIME_DIR/ssh-ctl $HOME/.ssh/ctl
 
 # SSH key stuff
+[ ! -e $XDG_RUNTIME_DIR/ssh-auth-sock ] && [ -n "$SSH_AUTH_SOCK" ] && ln -s $SSH_AUTH_SOCK $XDG_RUNTIME_DIR/ssh-auth-sock
 if [ -n "$SSH_CONNECTION" ] && [ ! -S $XDG_RUNTIME_DIR/ssh-auth-sock ] && [ -S "$SSH_AUTH_SOCK" ]; then
   ln -sf $SSH_AUTH_SOCK $XDG_RUNTIME_DIR/ssh-auth-sock
 fi
@@ -514,9 +528,6 @@ case "$HOSTNAME" in
     case "$ID" in
       arch)
         alias remain='echo SSH to carme'
-        alias bootwindows='sudo /srv/scripts/sbin/boot-to-windows'
-        alias bootlinux='sudo /srv/scripts/sbin/boot-to-arch'
-        alias bootarch='sudo /srv/scripts/sbin/boot-to-arch'
         which paru &>/dev/null && alias paru='env PKGDEST=$HOME/paru paru --needed --mflags OPTIONS=-debug'
         alias pu='pacman -Q > $HOME/.config/pacman_$(hostname -s).list;git commit -m "Package updates" $HOME/.config/pacman_mercury.list'
         alias ya=ytdlalbum
@@ -524,6 +535,7 @@ case "$HOSTNAME" in
         alias yy=ytdlartist
         alias fp=fix-music-perms
         alias sunrpe='sudo su - -s /bin/bash -l nrpe'
+        alias dmesg='sudo dmesg'
 
         pushprofile() {
           cd $HOME
@@ -585,6 +597,20 @@ case "$HOSTNAME" in
     esac
     alias change_password='tmux neww -d -n chpass ; for f in earth jupiter dione venus tarvos sinope carme metis; do tmux splitw -d -t:$ "ssh $f"; tmux select-layout -t:$ tiled; done; tmux set -w -t:$ synchronize-panes; tmux set -w -t:$ pane-active-border-style fg=red; tmux select-layout -t:$ main-vertical; tmux select-window -t:$'
     ;;
+  uranus)
+    [ "$ID" = arch ] && alias dmesg='sudo dmesg'
+    alias ya=ytdlalbum
+    alias ys=ytdlsong
+    alias yy=ytdlartist
+    alias fp=fix-music-perms
+    ;;
+  neptune)
+    [ "$ID" = arch ] && alias dmesg='sudo dmesg'
+    alias ya=ytdlalbum
+    alias ys=ytdlsong
+    alias yy=ytdlartist
+    alias fp=fix-music-perms
+    ;;
   pluto)
     alias pubip='ifconfig egress | awk "\$1==\"inet\"{print \$2}"'
     ;;
@@ -594,7 +620,7 @@ esac
 
 # Wayland stuff
 if [ "$XDG_SESSION_TYPE" = wayland ]; then
-  export SSH_ASKPASS=$HOME/.local/bin/yad-askpass
+  export SSH_ASKPASS=yad-askpass
   export SSH_AUTH_SOCK=$XDG_RUNTIME_DIR/ssh-agent.socket
 fi
 

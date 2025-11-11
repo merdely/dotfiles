@@ -1,0 +1,146 @@
+#!/usr/bin/env bash
+
+verbose=1
+low_threshold=40
+swayidle_config=$HOME/.config/swayidle/config
+battery=$(upower -b | awk '/^Device: /{sub(/^Device: /,"");print;exit}')
+
+charging=0
+charging_state=battery
+
+upower_out=$(upower -i $battery)
+perc=$(echo "$upower_out" | awk '/^\s+percentage:\s+[0-9]+%$/{print $2}')
+[[ $perc =~ ^[0-9]+%$ ]] && perc_num=${perc%\%}
+
+# Determine if charging
+if echo "$upower_out" | grep -Eq "state:\s+charging$"; then
+  charging=1
+  charging_state=charging
+fi
+
+# Determine if battery is low
+if [[ $perc_num =~ ^[0-9]+$ ]] && [ $perc_num -lt $low_threshold ]; then
+  [ $charging = 0 ] && charging_state=low_battery
+fi
+
+restart_swayidle() {
+  pgrep -u $LOGNAME -x swaylock &> /dev/null
+  ret=$?
+  systemctl --user stop swayidle
+  sleep 1
+  [ $ret = 0 ] && swaylock -f
+  systemctl --user start swayidle
+}
+
+get_current_profile() {
+  local cf
+  if [ -L $swayidle_config ]; then
+    cf=$(realpath $swayidle_config)
+  else
+    local csum=$(cksum $swayidle_config)
+    csum=${csum%% *}
+    cf=$(cksum $swayidle_config* | awk -v c=$csum -v f=$swayidle_config \
+      '$1==c&&$3!=f{print $3;exit}')
+  fi
+  echo ${cf#$swayidle_config.}
+}
+
+change_swayidle_profile() {
+  if [[ ! $1 =~ ^(charging|battery|low_battery)$ ]]; then
+    echo "Warning: Invalid profile ($1)" > /dev/stderr
+    return 1
+  fi
+
+  cur_profile=$(get_current_profile)
+  if [[ $1 = $cur_profile ]]; then
+    [[ $verbose = 1 ]] && echo "Warning: Already on swayidle $cur_profile profile" > /dev/stderr
+    return 0
+  fi
+
+  if [ ! -r $swayidle_config.$1 ]; then
+    [[ $verbose = 1 ]] && echo "Warning: No swayidle $1 profile file" > /dev/stderr
+    if [[ $1 = low_battery ]]; then
+      if [ $cur_profile = battery ]; then
+        [[ $verbose = 1 ]] && echo "Warning: Using swayidle battery profile in place of swayidle low_battery profile" > /dev/stderr
+        [[ $verbose = 1 ]] && echo "Warning: Already on swayidle battery profile" > /dev/stderr
+        return 0
+      fi
+      if [ ! -r $swayidle_config.battery ]; then
+        [[ $verbose = 1 ]] && echo "Warning: No swayidle battery profile file" > /dev/stderr
+        return 1
+      fi
+      echo Switching swayidle to battery profile
+      ln -sf $swayidle_config.battery $swayidle_config
+      restart_swayidle
+      return
+    else
+      return 1
+    fi
+  fi
+
+  echo Switching swayidle to $1 profile
+  ln -sf $swayidle_config.$1 $swayidle_config
+  restart_swayidle
+}
+
+cur_profile=$(get_current_profile)
+echo state = $charging_state, profile = $cur_profile, perc = $perc_num%
+[ $cur_profile != $charging_state ] && change_swayidle_profile $charging_state
+
+while true; do
+  in_battery=0
+  stdbuf -oL -eL upower --monitor-detail | \
+  while read; do
+    #echo REPLY="'$REPLY'"
+    #continue
+    case "$REPLY" in
+      *"device changed"*$battery)
+        in_battery=1
+        # echo enabling watching battery info
+        ;;
+      *" state: "*" charging"|*" state: "*" fully-charged")
+        if [ "$in_battery" = 1 ] && [ "$charging" != 1 ]; then
+          charging=1
+          charging_state=charging
+          echo Switching to $charging_state
+          change_swayidle_profile $charging_state
+        fi
+        ;;
+      *" state: "*" discharging")
+        if [ "$in_battery" = 1 ] && [ "$charging" != 0 ]; then
+          charging=0
+          if [[ $perc_num =~ ^[0-9]$ ]] && [ $perc_num -lt $low_threshold ]; then
+            charging_state=low_battery
+            echo Switching to $charging_state
+            change_swayidle_profile low_battery
+          else
+            charging_state=battery
+            echo Switching to $charging_state
+            change_swayidle_profile battery
+          fi
+        fi
+        ;;
+      *" percentage: "*"%")
+        if [ "$in_battery" = 1 ]; then
+          if [ $perc != ${REPLY##* } ]; then
+            perc=${REPLY##* }
+            echo "Battery at $perc"
+            [[ $perc =~ ^[0-9]+%$ ]] && perc_num=${perc%\%}
+            if [[ $perc_num =~ ^[0-9]+$ ]] && [ $perc_num -lt $low_threshold ]; then
+              if [ $charging = 0 ]; then
+                charging_state=low_battery
+                echo Switching to $charging_state
+                change_swayidle_profile low_battery
+              fi
+            fi
+          fi
+        fi
+        ;;
+      "")
+        in_battery=0
+        # echo disabling watching battery info
+        ;;
+    esac
+  done
+  sleep .5
+done
