@@ -5,7 +5,7 @@ before-sleep 'wm-screen-lock'
 after-resume 'wm-screen-unlock'
 
 # If swaylock IS running, trigger resume
-timeout 2   'pgrep -u $LOGNAME -x swaylock &> /dev/null && touch /run/user/$EUID/.manual_lock' resume 'test -r /run/user/$EUID/.manual_lock && wm-screen-unlock'
+# timeout 2   'pgrep -u $LOGNAME -x swaylock &> /dev/null && touch /run/user/$EUID/.manual_lock' resume 'test -r /run/user/$EUID/.manual_lock && wm-screen-unlock'
 
 # If swaylock is already running, do not trigger dim and lock
 timeout 750 'pgrep -u $LOGNAME -x swaylock &> /dev/null || wm-screen-dim' resume 'wm-screen-undim'

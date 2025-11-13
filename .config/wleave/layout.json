@@ -2,7 +2,7 @@
     "buttons": [
         {
             "label" : "lock",
-            "action" : "wm-screen-dim ; loginctl lock-session ; wm-screen-off",
+            "action" : "pkill -SIGUSR1 swayidle",
             "text" : "<u>L</u>ock",
             "keybind" : "l",
             "icon": "/usr/share/wleave/icons/lock.svg"

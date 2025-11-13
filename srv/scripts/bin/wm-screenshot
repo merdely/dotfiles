@@ -1,388 +1,66 @@
 #!/usr/bin/env bash
 
-set -e
+dest=$HOME/Pictures/Screenshots
+progname=$(basename $0)
 
-progname=$(basename $0 .sh)
+[ -r $HOME/.config/screenshotrc ] && source $HOME/.config/screenshotrc
 
-function Help() {
-    case $progmode in
-        sway) output_command="swaymsg -t get_outputs";;
-        hypr) output_command="hyprctl monitors";;
-    esac
-    cat <<EOF
-Usage: $progname [options ..] [-m [mode] ..] -- [command]
+! which jq &> /dev/null && echo "Error: jq package required" && exit 1
+! which notify-send &> /dev/null && echo "Error: libnotify package required" && exit 1
+! which grim &> /dev/null && echo "Error: grim package required" && exit 1
+! which slurp &> /dev/null && echo "Error: slurp package required" && exit 1
+! which wl-copy &> /dev/null && echo "Error: wl-clipboard package required" && exit 1
 
-$progname is an utility to easily take screenshot in Hyprland using your mouse.
-
-It allows taking screenshots of windows, regions and monitors which are saved to a folder of your choosing and copied to your clipboard.
-
-Examples:
-  capture a window                      \`$progname -m window\`
-  capture active window to clipboard    \`$progname -m window -m active --clipboard-only\`
-  capture selected monitor              \`$progname -m output -m DP-1\`
-
-Options:
-  -h, --help                show help message
-  -m, --mode                one of: output, window, region, active, OUTPUT_NAME
-  -o, --output-folder       directory in which to save screenshot
-  -f, --filename            the file name of the resulting screenshot
-  -z, --freeze              freeze the screen on initialization
-  -d, --debug               print debug information
-  -s, --silent              don't send notification when screenshot is saved
-  -r, --raw                 output raw image data to stdout
-  -t, --notif-timeout       notification timeout in milliseconds (default 5000)
-  --clipboard-only          copy screenshot to clipboard and don't save image in disk
-  -- [command]              open screenshot with a command of your choosing. e.g. $progname -m window -- mirage
-
-Modes:
-  output        take screenshot of an entire monitor
-  window        take screenshot of an open window
-  region        take screenshot of selected region
-  active        take screenshot of active window|output
-                (you must use --mode again with the intended selection)
-  OUTPUT_NAME   take screenshot of output with OUTPUT_NAME
-                (you must use --mode again with the intended selection)
-                (you can get this from \`$output_command\`)
-EOF
+usage() {
+  echo "usage: $progname [-h] [-w|-a|-s]"
+  exit $1
 }
 
-function Print() {
-    if [ $DEBUG -eq 0 ]; then
-        return 0
-    fi
-    
-    1>&2 printf "$@" 
-}
+aswitch=0
+sswitch=0
+wswitch=0
+unset aarg
+while getopts ":hasw" opt; do
+  case $opt in
+    a) aswitch=1 ;;
+    s) sswitch=1 ;;
+    w) wswitch=1 ;;
+    *) usage ;;
+  esac
+done
+shift $((OPTIND -1))
 
-function send_notification() {
-    if [ $SILENT -eq 1 ]; then
-        return 0
-    fi
+[ $((aswitch + sswitch + wswitch)) -gt 1 ] && echo "Error: Only one of -a, -s, and -w can be used" && exit 1
 
-    local message=$([ $CLIPBOARD -eq 1 ] && \
-        echo "Image copied to the clipboard" || \
-        echo "Image saved in <i>${1}</i> and copied to the clipboard.")
-    notify-send "Screenshot saved" \
-                "${message}" \
-                -t "$NOTIF_TIMEOUT" -i "${1}" -a $progname
-}
+outfile=$dest/Screenshot-$(date +"%Y-%m-%d_%H-%M-%S").png
 
-function trim() {
-    Print "Geometry: %s\n" "${1}"
-    local geometry="${1}"
-    local xy_str=$(echo "${geometry}" | cut -d' ' -f1)
-    local wh_str=$(echo "${geometry}" | cut -d' ' -f2)
-    local x=`echo "${xy_str}" | cut -d',' -f1`
-    local y=`echo "${xy_str}" | cut -d',' -f2`
-    local width=`echo "${wh_str}" | cut -dx -f1`
-    local height=`echo "${wh_str}" | cut -dx -f2`
-
-    case $progmode in
-        sway)
-          local monitors=$(swaymsg -r -t get_outputs)
-            local max_width=`echo $monitors | jq -r '[.[] | if (.transform=="normal" or .transform=="180" or .transform=="flipped" or .transform=="flipped-180") then (.rect.x + .rect.width) else (.rect.x + .rect.height) end] | max'`
-            local max_height=`echo $monitors | jq -r '[.[] | if (.transform=="normal" or .transform=="180" or .transform=="flipped" or .transform=="flipped-180") then (.rect.y + .rect.height) else (.rect.y + .rect.width) end] | max'`
-            local min_x=`echo $monitors | jq -r '[.[] | (.rect.x)] | min'`
-            local min_y=`echo $monitors | jq -r '[.[] | (.rect.y)] | min'`
-            ;;
-        hypr)
-            local monitors=$(hyprctl monitors -j)
-            local max_width=`echo $monitors | jq -r '[.[] | if (.transform % 2 == 0) then (.x + .width) else (.x + .height) end] | max'`
-            local max_height=`echo $monitors | jq -r '[.[] | if (.transform % 2 == 0) then (.y + .height) else (.y + .width) end] | max'`
-            local min_x=`echo $monitors | jq -r '[.[] | (.x)] | min'`
-            local min_y=`echo $monitors | jq -r '[.[] | (.y)] | min'`
-            ;;
-    esac
-
-    local cropped_x=$x
-    local cropped_y=$y
-    local cropped_width=$width
-    local cropped_height=$height
-
-    # Print "max_width=%s max_height=%s\n" $max_width $max_height
-    # Print "cropped_x=%s, cropped_y=%s, cropped_width=%s, cropped_height=%s\n" $cropped_x $cropped_y $cropped_width $cropped_height
-
-    if ((x + width > max_width)); then
-        cropped_width=$((max_width - x))
-    fi
-    if ((y + height > max_height)); then
-        cropped_height=$((max_height - y))
-    fi
-
-    if ((x < min_x)); then
-        cropped_x="$min_x"
-        cropped_width=$((cropped_width + x - min_x))
-    fi
-    if ((y < min_y)); then
-        cropped_y="$min_y"
-        cropped_height=$((cropped_height + y - min_y))
-    fi
-
-    local cropped=`printf "%s,%s %sx%s\n" \
-        "${cropped_x}" "${cropped_y}" \
-        "${cropped_width}" "${cropped_height}"`
-    Print "Crop: %s\n" "${cropped}"
-    echo ${cropped}
-}
-
-function save_geometry() {
-    local geometry="${1}"
-    local output=""
-
-    if [ $RAW -eq 1 ]; then
-        grim -g "${geometry}" -
-        return 0
-    fi
-
-    if [ $CLIPBOARD -eq 0 ]; then
-        mkdir -p "$SAVEDIR"
-        grim -g "${geometry}" "$SAVE_FULLPATH"
-        output="$SAVE_FULLPATH"
-        wl-copy --type image/png < "$output"
-        [ -z "$COMMAND" ] || {
-            "$COMMAND" "$output"
-        }
-    else
-        wl-copy --type image/png < <(grim -g "${geometry}" -)
-    fi
-
-    send_notification $output
-}
-
-function checkRunning() {
-    sleep 1
-    while [[ 1 == 1 ]]; do
-        if [[ $(pgrep slurp | wc -m) == 0 ]]; then
-            pkill hyprpicker
-            exit
-        fi
-    done
-}
-
-function begin_grab() {
-    if [ $FREEZE -eq 1 ] && [ "$(command -v "hyprpicker")" ] &> /dev/null; then
-        hyprpicker -r -z &
-        sleep 0.2
-        HYPRPICKER_PID=$!
-    fi
-    local option=$1
-    case $option in
-        output)
-            if [ $CURRENT -eq 1 ]; then
-                local geometry=`grab_active_output`
-            elif [ -z $SELECTED_MONITOR ]; then
-                local geometry=`grab_output`
-            else
-                local geometry=`grab_selected_output $SELECTED_MONITOR`
-            fi
-            ;;
-        region)
-            local geometry=`grab_region`
-            ;;
-        window)
-            if [ $CURRENT -eq 1 ]; then
-                local geometry=`grab_active_window`
-            else
-                local geometry=`grab_window`
-            fi
-	    geometry=`trim "${geometry}"`
-            ;;
-    esac
-    save_geometry "${geometry}"
-}
-
-function grab_output() {
-    slurp -or
-}
-
-function grab_active_output() {
-    case $progmode in
-        sway)
-            local monitors=`swaymsg -r -t get_outputs`
-            local current_monitor="$(echo $monitors | jq -r | jq -r 'first(.[] | select(.focused==true))')"
-            local active_output=$( $current_monitor | jq -r '"\(.rect.x),\(.rect.y) \(.rect.width/.scale|round)x\(.rect.height/.scale|round)"')
-            ;;
-        hypr)
-            local active_workspace=`hyprctl -j activeworkspace`
-            local monitors=`hyprctl -j monitors`
-            local current_monitor="$(echo $monitors | jq -r 'first(.[] | select(.activeWorkspace.id == '$(echo $active_workspace | jq -r '.id')'))')"
-            local active_output=$(echo $current_monitor | jq -r '"\(.x),\(.y) \(.width/.scale|round)x\(.height/.scale|round)"')
-            ;;
-    esac
-    case $progmode in
-        sway|hypr)
-            Print "Monitors: %s\n" "$monitors"
-            ;;
-    esac
-    case $progmode in
-        hypr)
-            Print "Active workspace: %s\n" "$active_workspace"
-            ;;
-    esac
-    Print "Current output: %s\n" "$current_monitor"
-    echo $active_output
-}
-
-function grab_selected_output() {
-    case $progmode in
-        sway)
-            local monitor=`swaymsg -r -t get_outputs | jq -r '.[] | select(.name == "'$(echo $1)'")'`
-            local selected_output=$(echo $monitor | jq -r '"\(.rect.x),\(.rect.y) \(.rect.width/.scale|round)x\(.rect.height/.scale|round)"')
-            ;;
-        hypr)
-            local monitor=`hyprctl -j monitors | jq -r '.[] | select(.name == "'$(echo $1)'")'`
-            local selected_output=$(echo $monitor | jq -r '"\(.x),\(.y) \(.width/.scale|round)x\(.height/.scale|round)"')
-            ;;
-    esac
-    Print "Capturing: %s\n" "${1}"
-    echo $selected_output
-}
-
-function grab_region() {
-    slurp -d
-}
-
-function grab_window() {
-    case $progmode in
-        sway)
-            # come back to this later after I figure out what's going on
-            local clients=`swaymsg -r -t get_tree | jq 'recurse(.nodes[]?, .floating_nodes[]?) | select(.type == "workspace") | recurse(.nodes[]?, .floating_nodes[]?) | select(.type == "con" and .visible==true) | [{id, name, app_id, focused}]'`
-            local boxes="$(echo $clients | jq -r '.[] | "\(.x),\(.y) \(.width)x\(.height) \(.name)"' | cut -f1,2 -d' ')"
-            ;;
-        hypr)
-            local monitors=`hyprctl -j monitors`
-            Print "Monitors: %s\n" "$monitors"
-            local clients=`hyprctl -j clients | jq -r '[.[] | select(.workspace.id | contains('$(echo $monitors | jq -r 'map(.activeWorkspace.id) | join(",")')'))]'`
-            local boxes="$(echo $clients | jq -r '.[] | "\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1]) \(.title)"' | cut -f1,2 -d' ')"
-            ;;
-    esac
-    Print "Clients: %s\n" "$clients"
-    # Generate boxes for each visible window and send that to slurp
-    # through stdin
-    Print "Boxes:\n%s\n" "$boxes"
-    slurp -r <<< "$boxes"
-}
-
-function grab_active_window() {
-    case $progmode in
-        sway)
-            local box=$(swaymsg -r -t get_tree | jq -r 'recurse(.nodes[]?, .floating_nodes[]?) | select(.type == "con" and .focused == true) | "\(.rect.x),\(.rect.y) \(.rect.width)x\(.rect.height)"' | cut -f1,2 -d' ')
-            ;;
-        hypr)
-            local active_window=`hyprctl -j activewindow`
-            local box=$(echo $active_window | jq -r '"\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"' | cut -f1,2 -d' ')
-            ;;
-    esac
-    Print "Box:\n%s\n" "$box"
-    echo "$box"
-}
-
-function parse_mode() {
-    local mode="${1}"
-
-    case $mode in
-        window | region | output)
-            OPTION=$mode
-            ;;
-        active)
-            CURRENT=1
-            ;;
-        *)
-            case $progmode in
-                sway)
-                    swaymsg -r -t get_outputs | jq --arg mode "$mode" -re '.[] | select(.name == $mode)' &>/dev/null
-                    ;;
-                hypr)
-                    hyprctl monitors -j | jq -re '.[] | select(.name == "'$(echo $mode)'")' &>/dev/null
-                    ;;
-            esac
-            SELECTED_MONITOR=$mode
-            ;;
-    esac
-}
-
-function args() {
-    local options=$(getopt -o hf:o:m:dszr:t: --long help,filename:,output-folder:,mode:,clipboard-only,debug,silent,freeze,raw,notif-timeout: -- "$@")
-    eval set -- "$options"
-
-    while true; do
-        case "$1" in
-            -h | --help)
-                Help
-                exit
-                ;;
-            -o | --output-folder)
-                shift;
-                SAVEDIR=$1
-                ;;
-            -f | --filename)
-                shift;
-                FILENAME=$1
-                ;;
-            -m | --mode)
-                shift;
-                parse_mode $1
-                ;;
-            --clipboard-only)
-                CLIPBOARD=1
-                ;;
-            -d | --debug)
-                DEBUG=1
-                ;;
-            -z | --freeze)
-                FREEZE=1
-                ;;
-            -s | --silent)
-                SILENT=1
-                ;;
-            -r | --raw)
-                RAW=1
-                ;;
-            -t | --notif-timeout)
-                shift;
-                NOTIF_TIMEOUT=$1
-                ;;
-            --)
-                shift # Skip -- argument
-                COMMAND=${@:2}
-                break;;
-        esac
-        shift
-    done
-
-    if [ -z $OPTION ]; then
-        Print "A mode is required\n\nAvailable modes are:\n\toutput\n\tregion\n\twindow\n"
-        exit 2
-    fi
-}
-
-
-if [[ "$XDG_CURRENT_DESKTOP" =~ ^sway ]]; then
-  progmode=sway
-elif [[ "$XDG_CURRENT_DESKTOP" = Hyprland ]]; then
-  progmode=hypr
+if [ $aswitch = 1 ]; then
+  grim $outfile
+elif [ $sswitch = 1 ]; then
+  if [[ $XDG_CURRENT_DESKTOP =~ ^niri ]]; then
+    output=$(niri msg -j focused-output | jq -r .name)
+  elif [[ $XDG_CURRENT_DESKTOP =~ ^sway ]]; then
+    output=$(swaymsg -r -t get_outputs | jq '.[] | select(.active==true) | .name')
+  elif [[ $XDG_CURRENT_DESKTOP =~ ^Hyprland ]]; then
+    output=$(hyprctl -j monitors | jq '.[] | select(.focused==true) | .name')
+  fi
+  [ -z "$output" ] && echo "Error: Could not determine current screen name" && exit 1
+  grim -o $output $outfile
+elif [ $wswitch = 1 ]; then
+  if [[ $XDG_CURRENT_DESKTOP =~ ^niri ]]; then
+    niri msg action screenshot-window
+    exit 1
+  elif [[ $XDG_CURRENT_DESKTOP =~ ^sway ]]; then
+    geometry=$(swaymsg -r -t get_tree | jq -r 'recurse(.nodes[]?, .floating_nodes[]?) | select(.focused) | "\(.rect.x),\(.rect.y) \(.rect.width)x\(.rect.height)"')
+  elif [[ $XDG_CURRENT_DESKTOP =~ ^Hyprland ]]; then
+    geometry=$(hyprctl -j activewindow | jq -r '"\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"')
+  fi
+  [ -z "$geometry" ] && echo "Error: Could not determine current window geometry" && exit 1
+  grim -g $geometry $outfile
+else
+  grim -g "$(slurp)" $outfile
 fi
 
-[[ ! $progmode ]] && echo "Error: Unsupported WM $XDG_CURRENT_DESKTOP" && exit 1
+cat $outfile | wl-copy --type image/png
+notify-send -a $progname "Screenshot" "Screenshot saved as $outfile and copied to clipboard"
 
-if [ -z $1 ]; then
-    Help
-    exit
-fi
-
-CLIPBOARD=0
-DEBUG=0
-SILENT=0
-RAW=0
-NOTIF_TIMEOUT=5000
-CURRENT=0
-FREEZE=0
-[ -z "$XDG_PICTURES_DIR" ] && type xdg-user-dir &> /dev/null && XDG_PICTURES_DIR=$(xdg-user-dir PICTURES)
-FILENAME="$(date +'%Y-%m-%d-%H%M%S_screenshot.png')"
-[ -z "$SCREENSHOT_DIR" ] && SAVEDIR=${XDG_PICTURES_DIR:=~} || SAVEDIR=${SCREENSHOT_DIR}
-
-args $0 "$@"
-
-SAVE_FULLPATH="$SAVEDIR/$FILENAME"
-[ $CLIPBOARD -eq 0 ] && Print "Saving in: %s\n" "$SAVE_FULLPATH"
-begin_grab $OPTION & checkRunning

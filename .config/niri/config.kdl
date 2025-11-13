@@ -104,8 +104,8 @@ binds {
     Mod+Ctrl+R       hotkey-overlay-title="Reset Window Height"          { reset-window-height; }
 
     // Apps
-    XF86Tools                                                                    { spawn-sh "wm-screen-dim ; sleep 1 ; loginctl lock-session ; sleep 1 ; wm-screen-off"; }
-    F12                 hotkey-overlay-title="Lock Screen"                       { spawn-sh "wm-screen-dim ; sleep 1 ; loginctl lock-session ; sleep 1 ; wm-screen-off"; }
+    XF86Tools                                                                    { spawn-sh "pkill -SIGUSR1 swayidle"; }
+    F12                 hotkey-overlay-title="Lock Screen"                       { spawn-sh "pkill -SIGUSR1 swayidle"; }
     // F11                                                                          { spawn-sh "wm-power-menu"; }
     Mod+P               hotkey-overlay-title="Power Menu"                        { spawn-sh "wm-power-menu"; }
     Ctrl+Alt+Delete                                                              { spawn-sh "wm-power-menu"; }
@@ -149,10 +149,10 @@ binds {
     Mod+Ctrl+Alt+Shift+Slash hotkey-overlay-title="Generate Niri Help"   { spawn-sh "wm-gen-help"; }
 
     // Screenshots
-    Mod+Shift+S      hotkey-overlay-title="Screenshot Selection"         { screenshot show-pointer=false; }
-    Print            hotkey-overlay-title="Screenshot Selection"         { screenshot show-pointer=false; }
-    Ctrl+Print       hotkey-overlay-title="Screenshot Screen"            { screenshot-screen; }
-    Alt+Print        hotkey-overlay-title="Screenshot Window"            { screenshot-window; }
+    Mod+Shift+S      hotkey-overlay-title="Screenshot Selection"         { spawn-sh "wm-screenshot"; }
+    Print            hotkey-overlay-title="Screenshot Selection"         { spawn-sh "wm-screenshot"; }
+    Ctrl+Print       hotkey-overlay-title="Screenshot Screen"            { spawn-sh "wm-screenshot -a"; }
+    Alt+Print        hotkey-overlay-title="Screenshot Window"            { spawn-sh "wm-screenshot -w"; }
 
     Mod+F            hotkey-overlay-title="Maximize Column"              { maximize-column; }
     Mod+Shift+F      hotkey-overlay-title="Fullscreen Window"            { fullscreen-window; }
@@ -316,7 +316,7 @@ window-rule {
 }
 
 window-rule {
-    match app-id=r#"^(code-oss|chromium|firefox|fr\.handbrake\.ghb|io\.github\.celluloid_player\.Celluloid|io\.github\.ungoogled_software\.ungoogled_chromium|gimp|labwc|librewolf|obsidian|vlc)$"#
+    match app-id=r#"^(code-oss|chromium|firefox|fr\.handbrake\.ghb|io\.github\.celluloid_player\.Celluloid|io\.github\.ungoogled_software\.ungoogled_chromium|gimp|labwc|librewolf|obsidian|vlc|Tor Browser)$"#
     open-maximized true
 }
 
@@ -468,6 +468,8 @@ input {
           options "menu:super"
         }
         numlock
+        // repeat-rate 35
+        // repeat-delay 200
     }
 
     touchpad {

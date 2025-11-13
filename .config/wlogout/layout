@@ -1,6 +1,6 @@
 {
     "label" : "lock",
-    "action" : "loginctl lock-session ${XDG_SESSION_ID-}",
+    "action" : "pkill -SIGUSR1 swayidle",
     "text" : "[L]ock ",
     "keybind" : "l"
 }
