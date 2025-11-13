@@ -48,7 +48,7 @@ elif [ $sswitch = 1 ]; then
   grim -o $output $outfile
 elif [ $wswitch = 1 ]; then
   if [[ $XDG_CURRENT_DESKTOP =~ ^niri ]]; then
-    niri msg action screenshot-window
+    niri msg action screenshot-window --write-to-disk true
     exit 1
   elif [[ $XDG_CURRENT_DESKTOP =~ ^sway ]]; then
     geometry=$(swaymsg -r -t get_tree | jq -r 'recurse(.nodes[]?, .floating_nodes[]?) | select(.focused) | "\(.rect.x),\(.rect.y) \(.rect.width)x\(.rect.height)"')
