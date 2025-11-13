@@ -38,6 +38,10 @@ button:focus, button:active, button:hover {
     background-image: image(url("/home/mike/.config/wlogout/icons/lock.svg"), url("/usr/share/wlogout/icons/lock.png"));
 }
 
+#screen-off {
+    background-image: image(url("/home/mike/.config/wlogout/icons/screen-off.svg"));
+}
+
 #logout {
     background-image: image(url("/home/mike/.config/wlogout/icons/logout.svg"), url("/usr/share/wlogout/icons/logout.png"));
 }
@@ -56,5 +60,9 @@ button:focus, button:active, button:hover {
 
 #reboot {
     background-image: image(url("/home/mike/.config/wlogout/icons/reboot.svg"), url("/usr/share/wlogout/icons/reboot.png"));
+}
+
+#cancel {
+    background-image: image(url("/home/mike/.config/wlogout/icons/cancel.svg"));
 }
 

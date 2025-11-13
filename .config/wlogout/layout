@@ -1,36 +1,48 @@
 {
     "label" : "lock",
     "action" : "pkill -SIGUSR1 swayidle",
-    "text" : "[L]ock ",
+    "text" : "Lock ",
     "keybind" : "l"
 }
 {
     "label" : "hibernate",
     "action" : "systemctl hibernate",
-    "text" : "[H]ibernate ",
+    "text" : "Hibernate ",
     "keybind" : "h"
 }
 {
-    "label" : "logout",
-    "action" : "loginctl terminate-session ${XDG_SESSION_ID-}",
-    "text" : "Lo[g]out ",
-    "keybind" : "g"
+    "label" : "screen-off",
+    "action" : "niri msg action power-off-monitors",
+    "text" : "Screen Off ",
+    "keybind" : "o"
 }
 {
     "label" : "reboot",
     "action" : "systemctl reboot",
-    "text" : "[R]eboot ",
+    "text" : "Reboot ",
     "keybind" : "r"
 }
 {
-    "label" : "suspend",
-    "action" : "systemctl suspend-then-hibernate",
-    "text" : "[S]uspend ",
-    "keybind" : "s"
+    "label" : "logout",
+    "action" : "wm-logout",
+    "text" : "Logout ",
+    "keybind" : "g"
 }
 {
     "label" : "shutdown",
     "action" : "systemctl poweroff",
-    "text" : "Sh[u]tdown ",
+    "text" : "Shutdown ",
     "keybind" : "u"
+}
+{
+    "label" : "suspend",
+    "action" : "systemctl suspend-then-hibernate",
+    "text" : "Suspend ",
+    "keybind" : "s"
+}
+{
+    "label" : "cancel",
+    "action" : "true",
+    "text" : "Cancel ",
+    "keybind" : "c"
 }

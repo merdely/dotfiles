@@ -10,6 +10,7 @@ CONFIGS=(
   $HOME/.config/niri/scripts/
   $HOME/.config/nvim/
   $HOME/.config/nwg-drawer/
+  $HOME/.config/powermenurc
   $HOME/.config/shell/merdely.profile
   $HOME/.config/starship.toml
   $HOME/.config/swayidle

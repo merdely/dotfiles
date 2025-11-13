@@ -1,0 +1,5 @@
+power_menu=wlogout
+#power_opts="-s"
+
+#power_menu=wleave
+#power_opts="-x -f"
