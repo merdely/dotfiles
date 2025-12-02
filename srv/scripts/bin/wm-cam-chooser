@@ -85,6 +85,9 @@ splittype=medium
 
 multiview=0
 case $cam in
+  garagedoorcam)
+    rtsp_url="${cameras[$cam]}"
+    ;;
   *cam|*cam2)
     rtsp_url="${cameras[$cam]}/$uri&subtype=${subtypes[main]}"
     ;;
