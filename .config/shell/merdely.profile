@@ -251,8 +251,9 @@ elif [ $running_shell = zsh ]; then
   hash -d ansible=$HOME/Work/src/ansible
   hash -d scripts=$HOME/Work/src/scripts
   hash -d dotfiles=$HOME/Work/git/dotfiles
-  [ -d $XDG_DATA_HOME/Syncthing/Logseq ] && hash -d logseq=$XDG_DATA_HOME/Syncthing/Logseq
+  [ -d $XDG_DATA_HOME/Syncthing/Logseq ] && hash -d logseq=$XDG_DATA_HOME/Syncthing/Logseq/Mike\'s\ Notes
   [ -d $XDG_DATA_HOME/Seafile ] && hash -d seafile=$XDG_DATA_HOME/Seafile
+  [ -d $XDG_DATA_HOME/Syncthing ] && hash -d syncthing=$XDG_DATA_HOME/Syncthing
 
   # Use XDG dirs for completion and history files
   [ -d "$XDG_CACHE_HOME"/zsh ] || mkdir -p "$XDG_CACHE_HOME"/zsh
@@ -463,7 +464,7 @@ export SCREENDIR=$XDG_RUNTIME_DIR/screen
 [ ! -L $HOME/.ssh/ctl ] && ln -s $XDG_RUNTIME_DIR/ssh-ctl $HOME/.ssh/ctl
 
 # SSH key stuff
-[ ! -e $XDG_RUNTIME_DIR/ssh-auth-sock ] && [ -n "$SSH_AUTH_SOCK" ] && ln -s $SSH_AUTH_SOCK $XDG_RUNTIME_DIR/ssh-auth-sock
+[ ! -e $XDG_RUNTIME_DIR/ssh-auth-sock ] && [ -n "$SSH_AUTH_SOCK" ] && ln -sf $SSH_AUTH_SOCK $XDG_RUNTIME_DIR/ssh-auth-sock
 if [ -n "$SSH_CONNECTION" ] && [ ! -S $XDG_RUNTIME_DIR/ssh-auth-sock ] && [ -S "$SSH_AUTH_SOCK" ]; then
   ln -sf $SSH_AUTH_SOCK $XDG_RUNTIME_DIR/ssh-auth-sock
 fi
@@ -596,6 +597,9 @@ case "$HOSTNAME" in
         ;;
     esac
     alias change_password='tmux neww -d -n chpass ; for f in earth jupiter dione venus tarvos sinope carme metis; do tmux splitw -d -t:$ "ssh $f"; tmux select-layout -t:$ tiled; done; tmux set -w -t:$ synchronize-panes; tmux set -w -t:$ pane-active-border-style fg=red; tmux select-layout -t:$ main-vertical; tmux select-window -t:$'
+    ;;
+  carme|metis)
+    alias updates='echo Using pikvm-update; sudo pikvm-update --no-reboot'
     ;;
   uranus)
     [ "$ID" = arch ] && alias dmesg='sudo dmesg'
