@@ -1,4 +1,6 @@
 power_menu=wlogout
+power_opts="-m 330 -b 4"
+power_rot_opts="-m 230 -b 2"
 #power_opts="-s"
 
 #power_menu=wleave
