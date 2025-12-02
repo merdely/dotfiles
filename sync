@@ -59,6 +59,7 @@ EXCLUDE=(
   --exclude='*.lock'
   --exclude='*.old'
   --exclude='*.orig'
+  --exclude='*.test'
   --exclude='*.testing'
   --exclude='*.tmp'
 )

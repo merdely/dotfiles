@@ -1,19 +1,16 @@
 #!/usr/bin/env bash
 
 maxcount=300
+declare -A cameras
 
 [ -r $XDG_CONFIG_HOME/fuzzy-chooser.conf ] && source $XDG_CONFIG_HOME/fuzzy-chooser.conf
 [ -z "$chooser" ] && chooser=$fuzzy_chooser
 
-declare -A cameras
-cameras[garagedoorcam]=rtsp://rtsp:rtspviewer@frigate.erdely.in:8554/garagedoorcam
-cameras[backyardcam]="rtsp://frigate:Verbose8Freeze_Clad95Coy7Trust51@backyardcam.erdely.in:554"
-cameras[backyardcam2]="rtsp://frigate:Verbose8Freeze_Clad95Coy7Trust51@backyardcam2.erdely.in:554"
-cameras[chimneycam]="rtsp://frigate:Verbose8Freeze_Clad95Coy7Trust51@chimneycam.erdely.in:554"
-cameras[frontdoorcam]="rtsp://frigate:Verbose8Freeze_Clad95Coy7Trust51@frontdoorcam.erdely.in:554"
-cameras[frontdoorcam2]="rtsp://frigate:Verbose8Freeze_Clad95Coy7Trust51@frontdoorcam2.erdely.in:554"
-cameras[garagecam]="rtsp://frigate:Verbose8Freeze_Clad95Coy7Trust51@garagecam.erdely.in:554"
-cameras[shedcam]="rtsp://frigate:Verbose8Freeze_Clad95Coy7Trust51@shedcam.erdely.in:554"
+[ -r $XDG_CONFIG_HOME/cam-chooser.conf ] && source $XDG_CONFIG_HOME/cam-chooser.conf
+[ ${#cameras[@]} = 0 ] && echo "Error: You must defined cameras in $XDG_CONFIG_HOME/cam-chooser.conf" && exit 1
+
+# In cam-chooser, define camera URLs like:
+# cameras[CAMERANAME]="rtsp://USERNAME:PASSWORD@CAMERA.erdely.in:554"
 
 uri="cam/realmonitor?channel=1"
 
