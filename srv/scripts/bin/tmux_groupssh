@@ -79,7 +79,7 @@ if [ "$group" = hass ]; then
   #tmux run -d .5 "true"
   sleep .5
   tmux split-window -vl 77% -t "$w" "ssh hass"
-  tmux send -t "${w%.*}.0" "tail -F /config/home-assistant.log" Enter
+  tmux send -t "${w%.*}.0" "ha core logs --follow" Enter
   tmux select-pane -t ":${w%.*}.{bottom-right}"
   unset w
 fi
