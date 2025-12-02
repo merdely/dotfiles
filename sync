@@ -8,6 +8,7 @@ CONFIGS=(
   $HOME/.config/local/wb_*
   $HOME/.config/niri/config.kdl
   $HOME/.config/niri/scripts/
+  $HOME/.config/noctalia/
   $HOME/.config/nvim/
   $HOME/.config/nwg-drawer/
   $HOME/.config/powermenurc
