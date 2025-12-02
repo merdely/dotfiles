@@ -1,23 +1,26 @@
 #!/usr/bin/env bash
 
+maxcount=300
+
 [ -r $XDG_CONFIG_HOME/fuzzy-chooser.conf ] && source $XDG_CONFIG_HOME/fuzzy-chooser.conf
 [ -z "$chooser" ] && chooser=$fuzzy_chooser
 
 declare -A cameras
-cameras[chimneycam]=rtsp://rtsp:rtspviewer@frigate.erdely.in:8554/chimneycam
-cameras[garagecam2]=rtsp://rtsp:rtspviewer@frigate.erdely.in:8554/garagecam2
-cameras[shedcam]=rtsp://rtsp:rtspviewer@frigate.erdely.in:8554/shedcam
 cameras[garagedoorcam]=rtsp://rtsp:rtspviewer@frigate.erdely.in:8554/garagedoorcam
+cameras[backyardcam]="rtsp://frigate:Verbose8Freeze_Clad95Coy7Trust51@backyardcam.erdely.in:554"
+cameras[backyardcam2]="rtsp://frigate:Verbose8Freeze_Clad95Coy7Trust51@backyardcam2.erdely.in:554"
+cameras[chimneycam]="rtsp://frigate:Verbose8Freeze_Clad95Coy7Trust51@chimneycam.erdely.in:554"
+cameras[frontdoorcam]="rtsp://frigate:Verbose8Freeze_Clad95Coy7Trust51@frontdoorcam.erdely.in:554"
+cameras[frontdoorcam2]="rtsp://frigate:Verbose8Freeze_Clad95Coy7Trust51@frontdoorcam2.erdely.in:554"
+cameras[garagecam]="rtsp://frigate:Verbose8Freeze_Clad95Coy7Trust51@garagecam.erdely.in:554"
+cameras[shedcam]="rtsp://frigate:Verbose8Freeze_Clad95Coy7Trust51@shedcam.erdely.in:554"
 
-#cameras[backyardcam]=rtsp://rtsp:rtspviewer@frigate.erdely.in:8554/backyardcam
-#cameras[frontdoorcam]=rtsp://rtsp:rtspviewer@frigate.erdely.in:8554/frontdoorcam
-#cameras[frontdoorcam2]=rtsp://rtsp:rtspviewer@frigate.erdely.in:8554/frontdoorcam2
-#cameras[garagecam]=rtsp://rtsp:rtspviewer@frigate.erdely.in:8554/garagecam
+uri="cam/realmonitor?channel=1"
 
-cameras[backyardcam]="rtsp://frigate:Verbose8Freeze_Clad95Coy7Trust51@backyardcam.erdely.in:554/cam/realmonitor?channel=1&subtype=0"
-cameras[frontdoorcam]="rtsp://frigate:Verbose8Freeze_Clad95Coy7Trust51@frontdoorcam.erdely.in:554/cam/realmonitor?channel=1&subtype=0"
-cameras[frontdoorcam2]="rtsp://frigate:Verbose8Freeze_Clad95Coy7Trust51@frontdoorcam2.erdely.in:554/cam/realmonitor?channel=1&subtype=0"
-cameras[garagecam]="rtsp://frigate:Verbose8Freeze_Clad95Coy7Trust51@garagecam.erdely.in:554/cam/realmonitor?channel=1&subtype=0"
+declare -A subtypes
+subtypes[main]=0
+subtypes[small]=1
+subtypes[medium]=2
 
 [ -r $XDG_CONFIG_HOME/cam-chooser.conf ] && source $XDG_CONFIG_HOME/cam-chooser.conf
 
@@ -41,13 +44,15 @@ shift $((OPTIND -1))
 if [ -z "$1" ]; then
   camlist="󰞮  Garage Camera	garagecam
 󰞮  Backyard Camera	backyardcam
-󰕰  Back View	backview
-󰕰  Front View	frontview
+󰞮  Backyard Camera 2	backyardcam2
 󰞮  Front Door Camera	frontdoorcam
 󰞮  Front Door Camera 2	frontdoorcam2
 󰞮  Shed Camera	shedcam
 󰞮  Chimney Camera	chimneycam
 󰞮  Garage Door Camera	garagedoorcam
+󰕰  Front View	frontview
+󰕰  Back View	backview
+󰕰  Split View	splitview
 󰞮  Close Camera Window	quit"
 
   pgrep -u $LOGNAME -f -- "([r]ofi|[f]uzzel) -p View Camera ?>? ? -d(menu)?" && \
@@ -79,34 +84,44 @@ fi
 pkill -f "mpv .*--(x11-name|title)=mpvcam"
 [ "$cam" = quit ] && exit
 
+splittype=medium
+
 multiview=0
 case $cam in
   *cam|*cam2)
-    rtsp_url=${cameras[$cam]}
+    rtsp_url="${cameras[$cam]}/$uri&subtype=${subtypes[main]}"
     ;;
   multiview|backview)
-    echo "loading multiview..." > /dev/stderr
+    echo "loading backview..." > /dev/stderr
     multiview=1
-    rtsp_url=${garagecam}_sub
-    rtsp_url2=${shedcam}_sub
-    rtsp_url3=${backyardcam}_sub
-    rtsp_url4=${chimneycam}_sub
+    rtsp_url1="${cameras[shedcam]}/$uri&subtype=${subtypes[$splittype]}"
+    rtsp_url2="${cameras[backyardcam]}/$uri&subtype=${subtypes[$splittype]}"
+    rtsp_url4="${cameras[chimneycam]}/$uri&subtype=${subtypes[$splittype]}"
+    rtsp_url3="${cameras[backyardcam2]}/$uri&subtype=${subtypes[$splittype]}"
     ;;
   frontview)
-    echo "loading multiview..." > /dev/stderr
+    echo "loading frontview..." > /dev/stderr
     multiview=1
-    rtsp_url=${garagecam}_sub
-    rtsp_url2=${frontdoorcam2}_sub
-    rtsp_url3=${frontdoorcam}_sub
-    rtsp_url4=${backyardcam}_sub
+    rtsp_url1="${cameras[garagecam]}/$uri&subtype=${subtypes[$splittype]}"
+    rtsp_url2="${cameras[frontdoorcam2]}/$uri&subtype=${subtypes[$splittype]}"
+    rtsp_url4="${cameras[backyardcam]}/$uri&subtype=${subtypes[$splittype]}"
+    rtsp_url3="${cameras[frontdoorcam]}/$uri&subtype=${subtypes[$splittype]}"
+    ;;
+  splitview)
+    echo "loading splitview..." > /dev/stderr
+    multiview=1
+    rtsp_url1="${cameras[garagecam]}/$uri&subtype=${subtypes[$splittype]}"
+    rtsp_url2="${cameras[frontdoorcam2]}/$uri&subtype=${subtypes[$splittype]}"
+    rtsp_url3="${cameras[backyardcam2]}/$uri&subtype=${subtypes[$splittype]}"
+    rtsp_url4="${cameras[backyardcam]}/$uri&subtype=${subtypes[$splittype]}"
     ;;
   *)
     if [[ $1 =~ ^(https?|rtsp):// ]]; then
       rtsp_url=$1
       cam=$1
     else
-      rtsp_url=${cameras[garagecam]}
       cam=garagecam
+      rtsp_url="${cameras[$cam]}/$uri&subtype=${subtypes[main]}"
     fi
     ;;
 esac
@@ -118,7 +133,7 @@ fi
 if [ $multiview = 0 ]; then
   DBUS_FATAL_WARNINGS=0 /usr/bin/mpv --mute=yes --stop-screensaver=no --title="mpvcam $cam" $rtsp_url &
 else
-  DBUS_FATAL_WARNINGS=0 /usr/bin/mpv --mute=yes --stop-screensaver=no --title="mpvcam $cam" $rtsp_url \
+  DBUS_FATAL_WARNINGS=0 /usr/bin/mpv --mute=yes --stop-screensaver=no --title="mpvcam $cam" $rtsp_url1 \
     --external-file={$rtsp_url2,$rtsp_url3,$rtsp_url4} \
     --lavfi-complex="[vid1][vid2]hstack=[top];[vid3][vid4]hstack=[bottom];[top][bottom]vstack[vo]" &
 fi
@@ -128,11 +143,11 @@ if [[ $XDG_CURRENT_DESKTOP = niri ]]; then
   which jq &> /dev/null || { echo "Error: jq command required" && exit 1; }
   unset w
   count=0
-  while [ -z "$w" ] && [ $count -le 100 ]; do
+  while [ -z "$w" ] && [ $count -le $maxcount ]; do
     w=$(niri msg -j windows | jq --arg pid $pid -r '.[] | select(.pid|tostring == $pid) | .id')
     [ -z "$w" ] && count=$((count+1)) && sleep .1
   done
-  [ $count -ge 100 ] && echo "Error: Could not get window id" && exit 1
+  [ $count -ge $maxcount ] && echo "Error: Could not get window id" && exit 1
   echo window-id=$w
   set -o xtrace
   niri msg action move-window-to-monitor --id $w eDP-1
