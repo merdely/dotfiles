@@ -144,8 +144,8 @@
             "updated": ""
         },
         "exec-if": "which waybar-updates",
-        // "exec": "waybar-updates --flatpak --notify --packages-limit 30"
-        "exec": "waybar-updates  --notify --packages-limit 30"
+        "exec": "waybar-updates --flatpak --notify --packages-limit 30"
+        // "exec": "waybar-updates  --notify --packages-limit 30"
     },
 
     "custom/razermouse": {
