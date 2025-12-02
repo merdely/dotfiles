@@ -54,7 +54,7 @@
                     "maxWidth": 400,
                     "scrollingMode": "hover",
                     "showIcon": true,
-                    "useFixedWidth": true
+                    "useFixedWidth": false
                 },
                 {
                     "hideMode": "idle",
@@ -385,9 +385,9 @@
     },
     "ui": {
         "fontDefault": "Roboto",
-        "fontDefaultScale": 1,
+        "fontDefaultScale": 1.03,
         "fontFixed": "DejaVu Sans Mono",
-        "fontFixedScale": 1,
+        "fontFixedScale": 1.03,
         "panelBackgroundOpacity": 1,
         "panelsAttachedToBar": true,
         "settingsPanelAttachToBar": false,
