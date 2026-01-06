@@ -1,7 +1,7 @@
 #!/bin/sh
 
 cur=$(tmux display-message -p -F '#{window_index}')
-I=0
+I=$(tmux show-options -g base-index | awk '{print $NF}')
 for win in $(tmux lsw -F '#I'); do
   if [ $I != $win ]; then
     [ "$1" = "-v" ] && echo "Moving window $win to $I"

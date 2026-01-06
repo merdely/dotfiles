@@ -1,10 +1,12 @@
 #!/bin/sh
 
 usage() {
-  echo "usage: $(basename $0) [-s] [-u] [-t|-eh|-ev|-mh|-mv] HOST..."
+  echo "usage: $(basename $0) [-s] [-u] [-4|-6] [-t|-eh|-ev|-mh|-mv] HOST..."
   echo "        -h: This help text"
   echo "        -s: synchronize panes"
   echo "        -u: don't use known_hosts"
+  echo "        -4: use ipv4"
+  echo "        -6: use ipv6"
   echo "        -t: Use tiled layout (default)"
   echo "        -eh: Use even-horizontal layout"
   echo "        -ev: Use even-vertical layout"
@@ -18,14 +20,21 @@ sync=0
 unset mode
 unset split
 unset khosts
+unset foursix
 
-while getopts ":hsuemthv" opt; do
+while getopts ":hsu46emthv" opt; do
   case ${opt} in
     s)
       sync=1
       ;;
     u)
       khosts="-o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
+      ;;
+    4)
+      foursix="-4"
+      ;;
+    6)
+      foursix="-6"
       ;;
     e)
       mode=even
@@ -58,9 +67,9 @@ group=$(echo "$@" | sed 's/,/ /g')
 count=0
 for host in $group; do
   if [ $count = 0 ]; then
-    window=$(tmux new-window -n "$host" "ssh $khosts $host")
+    window=$(tmux new-window -n "$host" "ssh $foursix $khosts $host")
   else
-    tmux split-window -t:$window.{bottom-right} "ssh $khosts $host"
+    tmux split-window -t:$window.{bottom-right} "ssh $foursix $khosts $host"
     tmux select-layout -t:$window.0 $mode$split
   fi
   count=$((count+1))
@@ -78,7 +87,7 @@ if [ "$group" = hass ]; then
   w=${window#*:}
   #tmux run -d .5 "true"
   sleep .5
-  tmux split-window -vl 77% -t "$w" "ssh hass"
+  tmux split-window -vl 77% -t "$w" "ssh $foursix $khosts hass"
   tmux send -t "${w%.*}.0" "ha core logs --follow" Enter
   tmux select-pane -t ":${w%.*}.{bottom-right}"
   unset w
