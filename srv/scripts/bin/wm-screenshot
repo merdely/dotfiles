@@ -58,7 +58,9 @@ elif [ $wswitch = 1 ]; then
   [ -z "$geometry" ] && echo "Error: Could not determine current window geometry" && exit 1
   grim -g $geometry $outfile
 else
-  grim -g "$(slurp)" $outfile
+  geom=$(slurp)
+  [ $? != 0 ] && exit 1
+  grim -g "$geom" $outfile
 fi
 
 cat $outfile | wl-copy --type image/png

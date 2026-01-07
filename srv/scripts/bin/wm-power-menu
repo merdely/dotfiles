@@ -43,7 +43,7 @@ open_power_menu() {
   case $XDG_CURRENT_DESKTOP in
     sway*) swaymsg exec $power_menu $opts & ;;
     niri*) niri msg action spawn -- $power_menu $opts & ;;
-    Hyprland) hyprctl dispatch exec $power_menu $opts & ;;
+    Hyprland) hyprctl dispatch exec -- $power_menu $opts & ;;
     *) exec $power_menu $opts & ;;
   esac
 }
