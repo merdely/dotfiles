@@ -65,8 +65,8 @@ shift $((OPTIND -1))
 
 group=$(echo "$@" | sed 's/,/ /g')
 if [ -z "$2" ]; then
-  host $1 > /dev/null
   group=$1
+  host $1 > /dev/null
   if [ $? != 0 ] || [ $1 = cribl ]; then
     group=$(ansible $1 --list-hosts | awk 'NR>1{print $1}')
     [ -n "$group" ] && group_name=$1
