@@ -4,6 +4,11 @@ power_device=battery_BAT
 
 upower -i $(upower -e | grep $power_device) > /dev/null 2>&1 || exit 1
 
+critical_threshold=10
+low_threshold=30
+medium_threshold=60
+high_threshold=80
+
 wait=1
 if [ -r "$HOME/.config/waybar/settings/$(basename "$0" .sh)" ]; then
   source "$HOME/.config/waybar/settings/$(basename "$0" .sh)"
@@ -30,13 +35,13 @@ print_output() {
   local text=$perc
 
   class=normal
-  if [ $perc -lt 10 ]; then
+  if [ $perc -lt $critical_threshold ]; then
     class=critical
-  elif [ $perc -lt 40 ]; then
+  elif [ $perc -lt $low_threshold ]; then
     class=low
-  elif [ $perc -lt 60 ]; then
+  elif [ $perc -lt $medium_threshold ]; then
     class=medium
-  elif [ $perc -lt 80 ]; then
+  elif [ $perc -lt $high_threshold ]; then
     class=high
   else
     class=full
