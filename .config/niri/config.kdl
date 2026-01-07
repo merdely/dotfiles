@@ -1,6 +1,6 @@
 include "/home/mike/.config/local/niri.kdl"
 
-workspace "1"    { open-on-output "DP-3"; }
+workspace "1"    { open-on-output "DP-1"; }
 workspace "🗒️"   { open-on-output "eDP-1"; }
 prefer-no-csd
 screenshot-path "~/Pictures/Screenshots/Screenshot-%Y-%m-%d_%H-%M-%S.png"
@@ -10,6 +10,8 @@ spawn-sh-at-startup "systemctl --user start wm-session.target"
 spawn-sh-at-startup "systemctl --user start waybar.service"
 spawn-sh-at-startup "systemctl --user start swaybg.service"
 // spawn-sh-at-startup "systemctl --user start noctalia.service"
+// spawn-sh-at-startup "dms run"
+// spawn-sh-at-startup "wl-paste --watch cliphist store"
 spawn-sh-at-startup "systemctl --user start swayidle.service"
 spawn-sh-at-startup "systemctl --user start wl-clip-persist.service"
 spawn-sh-at-startup "systemctl --user start ydotool.service"
@@ -100,6 +102,7 @@ binds {
     Mod+Shift+C             hotkey-overlay-title="Calculator"            { spawn-sh "wm-minimize -R galculator"; }
     Mod+Shift+Return        hotkey-overlay-title="Terminal Scratchpad"   { spawn-sh "wm-minimize term-scratchpad"; }
     Mod+Shift+BracketLeft   hotkey-overlay-title="Terminal File Manager" { spawn-sh "wm-minimize termfm"; }
+    Mod+Shift+BracketRight  hotkey-overlay-title="Text Editor"           { spawn-sh "wm-minimize featherpad"; }
     Mod+Shift+Apostrophe    hotkey-overlay-title="Bluetooth Manager"     { spawn-sh "wm-minimize blueman-manager"; }
     Mod+Shift+N             hotkey-overlay-title="Nvtop"                 { spawn-sh "wm-minimize nvtop"; }
     Mod+Shift+I             hotkey-overlay-title="Htop"                  { spawn-sh "wm-minimize htop"; }
@@ -155,8 +158,8 @@ binds {
     // Move Window/Column
     // Mod+Shift+H      hotkey-overlay-title="Move Column Left"             { move-column-left-or-to-monitor-left; }
     Mod+Shift+H      hotkey-overlay-title="Move Column Left"             { move-column-left; }
-    Mod+Shift+J      hotkey-overlay-title="Move Column Down"             { move-window-down; }
-    Mod+Shift+K      hotkey-overlay-title="Move Column Up"               { move-window-up; }
+    Mod+Shift+J      hotkey-overlay-title="Move Column Down"             { move-window-down-or-to-workspace-down; }
+    Mod+Shift+K      hotkey-overlay-title="Move Column Up"               { move-window-up-or-to-workspace-up; }
     Mod+Shift+L      hotkey-overlay-title="Move Column Right"            { move-column-right; }
     // Mod+Shift+L      hotkey-overlay-title="Move Column Right"            { move-column-right-or-to-monitor-right; }
 
@@ -205,8 +208,8 @@ binds {
 
     // Quick Apps
     Mod+1             hotkey-overlay-title="Focus First Terminal"  { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app preferred-terminal.desktop kitty"; }
-    Mod+2             hotkey-overlay-title="Focus First Browser"   { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app -c '-P Mike' firefox-mike.desktop firefox"; }
-    Mod+3             hotkey-overlay-title="Focus Second Browser"  { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app -c '-P Media' firefox-media.desktop firefox"; }
+    Mod+2             hotkey-overlay-title="Focus First Browser"   { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app -c '-P Mike' librewolf-mike.desktop librewolf"; }
+    Mod+3             hotkey-overlay-title="Focus Second Browser"  { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app -c '-P Media' librewolf-media.desktop librewolf"; }
 
     Mod+Alt+1         hotkey-overlay-title="Focus WS 1"                  { focus-workspace 1; }
     Mod+Alt+2         hotkey-overlay-title="Focus WS 2"                  { focus-workspace 2; }
@@ -318,7 +321,12 @@ window-rule {
 
 window-rule {
     match app-id=r#"^(firefox|librewolf)$"# at-startup=true
-    open-on-output "DP-4"
+    open-on-output "HDMI-A-1"
+}
+
+window-rule {
+    match app-id=r#"^(firefox|librewolf)$"# title=r#"Live . Frigate . (LibreWolf|Firefox)"#
+    open-on-output "eDP-1"
 }
 
 window-rule {
@@ -352,7 +360,7 @@ window-rule {
 }
 
 window-rule {
-    match app-id=r#"^(Bitwarden|blueman-manager|Element|io\.missioncenter\.MissionCenter|Logseq|signal|org\.signal\.Signal|Signal|pavucontrol|htop|btop|net\.nokyan\.Resources|nvtop|term-scratchpad|termfm)$"#
+    match app-id=r#"^(Bitwarden|blueman-manager|Element|featherpad|io\.missioncenter\.MissionCenter|Logseq|signal|org\.signal\.Signal|Signal|pavucontrol|htop|btop|net\.nokyan\.Resources|nvtop|term-scratchpad|termfm)$"#
     open-floating true
     open-maximized false
 }
@@ -492,6 +500,7 @@ input {
 
     workspace-auto-back-and-forth
     focus-follows-mouse max-scroll-amount="49%"
+    // focus-follows-mouse
     // Disabled because when clicking on icons in waybar-niri-taskbar
     // it immediately puts the cursor in the middle of the window making it
     // difficult to click on multiple icons to look at windows quickly
@@ -526,7 +535,10 @@ layout {
     }
 
     shadow { }
-    struts { }
+    struts { 
+      // left 20
+      // right 20
+    }
 }
 
 animations { }
