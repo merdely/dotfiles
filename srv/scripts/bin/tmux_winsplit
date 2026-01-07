@@ -1,8 +1,7 @@
 #!/bin/sh
 
+window_name_list="$(hostname -s) me home splunkgit media bash ksh zsh csh sh fish tail man less more top watch vi vim nano emacs python python3"
 hass=homeassistant
-
-window_name_list="$(hostname -s) me media bash ksh zsh csh sh fish tail man less more top watch vi vim nano emacs python python3"
 [ $(hostname -s) = $hass ] && $window_name_list="${window_name_list} hass"
 
 echo " $window_name_list " | grep -q " $1 "
