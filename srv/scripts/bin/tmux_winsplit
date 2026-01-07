@@ -1,6 +1,6 @@
 #!/bin/sh
 
-window_name_list="$(hostname -s) me home splunkgit media bash ksh zsh csh sh fish tail man less more top watch vi vim nano emacs python python3"
+window_name_list="$(hostname -s) $(cat ~/.cname 2>/dev/null) me home splunkgit media bash ksh zsh csh sh fish tail man less more top watch vi vim nano emacs python python3"
 hass=homeassistant
 [ $(hostname -s) = $hass ] && $window_name_list="${window_name_list} hass"
 
