@@ -160,6 +160,7 @@ elif [ $running_shell = zsh ]; then
   autoload -U compinit && compinit
   autoload -U colors && colors
   autoload -U edit-command-line && zle -N edit-command-line
+  autoload zmv
   edit-and-execute() {
     zle edit-command-line
     zle accept-line
@@ -269,6 +270,7 @@ elif [ $running_shell = zsh ]; then
     source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
   bindkey -M viins '^y' autosuggest-execute
   bindkey -M viins "^Xy" autosuggest-accept
+  bindkey ' ' magic-space
 
   # Really breaks vi-mode history searching
   #[ -r /usr/share/zsh/plugins/zsh-autocomplete/zsh-autocomplete.plugin.zsh ] && \
@@ -312,6 +314,8 @@ which rsync > /dev/null 2>&1 && alias dos_rsync='rsync -rtcvP'
 which batman > /dev/null 2>&1 && eval "$(batman --export-env)"
 which bat > /dev/null 2>&1 && alias cat='bat --paging=never --plain'
 which bat > /dev/null 2>&1 && export PAGER='bat'
+which subnetcalc > /dev/null 2>&1 && alias ipcalc=subnetcalc
+which flatpak > /dev/null 2>&1 && alias fu='flatpak update -y ; flatpak uninstall --unused -y'
 
 # Window Manager aliases
 which Hyprland > /dev/null 2>&1 && alias hhh='Hyprland'
@@ -346,6 +350,7 @@ which hyprctl > /dev/null 2>&1 && alias vihb='vi -O $HOME/.config/hypr/hyprland.
 which i3-msg  > /dev/null 2>&1 && alias vi3='vi $HOME/.config/i3/config'
 which swaymsg > /dev/null 2>&1 && alias vis='vi $HOME/.config/sway/config'
 which niri    > /dev/null 2>&1 && alias vin='vi $HOME/.config/niri/config.kdl'
+which niri    > /dev/null 2>&1 && alias vinl='vi $HOME/.config/local/niri.kdl'
 which nvim    > /dev/null 2>&1 && alias viv='vi $HOME/.config/nvim/init.lua'
 
 # DNS Command aliases
@@ -361,6 +366,7 @@ if which docker > /dev/null 2>&1; then
   [ -r /srv/docker/compose.yaml ] && export COMPOSE_FILE=/srv/docker/compose.yaml
   export COMPOSE_DOCKER_CLI_BUILD=0
   alias dc='docker compose'
+  alias dctop='watch docker compose ps'
   if [ -d /srv/docker/naemon ]; then
     alias naemoncheck='docker compose exec naemon runuser -u naemon -- naemon -v /etc/naemon/naemon.cfg'
     alias naemonreload='docker compose exec naemon pkill -P 1 -x naemon'
@@ -422,7 +428,7 @@ ret_doas=$?
 [ $ret_sudo = 0 -a $ret_doas != 0 ] && alias doas='sudo '
 
 # Handle with / is read-only
-if [ -r /boot/cmdline.txt ] && grep -qE "\<ro\>" /boot/cmdline.txt; then
+if [ -x /usr/local/bin/ro ]; then
   alias check_root='sudo lsof / | awk "NR==1 || \$4~/[0-9]+[uw]/"'
 fi
 
@@ -540,20 +546,20 @@ case "$HOSTNAME" in
 
         pushprofile() {
           cd $HOME
-          list="jupiter earth carme metis sinope tarvos"
+          list="jupiter earth carme metis sinope tarvos neso"
           [ -n "$1" ] && list="$@"
           unset ros
-          roh=" carme metis sinope tarvos "
+          roh=" carme metis sinope tarvos neso "
           for f in $(echo $list); do
             echo $f
-            out=$(rsync -a --info=NAME --relative --recursive \
-              .config/shell/merdely.profile .config/starship.toml $f: 2>&1 | tee /dev/stderr)
+            out=$(rsync -a -4 --info=NAME --relative --recursive \
+              .config/shell/merdely.profile $f: 2>&1 | tee /dev/stderr)
             [ -n "$out" ] && [[ $roh == *" "$f" "* ]] && ros="$ros $f"
           done
           for f in $(echo $ros); do
             echo " $list " | grep -q " $f " || continue
             echo $f: sync_home
-            ssh -o ClearAllForwardings=yes root@$f /home/mike/.local/bin/sync_home > /dev/null
+            ssh -4 -o ClearAllForwardings=yes root@$f /home/mike/.local/bin/sync_home > /dev/null
           done
         }
 
