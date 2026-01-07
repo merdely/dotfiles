@@ -64,9 +64,19 @@ shift $((OPTIND -1))
 [ -z "$1" ] && exit 0
 
 group=$(echo "$@" | sed 's/,/ /g')
+if [ -z "$2" ]; then
+  host $1 > /dev/null
+  group=$1
+  if [ $? != 0 ] || [ $1 = cribl ]; then
+    group=$(ansible $1 --list-hosts | awk 'NR>1{print $1}')
+    [ -n "$group" ] && group_name=$1
+  fi
+fi
+
 count=0
 for host in $group; do
   if [ $count = 0 ]; then
+    [ -z "$group_name" ] && group_name=$host
     window=$(tmux new-window -n "$host" "ssh $foursix $khosts $host")
   else
     tmux split-window -t:$window.{bottom-right} "ssh $foursix $khosts $host"
@@ -76,6 +86,10 @@ for host in $group; do
 done
 
 if [ $count -gt 1 ]; then
+  if [ $count = 2 ]; then
+    mode=${mode:-even}
+    split=${split:-horizontal}
+  fi
   tmux select-layout -t:$window.0 $mode$split
 
   [ $sync = 1 ] && tmux setw -t:$window.0 synchronize-panes && \
@@ -83,9 +97,7 @@ if [ $count -gt 1 ]; then
 fi
 
 if [ "$group" = hass ]; then
-  #w=$(tmux neww -Pnhass "ssh ha")
   w=${window#*:}
-  #tmux run -d .5 "true"
   sleep .5
   tmux split-window -vl 77% -t "$w" "ssh $foursix $khosts hass"
   tmux send -t "${w%.*}.0" "ha core logs --follow" Enter

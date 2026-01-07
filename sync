@@ -62,6 +62,7 @@ EXCLUDE=(
   --exclude='*.test'
   --exclude='*.testing'
   --exclude='*.tmp'
+  --exclude="wm-bookmark-chooser"
 )
 
 unset dryrun
