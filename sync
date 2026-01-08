@@ -39,6 +39,7 @@ CONFIGS=(
 )
 
 SCRIPTS=(
+  /srv/scripts/bin/getopts_example.txt
   /srv/scripts/bin/mic-mute
   /srv/scripts/bin/mic-unmute
   /srv/scripts/bin/play-pause-media
