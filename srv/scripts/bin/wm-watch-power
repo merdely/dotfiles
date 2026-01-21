@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-verbose=1
+verbose=true
 low_threshold=40
 swayidle_config=$HOME/.config/swayidle/config
 battery=$(upower -b | awk '/^Device: /{sub(/^Device: /,"");print;exit}')
 
-charging=0
+charging=false
 charging_state=battery
 
 upower_out=$(upower -i $battery)
@@ -14,13 +14,13 @@ perc=$(echo "$upower_out" | awk '/^\s+percentage:\s+[0-9]+%$/{print $2}')
 
 # Determine if charging
 if echo "$upower_out" | grep -Eq "state:\s+charging$"; then
-  charging=1
+  charging=true
   charging_state=charging
 fi
 
 # Determine if battery is low
 if [[ $perc_num =~ ^[0-9]+$ ]] && [ $perc_num -lt $low_threshold ]; then
-  [ $charging = 0 ] && charging_state=low_battery
+  ! $charging && charging_state=low_battery
 fi
 
 restart_swayidle() {
@@ -53,20 +53,20 @@ change_swayidle_profile() {
 
   cur_profile=$(get_current_profile)
   if [[ $1 = $cur_profile ]]; then
-    [[ $verbose = 1 ]] && echo "Warning: Already on swayidle $cur_profile profile" > /dev/stderr
+    $verbose && echo "Warning: Already on swayidle $cur_profile profile" > /dev/stderr
     return 0
   fi
 
   if [ ! -r $swayidle_config.$1 ]; then
-    [[ $verbose = 1 ]] && echo "Warning: No swayidle $1 profile file" > /dev/stderr
+    $verbose && echo "Warning: No swayidle $1 profile file" > /dev/stderr
     if [[ $1 = low_battery ]]; then
       if [ $cur_profile = battery ]; then
-        [[ $verbose = 1 ]] && echo "Warning: Using swayidle battery profile in place of swayidle low_battery profile" > /dev/stderr
-        [[ $verbose = 1 ]] && echo "Warning: Already on swayidle battery profile" > /dev/stderr
+        $verbose && echo "Warning: Using swayidle battery profile in place of swayidle low_battery profile" > /dev/stderr
+        $verbose && echo "Warning: Already on swayidle battery profile" > /dev/stderr
         return 0
       fi
       if [ ! -r $swayidle_config.battery ]; then
-        [[ $verbose = 1 ]] && echo "Warning: No swayidle battery profile file" > /dev/stderr
+        $verbose && echo "Warning: No swayidle battery profile file" > /dev/stderr
         return 1
       fi
       echo Switching swayidle to battery profile
@@ -88,27 +88,27 @@ echo state = $charging_state, profile = $cur_profile, perc = $perc_num%
 [ $cur_profile != $charging_state ] && change_swayidle_profile $charging_state
 
 while true; do
-  in_battery=0
+  in_battery=false
   stdbuf -oL -eL upower --monitor-detail | \
   while read; do
     #echo REPLY="'$REPLY'"
     #continue
     case "$REPLY" in
       *"device changed"*$battery)
-        in_battery=1
+        in_battery=true
         # echo enabling watching battery info
         ;;
       *" state: "*" charging"|*" state: "*" fully-charged")
-        if [ "$in_battery" = 1 ] && [ "$charging" != 1 ]; then
-          charging=1
+        if $in_battery && ! $charging; then
+          charging=true
           charging_state=charging
           echo Switching to $charging_state
           change_swayidle_profile $charging_state
         fi
         ;;
       *" state: "*" discharging")
-        if [ "$in_battery" = 1 ] && [ "$charging" != 0 ]; then
-          charging=0
+        if $in_battery && ! $charging; then
+          charging=false
           if [[ $perc_num =~ ^[0-9]$ ]] && [ $perc_num -lt $low_threshold ]; then
             charging_state=low_battery
             echo Switching to $charging_state
@@ -121,13 +121,13 @@ while true; do
         fi
         ;;
       *" percentage: "*"%")
-        if [ "$in_battery" = 1 ]; then
+        if $in_battery; then
           if [ $perc != ${REPLY##* } ]; then
             perc=${REPLY##* }
             echo "Battery at $perc"
             [[ $perc =~ ^[0-9]+%$ ]] && perc_num=${perc%\%}
             if [[ $perc_num =~ ^[0-9]+$ ]] && [ $perc_num -lt $low_threshold ]; then
-              if [ $charging = 0 ]; then
+              if ! $charging; then
                 charging_state=low_battery
                 echo Switching to $charging_state
                 change_swayidle_profile low_battery
@@ -137,7 +137,7 @@ while true; do
         fi
         ;;
       "")
-        in_battery=0
+        in_battery=false
         # echo disabling watching battery info
         ;;
     esac

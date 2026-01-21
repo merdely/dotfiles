@@ -8,10 +8,10 @@ usage() {
 }
 
 unset search
-parent=0
+parent=false
 [ "$1" = "-h" -o "$1" = "--help" ] && usage
 [ -z "$1" ] && usage 1
-[ "$1" = "-P" ] && shift && parent=1
+[ "$1" = "-P" ] && shift && parent=true
 [ "$1" = "-S" ] && shift && search=$1 && shift
 
 cmd=$1
@@ -19,7 +19,7 @@ if [ -n "$search" ]; then
   pgrep -u $LOGNAME -f -- "$search" && \
     pkill -u $LOGNAME -f -- "$search" || \
     $* &
-elif [ $parent = 0 ]; then
+elif ! $parent; then
   pgrep -u $LOGNAME -x -- $cmd && \
     pkill -u $LOGNAME -x -- $cmd || \
     $* &

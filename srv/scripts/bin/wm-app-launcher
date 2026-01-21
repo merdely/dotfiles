@@ -3,14 +3,14 @@
 [ -r $XDG_CONFIG_HOME/fuzzy-chooser.conf ] && source $XDG_CONFIG_HOME/fuzzy-chooser.conf
 [ -z "$chooser" ] && chooser=$fuzzy_chooser
 
-show_actions=0
+show_actions=false
 unset fuzzel_actions rofi_actions fuzzel_prompt rofi_prompt prompt_string
 while getopts ":hfra" opt; do
   case $opt in
     f) chooser=fuzzel ;;
     r) chooser=rofi ;;
     a)
-      show_actions=1
+      show_actions=true
       fuzzel_actions="--show-actions"
       rofi_actions="-drun-show-actions"
       ;;
@@ -33,7 +33,7 @@ shift $((OPTIND -1))
 
 if [ "$chooser" = fuzzel ]; then
   #run-app-toggle fuzzel
-  replace=0
+  replace=false
   running=0
   pgrep -u $LOGNAME -f "^fuzzel -p App Launcher >" && running=1
   pgrep -u $LOGNAME -f "^fuzzel -p App Launcher >.*-show-actions" && running=2
@@ -52,7 +52,7 @@ else
   # 0 = not running, 1 = running without actions, 2 = running with actions
   unset replace
   running=0
-  pgrep -u $LOGNAME -f "^rofi $rofi_modes -theme-str window.*" && running=1
+  pgrep -u $LOGNAME -f "^rofi $rofi_modes -theme-str window.*" && running=true
   pgrep -u $LOGNAME -f "^rofi $rofi_modes -theme-str window.*-drun-show-actions" && running=2
 
   echo running=$running > /dev/stderr

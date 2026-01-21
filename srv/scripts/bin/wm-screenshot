@@ -16,15 +16,15 @@ usage() {
   exit $1
 }
 
-aswitch=0
-sswitch=0
-wswitch=0
+aswitch=false
+sswitch=false
+wswitch=false
 unset aarg
 while getopts ":hasw" opt; do
   case $opt in
-    a) aswitch=1 ;;
-    s) sswitch=1 ;;
-    w) wswitch=1 ;;
+    a) aswitch=true ;;
+    s) sswitch=true ;;
+    w) wswitch=true ;;
     *) usage ;;
   esac
 done
@@ -34,9 +34,9 @@ shift $((OPTIND -1))
 
 outfile=$dest/Screenshot-$(date +"%Y-%m-%d_%H-%M-%S").png
 
-if [ $aswitch = 1 ]; then
+if $aswitch; then
   grim $outfile
-elif [ $sswitch = 1 ]; then
+elif $sswitch; then
   if [[ $XDG_CURRENT_DESKTOP =~ ^niri ]]; then
     output=$(niri msg -j focused-output | jq -r .name)
   elif [[ $XDG_CURRENT_DESKTOP =~ ^sway ]]; then
@@ -46,7 +46,7 @@ elif [ $sswitch = 1 ]; then
   fi
   [ -z "$output" ] && echo "Error: Could not determine current screen name" && exit 1
   grim -o $output $outfile
-elif [ $wswitch = 1 ]; then
+elif $wswitch; then
   if [[ $XDG_CURRENT_DESKTOP =~ ^niri ]]; then
     niri msg action screenshot-window --write-to-disk true
     exit 1

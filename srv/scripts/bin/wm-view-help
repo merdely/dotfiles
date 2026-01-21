@@ -45,11 +45,13 @@ else
   newindex=$1
 fi
 
-pid=$(pgrep -f "^imv(-wayland)? -w ${mode}help" 2> /dev/null)
+pid=$(pgrep -f "^((/usr(/local)?)?/bin/)?imv(-wayland)? -w ${mode}help" 2> /dev/null)
 [ $? != 0 ] && unset pid
 
 if [ -n "$pid" ]; then
   # print current index to a file
+  imv-msg $pid exec echo \$imv_current_index
+  # do it twice since the first time it seems not to work sometimes
   imv-msg $pid exec echo \$imv_current_index
   imv_current_index=$(tail -n1 $XDG_RUNTIME_DIR/imv_output.$pid)
 

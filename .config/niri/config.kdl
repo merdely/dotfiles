@@ -2,17 +2,24 @@ include "/home/mike/.config/local/niri.kdl"
 
 workspace "1"    { open-on-output "DP-1"; }
 workspace "🗒️"   { open-on-output "eDP-1"; }
+workspace "Cameras"   { open-on-output "eDP-1"; }
 prefer-no-csd
 screenshot-path "~/Pictures/Screenshots/Screenshot-%Y-%m-%d_%H-%M-%S.png"
 // xwayland-satellite { off; }
 
 spawn-sh-at-startup "systemctl --user start wm-session.target"
+// for waybar
 spawn-sh-at-startup "systemctl --user start waybar.service"
 spawn-sh-at-startup "systemctl --user start swaybg.service"
-// spawn-sh-at-startup "systemctl --user start noctalia.service"
-// spawn-sh-at-startup "dms run"
-// spawn-sh-at-startup "wl-paste --watch cliphist store"
 spawn-sh-at-startup "systemctl --user start swayidle.service"
+
+// For noctalia
+// spawn-sh-at-startup "systemctl --user start noctalia.service"
+
+// For dms
+// spawn-sh-at-startup "systemctl --user start dms.service"
+// spawn-sh-at-startup "wl-paste --watch cliphist store"
+
 spawn-sh-at-startup "systemctl --user start wl-clip-persist.service"
 spawn-sh-at-startup "systemctl --user start ydotool.service"
 spawn-sh-at-startup "systemctl --user start polkit-gnome.service"
@@ -35,7 +42,6 @@ binds {
     Alt+Shift+U              { spawn "true"; }
     Mod+Ctrl+X               { spawn "true"; }
     Mod+Shift+B              { spawn "true"; }
-    Mod+Shift+P              { spawn "true"; }
     Mod+E                    { spawn "true"; }
     Mod+U                    { spawn "true"; }
     Mod+X                    { spawn "true"; }
@@ -67,8 +73,15 @@ binds {
     // Mod+W            hotkey-overlay-title="Toggle Tabbed Display"        { toggle-column-tabbed-display; }
     Mod+Shift+O      hotkey-overlay-title="Show Hotkey Overlay"          { show-hotkey-overlay; }
 
+    // Idle Inhibitor with other bars (waybar)
     Mod+I            hotkey-overlay-title="Toggle Idle Inhibitor"        { spawn-sh "pgrep -f '^((/usr)?/bin/)?systemd-inhibit --who=user-idle-inhibit --why=Prevent screenlock' > /dev/null 2>&1 && pkill -f '^((/usr)?/bin/)?systemd-inhibit --who=user-idle-inhibit --why=Prevent screenlock' || systemd-inhibit --who=user-idle-inhibit --why='Prevent screenlock' --what=idle sleep $((4*3600))"; }
+
+    // Idle Inhibitor with dms
+    // Mod+I            hotkey-overlay-title="Toggle Idle Inhibitor"        { spawn-sh "dms ipc call inhibit toggle; notify-send 'Idle Inhibitor Toggled'"; }
+
+    // Idle Inhibitor with noctalia
     // Mod+I            hotkey-overlay-title="Toggle Idle Inhibitor"        { spawn-sh "qs -c noctalia-shell ipc call idleInhibitor toggle"; }
+
     Mod+O            repeat=false hotkey-overlay-title="Toggle Overview" { toggle-overview; }
     Mod+R            hotkey-overlay-title="Toggle Preset Widths"         { switch-preset-column-width; }
     Mod+Shift+R      hotkey-overlay-title="Toggle Preset Heights"        { switch-preset-window-height; }
@@ -77,20 +90,38 @@ binds {
     // Apps
     XF86Tools                                                                    { spawn-sh "pkill -SIGUSR1 swayidle"; }
     F12                 hotkey-overlay-title="Lock Screen"                       { spawn-sh "pkill -SIGUSR1 swayidle"; }
-    // F11                                                                          { spawn-sh "wm-power-menu"; }
+
+    // Power Menu with other bars (waybar)
     Mod+P               hotkey-overlay-title="Power Menu"                        { spawn-sh "wm-power-menu"; }
     Ctrl+Alt+Delete                                                              { spawn-sh "wm-power-menu"; }
+
+    // Power Menu with DMS
+    // Mod+P               hotkey-overlay-title="Power Menu"                        { spawn-sh "dms ipc call powermenu toggle"; }
+    // Ctrl+Alt+Delete                                                              { spawn-sh "dms ipc call powermenu toggle"; }
+
     Mod+Backspace        allow-when-locked=true hotkey-overlay-title="Hibernate"  { spawn "systemctl" "hibernate"; }
+
+    // Notification control with swaync
     Ctrl+Space           hotkey-overlay-title="Hide Notification"                 { spawn-sh "swaync-client --hide-latest"; }
     Mod+Shift+Space      hotkey-overlay-title="Hide All Notifications"            { spawn-sh "swaync-client --hide-all ; swaync-client --close-panel"; }
     Mod+Ctrl+Space       hotkey-overlay-title="Clear Notification"                { spawn-sh "swaync-client --close-latest"; }
     Mod+Ctrl+Shift+Space hotkey-overlay-title="Clear All Notifications"           { spawn-sh "swaync-client --close-all ; swaync-client --close-panel"; }
     Mod+Space            hotkey-overlay-title="Notification Panel"                { spawn "swaync-client" "-t" "-sw"; }
+
+    // Notification control with dms
+    // Ctrl+Space           hotkey-overlay-title="Hide Notification"                 { spawn-sh "dms ipc call notifications dismissAllPopups ; dms ipc call notifications close"; }
+    // Mod+Shift+Space      hotkey-overlay-title="Hide All Notifications"            { spawn-sh "dms ipc call notifications clearAll ; dms ipc call notifications close"; }
+    // Mod+Ctrl+Space       hotkey-overlay-title="Clear Notification"                { spawn-sh "dms ipc call notifications clearAll ; dms ipc call notifications close"; }
+    // Mod+Ctrl+Shift+Space hotkey-overlay-title="Clear All Notifications"           { spawn-sh "dms ipc call notifications clearAll ; dms ipc call notifications close"; }
+    // Mod+Space            hotkey-overlay-title="Notification Panel"                { spawn-sh "dms ipc call notifications toggle"; }
+
+    // Notification control with noctalia shell
     // Ctrl+Space           hotkey-overlay-title="Hide Notification"                 { spawn-sh "qs -c noctalia-shell ipc call notifications dismissOldest"; }
     // Mod+Shift+Space      hotkey-overlay-title="Hide All Notifications"            { spawn-sh "qs -c noctalia-shell ipc call notifications dismissAll"; }
     // Mod+Ctrl+Space       hotkey-overlay-title="Clear Notification"                { spawn-sh "qs -c noctalia-shell ipc call notifications removeOldestHistory"; }
     // Mod+Ctrl+Shift+Space hotkey-overlay-title="Clear All Notifications"           { spawn-sh "qs -c noctalia-shell ipc call notifications clear"; }
     // Mod+Space            hotkey-overlay-title="Notification Panel"                { spawn-sh "qs -c noctalia-shell ipc call notifications toggleHistory"; }
+
     Mod+N                hotkey-overlay-title="Bitwarden Chooser"                 { spawn-sh "wm-app-toggle -P rofi-rbw --use-notify-send"; }
 
     // Mod+X               hotkey-overlay-title="Clipboard Manager"                 { spawn-sh "cliphist list | wm-fuzzy-chooser -p \"Clipboard History >\" | cliphist decode | wl-copy"; }
@@ -102,15 +133,16 @@ binds {
     Mod+Shift+C             hotkey-overlay-title="Calculator"            { spawn-sh "wm-minimize -R galculator"; }
     Mod+Shift+Return        hotkey-overlay-title="Terminal Scratchpad"   { spawn-sh "wm-minimize term-scratchpad"; }
     Mod+Shift+BracketLeft   hotkey-overlay-title="Terminal File Manager" { spawn-sh "wm-minimize termfm"; }
+    Mod+Shift+P             hotkey-overlay-title="GUI File Manager"      { spawn-sh "wm-minimize org.gnome.Nautilus"; }
     Mod+Shift+BracketRight  hotkey-overlay-title="Text Editor"           { spawn-sh "wm-minimize featherpad"; }
     Mod+Shift+Apostrophe    hotkey-overlay-title="Bluetooth Manager"     { spawn-sh "wm-minimize blueman-manager"; }
     Mod+Shift+N             hotkey-overlay-title="Nvtop"                 { spawn-sh "wm-minimize nvtop"; }
-    Mod+Shift+I             hotkey-overlay-title="Htop"                  { spawn-sh "wm-minimize htop"; }
+    Mod+Shift+I             hotkey-overlay-title="System Monitor"        { spawn-sh "wm-minimize btop"; }
     Mod+Shift+Q             hotkey-overlay-title="Logseq"                { spawn-sh "wm-minimize logseq-desktop Logseq"; }
     Mod+Shift+SemiColon     hotkey-overlay-title="Audio Mixer"           { spawn-sh "wm-minimize org.pulseaudio.pavucontrol pavucontrol"; }
     // Mod+Shift+A             hotkey-overlay-title="Signal"                { spawn-sh "wm-minimize signal-desktop signal"; }
     Mod+Shift+A             hotkey-overlay-title="Signal"                { spawn-sh "wm-minimize org.signal.Signal"; }
-    Mod+Shift+W             hotkey-overlay-title="Element"               { spawn-sh "wm-minimize io.element.Element Element"; }
+    Mod+Shift+W             hotkey-overlay-title="KDE Connect SMS"       { spawn-sh "wm-minimize org.kde.kdeconnect.sms"; }
 
     // Niri Shortcuts
     Alt+Shift+Slash      hotkey-overlay-title="Niri Help: A+Sh"          { spawn-sh "wm-view-help Alt-Shift"; }
@@ -315,18 +347,13 @@ window-rule {
 }
 
 window-rule {
-    match app-id=r#"^(code-oss|chromium|firefox|fr\.handbrake\.ghb|io\.github\.celluloid_player\.Celluloid|io\.github\.ungoogled_software\.ungoogled_chromium|gimp|labwc|librewolf|obsidian|vlc|Tor Browser)$"#
+    match app-id=r#"^(code-oss|chromium|firefox|fr\.handbrake\.ghb|FreeTube|io\.github\.celluloid_player\.Celluloid|io\.github\.ungoogled_software\.ungoogled_chromium|gimp|labwc|librewolf|obsidian|vlc|Tor Browser)$"#
     open-maximized true
 }
 
 window-rule {
-    match app-id=r#"^(firefox|librewolf)$"# at-startup=true
-    open-on-output "HDMI-A-1"
-}
-
-window-rule {
-    match app-id=r#"^(firefox|librewolf)$"# title=r#"Live . Frigate . (LibreWolf|Firefox)"#
-    open-on-output "eDP-1"
+    match app-id=r#"^cef$"# title=r#"^Grayjay$"#
+    open-maximized true
 }
 
 window-rule {
@@ -400,12 +427,113 @@ window-rule {
     open-maximized true
 }
 
-/-window-rule {
-    match title="^mpvcam .*"
+window-rule {
+    match app-id=r#"^mpvcam"#
+    match title=r#"^mpvcam"#
     // open-fullscreen true
-    open-focused false
+    // open-focused false
     open-maximized true
-    open-on-output "eDP-1"
+    open-on-workspace "Cameras"
+}
+
+/-window-rule {
+    match app-id=r#"^mpvcammulti"#
+    match title=r#"^mpvcammulti"#
+    open-fullscreen false
+    // open-focused false
+    open-maximized false
+    open-on-workspace "Cameras"
+    default-column-width { proportion 0.50; }
+    default-window-height { proportion 0.50; }
+}
+
+window-rule {
+    match app-id=r#"^mpvcammulti garagecam"#
+    match title=r#"^mpvcammulti garagecam"#
+    open-maximized false
+    open-on-workspace "Cameras"
+    open-floating true
+    default-column-width { proportion 0.50; }
+    default-window-height { proportion 0.50; }
+    default-floating-position x=0 y=0 relative-to="top-left"
+}
+
+window-rule {
+    match app-id=r#"^mpvcammulti garagedoorcam"#
+    match title=r#"^mpvcammulti garagedoorcam"#
+    open-maximized false
+    open-on-workspace "Cameras"
+    open-floating true
+    default-column-width { proportion 0.50; }
+    default-window-height { proportion 0.50; }
+    default-floating-position x=0 y=0 relative-to="bottom-left"
+}
+
+window-rule {
+    match app-id=r#"^mpvcammulti frontdoorcam"#
+    match title=r#"^mpvcammulti frontdoorcam"#
+    open-maximized false
+    open-on-workspace "Cameras"
+    open-floating true
+    default-column-width { proportion 0.50; }
+    default-window-height { proportion 0.50; }
+    default-floating-position x=0 y=0 relative-to="bottom-right"
+}
+
+// must go after the rule for frontdoorcam
+window-rule {
+    match app-id=r#"^mpvcammulti frontdoorcam2"#
+    match title=r#"^mpvcammulti frontdoorcam2"#
+    open-maximized false
+    open-on-workspace "Cameras"
+    open-floating true
+    default-column-width { proportion 0.50; }
+    default-window-height { proportion 0.50; }
+    default-floating-position x=0 y=0 relative-to="top-right"
+}
+
+window-rule {
+    match app-id=r#"^mpvcammulti backyardcam"#
+    match title=r#"^mpvcammulti backyardcam"#
+    open-maximized false
+    open-on-workspace "Cameras"
+    open-floating true
+    default-column-width { proportion 0.50; }
+    default-window-height { proportion 0.50; }
+    default-floating-position x=0 y=0 relative-to="bottom-left"
+}
+
+window-rule {
+    match app-id=r#"^mpvcammulti backyardcam2"#
+    match title=r#"^mpvcammulti backyardcam2"#
+    open-maximized false
+    open-on-workspace "Cameras"
+    open-floating true
+    default-column-width { proportion 0.50; }
+    default-window-height { proportion 0.50; }
+    default-floating-position x=0 y=0 relative-to="bottom-right"
+}
+
+window-rule {
+    match app-id=r#"^mpvcammulti chimneycam"#
+    match title=r#"^mpvcammulti chimneycam"#
+    open-maximized false
+    open-on-workspace "Cameras"
+    open-floating true
+    default-column-width { proportion 0.50; }
+    default-window-height { proportion 0.50; }
+    default-floating-position x=0 y=0 relative-to="top-left"
+}
+
+window-rule {
+    match app-id=r#"^mpvcammulti shedcam"#
+    match title=r#"^mpvcammulti shedcam"#
+    open-maximized false
+    open-on-workspace "Cameras"
+    open-floating true
+    default-column-width { proportion 0.50; }
+    default-window-height { proportion 0.50; }
+    default-floating-position x=0 y=0 relative-to="top-right"
 }
 
 window-rule {
@@ -510,7 +638,7 @@ input {
 layout {
     gaps 8
     center-focused-column "never"
-    // always-center-single-column
+    always-center-single-column
     default-column-width { proportion 0.5; }
     preset-column-widths {
         proportion 0.33333
@@ -553,3 +681,4 @@ cursor {
 debug { wait-for-frame-completion-before-queueing; }
 gestures { hot-corners { off; }; }
 
+include "dms/outputs.kdl"

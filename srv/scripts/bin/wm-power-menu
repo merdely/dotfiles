@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 
-rotated=0
+rotated=false
 case $XDG_CURRENT_DESKTOP in
   sway*)
     eval $(swaymsg -r -t get_outputs | jq -r '.[] | select(.active==true) | "w=\(.rect.width) h=\(.rect.height) t=\(.transform)"')
-    [[ $t = 90 || $t = 270 ]] && rotated=1
+    [[ $t = 90 || $t = 270 ]] && rotated=true
     ;;
   niri*)
     eval $(niri msg -j focused-output | jq -r '"w=\(.logical.width) h=\(.logical.height) t=\(.logical.transform)"')
-    [[ $t = 90 || $t = 270 ]] && rotated=1
+    [[ $t = 90 || $t = 270 ]] && rotated=true
     ;;
   Hyprland*)
     eval $(hyprctl -j monitors | jq -r '.[] | select(.focused==true) | "w=\(.width) h=\(.height) t=\(.transform)"')
-    [[ $((t % 2)) = 1 ]] && rotated=1
+    [[ $((t % 2)) = 1 ]] && rotated=true
     ;;
 esac
 
@@ -39,7 +39,7 @@ rot_opts=${power_rot_opts:-${default_rot_opts[$power_menu]}}
 
 open_power_menu() {
   set -o xtrace
-  [[ $rotated = 1 ]] && opts=$rot_opts
+  $rotated && opts=$rot_opts
   case $XDG_CURRENT_DESKTOP in
     sway*) swaymsg exec $power_menu $opts & ;;
     niri*) niri msg action spawn -- $power_menu $opts & ;;

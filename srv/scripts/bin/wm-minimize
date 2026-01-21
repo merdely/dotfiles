@@ -17,12 +17,12 @@ resize[galculator]="640|480"
 [ -r $HOME/.config/wm-minimize.conf ] && source $HOME/.config/wm-minimize.conf
 
 mode=desktop
-resize=1
+resize=true
 
 while getopts ":hcR" opt; do
   case $opt in
     c) mode=cmdline ;;
-    R) resize=0 ;;
+    R) resize=false ;;
     *) usage ;;
   esac
 done
@@ -76,7 +76,7 @@ toggle_minimize() {
       if [ -n "${new_height[$app_id]}" ]; then
         niri msg action set-window-height --id $app_id ${resize[$1]#*|}
         niri msg action set-window-width --id $app_id ${resize[$1]%|*}
-      elif [ $resize = 1 ]; then
+      elif $resize; then
         niri msg action set-window-height --id $app_id $resize_height
         niri msg action set-window-width --id $app_id $resize_width
         sleep .1
@@ -134,7 +134,7 @@ run_cmd() {
       if [ -n "${new_height[$app_id]}" ]; then
         niri msg action set-window-height --id $app_id ${resize[$1]#*|}
         niri msg action set-window-width --id $app_id ${resize[$1]%|*}
-      elif [ $resize = 1 ]; then
+      elif $resize; then
         niri msg action set-window-height --id $app_id $resize_height
         niri msg action set-window-width --id $app_id $resize_width
         sleep .1
@@ -174,7 +174,7 @@ if [ $cmd = ACTIVE ]; then
       if [ -n "${new_height[$app_id]}" ]; then
         niri msg action set-window-height --id $app_id ${resize[$1]#*|}
         niri msg action set-window-width --id $app_id ${resize[$1]%|*}
-      elif [ $resize = 1 ]; then
+      elif $resize; then
         niri msg action set-window-height --id $app_id $resize_height
         niri msg action set-window-width --id $app_id $resize_width
         sleep .1

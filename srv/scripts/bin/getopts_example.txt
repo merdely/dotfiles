@@ -6,12 +6,12 @@ usage() {
   exit $1
 }
 
-sswitch=0
+sswitch=false
 unset aarg
 while getopts ":ha:s" opt; do
   case $opt in
     a) aarg=$OPTARG ;;
-    s) sswitch=1 ;;
+    s) sswitch=true ;;
     *) usage ;;
   esac
 done
@@ -33,12 +33,12 @@ usage() {
 
 shopt -s extglob
 
-long=0
+long=false
 unset arg
 while [[ $# -gt 0 ]]; do
   case "$1" in
     -l|--long)
-      long=1
+      long=true
       shift
       ;;
     -a|--arg)

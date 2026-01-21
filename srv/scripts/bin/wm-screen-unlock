@@ -1,20 +1,19 @@
 #!/usr/bin/env bash
 
-screen_on=1
-screen_undim=1
-speaker_unmute=0
-mic_unmute=0
-ssh_add=1
+screen_on=true
+screen_undim=true
+speaker_unmute=false
+mic_unmute=false
+ssh_add=true
 
 [ -r $HOME/.config/screenunlockrc ] && source $HOME/.config/screenunlockrc
 
 pgrep -u $LOGNAME -f -- "$locker" || exit
 
 rm -f /run/user/$EUID/.manual_lock
-[ $screen_on = 1 ]      && wm-screen-on
-[ $screen_undim = 1 ]   && wm-screen-undim
-[ $speaker_unmute = 1 ] && speaker-unmute -c
-[ $mic_unmute = 1 ]     && mic-unmute
-[ $ssh_add = 1 ]        && wm-ssh-add
-
+$screen_on      && wm-screen-on
+$screen_undim   && wm-screen-undim
+$speaker_unmute && speaker-unmute -c
+$mic_unmute     && mic-unmute
+$ssh_add        && wm-ssh-add
 

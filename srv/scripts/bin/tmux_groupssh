@@ -16,7 +16,7 @@ usage() {
   exit 1
 }
 
-sync=0
+sync=false
 unset mode
 unset split
 unset khosts
@@ -25,7 +25,7 @@ unset foursix
 while getopts ":hsu46emthv" opt; do
   case ${opt} in
     s)
-      sync=1
+      sync=true
       ;;
     u)
       khosts="-o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
@@ -59,7 +59,7 @@ while getopts ":hsu46emthv" opt; do
 done
 shift $((OPTIND -1))
 
-[ -z "$mode" ] && tiled=1 && mode=tiled
+[ -z "$mode" ] && mode=tiled
 [ -n "$split" ] && [ $mode = tiled ] && mode=even
 [ -z "$1" ] && exit 0
 
@@ -92,7 +92,7 @@ if [ $count -gt 1 ]; then
   fi
   tmux select-layout -t:$window.0 $mode$split
 
-  [ $sync = 1 ] && tmux setw -t:$window.0 synchronize-panes && \
+  $sync && tmux setw -t:$window.0 synchronize-panes && \
                    tmux setw -F -t:$window.0 pane-active-border-style "#{?pane_synchronized,fg=red,fg=green}"
 fi
 

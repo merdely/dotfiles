@@ -21,17 +21,20 @@ subtypes[medium]=2
 
 [ -r $XDG_CONFIG_HOME/cam-chooser.conf ] && source $XDG_CONFIG_HOME/cam-chooser.conf
 
-testmode=0
-while getopts ":hfrt" opt; do
+testmode=false
+stackmode=false
+while getopts ":hfrst" opt; do
   case $opt in
     f) chooser=fuzzel ;;
     r) chooser=rofi ;;
-    t) testmode=1 ;;
+    s) stackmode=true ;;
+    t) testmode=true ;;
     *)
-      echo "usage: $(basename $0) [-h] [-f|-r]"
+      echo "usage: $(basename $0) [-h] [-f|-r] [-s]"
       echo "          -h     : show this help text"
       echo "          -f     : use fuzzel"
       echo "          -r     : use rofi"
+      echo "          -s     : stack-in-window (default: each camera in own mpv window)"
       exit
       ;;
   esac
@@ -39,7 +42,11 @@ done
 shift $((OPTIND -1))
 
 if [ -z "$1" ]; then
-  camlist="󰞮  Garage Camera	garagecam
+  camlist="
+󰕰  Split View	splitview
+󰕰  Front View	frontview
+󰕰  Back View	backview
+󰞮  Garage Camera	garagecam
 󰞮  Backyard Camera	backyardcam
 󰞮  Backyard Camera 2	backyardcam2
 󰞮  Front Door Camera	frontdoorcam
@@ -47,10 +54,8 @@ if [ -z "$1" ]; then
 󰞮  Shed Camera	shedcam
 󰞮  Chimney Camera	chimneycam
 󰞮  Garage Door Camera	garagedoorcam
-󰕰  Front View	frontview
-󰕰  Back View	backview
-󰕰  Split View	splitview
-󰞮  Close Camera Window	quit"
+ Close Camera Window	quit"
+camlist=${camlist:1}
 
   pgrep -u $LOGNAME -f -- "([r]ofi|[f]uzzel) -p View Camera ?>? ? -d(menu)?" && \
     pkill -u $LOGNAME -f -- "([r]ofi|[f]uzzel) -p View Camera ?>? ? -d(menu)?" || \
@@ -70,7 +75,7 @@ if [ -z "$1" ]; then
     cam=$(echo "$choice" | awk -F'\t' '{print $2}')
   fi
 
-  if [ $testmode = 1 ]; then
+  if $testmode; then
     echo "cam='$cam'"
     exit
   fi
@@ -78,12 +83,12 @@ fi
 
 [ -z "$cam" ] && cam=$1
 
-pkill -f "mpv .*--(x11-name|title)=mpvcam"
+pkill -f "mpv .*--(wayland-app-id|x11-name|title)=mpvcam"
 [ "$cam" = quit ] && exit
 
 splittype=medium
 
-multiview=0
+multiview=false
 case $cam in
   garagedoorcam)
     rtsp_url="${cameras[$cam]}"
@@ -93,27 +98,27 @@ case $cam in
     ;;
   multiview|backview)
     echo "loading backview..." > /dev/stderr
-    multiview=1
-    rtsp_url1="${cameras[shedcam]}/$uri&subtype=${subtypes[$splittype]}"
-    rtsp_url2="${cameras[backyardcam]}/$uri&subtype=${subtypes[$splittype]}"
-    rtsp_url4="${cameras[chimneycam]}/$uri&subtype=${subtypes[$splittype]}"
-    rtsp_url3="${cameras[backyardcam2]}/$uri&subtype=${subtypes[$splittype]}"
+    multiview=true
+    cam1=shedcam
+    cam2=backyardcam
+    cam3=chimneycam
+    cam4=backyardcam2
     ;;
   frontview)
     echo "loading frontview..." > /dev/stderr
-    multiview=1
-    rtsp_url1="${cameras[garagecam]}/$uri&subtype=${subtypes[$splittype]}"
-    rtsp_url2="${cameras[frontdoorcam2]}/$uri&subtype=${subtypes[$splittype]}"
-    rtsp_url4="${cameras[backyardcam]}/$uri&subtype=${subtypes[$splittype]}"
-    rtsp_url3="${cameras[frontdoorcam]}/$uri&subtype=${subtypes[$splittype]}"
+    multiview=true
+    cam1=garagecam
+    cam2=frontdoorcam2
+    cam3=backyardcam
+    cam4=frontdoorcam
     ;;
   splitview)
     echo "loading splitview..." > /dev/stderr
-    multiview=1
-    rtsp_url1="${cameras[garagecam]}/$uri&subtype=${subtypes[$splittype]}"
-    rtsp_url2="${cameras[frontdoorcam2]}/$uri&subtype=${subtypes[$splittype]}"
-    rtsp_url3="${cameras[backyardcam2]}/$uri&subtype=${subtypes[$splittype]}"
-    rtsp_url4="${cameras[backyardcam]}/$uri&subtype=${subtypes[$splittype]}"
+    multiview=true
+    cam1=garagecam
+    cam2=frontdoorcam2
+    cam3=backyardcam2
+    cam4=backyardcam
     ;;
   *)
     if [[ $1 =~ ^(https?|rtsp):// ]]; then
@@ -126,34 +131,17 @@ case $cam in
     ;;
 esac
 
-if [[ $XDG_CURRENT_DESKTOP = niri ]]; then
-  curwinid=$(niri msg -j focused-window | jq -r .id)
-fi
-
-if [ $multiview = 0 ]; then
-  DBUS_FATAL_WARNINGS=0 /usr/bin/mpv --mute=yes --stop-screensaver=no --title="mpvcam $cam" $rtsp_url &
+if ! $multiview; then
+  DBUS_FATAL_WARNINGS=0 /usr/bin/mpv --mute=yes --stop-screensaver=no --wayland-app-id="mpvcam $cam" $rtsp_url &
 else
-  DBUS_FATAL_WARNINGS=0 /usr/bin/mpv --mute=yes --stop-screensaver=no --title="mpvcam $cam" $rtsp_url1 \
-    --external-file={$rtsp_url2,$rtsp_url3,$rtsp_url4} \
-    --lavfi-complex="[vid1][vid2]hstack=[top];[vid3][vid4]hstack=[bottom];[top][bottom]vstack[vo]" &
+  if $stackmode; then
+    DBUS_FATAL_WARNINGS=0 /usr/bin/mpv --mute=yes --stop-screensaver=no --wayland-app-id="mpvcam $cam" "${cameras[$cam1]}/$uri&subtype=${subtypes[$splittype]}" \
+      --external-file={"${cameras[$cam2]}/$uri&subtype=${subtypes[$splittype]}","${cameras[$cam3]}/$uri&subtype=${subtypes[$splittype]}","${cameras[$cam4]}/$uri&subtype=${subtypes[$splittype]}"} \
+      --lavfi-complex="[vid1][vid2]hstack=[top];[vid3][vid4]hstack=[bottom];[top][bottom]vstack[vo]" &
+  else
+    DBUS_FATAL_WARNINGS=0 /usr/bin/mpv --mute=yes --stop-screensaver=no --wayland-app-id="mpvcammulti $cam1" "${cameras[$cam1]}/$uri&subtype=${subtypes[$splittype]}" &
+    DBUS_FATAL_WARNINGS=0 /usr/bin/mpv --mute=yes --stop-screensaver=no --wayland-app-id="mpvcammulti $cam2" "${cameras[$cam2]}/$uri&subtype=${subtypes[$splittype]}" &
+    DBUS_FATAL_WARNINGS=0 /usr/bin/mpv --mute=yes --stop-screensaver=no --wayland-app-id="mpvcammulti $cam3" "${cameras[$cam3]}/$uri&subtype=${subtypes[$splittype]}" &
+    DBUS_FATAL_WARNINGS=0 /usr/bin/mpv --mute=yes --stop-screensaver=no --wayland-app-id="mpvcammulti $cam4" "${cameras[$cam4]}/$uri&subtype=${subtypes[$splittype]}" &
+  fi
 fi
-pid=$!
-
-if [[ $XDG_CURRENT_DESKTOP = niri ]]; then
-  which jq &> /dev/null || { echo "Error: jq command required" && exit 1; }
-  unset w
-  count=0
-  while [ -z "$w" ] && [ $count -le $maxcount ]; do
-    w=$(niri msg -j windows | jq --arg pid $pid -r '.[] | select(.pid|tostring == $pid) | .id')
-    [ -z "$w" ] && count=$((count+1)) && sleep .1
-  done
-  [ $count -ge $maxcount ] && echo "Error: Could not get window id" && exit 1
-  echo window-id=$w
-  set -o xtrace
-  niri msg action move-window-to-monitor --id $w eDP-1
-  niri msg action set-window-width --id $w 100%
-  [ -n "$curwinid" ] && niri msg action focus-window --id $curwinid
-  set +o xtrace
-fi
-
-

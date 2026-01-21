@@ -1,4 +1,5 @@
 {
+  "base16-nvim": { "branch": "master", "commit": "5378f802fc52c56f467560dbc3ea626ad06aaa79" },
   "blink.cmp": { "branch": "main", "commit": "bae4bae0eedd1fa55f34b685862e94a222d5c6f8" },
   "friendly-snippets": { "branch": "main", "commit": "572f5660cf05f8cd8834e096d7b4c921ba18e175" },
   "fzf-lua": { "branch": "main", "commit": "19beea27b2e5e296dc1e6de8a19a9af0217a6a30" },
