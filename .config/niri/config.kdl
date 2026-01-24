@@ -50,7 +50,7 @@ binds {
     Mod+X                    { spawn "true"; }
 
     // WM Management
-    Mod+Ctrl+Shift+B hotkey-overlay-title="Reload Waybar"                { spawn "pkill" "-SIGUSR2" "waybar"; }
+    Mod+Ctrl+Shift+B hotkey-overlay-title="Reload Waybar"                { spawn-sh "pkill -SIGUSR2 waybar"; }
     Mod+Shift+E      hotkey-overlay-title="Quit Niri"                    { quit; }
     Mod+D            hotkey-overlay-title="Program Launcher"             { spawn-sh "wm-app-launcher"; }
     // Mod+D            hotkey-overlay-title="Program Launcher"             { spawn-sh "qs -c noctalia-shell ipc call launcher toggle"; }
@@ -62,7 +62,7 @@ binds {
     Mod+W            hotkey-overlay-title="Window Chooser"               { spawn-sh "wm-window-switcher"; }
     Mod+Return       hotkey-overlay-title="Launch Terminal"              { spawn-sh "wm-terminal"; }
     Mod+T            hotkey-overlay-title="Launch Terminal"              { spawn-sh "wm-terminal"; }
-    Mod+Ctrl+B       hotkey-overlay-title="Hide Waybar"                  { spawn "pkill" "-SIGUSR1" "waybar"; }
+    Mod+Ctrl+B       hotkey-overlay-title="Hide Waybar"                  { spawn-sh "pkill -SIGUSR1 waybar"; }
     // Mod+Ctrl+B       hotkey-overlay-title="Hide Bar"                     { spawn-sh "qs -c noctalia-shell ipc call bar toggle"; }
     Mod+Q            repeat=false hotkey-overlay-title="Close Window"    { close-window; }
     Mod+MouseMiddle  repeat=false hotkey-overlay-title="Close Window"    { close-window; }
@@ -102,14 +102,14 @@ binds {
     // Mod+P               hotkey-overlay-title="Power Menu"                        { spawn-sh "dms ipc call powermenu toggle"; }
     // Ctrl+Alt+Delete                                                              { spawn-sh "dms ipc call powermenu toggle"; }
 
-    Mod+Backspace        allow-when-locked=true hotkey-overlay-title="Hibernate"  { spawn "systemctl" "hibernate"; }
+    Mod+Backspace        allow-when-locked=true hotkey-overlay-title="Hibernate"  { spawn-sh "systemctl hibernate"; }
 
     // Notification control with swaync
     Ctrl+Space           hotkey-overlay-title="Hide Notification"                 { spawn-sh "swaync-client --hide-latest"; }
     Mod+Shift+Space      hotkey-overlay-title="Hide All Notifications"            { spawn-sh "swaync-client --hide-all ; swaync-client --close-panel"; }
     Mod+Ctrl+Space       hotkey-overlay-title="Clear Notification"                { spawn-sh "swaync-client --close-latest"; }
     Mod+Ctrl+Shift+Space hotkey-overlay-title="Clear All Notifications"           { spawn-sh "swaync-client --close-all ; swaync-client --close-panel"; }
-    Mod+Space            hotkey-overlay-title="Notification Panel"                { spawn "swaync-client" "-t" "-sw"; }
+    Mod+Space            hotkey-overlay-title="Notification Panel"                { spawn-sh "swaync-client -t -sw"; }
 
     // Notification control with dms
     // Ctrl+Space           hotkey-overlay-title="Hide Notification"                 { spawn-sh "dms ipc call notifications dismissAllPopups ; dms ipc call notifications close"; }
@@ -288,12 +288,12 @@ binds {
     Mod+Escape        allow-inhibiting=false hotkey-overlay-title="Toggle Keyboard Shortcuts Inhibit" { toggle-keyboard-shortcuts-inhibit; }
 
     // Speaker Volume
-    XF86AudioLowerVolume allow-when-locked=true hotkey-overlay-title="Speaker Volume Down"   { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.05-"; }
-    Mod+Left             allow-when-locked=true hotkey-overlay-title="Speaker Volume Down"   { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.05-"; }
-    XF86AudioRaiseVolume allow-when-locked=true hotkey-overlay-title="Speaker Volume Up"     { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.05+"; }
-    Mod+Right            allow-when-locked=true hotkey-overlay-title="Speaker Volume Up"     { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.05+"; }
-    XF86AudioMute        allow-when-locked=true hotkey-overlay-title="Mute Speakers"         { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
-    Mod+Ctrl+M           allow-when-locked=true hotkey-overlay-title="Mute Speakers"         { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
+    XF86AudioLowerVolume allow-when-locked=true hotkey-overlay-title="Speaker Volume Down"   { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.05-"; }
+    Mod+Left             allow-when-locked=true hotkey-overlay-title="Speaker Volume Down"   { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.05-"; }
+    XF86AudioRaiseVolume allow-when-locked=true hotkey-overlay-title="Speaker Volume Up"     { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.05+"; }
+    Mod+Right            allow-when-locked=true hotkey-overlay-title="Speaker Volume Up"     { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.05+"; }
+    XF86AudioMute        allow-when-locked=true hotkey-overlay-title="Mute Speakers"         { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"; }
+    Mod+Ctrl+M           allow-when-locked=true hotkey-overlay-title="Mute Speakers"         { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"; }
     // XF86AudioLowerVolume allow-when-locked=true hotkey-overlay-title="Speaker Volume Down"   { spawn-sh "qs -c noctalia-shell ipc call volume decrease"; }
     // Mod+Left             allow-when-locked=true hotkey-overlay-title="Speaker Volume Down"   { spawn-sh "qs -c noctalia-shell ipc call volume decrease"; }
     // XF86AudioRaiseVolume allow-when-locked=true hotkey-overlay-title="Speaker Volume Up"     { spawn-sh "qs -c noctalia-shell ipc call volume increase"; }
@@ -302,13 +302,13 @@ binds {
     // Mod+Ctrl+M           allow-when-locked=true hotkey-overlay-title="Mute Speakers"         { spawn-sh "qs -c noctalia-shell ipc call volume muteOutput"; }
 
     // Mic Volume
-    Shift+XF86AudioLowerVolume allow-when-locked=true hotkey-overlay-title="Mic Volume Down" { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SOURCE@" "0.05-"; }
-    Mod+Shift+Left             allow-when-locked=true hotkey-overlay-title="Mic Volume Down" { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SOURCE@" "0.05-"; }
-    Shift+XF86AudioRaiseVolume allow-when-locked=true hotkey-overlay-title="Mic Volume Up"   { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SOURCE@" "0.05+"; }
-    Mod+Shift+Right            allow-when-locked=true hotkey-overlay-title="Mic Volume Up"   { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SOURCE@" "0.05+"; }
-    Shift+XF86AudioMute        allow-when-locked=true hotkey-overlay-title="Mute Mic"        { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
-    XF86AudioMicMute           allow-when-locked=true hotkey-overlay-title="Mute Mic"        { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
-    Mod+Shift+M                allow-when-locked=true hotkey-overlay-title="Mute Mic"        { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
+    Shift+XF86AudioLowerVolume allow-when-locked=true hotkey-overlay-title="Mic Volume Down" { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SOURCE@ 0.05-"; }
+    Mod+Shift+Left             allow-when-locked=true hotkey-overlay-title="Mic Volume Down" { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SOURCE@ 0.05-"; }
+    Shift+XF86AudioRaiseVolume allow-when-locked=true hotkey-overlay-title="Mic Volume Up"   { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SOURCE@ 0.05+"; }
+    Mod+Shift+Right            allow-when-locked=true hotkey-overlay-title="Mic Volume Up"   { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SOURCE@ 0.05+"; }
+    Shift+XF86AudioMute        allow-when-locked=true hotkey-overlay-title="Mute Mic"        { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"; }
+    XF86AudioMicMute           allow-when-locked=true hotkey-overlay-title="Mute Mic"        { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"; }
+    Mod+Shift+M                allow-when-locked=true hotkey-overlay-title="Mute Mic"        { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"; }
     // Shift+XF86AudioLowerVolume allow-when-locked=true hotkey-overlay-title="Mic Volume Down" { spawn-sh "qs -c noctalia-shell ipc call volume decreaseInput"; }
     // Mod+Shift+Left             allow-when-locked=true hotkey-overlay-title="Mic Volume Down" { spawn-sh "qs -c noctalia-shell ipc call volume decreaseInput"; }
     // Shift+XF86AudioRaiseVolume allow-when-locked=true hotkey-overlay-title="Mic Volume Up"   { spawn-sh "qs -c noctalia-shell ipc call volume increaseInput"; }
@@ -318,8 +318,8 @@ binds {
     // Mod+Shift+M                allow-when-locked=true hotkey-overlay-title="Mute Mic"        { spawn-sh "qs -c noctalia-shell ipc call volume muteInput"; }
 
     // Media Control
-    XF86AudioPrev    allow-when-locked=true hotkey-overlay-title="Previous Track"            { spawn "playerctl" "previous"; }
-    XF86AudioNext    allow-when-locked=true hotkey-overlay-title="Next Track"                { spawn "playerctl" "next"; }
+    XF86AudioPrev    allow-when-locked=true hotkey-overlay-title="Previous Track"            { spawn-sh "playerctl previous"; }
+    XF86AudioNext    allow-when-locked=true hotkey-overlay-title="Next Track"                { spawn-sh "playerctl next"; }
     XF86AudioPause   allow-when-locked=true hotkey-overlay-title="Play/Pause Media"          { spawn-sh "play-pause-media"; }
     XF86AudioPlay    allow-when-locked=true hotkey-overlay-title="Play/Pause Media"          { spawn-sh "play-pause-media"; }
     // XF86AudioPrev    allow-when-locked=true hotkey-overlay-title="Previous Track"            { spawn-sh "qs -c noctalia-shell ipc call media previous"; }
@@ -328,10 +328,10 @@ binds {
     // XF86AudioPlay    allow-when-locked=true hotkey-overlay-title="Play/Pause Media"          { spawn-sh "qs -c noctalia-shell ipc call media playPause"; }
 // 
     // Brightness Control
-    XF86MonBrightnessDown allow-when-locked=true hotkey-overlay-title="Decrease Brightness"  { spawn "brightnessctl" "-n1" "set" "10%-"; }
-    Super+Down allow-when-locked=true hotkey-overlay-title="Decrease Brightness" { spawn "brightnessctl" "-n1" "set" "10%-"; }
-    XF86MonBrightnessUp allow-when-locked=true hotkey-overlay-title="Decrease Brightness" { spawn "brightnessctl" "-n1" "set" "10%+"; }
-    Super+Up allow-when-locked=true hotkey-overlay-title="Decrease Brightness" { spawn "brightnessctl" "-n1" "set" "10%+"; }
+    XF86MonBrightnessDown allow-when-locked=true hotkey-overlay-title="Decrease Brightness"  { spawn-sh "brightnessctl -n1 set 10%-"; }
+    Super+Down allow-when-locked=true hotkey-overlay-title="Decrease Brightness" { spawn-sh "brightnessctl -n1 set 10%-"; }
+    XF86MonBrightnessUp allow-when-locked=true hotkey-overlay-title="Decrease Brightness" { spawn-sh "brightnessctl -n1 set 10%+"; }
+    Super+Up allow-when-locked=true hotkey-overlay-title="Decrease Brightness" { spawn-sh "brightnessctl -n1 set 10%+"; }
     // XF86MonBrightnessDown allow-when-locked=true hotkey-overlay-title="Decrease Brightness"  { spawn-sh "qs -c noctalia-shell ipc call brightness decrease"; }
     // Super+Down allow-when-locked=true hotkey-overlay-title="Decrease Brightness" { spawn-sh "qs -c noctalia-shell ipc call brightness decrease"; }
     // XF86MonBrightnessUp allow-when-locked=true hotkey-overlay-title="Decrease Brightness" { spawn-sh "qs -c noctalia-shell ipc call brightness increase"; }
