@@ -1,3 +1,6 @@
+// Default Niri Configuration can be downloaded from:
+// https://raw.githubusercontent.com/YaLTeR/niri/refs/heads/main/resources/default-config.kdl
+
 include "/home/mike/.config/local/niri.kdl"
 
 workspace "1"    { open-on-output "DP-1"; }
