@@ -3,6 +3,8 @@
 maxcount=300
 declare -A cameras
 
+reduce_latency="--profile=low-latency --no-cache --untimed"
+
 [ -r $XDG_CONFIG_HOME/fuzzy-chooser.conf ] && source $XDG_CONFIG_HOME/fuzzy-chooser.conf
 [ -z "$chooser" ] && chooser=$fuzzy_chooser
 
@@ -83,7 +85,7 @@ fi
 
 [ -z "$cam" ] && cam=$1
 
-pkill -f "mpv .*--(wayland-app-id|x11-name|title)=mpvcam"
+pkill -9 -f "mpv .*--(wayland-app-id|x11-name|title)=mpvcam"
 [ "$cam" = quit ] && exit
 
 splittype=medium
@@ -132,16 +134,16 @@ case $cam in
 esac
 
 if ! $multiview; then
-  DBUS_FATAL_WARNINGS=0 /usr/bin/mpv --mute=yes --stop-screensaver=no --wayland-app-id="mpvcam $cam" $rtsp_url &
+  DBUS_FATAL_WARNINGS=0 /usr/bin/mpv --mute=yes --stop-screensaver=no --wayland-app-id="mpvcam $cam" $reduce_latency $rtsp_url &
 else
   if $stackmode; then
-    DBUS_FATAL_WARNINGS=0 /usr/bin/mpv --mute=yes --stop-screensaver=no --wayland-app-id="mpvcam $cam" "${cameras[$cam1]}/$uri&subtype=${subtypes[$splittype]}" \
+    DBUS_FATAL_WARNINGS=0 /usr/bin/mpv --mute=yes --stop-screensaver=no --wayland-app-id="mpvcam $cam" $reduce_latency "${cameras[$cam1]}/$uri&subtype=${subtypes[$splittype]}" \
       --external-file={"${cameras[$cam2]}/$uri&subtype=${subtypes[$splittype]}","${cameras[$cam3]}/$uri&subtype=${subtypes[$splittype]}","${cameras[$cam4]}/$uri&subtype=${subtypes[$splittype]}"} \
       --lavfi-complex="[vid1][vid2]hstack=[top];[vid3][vid4]hstack=[bottom];[top][bottom]vstack[vo]" &
   else
-    DBUS_FATAL_WARNINGS=0 /usr/bin/mpv --mute=yes --stop-screensaver=no --wayland-app-id="mpvcammulti $cam1" "${cameras[$cam1]}/$uri&subtype=${subtypes[$splittype]}" &
-    DBUS_FATAL_WARNINGS=0 /usr/bin/mpv --mute=yes --stop-screensaver=no --wayland-app-id="mpvcammulti $cam2" "${cameras[$cam2]}/$uri&subtype=${subtypes[$splittype]}" &
-    DBUS_FATAL_WARNINGS=0 /usr/bin/mpv --mute=yes --stop-screensaver=no --wayland-app-id="mpvcammulti $cam3" "${cameras[$cam3]}/$uri&subtype=${subtypes[$splittype]}" &
-    DBUS_FATAL_WARNINGS=0 /usr/bin/mpv --mute=yes --stop-screensaver=no --wayland-app-id="mpvcammulti $cam4" "${cameras[$cam4]}/$uri&subtype=${subtypes[$splittype]}" &
+    DBUS_FATAL_WARNINGS=0 /usr/bin/mpv --mute=yes --stop-screensaver=no --wayland-app-id="mpvcammulti $cam1" $reduce_latency "${cameras[$cam1]}/$uri&subtype=${subtypes[$splittype]}" &
+    DBUS_FATAL_WARNINGS=0 /usr/bin/mpv --mute=yes --stop-screensaver=no --wayland-app-id="mpvcammulti $cam2" $reduce_latency "${cameras[$cam2]}/$uri&subtype=${subtypes[$splittype]}" &
+    DBUS_FATAL_WARNINGS=0 /usr/bin/mpv --mute=yes --stop-screensaver=no --wayland-app-id="mpvcammulti $cam3" $reduce_latency "${cameras[$cam3]}/$uri&subtype=${subtypes[$splittype]}" &
+    DBUS_FATAL_WARNINGS=0 /usr/bin/mpv --mute=yes --stop-screensaver=no --wayland-app-id="mpvcammulti $cam4" $reduce_latency "${cameras[$cam4]}/$uri&subtype=${subtypes[$splittype]}" &
   fi
 fi
