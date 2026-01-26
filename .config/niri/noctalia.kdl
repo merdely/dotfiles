@@ -1,0 +1,31 @@
+spawn-sh-at-startup "systemctl --user start noctalia.service"
+
+binds {
+  Mod+D            hotkey-overlay-title="Program Launcher"         { spawn-sh "qs -c noctalia-shell ipc call launcher toggle"; }
+  Mod+Ctrl+B       hotkey-overlay-title="Hide Bar"                 { spawn-sh "qs -c noctalia-shell ipc call bar toggle"; }
+  Mod+I            hotkey-overlay-title="Toggle Idle Inhibitor"    { spawn-sh "qs -c noctalia-shell ipc call idleInhibitor toggle"; }
+  Ctrl+Space       hotkey-overlay-title="Hide All Notifications"   { spawn-sh "qs -c noctalia-shell ipc call notifications dismissAll"; }
+  Mod+Shift+Space  hotkey-overlay-title="Clear All Notifications"  { spawn-sh "qs -c noctalia-shell ipc call notifications clear"; }
+  Mod+Space        hotkey-overlay-title="Notification Panel"       { spawn-sh "qs -c noctalia-shell ipc call notifications toggleHistory"; }
+  // XF86AudioLowerVolume allow-when-locked=true hotkey-overlay-title="Speaker Volume Down"   { spawn-sh "qs -c noctalia-shell ipc call volume decrease"; }
+  // Mod+Left             allow-when-locked=true hotkey-overlay-title="Speaker Volume Down"   { spawn-sh "qs -c noctalia-shell ipc call volume decrease"; }
+  // XF86AudioRaiseVolume allow-when-locked=true hotkey-overlay-title="Speaker Volume Up"     { spawn-sh "qs -c noctalia-shell ipc call volume increase"; }
+  // Mod+Right            allow-when-locked=true hotkey-overlay-title="Speaker Volume Up"     { spawn-sh "qs -c noctalia-shell ipc call volume increase"; }
+  // XF86AudioMute        allow-when-locked=true hotkey-overlay-title="Mute Speakers"         { spawn-sh "qs -c noctalia-shell ipc call volume muteOutput"; }
+  // Mod+Ctrl+M           allow-when-locked=true hotkey-overlay-title="Mute Speakers"         { spawn-sh "qs -c noctalia-shell ipc call volume muteOutput"; }
+  // Shift+XF86AudioLowerVolume allow-when-locked=true hotkey-overlay-title="Mic Volume Down" { spawn-sh "qs -c noctalia-shell ipc call volume decreaseInput"; }
+  // Mod+Shift+Left             allow-when-locked=true hotkey-overlay-title="Mic Volume Down" { spawn-sh "qs -c noctalia-shell ipc call volume decreaseInput"; }
+  // Shift+XF86AudioRaiseVolume allow-when-locked=true hotkey-overlay-title="Mic Volume Up"   { spawn-sh "qs -c noctalia-shell ipc call volume increaseInput"; }
+  // Mod+Shift+Right            allow-when-locked=true hotkey-overlay-title="Mic Volume Up"   { spawn-sh "qs -c noctalia-shell ipc call volume increaseInput"; }
+  // Shift+XF86AudioMute        allow-when-locked=true hotkey-overlay-title="Mute Mic"        { spawn-sh "qs -c noctalia-shell ipc call volume muteInput"; }
+  // XF86AudioMicMute           allow-when-locked=true hotkey-overlay-title="Mute Mic"        { spawn-sh "qs -c noctalia-shell ipc call volume muteInput"; }
+  // Mod+Shift+M                allow-when-locked=true hotkey-overlay-title="Mute Mic"        { spawn-sh "qs -c noctalia-shell ipc call volume muteInput"; }
+  // XF86AudioPrev    allow-when-locked=true hotkey-overlay-title="Previous Track"            { spawn-sh "qs -c noctalia-shell ipc call media previous"; }
+  // XF86AudioNext    allow-when-locked=true hotkey-overlay-title="Next Track"                { spawn-sh "qs -c noctalia-shell ipc call media next"; }
+  // XF86AudioPause   allow-when-locked=true hotkey-overlay-title="Play/Pause Media"          { spawn-sh "qs -c noctalia-shell ipc call media playPause"; }
+  // XF86AudioPlay    allow-when-locked=true hotkey-overlay-title="Play/Pause Media"          { spawn-sh "qs -c noctalia-shell ipc call media playPause"; }
+  // XF86MonBrightnessDown allow-when-locked=true hotkey-overlay-title="Decrease Brightness"  { spawn-sh "qs -c noctalia-shell ipc call brightness decrease"; }
+  // Super+Down allow-when-locked=true hotkey-overlay-title="Decrease Brightness" { spawn-sh "qs -c noctalia-shell ipc call brightness decrease"; }
+  // XF86MonBrightnessUp allow-when-locked=true hotkey-overlay-title="Decrease Brightness" { spawn-sh "qs -c noctalia-shell ipc call brightness increase"; }
+  // Super+Up allow-when-locked=true hotkey-overlay-title="Decrease Brightness" { spawn-sh "qs -c noctalia-shell ipc call brightness increase"; }
+}

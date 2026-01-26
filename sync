@@ -6,8 +6,7 @@ CONFIGS=(
   $HOME/.config/kitty/
   $HOME/.config/local/waybar*
   $HOME/.config/local/wb_*
-  $HOME/.config/niri/config.kdl
-  $HOME/.config/niri/scripts/
+  $HOME/.config/niri/
   $HOME/.config/noctalia/
   $HOME/.config/nvim/
   $HOME/.config/nwg-drawer/

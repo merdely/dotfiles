@@ -1,35 +1,14 @@
 // Default Niri Configuration can be downloaded from:
 // https://raw.githubusercontent.com/YaLTeR/niri/refs/heads/main/resources/default-config.kdl
 
-include "/home/mike/.config/local/niri.kdl"
-
 workspace "1"    { open-on-output "DP-1"; }
 workspace "🗒️"   { open-on-output "eDP-1"; }
 workspace "Cameras"   { open-on-output "eDP-1"; }
 prefer-no-csd
 screenshot-path "~/Pictures/Screenshots/Screenshot-%Y-%m-%d_%H-%M-%S.png"
-// xwayland-satellite { off; }
 
-spawn-sh-at-startup "systemctl --user start wm-session.target"
-// for waybar
-spawn-sh-at-startup "systemctl --user start waybar.service"
-spawn-sh-at-startup "systemctl --user start swaybg.service"
-spawn-sh-at-startup "systemctl --user start swayidle.service"
-
-// For noctalia
-// spawn-sh-at-startup "systemctl --user start noctalia.service"
-
-// For dms
-// spawn-sh-at-startup "systemctl --user start dms.service"
-// spawn-sh-at-startup "wl-paste --watch cliphist store"
-
-spawn-sh-at-startup "systemctl --user start wl-clip-persist.service"
 spawn-sh-at-startup "systemctl --user start ydotool.service"
-spawn-sh-at-startup "systemctl --user start polkit-gnome.service"
 spawn-sh-at-startup "[[ ! -r $HOME/quickstart ]] && sleep 10 && systemctl --user start syncthingtray.service"
-
-spawn-sh-at-startup "[[ ! -r $HOME/quickstart ]] && gtk-launch blueman-applet"
-spawn-sh-at-startup "[[ ! -r $HOME/quickstart ]] && gtk-launch nm-applet"
 spawn-sh-at-startup "[[ ! -r $HOME/quickstart ]] && gtk-launch solaar-applet"
 spawn-sh-at-startup "[[ ! -r $HOME/quickstart ]] && gtk-launch udiskie-applet"
 
@@ -46,14 +25,11 @@ binds {
     Mod+Ctrl+X               { spawn "true"; }
     Mod+Shift+B              { spawn "true"; }
     Mod+E                    { spawn "true"; }
-    Mod+U                    { spawn "true"; }
     Mod+X                    { spawn "true"; }
 
     // WM Management
-    Mod+Ctrl+Shift+B hotkey-overlay-title="Reload Waybar"                { spawn-sh "pkill -SIGUSR2 waybar"; }
     Mod+Shift+E      hotkey-overlay-title="Quit Niri"                    { quit; }
     Mod+D            hotkey-overlay-title="Program Launcher"             { spawn-sh "wm-app-launcher"; }
-    // Mod+D            hotkey-overlay-title="Program Launcher"             { spawn-sh "qs -c noctalia-shell ipc call launcher toggle"; }
     Mod+Shift+D      hotkey-overlay-title="Program Launcher"             { spawn-sh "wm-app-launcher -a"; }
 
     Mod+G            hotkey-overlay-title="Program Launcher Fuzzel"         { spawn-sh "wm-app-launcher -f"; }
@@ -62,28 +38,18 @@ binds {
     Mod+W            hotkey-overlay-title="Window Chooser"               { spawn-sh "wm-window-switcher"; }
     Mod+Return       hotkey-overlay-title="Launch Terminal"              { spawn-sh "wm-terminal"; }
     Mod+T            hotkey-overlay-title="Launch Terminal"              { spawn-sh "wm-terminal"; }
-    Mod+Ctrl+B       hotkey-overlay-title="Hide Waybar"                  { spawn-sh "pkill -SIGUSR1 waybar"; }
-    // Mod+Ctrl+B       hotkey-overlay-title="Hide Bar"                     { spawn-sh "qs -c noctalia-shell ipc call bar toggle"; }
     Mod+Q            repeat=false hotkey-overlay-title="Close Window"    { close-window; }
     Mod+MouseMiddle  repeat=false hotkey-overlay-title="Close Window"    { close-window; }
-    // MouseMiddle      repeat=false hotkey-overlay-title="Close Window"    { close-window; }
     Mod+S            hotkey-overlay-title="Scratchpad Chooser"           { spawn-sh "wm-app-toggle -S \"([r]ofi|[f]uzzel) -p Scratchpad App ?>? ? -d(menu)?\" wm-scratchpad-chooser"; }
     Mod+Apostrophe   hotkey-overlay-title="SSH Chooser"                  { spawn-sh "wm-app-toggle rofi -show ssh"; }
     Mod+A            hotkey-overlay-title="Minimize Window"              { spawn-sh "wm-minimize ACTIVE"; }
     Mod+Z            hotkey-overlay-title="Duplicate Window"             { spawn-sh "wm-duplicate-app"; }
     Mod+M            hotkey-overlay-title="Minimize Window"              { spawn-sh "wm-minimize ACTIVE"; }
-    MouseMiddle            hotkey-overlay-title="Minimize Window"              { spawn-sh "wm-minimize ACTIVE"; }
-    // Mod+W            hotkey-overlay-title="Toggle Tabbed Display"        { toggle-column-tabbed-display; }
+    MouseMiddle      hotkey-overlay-title="Minimize Window"              { spawn-sh "wm-minimize ACTIVE"; }
     Mod+Shift+O      hotkey-overlay-title="Show Hotkey Overlay"          { show-hotkey-overlay; }
 
-    // Idle Inhibitor with other bars (waybar)
+    // Idle Inhibitor
     Mod+I            hotkey-overlay-title="Toggle Idle Inhibitor"        { spawn-sh "pgrep -f '^((/usr)?/bin/)?systemd-inhibit --who=user-idle-inhibit --why=Prevent screenlock' > /dev/null 2>&1 && pkill -f '^((/usr)?/bin/)?systemd-inhibit --who=user-idle-inhibit --why=Prevent screenlock' || systemd-inhibit --who=user-idle-inhibit --why='Prevent screenlock' --what=idle sleep $((4*3600))"; }
-
-    // Idle Inhibitor with dms
-    // Mod+I            hotkey-overlay-title="Toggle Idle Inhibitor"        { spawn-sh "dms ipc call inhibit toggle; notify-send 'Idle Inhibitor Toggled'"; }
-
-    // Idle Inhibitor with noctalia
-    // Mod+I            hotkey-overlay-title="Toggle Idle Inhibitor"        { spawn-sh "qs -c noctalia-shell ipc call idleInhibitor toggle"; }
 
     Mod+O            repeat=false hotkey-overlay-title="Toggle Overview" { toggle-overview; }
     Mod+R            hotkey-overlay-title="Toggle Preset Widths"         { switch-preset-column-width; }
@@ -94,44 +60,20 @@ binds {
     XF86Tools                                                                    { spawn-sh "pkill -SIGUSR1 swayidle"; }
     F12                 hotkey-overlay-title="Lock Screen"                       { spawn-sh "pkill -SIGUSR1 swayidle"; }
 
-    // Power Menu with other bars (waybar)
     Mod+P               hotkey-overlay-title="Power Menu"                        { spawn-sh "wm-power-menu"; }
     Ctrl+Alt+Delete                                                              { spawn-sh "wm-power-menu"; }
-
-    // Power Menu with DMS
-    // Mod+P               hotkey-overlay-title="Power Menu"                        { spawn-sh "dms ipc call powermenu toggle"; }
-    // Ctrl+Alt+Delete                                                              { spawn-sh "dms ipc call powermenu toggle"; }
-
-    Mod+Backspace        allow-when-locked=true hotkey-overlay-title="Hibernate"  { spawn-sh "systemctl hibernate"; }
+    Mod+Backspace       allow-when-locked=true hotkey-overlay-title="Hibernate"  { spawn-sh "systemctl hibernate"; }
 
     // Notification control with swaync
-    Ctrl+Space           hotkey-overlay-title="Hide Notification"                 { spawn-sh "swaync-client --hide-latest"; }
-    Mod+Shift+Space      hotkey-overlay-title="Hide All Notifications"            { spawn-sh "swaync-client --hide-all ; swaync-client --close-panel"; }
-    Mod+Ctrl+Space       hotkey-overlay-title="Clear Notification"                { spawn-sh "swaync-client --close-latest"; }
-    Mod+Ctrl+Shift+Space hotkey-overlay-title="Clear All Notifications"           { spawn-sh "swaync-client --close-all ; swaync-client --close-panel"; }
+    Ctrl+Space           hotkey-overlay-title="Hide All Notifications"            { spawn-sh "swaync-client --hide-all ; swaync-client --close-panel"; }
+    Mod+Shift+Space      hotkey-overlay-title="Clear All Notifications"           { spawn-sh "swaync-client --close-all ; swaync-client --close-panel"; }
     Mod+Space            hotkey-overlay-title="Notification Panel"                { spawn-sh "swaync-client -t -sw"; }
-
-    // Notification control with dms
-    // Ctrl+Space           hotkey-overlay-title="Hide Notification"                 { spawn-sh "dms ipc call notifications dismissAllPopups ; dms ipc call notifications close"; }
-    // Mod+Shift+Space      hotkey-overlay-title="Hide All Notifications"            { spawn-sh "dms ipc call notifications clearAll ; dms ipc call notifications close"; }
-    // Mod+Ctrl+Space       hotkey-overlay-title="Clear Notification"                { spawn-sh "dms ipc call notifications clearAll ; dms ipc call notifications close"; }
-    // Mod+Ctrl+Shift+Space hotkey-overlay-title="Clear All Notifications"           { spawn-sh "dms ipc call notifications clearAll ; dms ipc call notifications close"; }
-    // Mod+Space            hotkey-overlay-title="Notification Panel"                { spawn-sh "dms ipc call notifications toggle"; }
-
-    // Notification control with noctalia shell
-    // Ctrl+Space           hotkey-overlay-title="Hide Notification"                 { spawn-sh "qs -c noctalia-shell ipc call notifications dismissOldest"; }
-    // Mod+Shift+Space      hotkey-overlay-title="Hide All Notifications"            { spawn-sh "qs -c noctalia-shell ipc call notifications dismissAll"; }
-    // Mod+Ctrl+Space       hotkey-overlay-title="Clear Notification"                { spawn-sh "qs -c noctalia-shell ipc call notifications removeOldestHistory"; }
-    // Mod+Ctrl+Shift+Space hotkey-overlay-title="Clear All Notifications"           { spawn-sh "qs -c noctalia-shell ipc call notifications clear"; }
-    // Mod+Space            hotkey-overlay-title="Notification Panel"                { spawn-sh "qs -c noctalia-shell ipc call notifications toggleHistory"; }
-
-    Mod+N                hotkey-overlay-title="Bitwarden Chooser"                 { spawn-sh "wm-app-toggle -P rofi-rbw --use-notify-send"; }
 
     // Mod+X               hotkey-overlay-title="Clipboard Manager"                 { spawn-sh "cliphist list | wm-fuzzy-chooser -p \"Clipboard History >\" | cliphist decode | wl-copy"; }
     // Mod+Ctrl+X          hotkey-overlay-title="Delete from Clipboard History"     { spawn-sh "cliphist list | wm-fuzzy-chooser -p \"Delete from History >\" | cliphist delete"; }
     // Mod+Shift+X         hotkey-overlay-title="Camera Chooser"                    { spawn-sh "wm-app-toggle -S \"[f]uzzel -p View Camera >  -d\" wm-cam-chooser"; }
+    Mod+N                hotkey-overlay-title="Bitwarden Chooser"                 { spawn-sh "wm-app-toggle -P rofi-rbw --use-notify-send"; }
     Mod+Shift+X         hotkey-overlay-title="Camera Chooser"                    { spawn-sh "wm-app-toggle -S \"([r]ofi|[f]uzzel) -p View Camera ?>? ? -d(menu)?\" wm-cam-chooser"; }
-
     Mod+Shift+Z             hotkey-overlay-title="Bitwarden"             { spawn-sh "wm-minimize bitwarden Bitwarden"; }
     Mod+Shift+C             hotkey-overlay-title="Calculator"            { spawn-sh "wm-minimize -R galculator"; }
     Mod+Shift+Return        hotkey-overlay-title="Terminal Scratchpad"   { spawn-sh "wm-minimize term-scratchpad"; }
@@ -141,6 +83,7 @@ binds {
     Mod+Shift+Apostrophe    hotkey-overlay-title="Bluetooth Manager"     { spawn-sh "wm-minimize blueman-manager"; }
     Mod+Shift+N             hotkey-overlay-title="Nvtop"                 { spawn-sh "wm-minimize nvtop"; }
     Mod+Shift+I             hotkey-overlay-title="System Monitor"        { spawn-sh "wm-minimize btop"; }
+    Mod+Shift+U             hotkey-overlay-title="Tasks"                 { spawn-sh "wm-minimize io.github.alainm23.planify"; }
     Mod+Shift+Q             hotkey-overlay-title="Logseq"                { spawn-sh "wm-minimize logseq-desktop Logseq"; }
     Mod+Shift+SemiColon     hotkey-overlay-title="Audio Mixer"           { spawn-sh "wm-minimize org.pulseaudio.pavucontrol pavucontrol"; }
     // Mod+Shift+A             hotkey-overlay-title="Signal"                { spawn-sh "wm-minimize signal-desktop signal"; }
@@ -222,21 +165,10 @@ binds {
     Mod+Shift+Comma  hotkey-overlay-title="Move Window Previous Screen"    { move-window-to-monitor-left; }
     Mod+Shift+Period hotkey-overlay-title="Move Window Next Screen"        { move-window-to-monitor-right; }
 
-    // Mod+MouseForward    cooldown-ms=150  hotkey-overlay-title="Focus Next Column/Screen" { focus-column-or-monitor-right; }
-    // Mod+MouseBack       cooldown-ms=150 hotkey-overlay-title="Focus Previous Column/Screen" { focus-column-or-monitor-left; }
-
     Mod+WheelScrollDown  cooldown-ms=500 hotkey-overlay-title="Focus Next Column/Screen"     { focus-column-or-monitor-right; }
     Mod+WheelScrollUp    cooldown-ms=500 hotkey-overlay-title="Focus Previous Column/Screen" { focus-column-or-monitor-left; }
-    Mod+Ctrl+WheelScrollDown cooldown-ms=500 hotkey-overlay-title="Move Column Right"   { move-column-right-or-to-monitor-right; }
-    Mod+Ctrl+WheelScrollUp   cooldown-ms=500 hotkey-overlay-title="Move Column Left"    { move-column-left-or-to-monitor-left; }
-
-    // Mod+Shift+WheelScrollDown  cooldown-ms=500 hotkey-overlay-title="Focus Column Right" { focus-column-right; }
-    // Mod+Shift+WheelScrollUp    cooldown-ms=500 hotkey-overlay-title="Focus Column Left"  { focus-column-left; }
-
-    // Alt+Tab           hotkey-overlay-title="Previous Window"             { focus-window-previous; }
-    // Alt+Shift+Tab     hotkey-overlay-title="Previous Window"             { focus-window-previous; }
-
-    // Mod+Tab           hotkey-overlay-title="Previous Workspace"          { focus-workspace-previous; }
+    Mod+Shift+WheelScrollDown cooldown-ms=500 hotkey-overlay-title="Move Column Right"   { move-column-right-or-to-monitor-right; }
+    Mod+Shift+WheelScrollUp   cooldown-ms=500 hotkey-overlay-title="Move Column Left"    { move-column-left-or-to-monitor-left; }
 
     Mod+Ctrl+Comma    hotkey-overlay-title="Focus Previous Workspace"    { focus-workspace-up; }
     Mod+Ctrl+Period   hotkey-overlay-title="Focus Previous Workspace"    { focus-workspace-down; }
@@ -294,12 +226,6 @@ binds {
     Mod+Right            allow-when-locked=true hotkey-overlay-title="Speaker Volume Up"     { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.05+"; }
     XF86AudioMute        allow-when-locked=true hotkey-overlay-title="Mute Speakers"         { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"; }
     Mod+Ctrl+M           allow-when-locked=true hotkey-overlay-title="Mute Speakers"         { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"; }
-    // XF86AudioLowerVolume allow-when-locked=true hotkey-overlay-title="Speaker Volume Down"   { spawn-sh "qs -c noctalia-shell ipc call volume decrease"; }
-    // Mod+Left             allow-when-locked=true hotkey-overlay-title="Speaker Volume Down"   { spawn-sh "qs -c noctalia-shell ipc call volume decrease"; }
-    // XF86AudioRaiseVolume allow-when-locked=true hotkey-overlay-title="Speaker Volume Up"     { spawn-sh "qs -c noctalia-shell ipc call volume increase"; }
-    // Mod+Right            allow-when-locked=true hotkey-overlay-title="Speaker Volume Up"     { spawn-sh "qs -c noctalia-shell ipc call volume increase"; }
-    // XF86AudioMute        allow-when-locked=true hotkey-overlay-title="Mute Speakers"         { spawn-sh "qs -c noctalia-shell ipc call volume muteOutput"; }
-    // Mod+Ctrl+M           allow-when-locked=true hotkey-overlay-title="Mute Speakers"         { spawn-sh "qs -c noctalia-shell ipc call volume muteOutput"; }
 
     // Mic Volume
     Shift+XF86AudioLowerVolume allow-when-locked=true hotkey-overlay-title="Mic Volume Down" { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SOURCE@ 0.05-"; }
@@ -309,33 +235,18 @@ binds {
     Shift+XF86AudioMute        allow-when-locked=true hotkey-overlay-title="Mute Mic"        { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"; }
     XF86AudioMicMute           allow-when-locked=true hotkey-overlay-title="Mute Mic"        { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"; }
     Mod+Shift+M                allow-when-locked=true hotkey-overlay-title="Mute Mic"        { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"; }
-    // Shift+XF86AudioLowerVolume allow-when-locked=true hotkey-overlay-title="Mic Volume Down" { spawn-sh "qs -c noctalia-shell ipc call volume decreaseInput"; }
-    // Mod+Shift+Left             allow-when-locked=true hotkey-overlay-title="Mic Volume Down" { spawn-sh "qs -c noctalia-shell ipc call volume decreaseInput"; }
-    // Shift+XF86AudioRaiseVolume allow-when-locked=true hotkey-overlay-title="Mic Volume Up"   { spawn-sh "qs -c noctalia-shell ipc call volume increaseInput"; }
-    // Mod+Shift+Right            allow-when-locked=true hotkey-overlay-title="Mic Volume Up"   { spawn-sh "qs -c noctalia-shell ipc call volume increaseInput"; }
-    // Shift+XF86AudioMute        allow-when-locked=true hotkey-overlay-title="Mute Mic"        { spawn-sh "qs -c noctalia-shell ipc call volume muteInput"; }
-    // XF86AudioMicMute           allow-when-locked=true hotkey-overlay-title="Mute Mic"        { spawn-sh "qs -c noctalia-shell ipc call volume muteInput"; }
-    // Mod+Shift+M                allow-when-locked=true hotkey-overlay-title="Mute Mic"        { spawn-sh "qs -c noctalia-shell ipc call volume muteInput"; }
 
     // Media Control
     XF86AudioPrev    allow-when-locked=true hotkey-overlay-title="Previous Track"            { spawn-sh "playerctl previous"; }
     XF86AudioNext    allow-when-locked=true hotkey-overlay-title="Next Track"                { spawn-sh "playerctl next"; }
     XF86AudioPause   allow-when-locked=true hotkey-overlay-title="Play/Pause Media"          { spawn-sh "play-pause-media"; }
     XF86AudioPlay    allow-when-locked=true hotkey-overlay-title="Play/Pause Media"          { spawn-sh "play-pause-media"; }
-    // XF86AudioPrev    allow-when-locked=true hotkey-overlay-title="Previous Track"            { spawn-sh "qs -c noctalia-shell ipc call media previous"; }
-    // XF86AudioNext    allow-when-locked=true hotkey-overlay-title="Next Track"                { spawn-sh "qs -c noctalia-shell ipc call media next"; }
-    // XF86AudioPause   allow-when-locked=true hotkey-overlay-title="Play/Pause Media"          { spawn-sh "qs -c noctalia-shell ipc call media playPause"; }
-    // XF86AudioPlay    allow-when-locked=true hotkey-overlay-title="Play/Pause Media"          { spawn-sh "qs -c noctalia-shell ipc call media playPause"; }
-// 
+
     // Brightness Control
     XF86MonBrightnessDown allow-when-locked=true hotkey-overlay-title="Decrease Brightness"  { spawn-sh "brightnessctl -n1 set 10%-"; }
     Super+Down allow-when-locked=true hotkey-overlay-title="Decrease Brightness" { spawn-sh "brightnessctl -n1 set 10%-"; }
     XF86MonBrightnessUp allow-when-locked=true hotkey-overlay-title="Decrease Brightness" { spawn-sh "brightnessctl -n1 set 10%+"; }
     Super+Up allow-when-locked=true hotkey-overlay-title="Decrease Brightness" { spawn-sh "brightnessctl -n1 set 10%+"; }
-    // XF86MonBrightnessDown allow-when-locked=true hotkey-overlay-title="Decrease Brightness"  { spawn-sh "qs -c noctalia-shell ipc call brightness decrease"; }
-    // Super+Down allow-when-locked=true hotkey-overlay-title="Decrease Brightness" { spawn-sh "qs -c noctalia-shell ipc call brightness decrease"; }
-    // XF86MonBrightnessUp allow-when-locked=true hotkey-overlay-title="Decrease Brightness" { spawn-sh "qs -c noctalia-shell ipc call brightness increase"; }
-    // Super+Up allow-when-locked=true hotkey-overlay-title="Decrease Brightness" { spawn-sh "qs -c noctalia-shell ipc call brightness increase"; }
 }
 
 window-rule {
@@ -390,7 +301,7 @@ window-rule {
 }
 
 window-rule {
-    match app-id=r#"^(Bitwarden|blueman-manager|Element|featherpad|io\.missioncenter\.MissionCenter|Logseq|signal|org\.signal\.Signal|Signal|pavucontrol|htop|btop|net\.nokyan\.Resources|nvtop|term-scratchpad|termfm)$"#
+    match app-id=r#"^(Bitwarden|blueman-manager|Element|featherpad|io\.github\.alainm23\.planify|io\.missioncenter\.MissionCenter|Logseq|signal|org\.signal\.Signal|Signal|pavucontrol|htop|btop|net\.nokyan\.Resources|nvtop|term-scratchpad|termfm)$"#
     open-floating true
     open-maximized false
 }
@@ -402,7 +313,7 @@ window-rule {
 }
 
 window-rule {
-    match app-id=r#"^(Bitwarden|blueman-manager|Element|io\.missioncenter\.MissionCenter|Logseq|signal|org\.signal\.Signal|Signal|pavucontrol|htop|btop|net\.nokyan\.Resources|nvtop|term-scratchpad|termfm)$"# at-startup=true
+    match app-id=r#"^(Bitwarden|blueman-manager|Element|io\.github\.alainm23\.planify|io\.missioncenter\.MissionCenter|Logseq|signal|org\.signal\.Signal|Signal|pavucontrol|htop|btop|net\.nokyan\.Resources|nvtop|term-scratchpad|termfm)$"# at-startup=true
     open-on-workspace "🗒️"
     open-floating false
     open-focused false
@@ -581,7 +492,7 @@ window-rule {
     clip-to-geometry true
 }
 
-environment {
+/-environment {
     XDG_CURRENT_DESKTOP "niri"
     XDG_SESSION_DESKTOP "niri"
     XDG_SESSION_TYPE "wayland"
@@ -591,6 +502,8 @@ environment {
     QT_QPA_PLATFORMTHEME "kde"
     QT_QPA_PLATFORM "wayland"
 
+}
+environment {
     SSH_ASKPASS "yad-askpass"
     SSH_AUTH_SOCK "/run/user/1000/ssh-agent.socket"
 
@@ -684,4 +597,8 @@ cursor {
 debug { wait-for-frame-completion-before-queueing; }
 gestures { hot-corners { off; }; }
 
-include "dms/outputs.kdl"
+include "dms.kdl"
+// include "noctalia.kdl"
+// include "waybar.kdl"
+include "/home/mike/.config/local/niri.kdl"
+

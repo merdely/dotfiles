@@ -1,0 +1,43 @@
+environment {
+  XDG_CURRENT_DESKTOP "niri"
+  QT_QPA_PLATFORM "wayland"
+  ELECTRON_OZONE_PLATFORM_HINT "auto"
+  QT_QPA_PLATFORMTHEME "gtk3"
+  QT_QPA_PLATFORMTHEME_QT6 "gtk3"
+}
+
+layer-rule {
+    match namespace="^quickshell$"
+    place-within-backdrop true
+}
+
+// Open DMS windows as floating by default
+window-rule {
+    match app-id=r#"org.quickshell$"#
+    open-floating true
+}
+
+spawn-sh-at-startup "dms run"
+
+include "dms/colors.kdl"
+include "dms/layout.kdl"
+include "dms/alttab.kdl"
+include "dms/binds.kdl"
+include "dms/cursor.kdl"
+include "dms/outputs.kdl"
+
+
+binds {
+  Mod+D        hotkey-overlay-title="Program Spotlight"     { spawn-sh "dms ipc call spotlight toggle"; }
+  Mod+Ctrl+B   hotkey-overlay-title="Toggle Waybar"         { spawn-sh "dms ipc call bar toggle index 0"; }
+  Mod+I        hotkey-overlay-title="Toggle Idle Inhibitor" { spawn-sh "dms ipc call inhibit toggle"; }
+  Mod+U        hotkey-overlay-title="DMS Settings"          { spawn-sh "dms ipc call settings toggle"; }
+  Mod+P        hotkey-overlay-title="Power Menu"            { spawn-sh "dms ipc call powermenu toggle"; }
+  Ctrl+Alt+Delete                                           { spawn-sh "dms ipc call powermenu toggle"; }
+  Ctrl+Space   hotkey-overlay-title="Hide Notification"     { spawn-sh "dms ipc call notifications dismissAllPopups"; }
+  Mod+Shift+Space hotkey-overlay-title="Clear All Notifications" { spawn-sh "dms ipc call notifications clearAll"; }
+  Mod+Space    hotkey-overlay-title="Notification Panel"    { spawn-sh "dms ipc call notifications toggle"; }
+  Mod+Shift+BracketRight hotkey-overlay-title="Text Editor" { spawn-sh "dms ipc call notepad toggle"; }
+  XF86Tools                                                 { spawn-sh "dms ipc call lock lock"; }
+  F12          hotkey-overlay-title="Lock Screen"           { spawn-sh "dms ipc call lock lock"; }
+}

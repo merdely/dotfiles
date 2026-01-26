@@ -1,0 +1,15 @@
+spawn-sh-at-startup "systemctl --user start wm-session.target"
+spawn-sh-at-startup "systemctl --user start waybar.service"
+spawn-sh-at-startup "systemctl --user start swaybg.service"
+spawn-sh-at-startup "systemctl --user start swayidle.service"
+spawn-sh-at-startup "systemctl --user start wl-clip-persist.service"
+spawn-sh-at-startup "systemctl --user start polkit-gnome.service"
+
+spawn-sh-at-startup "[[ ! -r $HOME/quickstart ]] && gtk-launch blueman-applet"
+spawn-sh-at-startup "[[ ! -r $HOME/quickstart ]] && gtk-launch nm-applet"
+
+
+binds {
+  Mod+Ctrl+Shift+B hotkey-overlay-title="Reload Waybar"                { spawn-sh "pkill -SIGUSR2 waybar"; }
+  Mod+Ctrl+B       hotkey-overlay-title="Hide Waybar"                  { spawn-sh "pkill -SIGUSR1 waybar"; }
+}
