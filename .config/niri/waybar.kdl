@@ -2,7 +2,6 @@ spawn-sh-at-startup "systemctl --user start wm-session.target"
 spawn-sh-at-startup "systemctl --user start waybar.service"
 spawn-sh-at-startup "systemctl --user start swaybg.service"
 spawn-sh-at-startup "systemctl --user start swayidle.service"
-spawn-sh-at-startup "systemctl --user start wl-clip-persist.service"
 spawn-sh-at-startup "systemctl --user start polkit-gnome.service"
 
 spawn-sh-at-startup "[[ ! -r $HOME/quickstart ]] && gtk-launch blueman-applet"

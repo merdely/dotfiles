@@ -43,7 +43,7 @@ else
   fi
   for pid in $pids; do
     if pgrep -laf -u $LOGNAME | awk -v p=$pid -v s="$command_line" 'BEGIN{r=1}$1==p&&$0~s{r=0}END{exit r}'; then
-      win_id=$(niri msg -j windows | jq -r --arg p $pid '.[] | select(.pid|tostring==$p)|.id')
+      win_id=$(niri msg -j windows | jq -r --arg p $pid '.[] | select(.pid|tostring==$p)|.id' | sort -n | head -n1)
     fi
   done
 fi

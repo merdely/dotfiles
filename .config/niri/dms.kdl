@@ -34,8 +34,8 @@ binds {
   Mod+U        hotkey-overlay-title="DMS Settings"          { spawn-sh "dms ipc call settings toggle"; }
   Mod+P        hotkey-overlay-title="Power Menu"            { spawn-sh "dms ipc call powermenu toggle"; }
   Ctrl+Alt+Delete                                           { spawn-sh "dms ipc call powermenu toggle"; }
-  Ctrl+Space   hotkey-overlay-title="Hide Notification"     { spawn-sh "dms ipc call notifications dismissAllPopups"; }
-  Mod+Shift+Space hotkey-overlay-title="Clear All Notifications" { spawn-sh "dms ipc call notifications clearAll"; }
+  Ctrl+Space   hotkey-overlay-title="Clear Notifications"   { spawn-sh "dms ipc call notifications clearAll;dms ipc call notifications close"; }
+  Mod+Shift+Space hotkey-overlay-title="Hide Notifications" { spawn-sh "dms ipc call notifications dismissAllPopups"; }
   Mod+Space    hotkey-overlay-title="Notification Panel"    { spawn-sh "dms ipc call notifications toggle"; }
   Mod+Shift+BracketRight hotkey-overlay-title="Text Editor" { spawn-sh "dms ipc call notepad toggle"; }
   XF86Tools                                                 { spawn-sh "dms ipc call lock lock"; }
