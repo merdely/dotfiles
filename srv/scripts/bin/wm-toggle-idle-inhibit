@@ -3,31 +3,65 @@
 # 4 hours
 timeout=${timeout:-$((4 * 3600))}
 
+usage() {
+  echo "usage: $(basename $0) [-h] [-q] [-t TIMEOUT] [toggle|enable|disable|status|status-brief]"
+  exit $1
+}
+
+quiet=false
+while getopts ":hqt:" opt; do
+  case $opt in
+    t) timeout=$OPTARG ;;
+    q) quiet=true ;;
+    *) usage ;;
+  esac
+done
+shift $((OPTIND -1))
+
 mode=toggle
 case "$1" in
   "") ;;
-  start) mode=start && shift ;;
-  stop) mode=stop && shift ;;
-  *) echo "usage: $(basename $0) [-h] [stop|start]" && exit ;;
+  toggle) shift ;;
+  enable) mode=enable ; shift ;;
+  disable) mode=disable ; shift ;;
+  status) mode=status ; ontxt="Idle Inhibited" ; offtxt="Idle Allowed" ; shift ;;
+  brief|status-brief) mode=status ; shift ;;
+  *) usage ;;
 esac
 
+inhibit_enable() {
+  if ! pgrep -f "$search_string" > /dev/null 2>&1; then
+    systemd-inhibit --who=user-idle-inhibit --why='Prevent screenlock' --what=idle sleep $timeout &
+    ! $quiet && notify-send -a "Idle Inhibitor" -i info "" "Idle Inhibit Enabled"
+  fi
+}
+
+inhibit_disable() {
+  if pgrep -f "$search_string" > /dev/null 2>&1; then
+    pkill -f "$search_string"
+    ! $quiet && notify-send -a "Idle Inhibitor" -i info "" "Idle Inhibit Disabled"
+  fi
+}
 search_string='^((/usr)?/bin/)?systemd-inhibit --who=user-idle-inhibit --why=Prevent screenlock'
 case $mode in
-  start)
-    if ! pgrep -f "$search_string" > /dev/null 2>&1; then
-      systemd-inhibit --who=user-idle-inhibit --why='Prevent screenlock' --what=idle sleep $timeout &
-    fi
-    ;;
-  stop)
-    if pgrep -f "$search_string" > /dev/null 2>&1; then
-      pkill -f "$search_string"
-    fi
-    ;;
+  enable) inhibit_enable ;;
+  disable) inhibit_disable ;;
+  status)
+    systemd-inhibit --list | awk -v on="${ontxt:-On}" -v off="${offtxt:-Off}" '
+      BEGIN {
+        status = off
+      }
+    /^user-idle-inhibit.*systemd-inhibit.*Prevent screenlock.*block$/ {
+      status = on
+    }
+    END {
+      print status
+    }' ;;
   *)
     if pgrep -f "$search_string" > /dev/null 2>&1; then
-      pkill -f "$search_string"
+      inhibit_disable
     else
-      systemd-inhibit --who=user-idle-inhibit --why='Prevent screenlock' --what=idle sleep $timeout &
+      inhibit_enable
     fi
     ;;
 esac
