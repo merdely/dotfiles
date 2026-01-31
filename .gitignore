@@ -1,0 +1,4 @@
+.config/niri/config.kdl.backup*
+.config/niri/default-config.kdl
+.config/noctalia/pam/
+.config/noctalia/plugins.json

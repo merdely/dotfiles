@@ -1,0 +1,35 @@
+#############################
+# Example of reading a config file
+
+get_config_value() {
+  # No section: variable=$(get_config_value file key)
+  # Section:    variable=$(get_config_value file section key)
+  local r=$1 s="" k=$2
+  [ -n "$3" ] && s=$2 && k=$3
+  if [ -n "$s" ]; then
+    awk -vs="$s" -vk="$k" 'BEGIN{p=0}$1~/^\[/{p=0}$1=="["s"]"{p=1}p==1&&$0~"^[[:space:]]*"k"[[:space:]]*[:=]"{sub(/^[^:=]+[:=][[:space:]]*/,"");sub(/[[:space:]]+$/,"");print;exit}' "$r"
+  else
+    awk -vk="$k" '$0~"^[[:space:]]*"k"[[:space:]]*[:=]"{sub(/^[^:=]+[:=][[:space:]]*/,"");sub(/[[:space:]]+$/,"");print;exit}' "$r"
+  fi
+}
+
+# Examples using fuction
+config_file=config_test.ini
+
+# Without sections
+test_key1=$(get_config_value "$config_file" test_key1)
+echo "test_key1 = '$test_key1'"
+
+# With sections
+test_key1=$(get_config_value "$config_file" test_section test_key1)
+echo "test_key1 = '$test_key1'"
+
+##############################################################
+# Examples without using the function
+
+# Without sections
+test_key1=$(awk -vk="test_key1" '$0~"^[[:space:]]*"k"[[:space:]]*[:=]"{sub(/^[^:=]+[:=][[:space:]]*/,"");sub(/[[:space:]]+$/,"");print;exit}' config_test.ini)
+
+# With sections
+test_key1=$(awk -vs="test_section" -vk="test_key1" 'BEGIN{p=0}$1~/^\[/{p=0}$1=="["s"]"{p=1}p==1&&$0~"^[[:space:]]*"k"[[:space:]]*[:=]"{sub(/^[^:=]+[:=][[:space:]]*/,"");sub(/[[:space:]]+$/,"");print;exit}' config_test.ini)
+
