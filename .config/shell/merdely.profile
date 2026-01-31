@@ -569,7 +569,7 @@ case "$HOSTNAME" in
         }
 
         pushknownhosts() {
-          list="jupiter mercury earth carme metis tarvos"
+          list="mercury jupiter earth carme metis tarvos"
           [ -n "$1" ] && list="$@"
           for f in $(echo $list); do
             echo " $f " | grep -Eq " (carme|metis|tarvos) " && continue
