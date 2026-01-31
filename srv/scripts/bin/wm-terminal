@@ -15,7 +15,7 @@
 # 3. The terminal emulator with best accessibility comes first.
 # 4. No order is guaranteed/desired for the remaining terminal emulators.
 #
-for terminal in "$TERMINAL" x-terminal-emulator kitty ghostty alacritty foot wezterm konsole mate-terminal gnome-terminal xfce4-terminal wayst urxvt rxvt Eterm aterm uxterm xterm roxterm termite lxterminal terminology st qterminal lilyterm tilix terminix guake tilda hyper rio; do
+for terminal in "$TERMINAL" x-terminal-emulator kitty foot alacritty ghostty wezterm konsole mate-terminal gnome-terminal xfce4-terminal wayst urxvt rxvt Eterm aterm uxterm xterm roxterm termite lxterminal terminology st qterminal lilyterm tilix terminix guake tilda hyper rio; do
     if command -v "$terminal" &> /dev/null; then
         if [ $terminal = kitty ] && [[ ! " $@ " == " --title " ]]; then
             exec "$terminal" --title Kitty "$@"
