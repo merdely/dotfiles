@@ -172,6 +172,7 @@ elif [ $running_shell = zsh ]; then
     source ~/.config/zsh/plugins/fzf-tab/fzf-tab.plugin.zsh
     zstyle ":fzf-tab:*" use-fzf-default-opts yes
     zstyle ":fzf-tab:complete:cd:*" fzf-preview "ls --color=always \${realpath}"
+    zstyle ':fzf-tab:*' query-string input
   else
     #zstyle ':completion:*' menu select # tab opens cmp menu
     zstyle ':completion:*' special-dirs true # force . and .. to show in cmp menu
@@ -349,6 +350,7 @@ alias sudovi=sudoedit
 
 # Editor aliases
 alias vip='vi $HOME/.config/shell/merdely.profile'
+[ -r $HOME/.config/shell/profile.local ] && alias vipl='vi $HOME/.config/shell/profile.local'
 which hyprctl > /dev/null 2>&1 && alias vih='vi -O $HOME/.config/hypr/hyprland.conf'
 which hyprctl > /dev/null 2>&1 && alias vihl='vi $HOME/.config/local/hyprland.conf'
 which hyprctl > /dev/null 2>&1 && alias vihb='vi -O $HOME/.config/hypr/hyprland.conf $HOME/.config/local/hyprland.conf'
