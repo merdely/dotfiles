@@ -199,6 +199,9 @@ elif [ $running_shell = zsh ]; then
   #setopt extended_glob # match ~ # ^
   setopt interactive_comments # allow comments in shell
   setopt prompt_sp # don't autoclean blanklines
+  setopt no_hup         # don't prevent exiting shell with background jobs
+  setopt no_check_jobs  # don't warn of background jobs
+  setopt no_nomatch     # don't complain when there is no glob match
   stty stop undef # disable accidental ctrl s
 
   use_starship=1
@@ -304,8 +307,10 @@ alias ls='ls -F'
 [ -e /dev/pf ] && alias pflog='doas tcpdump -n -e -ttt -i pflog0'
 [ -e /srv/scripts/bin/nohist ] && alias nohist='. /srv/scripts/bin/nohist'
 ! which mail > /dev/null 2>&1 && which s-nail > /dev/null 2>&1 && alias mail=s-nail
-alias check_reboot='sudo /srv/scripts/sbin/daily_report_linux reboot'
-alias check_restart='sudo /srv/scripts/sbin/daily_report_linux restart'
+if [ -r /srv/scripts/sbin/daily_report_linux ]; then
+  alias check_reboot='sudo /srv/scripts/sbin/daily_report_linux reboot'
+  alias check_restart='sudo /srv/scripts/sbin/daily_report_linux restart'
+fi
 [ -d /opt/splunk -o -d /opt/splunkforwarder ] && alias susplunk='sudo su - splunk'
 [ -d /etc/acme ] && alias suacme='sudo su - -s /bin/bash -l acme'
 which python2 > /dev/null 2>&1 && alias python=python2
@@ -322,8 +327,8 @@ which Hyprland > /dev/null 2>&1 && alias hhh='Hyprland'
 which Hyprland > /dev/null 2>&1 && alias h='Hyprland'
 which mango > /dev/null 2>&1 && alias mmm='mango'
 which mango > /dev/null 2>&1 && alias m='mango'
-which niri-session > /dev/null 2>&1 && alias nnn='niri-session'
-which niri-session > /dev/null 2>&1 && alias n='niri-session'
+which niri > /dev/null 2>&1 && alias nnn='niri-session > /dev/null 2>&1'
+which niri > /dev/null 2>&1 && alias n='niri-session > /dev/null 2>&1'
 which sway > /dev/null 2>&1 && alias sss='sway'
 which sway > /dev/null 2>&1 && alias S='sway'
 
