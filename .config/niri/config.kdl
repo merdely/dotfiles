@@ -17,17 +17,6 @@ spawn-sh-at-startup "wm-terminal"
 spawn-sh-at-startup "sleep 1; wm-ssh-add"
 
 binds {
-    // Place holders for older keybindings
-    Alt+Shift+H              { spawn "true"; }
-    Alt+Shift+L              { spawn "true"; }
-    Alt+Shift+P              { spawn "true"; }
-    Alt+Shift+S              { spawn "true"; }
-    Alt+Shift+U              { spawn "true"; }
-    Mod+Ctrl+X               { spawn "true"; }
-    Mod+Shift+B              { spawn "true"; }
-    Mod+E                    { spawn "true"; }
-    Mod+X                    { spawn "true"; }
-
     // WM Management
     Mod+Shift+E      hotkey-overlay-title="Quit Niri"                    { quit; }
     Mod+D            hotkey-overlay-title="Program Launcher"             { spawn-sh "wm-app-launcher"; }
@@ -63,18 +52,14 @@ binds {
 
     Mod+P               hotkey-overlay-title="Power Menu"                        { spawn-sh "wm-power-menu"; }
     Ctrl+Alt+Delete                                                              { spawn-sh "wm-power-menu"; }
-    Mod+Backspace       allow-when-locked=true hotkey-overlay-title="Hibernate"  { spawn-sh "systemctl hibernate"; }
 
     // Notification control with swaync
     Ctrl+Space           hotkey-overlay-title="Hide All Notifications"            { spawn-sh "swaync-client --hide-all ; swaync-client --close-panel"; }
     Mod+Shift+Space      hotkey-overlay-title="Clear All Notifications"           { spawn-sh "swaync-client --close-all ; swaync-client --close-panel"; }
     Mod+Space            hotkey-overlay-title="Notification Panel"                { spawn-sh "swaync-client -t -sw"; }
 
-    // Mod+X               hotkey-overlay-title="Clipboard Manager"                 { spawn-sh "cliphist list | wm-fuzzy-chooser -p \"Clipboard History >\" | cliphist decode | wl-copy"; }
-    // Mod+Ctrl+X          hotkey-overlay-title="Delete from Clipboard History"     { spawn-sh "cliphist list | wm-fuzzy-chooser -p \"Delete from History >\" | cliphist delete"; }
-    // Mod+Shift+X         hotkey-overlay-title="Camera Chooser"                    { spawn-sh "wm-app-toggle -S \"[f]uzzel -p View Camera >  -d\" wm-cam-chooser"; }
-    Mod+N                hotkey-overlay-title="Bitwarden Chooser"                 { spawn-sh "wm-app-toggle -P rofi-rbw --use-notify-send"; }
-    Mod+Shift+X         hotkey-overlay-title="Camera Chooser"                    { spawn-sh "wm-app-toggle -S \"([r]ofi|[f]uzzel) -p View Camera ?>? ? -d(menu)?\" wm-cam-chooser"; }
+    Mod+N                   hotkey-overlay-title="Bitwarden Chooser"     { spawn-sh "wm-app-toggle -P rofi-rbw --use-notify-send"; }
+    Mod+Shift+X             hotkey-overlay-title="Camera Chooser"        { spawn-sh "wm-app-toggle -S \"([r]ofi|[f]uzzel) -p View Camera ?>? ? -d(menu)?\" wm-cam-chooser"; }
     Mod+Shift+Z             hotkey-overlay-title="Bitwarden"             { spawn-sh "wm-minimize bitwarden Bitwarden"; }
     Mod+Shift+C             hotkey-overlay-title="Calculator"            { spawn-sh "wm-minimize -R galculator"; }
     Mod+Shift+Return        hotkey-overlay-title="Terminal Scratchpad"   { spawn-sh "wm-minimize term-scratchpad"; }
@@ -84,7 +69,7 @@ binds {
     Mod+Shift+Apostrophe    hotkey-overlay-title="Bluetooth Manager"     { spawn-sh "wm-minimize blueman-manager"; }
     Mod+Shift+N             hotkey-overlay-title="Nvtop"                 { spawn-sh "wm-minimize nvtop"; }
     Mod+Shift+I             hotkey-overlay-title="System Monitor"        { spawn-sh "wm-minimize btop"; }
-    Mod+Shift+U             hotkey-overlay-title="Tasks"                 { spawn-sh "wm-minimize io.github.alainm23.planify"; }
+    Mod+Shift+U             hotkey-overlay-title="ToDo Manager"          { spawn-sh "wm-minimize com.erdelynet.todomanager"; }
     Mod+Shift+Q             hotkey-overlay-title="Logseq"                { spawn-sh "wm-minimize logseq-desktop Logseq"; }
     Mod+Shift+SemiColon     hotkey-overlay-title="Audio Mixer"           { spawn-sh "wm-minimize org.pulseaudio.pavucontrol pavucontrol"; }
     // Mod+Shift+A             hotkey-overlay-title="Signal"                { spawn-sh "wm-minimize signal-desktop signal"; }
@@ -305,7 +290,7 @@ window-rule {
 }
 
 window-rule {
-    match app-id=r#"^(Bitwarden|blueman-manager|Element|featherpad|io\.github\.alainm23\.planify|io\.missioncenter\.MissionCenter|Logseq|signal|org\.signal\.Signal|Signal|pavucontrol|htop|btop|net\.nokyan\.Resources|nvtop|term-scratchpad|termfm)$"#
+    match app-id=r#"^(Bitwarden|blueman-manager|Element|com\.erdelynet\.todomanager|featherpad|io\.github\.alainm23\.planify|io\.missioncenter\.MissionCenter|Logseq|signal|org\.signal\.Signal|Signal|pavucontrol|htop|btop|net\.nokyan\.Resources|nvtop|term-scratchpad|termfm)$"#
     open-floating true
     open-maximized false
 }
