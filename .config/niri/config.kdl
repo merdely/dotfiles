@@ -175,19 +175,22 @@ binds {
     Mod+Ctrl+Period   hotkey-overlay-title="Focus Previous Workspace"    { focus-workspace-down; }
 
     // Quick Apps
-    Mod+1             hotkey-overlay-title="Focus First Terminal"  { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app preferred-terminal.desktop kitty"; }
-    Mod+2             hotkey-overlay-title="Focus First Browser"   { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app -c '-P Mike' librewolf-mike.desktop librewolf"; }
-    Mod+3             hotkey-overlay-title="Focus Second Browser"  { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app -c '-P Media' librewolf-media.desktop librewolf"; }
+    Mod+F1            hotkey-overlay-title="Focus First Terminal"  { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app preferred-terminal.desktop kitty"; }
+    Mod+KP_END                                                     { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app preferred-terminal.desktop kitty"; }
+    Mod+F2            hotkey-overlay-title="Focus First Browser"   { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app -c '-P Mike' librewolf-mike.desktop librewolf"; }
+    Mod+KP_DOWN                                                    { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app -c '-P Mike' librewolf-mike.desktop librewolf"; }
+    Mod+F3            hotkey-overlay-title="Focus Second Browser"  { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app -c '-P Media' librewolf-media.desktop librewolf"; }
+    Mod+KP_NEXT                                                { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app -c '-P Media' librewolf-media.desktop librewolf"; }
 
-    Mod+Alt+1         hotkey-overlay-title="Focus WS 1"                  { focus-workspace 1; }
-    Mod+Alt+2         hotkey-overlay-title="Focus WS 2"                  { focus-workspace 2; }
-    Mod+Alt+3         hotkey-overlay-title="Focus WS 3"                  { focus-workspace 3; }
-    Mod+Alt+4         hotkey-overlay-title="Focus WS 4"                  { focus-workspace 4; }
-    Mod+Alt+5         hotkey-overlay-title="Focus WS 5"                  { focus-workspace 5; }
-    Mod+Alt+6         hotkey-overlay-title="Focus WS 6"                  { focus-workspace 6; }
-    Mod+Alt+7         hotkey-overlay-title="Focus WS 7"                  { focus-workspace 7; }
-    Mod+Alt+8         hotkey-overlay-title="Focus WS 8"                  { focus-workspace 8; }
-    Mod+Alt+9         hotkey-overlay-title="Focus WS 9"                  { focus-workspace 9; }
+    Mod+1             hotkey-overlay-title="Focus WS 1"                  { focus-workspace 1; }
+    Mod+2             hotkey-overlay-title="Focus WS 2"                  { focus-workspace 2; }
+    Mod+3             hotkey-overlay-title="Focus WS 3"                  { focus-workspace 3; }
+    Mod+4             hotkey-overlay-title="Focus WS 4"                  { focus-workspace 4; }
+    Mod+5             hotkey-overlay-title="Focus WS 5"                  { focus-workspace 5; }
+    Mod+6             hotkey-overlay-title="Focus WS 6"                  { focus-workspace 6; }
+    Mod+7             hotkey-overlay-title="Focus WS 7"                  { focus-workspace 7; }
+    Mod+8             hotkey-overlay-title="Focus WS 8"                  { focus-workspace 8; }
+    Mod+9             hotkey-overlay-title="Focus WS 9"                  { focus-workspace 9; }
 
     Mod+Shift+1       hotkey-overlay-title="Move Window to WS 1"         { move-window-to-workspace 1; }
     Mod+Shift+2       hotkey-overlay-title="Move Window to WS 2"         { move-window-to-workspace 2; }
