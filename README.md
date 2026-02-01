@@ -1,5 +1,17 @@
 # My Dotfiles
 
+## Repository Info
+
+- Repository home: https://git.erdelynet.com/mike/dotfiles
+- Github Mirror: https://github.com/merdely/dotfiles
+
+## Issues / Pull Requests
+
+Issues and other interactions should take place in the Github Mirror
+
+- https://github.com/merdely/dotfiles/issues
+- https://github.com/merdely/dotfiles/pulls
+
 ## Scripts
 
 - .local/bin
