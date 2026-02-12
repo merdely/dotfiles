@@ -2,20 +2,30 @@
 # Example of built in getopts
 
 usage() {
-  echo "usage: $(basename $0) [-h] [-a ARG] [-s]"
+  echo "usage: $(basename $0) [-h] [-s] [-a ARG]"
+  echo "  -s           : Help for -s"
+  echo "  -a ARG       : Help for -a"
   exit $1
 }
 
+for a in $*; do [ $a = --help ] && usage; done
 sswitch=false
 unset aarg
-while getopts ":ha:s" opt; do
+while getopts ":hsa:" opt; do
   case $opt in
-    a) aarg=$OPTARG ;;
     s) sswitch=true ;;
+    a) aarg=$OPTARG ;;
     *) usage ;;
   esac
 done
 shift $((OPTIND -1))
+
+## NOTE: You can overload -h with this:
+#   h)
+#      [ -z "$2" ] || [ ${2:0:1} = - ] && usage
+#      hswitch=true ;;
+
+## NOTE: When used inside a function, set "local OPTIND"
 
 ##############################################################
 # Example of manually made get opts that supports long options
