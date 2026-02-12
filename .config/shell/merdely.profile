@@ -18,26 +18,27 @@ umask 0022
 kernel_name=$(uname -s)
 [ -z "$ID" ] && export ID=$kernel_name
 
+# remove a directory from PATH
+path_prune() {
+  [ -z "$1" ] && return 1
+  local n r="$PATH:"
+  while [ -n "$r" ]; do
+    [ "$1" != "${r%%:*}" ] && n="${n}:${r%%:*}"
+    r="${r#*:}"
+  done
+  export PATH=${n#:}
+}
+
 # add_to_path smartly adds a directory to PATH
-add_to_path() {
-  if [ -z "$1" ] || [ -n "$2" -a "$1" != "-b" -a "$1" != "-e" -a "$1" != "-r" ]
-  then
-    echo "usage: add_to_path [-b|-e|-r] directory" > /dev/stderr
-    echo "  -b: Add directory to beginning of PATH" > /dev/stderr
-    echo "  -e: Add directory to end of PATH (default)" > /dev/stderr
-    echo "  -r: Remove directory from PATH" > /dev/stderr
-    echo "If either -b or -e are specified, any existing occurence of 'directory' is removed" > /dev/stderr
-    return 1
-  fi
-  local DIR="$1"
-  [ -n "$2" ] && DIR="$2"
-  [ ! -d "$DIR" ] && return 1
-  [ "$1" = "-b" -o "$1" = "-e" -o "$1" = "-r" ] && PATH=$(echo :$PATH: | sed -r "s!^(.*):$DIR:(.*)\$!\1:\2!;s!^:(.*):\$!\1!")
-  [ "$1" = "-r" ] && return 0
-  if [ "$1" = "-b" ]; then
-    [[ ":$PATH:" == *":$DIR:"* ]] || export PATH=$DIR:$PATH
+path_add() {
+  b=false
+  [ "$1" = "-b" ] && b=true && shift
+  [ -z "$1" ] && return 1
+  path_prune "$1"
+  if $b; then
+    export PATH="$1":"$PATH"
   else
-    [[ ":$PATH:" == *":$DIR:"* ]] || export PATH=$PATH:$DIR
+    export PATH="$PATH":"$1"
   fi
 }
 
@@ -298,11 +299,11 @@ export OIFS=$IFS
 export LANG=en_US.UTF-8
 export LC_CTYPE=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
-add_to_path -b $HOME/.local/bin
-[ -d /srv/scripts/sbin ] && add_to_path -b /srv/scripts/sbin
-[ -d /srv/scripts/bin ]  && add_to_path -b /srv/scripts/bin
-add_to_path -e /usr/sbin
-[ -x /usr/lib/nagios/plugins/check_disk ] && add_to_path /usr/lib/nagios/plugins
+path_add -b $HOME/.local/bin
+[ -d /srv/scripts/sbin ] && path_add -b /srv/scripts/sbin
+[ -d /srv/scripts/bin ]  && path_add -b /srv/scripts/bin
+path_add /usr/sbin
+[ -x /usr/lib/nagios/plugins/check_disk ] && path_add /usr/lib/nagios/plugins
 
 # General aliases
 alias reprofile=". $user_dot_profile reload"
