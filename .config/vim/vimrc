@@ -255,10 +255,31 @@ nnoremap <leader>t8 :tabnext 8<CR>
 nnoremap <leader>t9 :tabnext 9<CR>
 
 " Make file executable
-nnoremap <leader>x :!chmod +x %<CR>
+function! MakeExecutable() abort
+  let l:file = expand('%:p')
+  if empty(l:file)
+    echoerr 'No filename'
+    return
+  endif
+
+  let l:group = '-'
+  if getfperm(l:file)[3] == 'r' || getfperm(l:file)[4] == 'w'
+    let l:group = 'x'
+  endif
+
+  let l:other = '-'
+  if getfperm(l:file)[6] == 'r' || getfperm(l:file)[7] == 'w'
+    let l:other = 'x'
+  endif
+
+  call setfperm(l:file, getfperm(l:file)[:1] . 'x' . getfperm(l:file)[3:4] . l:group . getfperm(l:file)[6:7] . l:other)
+  echom 'Made ' . l:file . ' executable (' . getfperm(l:file) . ')'
+endfunction
+nnoremap <silent> <leader>x :call MakeExecutable()<CR>
 
 " Quick config editing
-nnoremap <leader>rc :e ~/.config/vim/vimrc<CR>
+nnoremap <leader>rc :edit $MYVIMRC<CR>
+nnoremap <leader>rl :source $MYVIMRC<CR>
 
 " Clear some customizations to make copying easier
 nnoremap <silent> <expr> <leader>cp "\:set cursorline! list! number! breakindent! " . (&colorcolumn == '' ? "colorcolumn=80 " : "colorcolumn= ") . (&signcolumn == 'number' ? "signcolumn=no " : "signcolumn=number "). "<CR>"
