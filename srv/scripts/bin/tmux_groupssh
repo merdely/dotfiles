@@ -1,8 +1,8 @@
 #!/bin/sh
 
 usage() {
-  echo "usage: $(basename $0) [-s] [-u] [-4|-6] [-t|-eh|-ev|-mh|-mv] HOST..."
-  echo "        -h: This help text"
+  echo "usage: $(basename $0) [-s] [-u] [-4|-6] [-h|-v] [-t|-eh|-ev|-mh|-mv] HOST..."
+  echo "        --help: This help text"
   echo "        -s: synchronize panes"
   echo "        -u: don't use known_hosts"
   echo "        -4: use ipv4"
@@ -12,9 +12,13 @@ usage() {
   echo "        -ev: Use even-vertical layout"
   echo "        -mh: Use main-horizontal layout"
   echo "        -mv: Use main-vertical layout"
+  echo "        -h: horizontal split"
+  echo "        -v: vertical split"
   echo "        HOST1 [HOST2 [HOST3...[HOSTn]]]"
   exit 1
 }
+
+for a in $*; do [ $a = --help ] && usage; done
 
 sync=false
 unset mode
@@ -22,7 +26,7 @@ unset split
 unset khosts
 unset foursix
 
-while getopts ":hsu46emthv" opt; do
+while getopts ":su46emthv" opt; do
   case ${opt} in
     s)
       sync=true
@@ -47,6 +51,7 @@ while getopts ":hsu46emthv" opt; do
       unset split
       ;;
     h)
+      [ -z "$2" ] || [ "$(echo $2|cut -c1)" = - ] && usage
       split="-horizontal"
       ;;
     v)
@@ -63,13 +68,16 @@ shift $((OPTIND -1))
 [ -n "$split" ] && [ $mode = tiled ] && mode=even
 [ -z "$1" ] && exit 0
 
+ansible=false
+which ansible > /dev/null 2>&1 && ansible=true
+
 group=$(echo "$@" | sed 's/,/ /g')
 if [ -z "$2" ]; then
   group=$1
   host $1 > /dev/null
   ret=$?
   awk '/^Host /{for(i=2;i<=NF;i++){if($i~/[*?!]/)continue;if($i~/^([0-9]{1,3}\.){3}[0-9]{1,3}$/)continue;printf " %s ",$i}}' $HOME/.ssh/config | grep -q " $1 "
-  if [ $ret != 0 -a $? != 0 ] || [ $1 = cribl ]; then
+  if $ansible && [ $ret != 0 -a $? != 0 ] || [ $1 = cribl ]; then
     group=$(ansible $1 --list-hosts | awk 'NR>1{print $1}')
     [ -n "$group" ] && group_name=$1
   fi
