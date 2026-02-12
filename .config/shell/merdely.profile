@@ -68,7 +68,7 @@ export XDG_DATA_DIRS=$XDG_DATA_HOME:${XDG_DATA_DIRS:-/usr/local/share:/usr/share
 [ ! -w $XDG_STATE_HOME ] && export XDG_STATE_HOME=$XDG_RUNTIME_DIR/.state && mkdir -p -m 700 $XDG_STATE_HOME
 
 # Use 'command -v' instead of which with bash and zsh
-[ $running_shell != ksh ] && alias which='command -v'
+alias which='command -v'
 
 # Git stuff
 if which git > /dev/null 2>&1; then
@@ -154,7 +154,7 @@ if [ $running_shell = bash -o $running_shell = ksh ]; then
     fi
   }
   __update_prompt
-  PROMPT_COMMAND="code=\$?;__update_prompt \$code;unset code;history -a; history -c; history -r"
+  PROMPT_COMMAND="code=\$?;__update_prompt \$code;unset code;history -a;history -c;history -r"
   if command -v fzf > /dev/null 2>&1; then
     type __fzf_history__ > /dev/null 2>&1 || eval "$(fzf --bash)"
   fi
