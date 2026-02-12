@@ -46,6 +46,9 @@ if [[ $TERM == xterm* ]] || [[ $TERM == tmux* ]] || [[ $TERM == screen* ]] || [[
   gui_terminal=1
 fi
 
+# Set EUID if not set
+[ -z "$EUID" ] && export EUID=$(id -u)
+
 # Used in aliases below
 [ -z "$HOSTNAME" ] && HOSTNAME="$(hostname -s)"
 export HOSTNAME=${HOSTNAME%%.*}
@@ -92,10 +95,12 @@ HISTFILE=$XDG_CACHE_HOME/shell_history
 user_dot_profile=$HOME/.profile
 [ -r $HOME/.bash_profile ] && user_dot_profile=$HOME/.bash_profile
 
-# Save current network namespace
-current_netns=$(ip netns identify $$)
-unset netnsp
-[ -n "$current_netns" ] && netnsp="-[$current_netns]"
+if which ip > /dev/null 2>&1; then
+  # Save current network namespace
+  current_netns=$(ip netns identify $$)
+  unset netnsp
+  [ -n "$current_netns" ] && netnsp="-[$current_netns]"
+fi
 
 pcharr_user_text='>'
 pcharl_user_text='<'
@@ -110,7 +115,7 @@ gchar_gui=' '
 
 if [ $running_shell = bash -o $running_shell = ksh ]; then
   HISTCONTROL=ignoreboth:erasedups
-  shopt -s autocd cdspell extglob histappend
+  [ $running_shell = bash ] && shopt -s autocd cdspell extglob histappend
   PROMPT_DIRTRIM=2
 
   # \1 & \2 are good for the vi-ins-mode-string but \[ and \] are good for PS1
@@ -131,10 +136,10 @@ if [ $running_shell = bash -o $running_shell = ksh ]; then
 
     if [ $gui_terminal = 1 ]; then
       pcharr=$pcharr_user_gui && pcharl=$pcharl_user_gui && gchar=$gchar_gui
-      [ $UID = 0 ] && pcharr=$pcharr_root_gui && pcharl=$pcharl_root_gui
+      [ $EUID = 0 ] && pcharr=$pcharr_root_gui && pcharl=$pcharl_root_gui
     else
       pcharr=$pcharr_user_text && pcharl=$pcharl_user_text && gchar=$gchar_text
-      [ $UID = 0 ] && pcharr=$pcharr_root_text && pcharl=$pcharl_root_text
+      [ $EUID = 0 ] && pcharr=$pcharr_root_text && pcharl=$pcharl_root_text
     fi
     # Add netns name if in a network namespace
     local EMBEDDED_PS1='[\[\e[1;36m\]\u\[\e[0m\]@\[\e[1;32m\]\h${netnsp}\[\e[0m\] \[\e[1;34m\]\w\[\e[0m\]]$(__git_ps1 " (\[\e[38;2;255;165;0m\]${gchar}\[\e[0m\]%s)" 2> /dev/null)\[\e[${ec}m\]'
@@ -180,6 +185,8 @@ elif [ $running_shell = zsh ]; then
     # zstyle ':completion:*' file-list true # more detailed list
     zstyle ':completion:*' squeeze-slashes false # explicit disable to allow /*/ expansion
   fi
+  zstyle ':completion:*' matcher-list ''  # clear completing matching
+  zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}' 'm:{a-z}={A-Z} r:|[._-]=* r:|=*'  # smart case matching
 
   SAVEHIST=$HISTFILESIZE
   HISTFILE=$XDG_CACHE_HOME/zsh_history
@@ -214,10 +221,10 @@ elif [ $running_shell = zsh ]; then
     __set_prompt() {
       if [ $gui_terminal = 1 ]; then
         pcharr=$pcharr_user_gui && pcharl=$pcharl_user_gui && gchar=$gchar_gui
-        [ $UID = 0 ] && pcharr=$pcharr_root_gui && pcharl=$pcharl_root_gui
+        [ $EUID = 0 ] && pcharr=$pcharr_root_gui && pcharl=$pcharl_root_gui
       else
         pcharr=$pcharr_user_text && pcharl=$pcharl_user_text && gchar=$gchar_text
-        [ $UID = 0 ] && pcharr=$pcharr_root_text && pcharl=$pcharl_root_text
+        [ $EUID = 0 ] && pcharr=$pcharr_root_text && pcharl=$pcharl_root_text
       fi
       pchar=$pcharr
       [[ $KEYMAP = vicmd ]] && pchar=$pcharl
@@ -295,7 +302,6 @@ add_to_path -b $HOME/.local/bin
 [ -d /srv/scripts/sbin ] && add_to_path -b /srv/scripts/sbin
 [ -d /srv/scripts/bin ]  && add_to_path -b /srv/scripts/bin
 add_to_path -e /usr/sbin
-[ -z "$EUID" ] && export EUID=$(id -u)
 [ -x /usr/lib/nagios/plugins/check_disk ] && add_to_path /usr/lib/nagios/plugins
 
 # General aliases
@@ -322,15 +328,12 @@ which bat > /dev/null 2>&1 && alias cat='bat --paging=never --plain'
 which bat > /dev/null 2>&1 && export PAGER='bat'
 which subnetcalc > /dev/null 2>&1 && alias ipcalc=subnetcalc
 which flatpak > /dev/null 2>&1 && alias fu='flatpak update -y ; flatpak uninstall --unused -y'
+which mpv > /dev/null 2>&1 && alias testcamera='mpv av://v4l2:/dev/video0 --profile=low-latency --untimed'
 
 # Window Manager aliases
-which Hyprland > /dev/null 2>&1 && alias hhh='Hyprland'
 which Hyprland > /dev/null 2>&1 && alias h='Hyprland'
-which mango > /dev/null 2>&1 && alias mmm='mango'
 which mango > /dev/null 2>&1 && alias m='mango'
-which niri > /dev/null 2>&1 && alias nnn='niri-session > /dev/null 2>&1'
 which niri > /dev/null 2>&1 && alias n='niri-session > /dev/null 2>&1'
-which sway > /dev/null 2>&1 && alias sss='sway'
 which sway > /dev/null 2>&1 && alias S='sway'
 
 # Editor aliases
@@ -389,6 +392,7 @@ if which docker > /dev/null 2>&1; then
   fi
 
   if [ -d /srv/docker/nginx ]; then
+    which nginx > /dev/null 2>&1 || alias nginx='docker compose exec nginx nginx'
     alias nginxcheck='docker compose exec nginx nginx -t'
     alias nginxreload='docker compose exec nginx nginx -s reload'
   fi
@@ -498,18 +502,63 @@ if which tmux > /dev/null 2>&1; then
 fi
 
 # Random password generator
-passgen() {
-  LENGTH=$1
-  tr -cd '[:alnum:]' < /dev/urandom | fold -w ${LENGTH:-64} | head -n 1 | tr -d '\n' ; echo
+if ! which passgen > /dev/null 2>&1; then
+  passgen() {
+    LENGTH=$1
+    tr -cd '[:alnum:]' < /dev/urandom | fold -w ${LENGTH:-64} | head -n 1 | tr -d '\n' ; echo
+  }
+fi
+! which genpass > /dev/null 2>&1 && alias genpass=passgen
+
+# Get file age
+fileage() {
+  mode=seconds
+  verbose=false
+  local usage="usage: fileage [-v] [-s|-m|-h|-d|-y] FILE\n         -v         : print label\n         -s|m|h|d|y : seconds|minutes|days|years (default: seconds)\n"
+  while getopts ":hsmhdyv" opt; do
+    case $opt in
+      s) mode=seconds ; mult=1 ;;
+      m) mode=minutes ; mult=60 ;;
+      h)
+         [ -z "$2" ] || [ ${2:0:1} = - ] && printf "%b" "$usage" && return 1
+         mode=hours   ; mult=$((60 * 60)) ;;
+      d) mode=days    ; mult=$((60 * 60 * 24)) ;;
+      y) mode=years    ; mult=$((60 * 60 * 24 * 365)) ;;
+      v) verbose=true ;;
+      *) printf "%b" "$usage" && return 1 ;;
+    esac
+  done
+  shift $((OPTIND -1))
+  local str ; $verbose && str=" $mode"
+  local filename=$(realpath "$1")
+  [ ! -r "$filename" ] && echo "Error: Cannot find $filename" && return 1
+  echo $(( ($(date +%s) - $(stat -c %Y "$filename")) / $((${mult:-1})) ))$str
 }
-alias genpass=passgen
+
+which firejail > /dev/null 2>&1 && \
+fj() {
+  [ -z "$1" ] && echo "usage: fj FIREJAILED_APP" && return 1
+  [ "$1" = -l ] && firejail --list | awk -F: '! /(\/usr\/bin\/)?firejail --join/{sub(/^(\/usr\/bin\/)?firejail /,"",$NF);print $NF}' && return
+  echo "$1" | grep -q firejail && echo "Error: 'firejail' cannot be used in app string" && return 1
+  app_pid=$(firejail --list|awk -F: "/$1/{print\$1}")
+  count=$(echo $app_pid | wc -w)
+  if [ $count = 0 ]; then
+    echo "Error: No matches found for '$1'"
+    return 1
+  elif [ $count -gt 1 ]; then
+    echo "Error: More than one match found for '$1'"
+    return 1
+  fi
+  ! echo "$app_pid" | grep -Eq "^[0-9]+$" && echo "Error: Invalid FIREJAILED_APP (pid: $app_pid)" && return 1
+  firejail --join=$app_pid bash
+}
 
 # OS Specific Commands
 case "$ID" in
   arch|archarm)
     alias ls_aur='pacman -Qm'
     alias ls_orphans='pacman -Qdtq'
-    alias rm_orphans='pacman -Qdtq > /dev/null 2>&1 && sudo pacman -Rcns $(pacman -Qdtq)'
+    alias rm_orphans='o=$(pacman -Qdtq) ; [ -n "$o" ] && echo Removing $o && sudo pacman -Rcns $o; unset o'
     alias ru='sudo reflector -c US -p https -f 5 --sort rate --save /etc/pacman.d/reflector.list'
     alias updates='echo Using pacman; sudo pacman -Syu --noconfirm'
     ;;
@@ -533,6 +582,12 @@ case "$ID" in
         /bin/ps "$@"
       fi
     }
+
+    # Shortcuts for using halt and reboot with shutdown group membership
+    if groups | grep -qE "(^| )_shutdown( |$)"; then
+      halt_func() { shutdown -h $* now; } ; alias halt=halt_func
+      reboot_func() { shutdown -r $* now; } ; alias reboot=reboot_func
+    fi
     ;;
 esac
 
