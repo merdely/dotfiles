@@ -1,7 +1,16 @@
 #!/bin/sh
 
-window_name_list="$(hostname -s) $(cat ~/.cname 2>/dev/null) me home splunkgit media bash ksh zsh csh sh fish tail man less more top watch vi vim nano emacs python python3"
+# Determine if the passed hostname ($1) is in "window_name_list"
+
+verbose=false
+[ "$1" = -v ] && verbose=true && shift
+
+window_name_list="$(hostname -s) $(cat ~/.cname 2>/dev/null) me home splunkgit sPIs media bash ksh zsh csh sh fish tail man less more top watch vi vim nano emacs python python3"
 hass=homeassistant
 [ $(hostname -s) = $hass ] && $window_name_list="${window_name_list} hass"
 
 echo " $window_name_list " | grep -q " $1 "
+ret=$?
+unset not
+$verbose && { [ $ret != 0 ] && not=" not"; true; } && echo "$1 is$not in window_name_list"
+exit $?
