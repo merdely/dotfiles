@@ -1,0 +1,95 @@
+#!/bin/sh
+
+progname=${0##*/}
+progname=${progname%.sh}
+
+case $progname in
+  ga)
+    action=add
+    ;;
+  gp)
+    action=push
+    ;;
+  gd)
+    action=diff
+    ;;
+  *)
+    action=commit
+    ;;
+esac
+
+usage() {
+  if [ $action = add ]; then
+    echo "usage: $progname [-h] [-C dir] file1 [.. fileN]"
+  elif [ $action = push ] || [ $action = diff ]; then
+    echo "usage: $progname [-h] [-C dir] [..]"
+  else
+    echo "usage: $progname [-h] [-C dir] commit message"
+  fi
+  exit
+}
+
+[ "$1" = "" ] && [ $action != push ] && [ $action != diff ] && usage
+
+unset dir
+test=false
+while getopts ":hC:mt" opt; do
+  case $opt in
+    C) dir=$OPTARG ;;
+    m) true ;;
+    t) test=true ;;
+    *) usage ;;
+  esac
+done
+shift $((OPTIND -1))
+
+commitmsg=$(echo "$@")
+
+if $test; then
+  [ -z "$dir" ] && dir=.
+  if [ $action = add ]; then
+    echo "Running 'git add'"
+    for f in $*; do
+      echo " - $f"
+    done
+  elif [ $action = push ]; then
+    echo "Running 'git push'"
+    echo "Additional args: '$*'"
+  elif [ $action = diff ]; then
+    echo "Running 'git diff'"
+    echo "Additional args: '$*'"
+  else
+    echo "Running 'git commit -a' and 'git push'"
+    echo "commit message = '$commitmsg'"
+  fi
+  echo "Using dir $dir"
+  exit
+fi
+
+if [ $action = add ]; then
+  if [ -n "$dir" ]; then
+    git -C $dir add $*
+  else
+    git add $*
+  fi
+elif [ $action = push ]; then
+  if [ -n "$dir" ]; then
+    git -C $dir push $*
+  else
+    git push $*
+  fi
+elif [ $action = diff ]; then
+  if [ -n "$dir" ]; then
+    git -C $dir diff $*
+  else
+    git diff $*
+  fi
+else
+  if [ -n "$dir" ]; then
+    git -C $dir commit -a -m "$commitmsg"
+    git -C $dir push
+  else
+    git commit -a -m "$commitmsg"
+    git push
+  fi
+fi

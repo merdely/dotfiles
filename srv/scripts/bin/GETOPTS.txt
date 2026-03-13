@@ -1,24 +1,41 @@
 #############################
 # Example of built in getopts
 
+progname=${0##*/}
+progname=${progname%.sh}
 usage() {
-  echo "usage: $(basename $0) [-h] [-s] [-a ARG]"
-  echo "  -s           : Help for -s"
+  echo "usage: $progname [-h] [-s] [-a ARG] [-b [ARG]]"
+  echo "  -h           : This help text"
+  echo "  -s           : Help for -s (can be used more than once)"
   echo "  -a ARG       : Help for -a"
+  echo "  -b [ARG]     : Help for -b"
   exit $1
 }
 
-for a in $*; do [ $a = --help ] && usage; done
+for a in $*; do [ $a = --help -o $a = -h ] && usage; done
 sswitch=false
-unset aarg
-while getopts ":hsa:" opt; do
+sswitch2=false
+bswitch=false
+unset aarg barg
+while getopts ":hsa:b:" opt; do
   case $opt in
-    s) sswitch=true ;;
-    a) aarg=$OPTARG ;;
+    :) case $OPTARG in
+         b) bswitch=true ;;
+         *) echo "ERROR: -$OPTARG requires an argument" ; exit 1 ;;
+       esac ;;
+    s) [ $sswitch = true ] && sswitch2=true ; sswitch=true ;;
+    a) case $OPTARG in
+         -*) echo "Error: -$opt requires an argument" && exit 1 ;;
+          *) aarg=$OPTARG ;;
+       esac ;;
+    b) case $OPTARG in
+         -*) echo "WARNING: -$opt has an unused optional argument"; unset barg ; OPTIND=$((OPTIND - 1)) ;;
+          *) bswitch=true ; barg=$OPTARG ;;
+       esac ;;
     *) usage ;;
   esac
 done
-shift $((OPTIND -1))
+shift $((OPTIND - 1))
 
 ## NOTE: You can overload -h with this:
 #   h)
@@ -30,8 +47,10 @@ shift $((OPTIND -1))
 ##############################################################
 # Example of manually made get opts that supports long options
 
+progname=${0##*/}
+progname=${progname%.sh}
 usage() {
-  echo "usage: $(basename $0) [options] [operation] [value]"
+  echo "usage: $progname [options] [operation] [value]"
   echo
   echo "Options:"
   echo "  -l, --long                   option"
@@ -68,3 +87,4 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+# vim:set ft=sh:
