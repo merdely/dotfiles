@@ -119,7 +119,7 @@ end
 -- ============================================================================
 -- Leader must be set here for plugins to be able to use it
 vim.g.mapleader = " "                              -- Set leader key to space
-vim.g.maplocalleader = " "                         -- Set local leader key (NEW)
+vim.g.maplocalleader = ","                         -- Set local leader key (NEW)
 require("lazy_setup")
 
 -- ============================================================================
@@ -135,14 +135,25 @@ vim.api.nvim_set_hl(0, "EndOfBuffer", { bg = "none" })
 -- Normal mode mappings
 vim.keymap.set("n", "<leader>c", ":nohlsearch<CR>", { desc = "Clear search highlights" })
 
--- Switch to only one buffer (not split)
-vim.keymap.set("n", "<leader>o", ":only<CR>", { desc = "Switch to showing only one buffer" })
+-- Toggle zoom in on one buffer
+-- vim.keymap.set("n", "<leader>o", ":only<CR>", { desc = "Switch to showing only one buffer" })
+local zoomed = false
+vim.keymap.set('n', '<leader>z', function()
+  if zoomed then
+    vim.cmd('wincmd =')
+    zoomed = false
+  else
+    vim.cmd('wincmd |')
+    vim.cmd('wincmd _')
+    zoomed = true
+  end
+end)
 
 -- Toggle to previous buffer (inspired from Sylvan)
 -- vim.keymap.set('n', '<leader>p', "<Cmd>e #<CR>", { desc = 'Switch to previous buffer' })
 vim.keymap.set('n', '<leader>;', "<Cmd>e #<CR>", { desc = 'Switch to previous buffer' })
 vim.keymap.set('n', '<leader>s', '<Cmd>vert sf #<CR>', { desc = 'alternate buffers' })
-vim.keymap.set('n', '<leader>S', '<Cmd>bot sf #<CR>', { desc = 'split buffers' })
+-- vim.keymap.set('n', '<leader>S', '<Cmd>bot sf #<CR>', { desc = 'split buffers' })
 
 -- Writing and quitting
 vim.keymap.set('n', '<leader>w', '<Cmd>update<CR>', { desc = 'Write the current buffer' })
@@ -199,10 +210,58 @@ vim.keymap.set("v", ">", ">gv", { desc = "Indent right and reselect" })
 vim.keymap.set('n', '<leader>cp', function() vim.cmd(":set cursorline! list! number! breakindent! " .. (vim.o.colorcolumn == '' and "colorcolumn=80 " or "colorcolumn= ") .. (vim.o.signcolumn == 'number' and "signcolumn=no " or "signcolumn=number ")) end, { silent = true, expr = false })
 
 -- Make file executable
-vim.keymap.set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { desc = "Make file executable", silent = true })
+-- vim.keymap.set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { desc = "Make file executable", silent = true })
+vim.keymap.set("n", "<leader>x", function()
+  local file = vim.fn.expand("%")
+  vim.cmd("write")
+  vim.system({ "chmod", "+x", file })
+  vim.cmd("edit!")
+  vim.notify("Made '" .. file .. "' executable")
+end, { desc = "Make file executable" })
+
+-- Quickly run macros
+vim.keymap.set("n", "<leader>A", "@a", { desc = "Run macro a" })
+vim.keymap.set("n", "<leader>S", "@s", { desc = "Run macro s" })
+vim.keymap.set("n", "<leader>D", "@d", { desc = "Run macro d" })
+vim.keymap.set("n", "<leader>F", "@f", { desc = "Run macro f" })
+vim.keymap.set("n", "<leader>H", "@h", { desc = "Run macro h" })
+vim.keymap.set("n", "<leader>J", "@j", { desc = "Run macro j" })
+vim.keymap.set("n", "<leader>K", "@k", { desc = "Run macro k" })
+vim.keymap.set("n", "<leader>L", "@l", { desc = "Run macro k" })
+
+vim.keymap.set("n", "<leader>m", "@m", { desc = "Run macro m" })
+vim.keymap.set("n", "<leader>M", "@m", { desc = "Run macro m" })
+vim.keymap.set("n", "<leader>n", "@n", { desc = "Run macro n" })
+vim.keymap.set("n", "<leader>N", "@n", { desc = "Run macro n" })
+
+-- Redraw screen
+vim.keymap.set("n", "<leader>l", ":redraw!<CR>", { desc = "Redraw Screen" })
 
 -- Quick config editing
-vim.keymap.set("n", "<leader>rc", ":e ~/.config/nvim/init.lua<CR>", { desc = "Edit config" })
+vim.keymap.set("n", "<leader>rc", ":edit $MYVIMRC<CR>", { desc = "Edit config" })
+vim.keymap.set("n", "<leader>rl", ":source $MYVIMRC<CR>", { desc = "Reload config" })
+
+-- Reload module
+vim.keymap.set("n", "<leader>rp", function()
+  local filepath = vim.fn.expand('%:p')
+  local module_name = filepath:match('lua/(.+)%.lua$')
+  -- local module_name = filepath:match('lua/plugins/(.+)%.lua$')
+  if module_name then
+    module_name = module_name:gsub('/', '.')
+    -- module_name = 'plugins.' .. module_name
+    package.loaded[module_name] = nil
+    require('lazy.core.loader').reload(module_name)
+    print('Reloaded ' .. module_name)
+    -- local ok, result = pcall(require, module_name)
+    -- if ok then
+    --   print('Reloaded ' .. module_name)
+    -- else
+    --   print('Error reloading ' .. module_name)
+    -- end
+  else
+    print('Not a lua module file')
+  end
+end, { desc = 'Reload current Lua Module' })
 
 -- ============================================================================
 -- USEFUL FUNCTIONS
@@ -407,6 +466,28 @@ vim.opt.tabline = ''     -- Use default tabline (empty string uses built-in)
 vim.cmd([[
   hi TabLineFill guibg=NONE ctermfg=242 ctermbg=NONE
 ]])
+
+vim.keymap.set('n', '<leader>ts', function()
+  -- Only operate on exactly 2 windows
+  if #vim.api.nvim_list_wins() ~= 2 then
+    vim.notify('Layout toggle requires exactly 2 windows', vim.log.levels.WARN)
+    return
+  end
+
+  local wins = vim.api.nvim_list_wins()
+  local win1 = vim.api.nvim_win_get_position(wins[1])
+  local win2 = vim.api.nvim_win_get_position(wins[2])
+
+  -- If both windows are on the same row → vertical split (side by side)
+  -- If they differ in row → horizontal split (stacked)
+  if win1[1] == win2[1] then
+    -- Currently vertical, switch to horizontal
+    vim.cmd('windo wincmd K')
+  else
+    -- Currently horizontal, switch to vertical
+    vim.cmd('windo wincmd H')
+  end
+end, { desc = 'Toggle split layout' })
 
 -- Alternative navigation (more intuitive)
 vim.keymap.set('n', '<leader>tt', ':tabnew<CR>', { desc = 'New tab' })

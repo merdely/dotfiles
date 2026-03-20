@@ -162,6 +162,20 @@ let maplocalleader = ","
 " ===============================
 nnoremap <leader>c :nohlsearch<CR>
 
+" Toggle zoom in on one buffer
+let g:zoomed = 0
+function! ToggleZoom()
+  if g:zoomed
+    wincmd =
+    let g:zoomed = 0
+  else
+    wincmd |
+    wincmd _
+    let g:zoomed = 1
+  endif
+endfunction
+nnoremap <leader>z :call ToggleZoom()<CR>
+
 " Which Key
 nnoremap <silent> <leader>      :<c-u>WhichKey '<Space>'<CR>
 nnoremap <silent> <localleader> :<c-u>WhichKey ','<CR>
@@ -180,24 +194,28 @@ nnoremap Y y$
 vnoremap p "_dP
 
 " Change without replacing clipboard content
-nnoremap cw "_cw
-vnoremap cw "_cw
-nnoremap caw "_caw
-vnoremap caw "_caw
-nnoremap ciw "_ciw
-vnoremap ciw "_ciw
-nnoremap C "_C
-vnoremap C "_C
+" nnoremap cw "_cw
+" vnoremap cw "_cw
+" nnoremap caw "_caw
+" vnoremap caw "_caw
+" nnoremap ciw "_ciw
+" vnoremap ciw "_ciw
+" nnoremap C "_C
+" vnoremap C "_C
 
 " Delete without replacing clipboard content
-nnoremap dw "_dw
-vnoremap dw "_dw
-nnoremap daw "_daw
-vnoremap daw "_daw
-nnoremap diw "_diw
-vnoremap diw "_diw
-nnoremap D "_D
-vnoremap D "_D
+" nnoremap dw "_dw
+" vnoremap dw "_dw
+" nnoremap daw "_daw
+" vnoremap daw "_daw
+" nnoremap diw "_diw
+" vnoremap diw "_diw
+" nnoremap D "_D
+" vnoremap D "_D
+
+" Better single delete behavior
+nnoremap x "_x
+vnoremap x "_x
 
 " Better window navigation
 nnoremap <C-h> <C-w>h
@@ -228,9 +246,12 @@ nnoremap <leader>fc :Files ~/.config<CR>
 nnoremap <leader>fh :Files ~/<CR>
 
 " Toggle previous buffer
-nnoremap <leader>p <Cmd>e #<CR>
+" Switch to previous buffer
+nnoremap <leader>; <Cmd>e #<CR>
+" alternate buffers
 nnoremap <leader>s <Cmd>vert sf #<CR>
-nnoremap <leader>S <Cmd>bot sf #<CR>
+" split buffers
+" nnoremap <leader>S <Cmd>bot sf #<CR>
 
 " Writing and quitting
 nnoremap <leader>w <Cmd>update<CR>
@@ -262,6 +283,8 @@ function! MakeExecutable() abort
     return
   endif
 
+  write
+
   let l:group = '-'
   if getfperm(l:file)[3] == 'r' || getfperm(l:file)[4] == 'w'
     let l:group = 'x'
@@ -272,10 +295,28 @@ function! MakeExecutable() abort
     let l:other = 'x'
   endif
 
+  edit!
   call setfperm(l:file, getfperm(l:file)[:1] . 'x' . getfperm(l:file)[3:4] . l:group . getfperm(l:file)[6:7] . l:other)
   echom 'Made ' . l:file . ' executable (' . getfperm(l:file) . ')'
 endfunction
 nnoremap <silent> <leader>x :call MakeExecutable()<CR>
+
+" Quickly run macros
+nnoremap <leader>A @a
+nnoremap <leader>S @s
+nnoremap <leader>D @d
+nnoremap <leader>F @f
+nnoremap <leader>H @h
+nnoremap <leader>J @j
+nnoremap <leader>K @k
+nnoremap <leader>L @l
+nnoremap <leader>m @m
+nnoremap <leader>M @m
+nnoremap <leader>n @n
+nnoremap <leader>N @n
+
+" Redraw screen
+nnoremap <leader>l :redraw!<CR>
 
 " Quick config editing
 nnoremap <leader>rc :edit $MYVIMRC<CR>
