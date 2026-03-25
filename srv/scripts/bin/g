@@ -24,7 +24,7 @@ usage() {
   elif [ $action = push ] || [ $action = diff ]; then
     echo "usage: $progname [-h] [-C dir] [..]"
   else
-    echo "usage: $progname [-h] [-C dir] [--allow-empty] --allow-empty-message|COMMIT MESSAGE"
+    echo "usage: $progname [-h] [-C dir] [-S|--skip-ci] [--allow-empty] --allow-empty-message|COMMIT MESSAGE"
     echo "For 'COMMIT MESSAGE' to contain new lines, use '\n'"
     echo "If passing 'COMMIT MESSAGE without quotes, use '\\\n'"
   fi
@@ -36,21 +36,23 @@ shopt -s extglob
 unset dir allow_empty
 test_mode=false
 allow_empty_message=false
-args=("$0")
+skip_ci=false
 while [[ $# -gt 0 ]]; do
   case "$1" in
     -t|--test) test_mode=true ; shift ;;
     -C) [[ -z "$2" || $2 =~ ^- ]] && shift && echo "Error: Missing argument" && usage 1; dir=$2 ; shift 2 ;;
+    -S|--skip-ci) skip_ci=true ; shift ;;
     --allow-empty) allow_empty="--allow-empty" ; shift ;;
     --allow-empty-message) allow_empty_message=true ; shift ;;
     -h|--help) usage ;;
-    *) args+=("$1") ; shift ;;
+    *) break ;;
   esac
 done
 
-[ -z "${args[1]}" ] && ! $allow_empty_message && [ $action != push ] && [ $action != diff ] && usage
+[ -z "$1" ] && ! $allow_empty_message && [ $action != push ] && [ $action != diff ] && usage
 
-commitmsg=$(echo "${args[@]:1}")
+commitmsg=$(echo "$@")
+$skip_ci && commitmsg="$commitmsg [skip ci]"
 
 if $test_mode; then
   [ -z "$dir" ] && dir=.
@@ -61,10 +63,10 @@ if $test_mode; then
     done
   elif [ $action = push ]; then
     echo "Running 'git push'"
-    echo "Additional args: '${args[@]:1}'"
+    echo "Additional args: '$@'"
   elif [ $action = diff ]; then
     echo "Running 'git diff'"
-    echo "Additional args: '${args[@]:1}'"
+    echo "Additional args: '$@'"
   else
     echo "Running 'git commit -a' and 'git push'"
     [ -n "$allow_empty" ] && echo "Empty commits allowed"
@@ -76,11 +78,11 @@ if $test_mode; then
 fi
 
 if [ $action = add ]; then
-  git ${dir:+-C $dir }add "${args[@]:1}"
+  git ${dir:+-C $dir }add "$@"
 elif [ $action = push ]; then
-  git ${dir:+-C $dir }push "${args[@]:1}"
+  git ${dir:+-C $dir }push "$@"
 elif [ $action = diff ]; then
-  git ${dir:+-C $dir }diff "${args[@]:1}"
+  git ${dir:+-C $dir }diff "$@"
 else
   if $allow_empty_message && [ -z "$commitmsg" ]; then
     git ${dir:+-C $dir }commit -a --allow-empty-message
