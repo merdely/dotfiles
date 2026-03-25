@@ -19,17 +19,20 @@ bswitch=false
 unset aarg barg
 while getopts ":hsa:b:" opt; do
   case $opt in
+    # Handle options that are both -b and -b ARG
     :) case $OPTARG in
          b) bswitch=true ;;
-         *) echo "ERROR: -$OPTARG requires an argument" ; exit 1 ;;
+         *) echo "ERROR: -$OPTARG requires an argument" > /dev/stderr ; exit 1 ;;
        esac ;;
+    # Handle an option that can be passed twice: -s -s
     s) [ $sswitch = true ] && sswitch2=true ; sswitch=true ;;
+    # Handle options that require an arg: -a ARG
     a) case $OPTARG in
-         -*) echo "Error: -$opt requires an argument" && exit 1 ;;
+         -*) echo "Error: -$opt requires an argument" > /dev/stderr && exit 1 ;;
           *) aarg=$OPTARG ;;
        esac ;;
     b) case $OPTARG in
-         -*) echo "WARNING: -$opt has an unused optional argument"; unset barg ; OPTIND=$((OPTIND - 1)) ;;
+         -*) echo "WARNING: -$opt has an unused optional argument" > /dev/stderr; unset barg ; OPTIND=$((OPTIND - 1)) ;;
           *) bswitch=true ; barg=$OPTARG ;;
        esac ;;
     *) usage ;;
@@ -64,6 +67,7 @@ shopt -s extglob
 
 long=false
 unset arg
+args=("$0")
 while [[ $# -gt 0 ]]; do
   case "$1" in
     -l|--long)
@@ -71,20 +75,24 @@ while [[ $# -gt 0 ]]; do
       shift
       ;;
     -a|--arg)
+      [[ -z "$2" || $2 =~ ^- ]] && shift && echo "Error: Missing argument" && usage 1
       arg=$2
       shift 2
       ;;
     -V|--version)
-      echo $my_version
+      echo ${my_version:-0.0.0}
       exit
       ;;
-    -h|--help)
+    -h|--help|-*)
+      # Remove "|-*" from above to allow having "-*" in follow on args not processed as switches
       usage
       ;;
     *)
-      break
+      args+=("$1")
+      shift
       ;;
   esac
 done
+# In the rest of the script, instead of using $1,..., use ${args[1]},...
 
 # vim:set ft=sh:
