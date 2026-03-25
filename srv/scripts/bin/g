@@ -36,34 +36,35 @@ shopt -s extglob
 unset dir allow_empty
 test_mode=false
 allow_empty_message=false
+args=("$0")
 while [[ $# -gt 0 ]]; do
   case "$1" in
     -t|--test) test_mode=true ; shift ;;
-    -C) dir=$2 ; shift 2 ;;
+    -C) [[ -z "$2" || $2 =~ ^- ]] && shift && echo "Error: Missing argument" && usage 1; dir=$2 ; shift 2 ;;
     --allow-empty) allow_empty="--allow-empty" ; shift ;;
     --allow-empty-message) allow_empty_message=true ; shift ;;
     -h|--help) usage ;;
-    *) break ;;
+    *) args+=("$1") ; shift ;;
   esac
 done
 
-[ -z "$1" ] && ! $allow_empty_message && [ $action != push ] && [ $action != diff ] && usage
+[ -z "${args[1]}" ] && ! $allow_empty_message && [ $action != push ] && [ $action != diff ] && usage
 
-commitmsg=$(echo "$@")
+commitmsg=$(echo "${args[@]:1}")
 
 if $test_mode; then
   [ -z "$dir" ] && dir=.
   if [ $action = add ]; then
     echo "Running 'git add'"
-    for f in $*; do
+    for f in "${args[@]:1}"; do
       echo " - $f"
     done
   elif [ $action = push ]; then
     echo "Running 'git push'"
-    echo "Additional args: '$*'"
+    echo "Additional args: '${args[@]:1}'"
   elif [ $action = diff ]; then
     echo "Running 'git diff'"
-    echo "Additional args: '$*'"
+    echo "Additional args: '${args[@]:1}'"
   else
     echo "Running 'git commit -a' and 'git push'"
     [ -n "$allow_empty" ] && echo "Empty commits allowed"
@@ -75,11 +76,11 @@ if $test_mode; then
 fi
 
 if [ $action = add ]; then
-  git ${dir:+-C $dir }add $*
+  git ${dir:+-C $dir }add "${args[@]:1}"
 elif [ $action = push ]; then
-  git ${dir:+-C $dir }push $*
+  git ${dir:+-C $dir }push "${args[@]:1}"
 elif [ $action = diff ]; then
-  git ${dir:+-C $dir }diff $*
+  git ${dir:+-C $dir }diff "${args[@]:1}"
 else
   if $allow_empty_message && [ -z "$commitmsg" ]; then
     git ${dir:+-C $dir }commit -a --allow-empty-message
