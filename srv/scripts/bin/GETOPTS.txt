@@ -7,16 +7,18 @@ usage() {
   echo "usage: $progname [-h] [-s] [-a ARG] [-b [ARG]]"
   echo "  -h           : This help text"
   echo "  -s           : Help for -s (can be used more than once)"
-  echo "  -a ARG       : Help for -a"
+  echo "  -a ARG       : Help for -a (can be used more than once)"
   echo "  -b [ARG]     : Help for -b"
   exit $1
 }
 
 for a in $*; do [ $a = --help -o $a = -h ] && usage; done
 sswitch=false
-sswitch2=false
+sswitch_plus=false
+sswitch_plusplus=false
 bswitch=false
-unset aarg barg
+aarg=()
+unset barg
 while getopts ":hsa:b:" opt; do
   case $opt in
     # Handle options that are both -b and -b ARG
@@ -24,12 +26,13 @@ while getopts ":hsa:b:" opt; do
          b) bswitch=true ;;
          *) echo "ERROR: -$OPTARG requires an argument" > /dev/stderr ; exit 1 ;;
        esac ;;
-    # Handle an option that can be passed twice: -s -s
-    s) [ $sswitch = true ] && sswitch2=true ; sswitch=true ;;
+    # Handle an option that can be passed more than once: -s -s -s
+    s) $sswitch_plus && $sswitch_plusplus=true ; $sswitch && sswitch_plus=true ; sswitch=true ;;
     # Handle options that require an arg: -a ARG
     a) case $OPTARG in
          -*) echo "Error: -$opt requires an argument" > /dev/stderr && exit 1 ;;
-          *) aarg=$OPTARG ;;
+             # By using an array, -a can be used more than once
+          *) aarg+=("$OPTARG") ;;
        esac ;;
     b) case $OPTARG in
          -*) echo "WARNING: -$opt has an unused optional argument" > /dev/stderr; unset barg ; OPTIND=$((OPTIND - 1)) ;;
@@ -56,31 +59,37 @@ usage() {
   echo "usage: $progname [options] [operation] [value]"
   echo
   echo "Options:"
-  echo "  -l, --long                   option"
-  echo "  -a, --arg ARG                option with argument"
+  echo "  -l, --long                   option (can be used more than once)"
+  echo "  -a, --arg ARG                option with argument (can be used more than once)"
   echo "  -h, --help                   print this help"
   echo "  -V, --version                print version and exit"
   exit $1
 }
 
 shopt -s extglob
-
 long=false
-unset arg
+longer=false
+evenlonger=false
+aarg=()
 args=("$0")
 while [[ $# -gt 0 ]]; do
   case "$1" in
     -l|--long)
+      # An example of how to use -l more than once
+      $longer && evenlonger=true
+      $long && longer=true
       long=true
       shift
       ;;
     -a|--arg)
+      # Verify an argument was actually passed to -a
       [[ -z "$2" || $2 =~ ^- ]] && shift && echo "Error: Missing argument" && usage 1
-      arg=$2
+      # By using an array, -a can be used more than once
+      aarg+=("$2")
       shift 2
       ;;
     -V|--version)
-      echo ${my_version:-0.0.0}
+      echo ${progversion:-0.0.0}
       exit
       ;;
     -h|--help|-*)
@@ -88,9 +97,16 @@ while [[ $# -gt 0 ]]; do
       usage
       ;;
     *)
+      # If argument is "--", save the rest of the args in args[] and stop processing args
+      [ $1 = "--" ] && shift && args+=("$@") && break
+      # Add non-switch args to args[]
       args+=("$1")
       shift
       ;;
+    # To have the first non-switch arg stop processing switches and take rest of args literally
+    #   remove '*)' case code above and use this instead:
+    #     *) [ "$1" = "--" ] && shift ; break ;;
+    #   Also get rid of 'args=("$0")' above and just use arguments like $1 normally
   esac
 done
 # In the rest of the script, instead of using $1,..., use ${args[1]},...
