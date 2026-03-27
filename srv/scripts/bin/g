@@ -113,15 +113,16 @@ if $print_latest_tag || $use_latest_tag; then
     echo "Error: Could not determine latest tag" > /dev/stderr
     exit 1
   fi
-  if $print_latest_tag; then
-    echo "Latest tag = '$latest_tag'"
-    exit 0
-  fi
 fi
 
 if $use_dockerfile_for_tag; then
   dockerfile_tag=$(awk -F= '/^ARG CONTAINER_VERSION=/{print $2;exit}' ${dir:+$dir/}Dockerfile)
   [ -n "$dockerfile_tag" ] && latest_tag=$dockerfile_tag
+fi
+
+if $print_latest_tag; then
+  echo "Latest tag $($use_dockerfile_for_tag && echo "from Dockerfile ")= '$latest_tag'"
+  exit 0
 fi
 
 [ -z "$1" ] && ! $allow_empty_message && [[ ! $action =~ ^(push|diff|status)$ ]] && usage
