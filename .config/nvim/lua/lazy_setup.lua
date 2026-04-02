@@ -1,5 +1,8 @@
 require("lazy").setup({
-  spec = { { import = "plugins" } },
+  spec = {
+    { "RRethy/base16-nvim", enabled = false },
+    { import = "plugins" }
+  },
   install = { colorscheme = { "nightfly" } },
   change_detection = {
     enabled = false,

@@ -80,17 +80,18 @@ vim.opt.backspace = "indent,eol,start"             -- Better backspace behavior
 vim.opt.autochdir = false                          -- Don't auto change directory
 -- vim.opt.iskeyword:append("-")                      -- Treat dash as part of word
 vim.opt.path:append("**")                          -- include subdirectories in search
+vim.opt.selection = "inclusive"                    -- include last char in selection
 vim.opt.mouse = "a"                                -- Enable mouse support
 vim.opt.clipboard:append("unnamedplus")            -- Use system clipboard
 vim.opt.modifiable = true                          -- Allow buffer modifications
-vim.opt.encoding = "UTF-8"                         -- Set encoding
+vim.opt.encoding = "utf-8"                         -- Set encoding
 
 -- Cursor settings
 vim.opt.guicursor = "n-v-c:block,i-ci-ve:block,r-cr:hor20,o:hor50,a:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor,sm:block-blinkwait175-blinkoff150-blinkon175"
 
 -- Folding settings
 vim.opt.foldmethod = "expr"                        -- Use expression for folding
-vim.opt.foldexpr = "nvim_treesitter#foldexpr()"    -- Use treesitter for folding
+vim.opt.foldexpr = "v:lua.nvim.treesitter.foldexpr()"    -- Use treesitter for folding
 vim.opt.foldlevel = 99                             -- Start with all folds open
 
 -- Split behavior
@@ -135,8 +136,10 @@ vim.api.nvim_set_hl(0, "EndOfBuffer", { bg = "none" })
 -- Normal mode mappings
 vim.keymap.set("n", "<leader>c", ":nohlsearch<CR>", { desc = "Clear search highlights" })
 
+-- Only show one buffer
+vim.keymap.set("n", "<leader>o", ":only<CR>", { desc = "Switch to showing only one buffer" })
+
 -- Toggle zoom in on one buffer
--- vim.keymap.set("n", "<leader>o", ":only<CR>", { desc = "Switch to showing only one buffer" })
 local zoomed = false
 vim.keymap.set('n', '<leader>z', function()
   if zoomed then
@@ -148,12 +151,6 @@ vim.keymap.set('n', '<leader>z', function()
     zoomed = true
   end
 end)
-
--- Toggle to previous buffer (inspired from Sylvan)
--- vim.keymap.set('n', '<leader>p', "<Cmd>e #<CR>", { desc = 'Switch to previous buffer' })
-vim.keymap.set('n', '<leader>;', "<Cmd>e #<CR>", { desc = 'Switch to previous buffer' })
-vim.keymap.set('n', '<leader>s', '<Cmd>vert sf #<CR>', { desc = 'alternate buffers' })
--- vim.keymap.set('n', '<leader>S', '<Cmd>bot sf #<CR>', { desc = 'split buffers' })
 
 -- Writing and quitting
 vim.keymap.set('n', '<leader>w', '<Cmd>update<CR>', { desc = 'Write the current buffer' })
@@ -172,39 +169,97 @@ vim.keymap.set("n", "Y", "y$", { desc = "Yank to end of line" })
 -- Better paste behavior
 vim.keymap.set("x", "<leader>p", '"_dP', { desc = "Paste without yanking" })
 vim.keymap.set("v", "p", '"_dP', { desc = "Paste without replacing clipboard content" })
+vim.keymap.set({"n", "v" }, "<leader>xx", '"_d', { desc = "Delete without yanking" })
 
 -- Better change behavior
 vim.keymap.set({ "n", "v" }, "c", '"_c', { desc = "Change without replacing clipboard content", noremap = true, silent = true })
 vim.keymap.set({ "n", "v" }, "C", '"_C', { desc = "Change without replacing clipboard content", noremap = true, silent = true })
 
--- Better delete behavior
--- vim.keymap.set({ "n", "v" }, "d", '"_d', { desc = "Delete without replacing clipboard content", noremap = true, silent = true })
--- vim.keymap.set({ "n", "v" }, "D", '"_D', { desc = "Delete without replacing clipboard content", noremap = true, silent = true })
-
 -- Better single delete behavior
 vim.keymap.set({ "n", "v" }, "x", '"_x', { desc = "Delete without replacing clipboard content", noremap = true, silent = true })
 
--- Better window navigation
+-- Swap character with one before it
+vim.keymap.set('n', '<leader>sp', function()
+  if vim.fn.col('.') == 1 then return end
+  vim.cmd('normal! "cxh"cPl')
+end, { desc = 'Swap char with previous char'})
+
+-- Swap character with one after it
+vim.keymap.set('n', '<leader>sn', function()
+  if vim.fn.col('.') == vim.fn.col('$') - 1 then return end
+  vim.cmd('normal! "zx"zph')
+end, { desc = 'Swap char with next char' })
+
+-- Navigate buffers
+vim.keymap.set('n', '<leader>;', "<Cmd>e #<CR>", { desc = 'Switch to previous buffer' })
+vim.keymap.set("n", "<leader>bn", ':bnext<CR>', { desc = "Next buffer" })
+vim.keymap.set("n", "<leader>bp", ':bprevious<CR>', { desc = "Previous buffer" })
+
+-- Manage Splits
+vim.keymap.set("n", "<leader>sv", ':vsplit<CR>', { desc = "Split window vertically" })
+vim.keymap.set("n", "<leader>sh", ':split<CR>', { desc = "Split window horizontally" })
+
+-- Split previous buffer
+vim.keymap.set('n', '<leader>sb', '<Cmd>vert sf #<CR>', { desc = 'Split previous buffer vertically' })
+vim.keymap.set('n', '<leader>sB', '<Cmd>bot sf #<CR>', { desc = 'Split previous buffer horizontally' })
+
+-- Better split/window navigation
 vim.keymap.set("n", "<C-h>", "<C-w>h", { desc = "Move to left window" })
 vim.keymap.set("n", "<C-j>", "<C-w>j", { desc = "Move to bottom window" })
 vim.keymap.set("n", "<C-k>", "<C-w>k", { desc = "Move to top window" })
 vim.keymap.set("n", "<C-l>", "<C-w>l", { desc = "Move to right window" })
+vim.keymap.set("n", "<leader>sr", "<C-w>r", { desc = "Rotate windows downward/right" })
+vim.keymap.set("n", "<leader>sR", "<C-w>R", { desc = "Rotate windows upward/left" })
+vim.keymap.set("n", "<leader>sx", "<C-w>x", { desc = "Exchange window with next" })
+vim.keymap.set("n", "<leader>sH", "<C-w>H", { desc = "Move window to far left" })
+vim.keymap.set("n", "<leader>sJ", "<C-w>J", { desc = "Move window to bottom" })
+vim.keymap.set("n", "<leader>sK", "<C-w>K", { desc = "Move window to top" })
+vim.keymap.set("n", "<leader>sL", "<C-w>L", { desc = "Move window to far right" })
 
--- Resizing Splits
-vim.keymap.set("n", "<C-Up>", ":resize +2<CR>", { desc = "Increase window height" })
-vim.keymap.set("n", "<C-Down>", ":resize -2<CR>", { desc = "Decrease window height" })
-vim.keymap.set("n", "<C-Left>", ":vertical resize -2<CR>", { desc = "Decrease window width" })
+-- Resize splits
+vim.keymap.set("n", "<C-Up>",    ":resize +2<CR>", { desc = "Increase window height" })
+vim.keymap.set("n", "<A-C-k>",   ":resize +2<CR>", { desc = "Increase window height" })
+vim.keymap.set("n", "<C-Down>",  ":resize -2<CR>", { desc = "Decrease window height" })
+vim.keymap.set("n", "<A-C-j>",   ":resize -2<CR>", { desc = "Decrease window height" })
+vim.keymap.set("n", "<C-Left>",  ":vertical resize -2<CR>", { desc = "Decrease window width" })
+vim.keymap.set("n", "<A-C-h>",   ":vertical resize -2<CR>", { desc = "Increase window width" })
 vim.keymap.set("n", "<C-Right>", ":vertical resize +2<CR>", { desc = "Increase window width" })
+vim.keymap.set("n", "<A-C-l>",   ":vertical resize +2<CR>", { desc = "Decrease window width" })
+
+-- Toggle between horizontal and vertical split
+vim.keymap.set('n', '<leader>st', function()
+  -- Only operate on exactly 2 windows
+  if #vim.api.nvim_list_wins() ~= 2 then
+    vim.notify('Layout toggle requires exactly 2 windows', vim.log.levels.WARN)
+    return
+  end
+
+  local wins = vim.api.nvim_list_wins()
+  local win1 = vim.api.nvim_win_get_position(wins[1])
+  local win2 = vim.api.nvim_win_get_position(wins[2])
+
+  -- If both windows are on the same row → vertical split (side by side)
+  -- If they differ in row → horizontal split (stacked)
+  if win1[1] == win2[1] then
+    -- Currently vertical, switch to horizontal
+    vim.cmd('windo wincmd K')
+  else
+    -- Currently horizontal, switch to vertical
+    vim.cmd('windo wincmd H')
+  end
+end, { desc = 'Toggle split layout' })
 
 -- Move lines up/down
-vim.keymap.set("n", "<C-j>", ":m .+1<CR>==", { desc = "Move line down" })
-vim.keymap.set("n", "<C-k>", ":m .-2<CR>==", { desc = "Move line up" })
-vim.keymap.set("v", "<C-j>", ":m '>+1<CR>gv=gv", { desc = "Move selection down" })
-vim.keymap.set("v", "<C-k>", ":m '<-2<CR>gv=gv", { desc = "Move selection up" })
+vim.keymap.set("n", "<S-A-j>", ":m .+1<CR>==", { desc = "Move line down" })
+vim.keymap.set("n", "<S-A-k>", ":m .-2<CR>==", { desc = "Move line up" })
+vim.keymap.set("v", "<S-A-j>", ":m '>+1<CR>gv=gv", { desc = "Move selection down" })
+vim.keymap.set("v", "<S-A-k>", ":m '<-2<CR>gv=gv", { desc = "Move selection up" })
 
 -- Better indenting in visual mode
 vim.keymap.set("v", "<", "<gv", { desc = "Indent left and reselect" })
 vim.keymap.set("v", ">", ">gv", { desc = "Indent right and reselect" })
+
+-- vim.keymap.set("n", "J", "mzJ`z", { desc = "Join lines and keep cursor position" })
 
 -- Clear some customizations to make copying easier
 vim.keymap.set('n', '<leader>cp', function() vim.cmd(":set cursorline! list! number! breakindent! " .. (vim.o.colorcolumn == '' and "colorcolumn=80 " or "colorcolumn= ") .. (vim.o.signcolumn == 'number' and "signcolumn=no " or "signcolumn=number ")) end, { silent = true, expr = false })
@@ -466,28 +521,6 @@ vim.opt.tabline = ''     -- Use default tabline (empty string uses built-in)
 vim.cmd([[
   hi TabLineFill guibg=NONE ctermfg=242 ctermbg=NONE
 ]])
-
-vim.keymap.set('n', '<leader>ts', function()
-  -- Only operate on exactly 2 windows
-  if #vim.api.nvim_list_wins() ~= 2 then
-    vim.notify('Layout toggle requires exactly 2 windows', vim.log.levels.WARN)
-    return
-  end
-
-  local wins = vim.api.nvim_list_wins()
-  local win1 = vim.api.nvim_win_get_position(wins[1])
-  local win2 = vim.api.nvim_win_get_position(wins[2])
-
-  -- If both windows are on the same row → vertical split (side by side)
-  -- If they differ in row → horizontal split (stacked)
-  if win1[1] == win2[1] then
-    -- Currently vertical, switch to horizontal
-    vim.cmd('windo wincmd K')
-  else
-    -- Currently horizontal, switch to vertical
-    vim.cmd('windo wincmd H')
-  end
-end, { desc = 'Toggle split layout' })
 
 -- Alternative navigation (more intuitive)
 vim.keymap.set('n', '<leader>tt', ':tabnew<CR>', { desc = 'New tab' })
