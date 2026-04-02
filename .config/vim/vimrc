@@ -6,7 +6,8 @@
 " Plugins
 " ===============================
 " Install vim-plug
-" curl -fLo ~/.config/vim/autoload/plug.vim --create-dirs https://erde.ly/vim-plug
+":" ;  echo curl -fLo ~/.config/vim/autoload/plug.vim --create-dirs https://erde.ly/vim-plug ; exit
+"
 call plug#begin()
   Plug 'bluz71/vim-nightfly-colors', { 'as': 'nightfly' }
   Plug 'liuchengxu/vim-which-key'
@@ -115,6 +116,7 @@ set noswapfile
 set undofile
 set updatetime=300
 set timeoutlen=500
+" set ttimeout
 set ttimeoutlen=0
 set autoread
 set noautowrite
@@ -175,6 +177,7 @@ function! ToggleZoom()
   endif
 endfunction
 nnoremap <leader>z :call ToggleZoom()<CR>
+nnoremap <leader>o :only<CR>
 
 " Which Key
 nnoremap <silent> <leader>      :<c-u>WhichKey '<Space>'<CR>
@@ -223,17 +226,93 @@ nnoremap <C-j> <C-w>j
 nnoremap <C-k> <C-w>k
 nnoremap <C-l> <C-w>l
 
-" Resizing Splits
-nnoremap <C-Up> :resize +2<CR>
-nnoremap <C-Down> :resize -2<CR>
-nnoremap <C-Left> :vertical resize -2<CR>
-nnoremap <C-Right> :vertical resize +2<CR>
+" Switch to previous buffer
+nnoremap <leader>; <Cmd>e #<CR>
+nnoremap <leader>bn :bnext<CR>
+nnoremap <leader>bp :bprevious<CR>
 
-" Move lines up/down
-nnoremap <C-j> :m .+1<CR>==
-nnoremap <C-k> :m .-2<CR>==
-vnoremap <C-j> :m '>+1<CR>gv=gv
-vnoremap <C-k> :m '<-2<CR>gv=gv
+" Manage Splits
+nnoremap <leader>sv :vsplit<CR>
+nnoremap <leader>sh :split<CR>
+
+" Split previous buffer vertically
+nnoremap <leader>sb <Cmd>vert sf #<CR>
+" Split previous buffer horizontally
+nnoremap <leader>sB <Cmd>bot sf #<CR>
+
+" Better split/window navigation
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
+nnoremap <leader>sr <C-w>r
+nnoremap <leader>sR <C-w>R
+nnoremap <leader>sx <C-w>x
+nnoremap <leader>sH <C-w>H
+nnoremap <leader>sJ <C-w>J
+nnoremap <leader>sK <C-w>K
+nnoremap <leader>sL <C-w>L
+
+if exists('$TMUX') || &term =~ 'tmux' || &term =~ 'screen'
+    " Resizing Splits
+    nnoremap <Esc>[1;5B :resize +2<CR>
+    nnoremap <Esc>[1;5A :resize -2<CR>
+    nnoremap <Esc>[1;5D :vertical resize -2<CR>
+    nnoremap <Esc>[1;5C :vertical resize +2<CR>
+    nnoremap <Esc><NL>  :resize +2<CR>
+    nnoremap <Esc><C-K> :resize -2<CR>
+    nnoremap <Esc><C-H>  :vertical resize -2<CR>
+    nnoremap <Esc><C-L>  :vertical resize +2<CR>
+
+    " Move lines up/down
+    nnoremap <Esc>[1;6B :m .+1<CR>==
+    nnoremap <Esc>[1;6A :m .-2<CR>==
+    nnoremap <Esc>J :m .+1<CR>==
+    nnoremap <Esc>K :m .-2<CR>==
+    vnoremap <Esc>J :m '>+1<CR>gv=gv
+    vnoremap <Esc>K :m '<-2<CR>gv=gv
+else
+    " Resizing Splits
+    nnoremap <C-Down>  :resize +2<CR>
+    nnoremap <C-Up>    :resize -2<CR>
+    nnoremap <C-Left>  :vertical resize -2<CR>
+    nnoremap <C-Right> :vertical resize +2<CR>
+    nnoremap <A-C-J> :resize +2<CR>
+    nnoremap <A-C-K> :resize -2<CR>
+    nnoremap <A-C-H> :vertical resize -2<CR>
+    nnoremap <A-C-L> :vertical resize +2<CR>
+
+    " Move lines up/down
+    nnoremap <C-S-Down> :m .+1<CR>==
+    nnoremap <C-S-Up>   :m .-2<CR>==
+    nnoremap <A-S-J> :m .+1<CR>==
+    nnoremap <A-S-K> :m .-2<CR>==
+    vnoremap <A-S-J> :m '>+1<CR>gv=gv
+    vnoremap <A-S-K> :m '<-2<CR>gv=gv
+endif
+
+function! ToggleSplitLayout()
+  " Only operate on exactly 2 windows
+  if winnr('$') != 2
+    echohl WarningMsg | echo 'Layout toggle requires exactly 2 windows' | echohl None
+    return
+  endif
+
+  " Get the row position of each window
+  let l:win1_row = win_screenpos(1)[0]
+  let l:win2_row = win_screenpos(2)[0]
+
+  " If both windows are on the same row → vertical split (side by side)
+  " If they differ in row → horizontal split (stacked)
+  if l:win1_row == l:win2_row
+    " Currently vertical, switch to horizontal
+    windo wincmd K
+  else
+    " Currently horizontal, switch to vertical
+    windo wincmd H
+  endif
+endfunction
+nnoremap <leader>st :call ToggleSplitLayout()<CR>
 
 " Better indenting in visual mode
 vnoremap < <gv
@@ -245,18 +324,27 @@ nnoremap <leader>ff :Files<CR>
 nnoremap <leader>fc :Files ~/.config<CR>
 nnoremap <leader>fh :Files ~/<CR>
 
-" Toggle previous buffer
-" Switch to previous buffer
-nnoremap <leader>; <Cmd>e #<CR>
-" alternate buffers
-nnoremap <leader>s <Cmd>vert sf #<CR>
-" split buffers
-" nnoremap <leader>S <Cmd>bot sf #<CR>
-
 " Writing and quitting
 nnoremap <leader>w <Cmd>update<CR>
 nnoremap <leader>q <Cmd>:quit<CR>
 nnoremap <leader>Q <Cmd>:wqa<CR>
+
+" Quickly run macros
+nnoremap <leader>A @a
+nnoremap <leader>S @s
+nnoremap <leader>D @d
+nnoremap <leader>F @f
+nnoremap <leader>H @h
+nnoremap <leader>J @j
+nnoremap <leader>K @k
+nnoremap <leader>L @l
+nnoremap <leader>m @m
+nnoremap <leader>M @m
+nnoremap <leader>n @n
+nnoremap <leader>N @n
+
+" Redraw Screen
+nnoremap <leader>l :redraw!<CR>
 
 " Tabs
 nnoremap <leader>tt :tabnew<CR>
@@ -274,6 +362,17 @@ nnoremap <leader>t6 :tabnext 6<CR>
 nnoremap <leader>t7 :tabnext 7<CR>
 nnoremap <leader>t8 :tabnext 8<CR>
 nnoremap <leader>t9 :tabnext 9<CR>
+
+" Function to close buffer but keep tab if it's the only buffer in tab
+function! SmartCloseBuffer()
+  let l:buffers_in_tab = len(tabpagebuflist())
+  if l:buffers_in_tab > 1
+    bdelete
+  else
+    tabclose
+  endif
+endfunction
+nnoremap <leader>bd :call SmartCloseBuffer()<CR>
 
 " Make file executable
 function! MakeExecutable() abort
@@ -364,11 +463,17 @@ set redrawtime=10000
 set maxmempattern=20000
 
 " Make the cursor look good with tmux
-if exists('$TMUX')
+if exists('$TMUX') || &term =~ 'tmux' || &term =~ 'screen'
     let &t_SI = "\<Esc>Ptmux;\<Esc>\e[2 q\<Esc>\\"
     let &t_EI = "\<Esc>Ptmux;\<Esc>\e[2 q\<Esc>\\"
+    " These were to make some vim keys work in tmux, but it made everything awful
+    " let &t_TI = "\<Esc>Ptmux;\<Esc>\<Esc>[>4;2m\<Esc>\\"
+    " let &t_TE = "\<Esc>Ptmux;\<Esc>\<Esc>[>4;0m\<Esc>\\"
 else
     let &t_SI = "\e[2 q"
     let &t_EI = "\e[2 q"
+    " These were to make some vim keys work in tmux, but it made everything awful
+    " let &t_TI = "\<Esc>[>4;2m"
+    " let &t_TE = "\<Esc>[>4;0m"
 endif
 
