@@ -29,23 +29,25 @@ usage() {
   else
     echo "usage: $progname [options]"
     echo "Options:"
-    echo "-h, --help             : this help text"
-    echo "-t, --test             : test mode"
-    echo "-C, --changedir PATH   : Run as if git was started in PATH instead of the current directory"
-    echo "-a, --all              : automatically stage modified/deleted files (new files must be added like git commit)"
-    echo "-A, --add PATH         : run 'git add' on specified PATH before commit (can be used more than once)"
-    echo "-p, --path PATH        : commit specific paths instead of --all (can be used more than once)"
-    echo "-P, --print-latest-tag : print latest version tag for repo"
-    echo "-L, --latest-tag       : update latest version tag for commit (overrides -t/--tag)"
-    echo "-F, --tag-from-file    : get the tag from CONTAINER_VERSION in Dockerfile for commit (overrides -t/--tag)"
-    echo "-T, --tag TAG          : save or update tag for commit"
-    echo "-S, --skip-ci          : add [skip ci] tag to commit message"
-    echo "--allow-empty          : Allow commit without any changed files"
-    echo "--allow-empty-message  : Allow empty commit message"
+    echo "-h, --help                : this help text"
+    echo "-t, --test                : test mode"
+    echo "-C, --changedir PATH      : Run as if git was started in PATH instead of the current directory"
+    echo "-a, --all                 : automatically stage modified/deleted files (new files must be added like git commit)"
+    echo "-A, --add PATH            : run 'git add' on specified PATH before commit (can be used more than once)"
+    echo "-p, --path PATH           : commit specific paths instead of --all (can be used more than once)"
+    echo "-P, --print-latest-tag    : print latest version tag for repo"
+    echo "-L, --latest-tag          : update latest version tag for commit (overrides -t/--tag)"
+    echo "-F, --tag-from-file       : get the tag from CONTAINER_VERSION in Dockerfile for commit (overrides -t/--tag)"
+    echo "-T, --tag TAG             : save or update tag for commit"
+    echo "-S, --skip-ci             : add [skip ci] tag to commit message"
+    echo "--allow-empty             : Allow commit without any changed files"
+    echo "--allow-empty-message     : Allow empty commit message"
+    echo "--allow-status-as-message : Allow \"status\" as the commit message"
     echo
-    echo "COMMIT MESSAGE         : Free form text for commit message (may need quoting in some cases)"
+    echo "COMMIT MESSAGE            : Free form text for commit message (may need quoting in some cases)"
     echo "For 'COMMIT MESSAGE' to contain new lines, use '\n'"
     echo "If passing 'COMMIT MESSAGE without quotes, use '\\\n'"
+    echo "Running 'g status' is probably a mistake... if it isn't run 'g --allow-status-as-message status'"
   fi
   exit
 }
@@ -56,6 +58,7 @@ unset dir latest_tag
 test_mode=false
 allow_empty=false
 allow_empty_message=false
+allow_status_as_message=false
 skip_ci=false
 all=true
 all_set=false
@@ -64,6 +67,7 @@ commit_paths=()
 print_latest_tag=false
 use_latest_tag=false
 use_dockerfile_for_tag=false
+[ $# -gt 1 ] && allow_status_as_message=true
 while [[ $# -gt 0 ]]; do
   case "$1" in
     -t|--test) test_mode=true ; shift ;;
@@ -97,10 +101,14 @@ while [[ $# -gt 0 ]]; do
     -S|--skip-ci) skip_ci=true ; shift ;;
     --allow-empty) allow_empty=true ; all=false ; shift ;;
     --allow-empty-message) allow_empty_message=true ; shift ;;
+    --allow-status-as-message) allow_status_as_message=true ; shift ;;
     -h|--help) usage ;;
+    -*) echo "Error: $1 is an invalid option" > /dev/stderr && usage 1 ;;
     *) break ;;
   esac
 done
+
+[ "$1" = "status" ] && ! $allow_status_as_message && echo "You probably did not mean '$0 status'" && usage 1
 
 if [ $action = commit ] && $all_set && [ ${#commit_paths[@]} -gt 0 ]; then
   echo "Error: Cannot use -a/--all with -p/--path" > /dev/stderr
@@ -152,6 +160,9 @@ if $test_mode; then
     if [ ${#add_paths[@]} -gt 0 ]; then
       echo "Running 'git add ${add_paths[@]}"
     fi
+    if [ ${#commit_paths[@]} -gt 0 ]; then
+      echo "Running 'git add ${commit_paths[@]}"
+    fi
     if [ -n "$tag" ]; then
       echo "Adding tag v$tag to commit"
     fi
@@ -179,6 +190,9 @@ elif [ $action = diff ]; then
 else
   if [ ${#add_paths[@]} -gt 0 ]; then
     git ${dir:+-C $dir }add "${add_paths[@]}"
+  fi
+  if [ ${#commit_paths[@]} -gt 0 ]; then
+    git ${dir:+-C $dir }add "${commit_paths[@]}"
   fi
   ! $all_set && $allow_empty && [ ${#commit_paths[@]} -eq 0 ] && commit_paths=("--allow-empty")
   [[ $all == true || ${#commit_paths[@]} -eq 0 ]] && commit_paths=("--all")
