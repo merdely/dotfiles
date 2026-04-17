@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 progname=${0##*/}
 progname=${progname%.sh}
@@ -22,9 +22,9 @@ case $progname in
 esac
 
 usage() {
-  if [ $action = add ]; then
+  if [[ $action = add ]]; then
     echo "usage: $progname [-h] [-C dir] file1 [.. fileN]"
-  elif [ $action = push ] || [ $action = diff ]; then
+  elif [[ $action = push ]] || [[ $action = diff ]]; then
     echo "usage: $progname [-h] [-C dir] [..]"
   else
     echo "usage: $progname [options]"
@@ -67,7 +67,7 @@ commit_paths=()
 print_latest_tag=false
 use_latest_tag=false
 use_dockerfile_for_tag=false
-[ $# -gt 1 ] && allow_status_as_message=true
+[[ $# -gt 1 ]] && allow_status_as_message=true
 while [[ $# -gt 0 ]]; do
   case "$1" in
     -t|--test) test_mode=true ; shift ;;
@@ -103,29 +103,35 @@ while [[ $# -gt 0 ]]; do
     --allow-empty-message) allow_empty_message=true ; shift ;;
     --allow-status-as-message) allow_status_as_message=true ; shift ;;
     -h|--help) usage ;;
-    -*) echo "Error: $1 is an invalid option" > /dev/stderr && usage 1 ;;
+    -*) echo "Error: $1 is an invalid option" >&2 && usage 1 ;;
     *) break ;;
   esac
 done
 
-[ "$1" = "status" ] && ! $allow_status_as_message && echo "You probably did not mean '$0 status'" && usage 1
+# Determine git working directory
+git_working_directory=$(git ${dir:+-C "$dir" }rev-parse --show-toplevel)
+[[ -z "$git_working_directory" && -n "$dir" ]] && git_working_directory=$dir
+[[ -z "$git_working_directory" && -z "$dir" ]] && git_working_directory=$(pwd)
 
-if [ $action = commit ] && $all_set && [ ${#commit_paths[@]} -gt 0 ]; then
-  echo "Error: Cannot use -a/--all with -p/--path" > /dev/stderr
+[[ "$1" = "status" ]] && ! $allow_status_as_message && echo "You probably did not mean '$0 status'" && usage 1
+
+if [[ $action = commit ]] && $all_set && [[ ${#commit_paths[@]} -gt 0 ]]; then
+  echo "Error: Cannot use -a/--all with -p/--path" >&2
   exit 1
 fi
 
 if $print_latest_tag || $use_latest_tag; then
-  latest_tag=$(git ${dir:+-C $dir }tag | sort -Vr | head -n1)
-  if [ -z "$latest_tag" ]; then
-    echo "Error: Could not determine latest tag" > /dev/stderr
+  latest_tag=$(git ${dir:+-C "$dir" }tag | sort -Vr | head -n1)
+  if [[ -z "$latest_tag" ]]; then
+    echo "Error: Could not determine latest tag" >&2
     exit 1
   fi
 fi
 
 if $use_dockerfile_for_tag; then
-  dockerfile_tag=$(awk -F= '/^ARG CONTAINER_VERSION=/{print $2;exit}' ${dir:+$dir/}Dockerfile)
-  [ -n "$dockerfile_tag" ] && latest_tag=$dockerfile_tag
+  [[ ! -r "$git_working_directory"/Dockerfile ]] && echo "Error: Cannot find Dockerfile" >&2 && exit 1
+  dockerfile_tag=$(awk -F= '/^ARG CONTAINER_VERSION=/{print $2;exit}' "$git_working_directory"/Dockerfile)
+  [[ -n "$dockerfile_tag" ]] && latest_tag=$dockerfile_tag
 fi
 
 if $print_latest_tag; then
@@ -133,7 +139,7 @@ if $print_latest_tag; then
   exit 0
 fi
 
-[ -z "$1" ] && ! $allow_empty_message && [[ ! $action =~ ^(push|diff|status)$ ]] && usage
+[[ -z "$1" ]] && ! $allow_empty_message && [[ ! $action =~ ^(push|diff|status)$ ]] && usage
 
 # Set tag to latest tag or $tag if unset
 tag=${latest_tag:-$tag}
@@ -142,28 +148,28 @@ commitmsg=$(echo "$@")
 $skip_ci && commitmsg="$commitmsg [skip ci]"
 
 if $test_mode; then
-  [ -z "$dir" ] && dir=.
-  if [ $action = add ]; then
+  [[ -z "$dir" ]] && dir=.
+  if [[ $action = add ]]; then
     echo "Running 'git add'"
     for f in "${args[@]:1}"; do
       echo " - $f"
     done
-  elif [ $action = status ]; then
+  elif [[ $action = status ]]; then
     echo "Running 'git status'"
-  elif [ $action = push ]; then
+  elif [[ $action = push ]]; then
     echo "Running 'git push'"
     echo "Additional args: '$@'"
-  elif [ $action = diff ]; then
+  elif [[ $action = diff ]]; then
     echo "Running 'git diff'"
     echo "Additional args: '$@'"
   else
-    if [ ${#add_paths[@]} -gt 0 ]; then
+    if [[ ${#add_paths[@]} -gt 0 ]]; then
       echo "Running 'git add ${add_paths[@]}"
     fi
-    if [ ${#commit_paths[@]} -gt 0 ]; then
+    if [[ ${#commit_paths[@]} -gt 0 ]]; then
       echo "Running 'git add ${commit_paths[@]}"
     fi
-    if [ -n "$tag" ]; then
+    if [[ -n "$tag" ]]; then
       echo "Adding tag v$tag to commit"
     fi
     if $all; then
@@ -179,33 +185,33 @@ if $test_mode; then
   exit
 fi
 
-if [ $action = add ]; then
-  git ${dir:+-C $dir }add "$@"
-elif [ $action = status ]; then
-  git ${dir:+-C $dir }status
-elif [ $action = push ]; then
-  git ${dir:+-C $dir }push "$@"
-elif [ $action = diff ]; then
-  git ${dir:+-C $dir }diff "$@"
+if [[ $action = add ]]; then
+  git ${dir:+-C "$dir" }add "$@"
+elif [[ $action = status ]]; then
+  git ${dir:+-C "$dir" }status
+elif [[ $action = push ]]; then
+  git ${dir:+-C "$dir" }push "$@"
+elif [[ $action = diff ]]; then
+  git ${dir:+-C "$dir" }diff "$@"
 else
-  if [ ${#add_paths[@]} -gt 0 ]; then
-    git ${dir:+-C $dir }add "${add_paths[@]}"
+  if [[ ${#add_paths[@]} -gt 0 ]]; then
+    git ${dir:+-C "$dir" }add "${add_paths[@]}"
   fi
-  if [ ${#commit_paths[@]} -gt 0 ]; then
-    git ${dir:+-C $dir }add "${commit_paths[@]}"
+  if [[ ${#commit_paths[@]} -gt 0 ]]; then
+    git ${dir:+-C "$dir" }add "${commit_paths[@]}"
   fi
-  ! $all_set && $allow_empty && [ ${#commit_paths[@]} -eq 0 ] && commit_paths=("--allow-empty")
+  ! $all_set && $allow_empty && [[ ${#commit_paths[@]} -eq 0 ]] && commit_paths=("--allow-empty")
   [[ $all == true || ${#commit_paths[@]} -eq 0 ]] && commit_paths=("--all")
-  if $allow_empty_message && [ -z "$commitmsg" ]; then
-    git ${dir:+-C $dir }commit "${commit_paths[@]}" --allow-empty-message
+  if $allow_empty_message && [[ -z "$commitmsg" ]]; then
+    git ${dir:+-C "$dir" }commit "${commit_paths[@]}" --allow-empty-message
   else
-    git ${dir:+-C $dir }commit "${commit_paths[@]}" -m "$(printf "$commitmsg")"
+    git ${dir:+-C "$dir" }commit "${commit_paths[@]}" -m "$(printf "$commitmsg")"
   fi
-  if [ -n "$tag" ]; then
-    git ${dir:+-C $dir }tag -f -a "v$tag" -m "v$tag"
-    git ${dir:+-C $dir }push origin HEAD
-    git ${dir:+-C $dir }push -f origin "v$tag"
+  if [[ -n "$tag" ]]; then
+    git ${dir:+-C "$dir" }tag -f -a "v$tag" -m "v$tag"
+    git ${dir:+-C "$dir" }push origin HEAD
+    git ${dir:+-C "$dir" }push -f origin "v$tag"
   else
-    git ${dir:+-C $dir }push
+    git ${dir:+-C "$dir" }push
   fi
 fi

@@ -1,7 +1,9 @@
 #!/bin/sh
 
+progname=${0##*/}
+progname=${progname%.sh}
 usage() {
-  echo "usage: $(basename $0) [-s] [-u] [-4|-6] [-h|-v] [-t|-eh|-ev|-mh|-mv] HOST..."
+  echo "usage: $progname [-s] [-u] [-4|-6] [-h|-v] [-t|-eh|-ev|-mh|-mv] HOST..."
   echo "        --help: This help text"
   echo "        -s: synchronize panes"
   echo "        -u: don't use known_hosts"
@@ -51,7 +53,7 @@ while getopts ":su46emthv" opt; do
       unset split
       ;;
     h)
-      [ -z "$2" ] || [ "$(echo $2|cut -c1)" = - ] && usage
+      [ -z "${@:$OPTIND:1}" -o "$(echo ${@:$OPTIND:1} | cut -c1)" = - ] && usage
       split="-horizontal"
       ;;
     v)
@@ -63,6 +65,8 @@ while getopts ":su46emthv" opt; do
   esac
 done
 shift $((OPTIND -1))
+
+hostname=$(tmux display -p "#{host}")
 
 [ -z "$mode" ] && mode=tiled
 [ -n "$split" ] && [ $mode = tiled ] && mode=even
@@ -87,9 +91,17 @@ count=0
 for host in $group; do
   if [ $count = 0 ]; then
     [ -z "$group_name" ] && group_name=$host
-    window=$(tmux new-window -n "$host" "ssh $foursix $khosts $host")
+    if [ "$host" = "$hostname" ] || [ "$host" = "${hostname%%.*}" ]; then
+      window=$(tmux new-window -n "$host")
+    else
+      window=$(tmux new-window -n "$host" ssh ${foursix:+$foursix }${khosts:+$khosts }$host)
+    fi
   else
-    tmux split-window -t:$window.{bottom-right} "ssh $foursix $khosts $host"
+    if [ "$host" = "$hostname" ] || [ "$host" = "${hostname%%.*}" ]; then
+      tmux split-window -t:$window.{bottom-right}
+    else
+      tmux split-window -t:$window.{bottom-right} ssh ${foursix:+$foursix }${khosts:+$khosts }$host
+    fi
     tmux select-layout -t:$window.0 $mode$split
   fi
   count=$((count+1))
@@ -109,7 +121,7 @@ fi
 if [ "$group" = hass ]; then
   w=${window#*:}
   sleep .5
-  tmux split-window -vl 77% -t "$w" "ssh $foursix $khosts hass"
+  tmux split-window -vl 77% -t "$w" ssh ${foursix:+$foursix }${khosts:+$khosts }hass
   tmux send -t "${w%.*}.0" "ha core logs --follow" Enter
   tmux select-pane -t ":${w%.*}.{bottom-right}"
   unset w
