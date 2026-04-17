@@ -72,31 +72,54 @@ hostname=$(tmux display -p "#{host}")
 [ -n "$split" ] && [ $mode = tiled ] && mode=even
 [ -z "$1" ] && exit 0
 
+# Check if ansible command is installed
 ansible=false
-which ansible > /dev/null 2>&1 && ansible=true
+command -v ansible > /dev/null 2>&1 && ansible=true
 
+# Replace commas with spaces and reset script arguments
 group=$(echo "$@" | sed 's/,/ /g')
-if [ -z "$2" ]; then
-  group=$1
-  host $1 > /dev/null
-  ret=$?
-  awk '/^Host /{for(i=2;i<=NF;i++){if($i~/[*?!]/)continue;if($i~/^([0-9]{1,3}\.){3}[0-9]{1,3}$/)continue;printf " %s ",$i}}' $HOME/.ssh/config | grep -q " $1 "
-  if $ansible && [ $ret != 0 -a $? != 0 ] || [ $1 = cribl ]; then
-    group=$(ansible $1 --list-hosts | awk 'NR>1{print $1}')
-    [ -n "$group" ] && group_name=$1
+set -- $group
+
+# Set the group name to the first argument
+group_name=$1
+
+# Expand any ansible groups into individual hosts
+unset hostlist
+for host in $group; do
+  # Check if host is in DNS
+  host "$host" > /dev/null
+  ret1=$?
+
+  # Check if host is in ssh_config
+  awk '/^Host /{for(i=2;i<=NF;i++){if($i~/[*?!]/)continue;if($i~/^([0-9]{1,3}\.){3}[0-9]{1,3}$/)continue;printf " %s ",$i}}' $HOME/.ssh/config | grep -q " $host "
+  ret2=$?
+
+  # If we have ansible, host is not in DNS and host is not in ssh_config, expand ssh group
+  if $ansible && [ $ret1 != 0 -a $ret2 != 0 ] || [ $host = cribl ]; then
+    ansible_list="$(ansible $host --list-hosts | awk 'NR>1{printf " %s",$1}')"
   fi
-fi
+
+  # If an ansible list was expanded, use it, otherwise, just use $host
+  if [ -n "${ansible_list# }" ]; then
+    hostlist="${hostlist# } ${ansible_list# }"
+  else
+    hostlist="${hostlist# } $host"
+  fi
+done
+# Strip leading space
+hostlist=${hostlist# }
 
 count=0
-for host in $group; do
+for host in $hostlist; do
   if [ $count = 0 ]; then
-    [ -z "$group_name" ] && group_name=$host
+    # If $host is the tmux server, just open a new window, otherwise ssh
     if [ "$host" = "$hostname" ] || [ "$host" = "${hostname%%.*}" ]; then
       window=$(tmux new-window -n "$host")
     else
       window=$(tmux new-window -n "$host" ssh ${foursix:+$foursix }${khosts:+$khosts }$host)
     fi
   else
+    # If $host is the tmux server, just create a split, otherwise ssh
     if [ "$host" = "$hostname" ] || [ "$host" = "${hostname%%.*}" ]; then
       tmux split-window -t:$window.{bottom-right}
     else
@@ -108,9 +131,12 @@ for host in $group; do
 done
 
 if [ $count -gt 1 ]; then
-  if [ $count = 2 ]; then
+  if [ $count -eq 2 ]; then
     mode=${mode:-even}
     split=${split:-horizontal}
+  elif [ $((count % 2)) -eq 0 -o $count -gt 4 ]; then
+    unset split
+    mode=tiled
   fi
   tmux select-layout -t:$window.0 $mode$split
 
@@ -118,13 +144,16 @@ if [ $count -gt 1 ]; then
                    tmux setw -F -t:$window.0 pane-active-border-style "#{?pane_synchronized,fg=red,fg=green}"
 fi
 
-if [ "$group" = hass ]; then
-  w=${window#*:}
-  sleep .5
-  tmux split-window -vl 77% -t "$w" ssh ${foursix:+$foursix }${khosts:+$khosts }hass
-  tmux send -t "${w%.*}.0" "ha core logs --follow" Enter
-  tmux select-pane -t ":${w%.*}.{bottom-right}"
-  unset w
-fi
+# Specific group handling
+case "$group_name" in
+  hass)
+    w=${window#*:}
+    sleep .5
+    tmux split-window -vl 77% -t "$w" ssh ${foursix:+$foursix }${khosts:+$khosts }hass
+    tmux send -t "${w%.*}.0" "ha core logs --follow" Enter
+    tmux select-pane -t ":${w%.*}.{bottom-right}"
+    unset w
+    ;;
+esac
 
 exit 0
