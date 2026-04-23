@@ -322,12 +322,21 @@ else
 endif
 
 " Move lines up/down
+nnoremap <leader><Down> :m .+1<CR>==
+nnoremap <leader><Up>   :m .-2<CR>==
+nnoremap <leader>j      :m .+1<CR>==
+nnoremap <leader>k      :m .-2<CR>==
 nnoremap <C-S-Down> :m .+1<CR>==
 nnoremap <C-S-Up>   :m .-2<CR>==
 nnoremap <Esc>[1;6B :m .+1<CR>==
 nnoremap <Esc>[1;6A :m .-2<CR>==
 nnoremap <Esc>J :m .+1<CR>==
 nnoremap <Esc>K :m .-2<CR>==
+
+vnoremap <C-S-Down> :m .+1<CR>==
+vnoremap <C-S-Up>   :m .-2<CR>==
+vnoremap <Esc>[1;6B :m .+1<CR>==
+vnoremap <Esc>[1;6A :m .-2<CR>==
 vnoremap <Esc>J :m '>+1<CR>gv=gv
 vnoremap <Esc>K :m '<-2<CR>gv=gv
 
@@ -439,20 +448,6 @@ function! MakeExecutable() abort
   echom 'Made ' . l:file . ' executable (' . getfperm(l:file) . ')'
 endfunction
 nnoremap <silent> <leader>x :call MakeExecutable()<CR>
-
-" Quickly run macros
-nnoremap <leader>A @a
-nnoremap <leader>S @s
-nnoremap <leader>D @d
-nnoremap <leader>F @f
-nnoremap <leader>H @h
-nnoremap <leader>J @j
-nnoremap <leader>K @k
-nnoremap <leader>L @l
-nnoremap <leader>m @m
-nnoremap <leader>M @m
-nnoremap <leader>n @n
-nnoremap <leader>N @n
 
 " Redraw screen
 nnoremap <leader>l :redraw!<CR>
