@@ -3,55 +3,97 @@
 " ================================================================================================
 
 " ===============================
-" Plugins
-" ===============================
-" Install vim-plug
-":" ;  echo curl -fLo ~/.config/vim/autoload/plug.vim --create-dirs https://erde.ly/vim-plug ; exit
-"
-call plug#begin()
-  Plug 'bluz71/vim-nightfly-colors', { 'as': 'nightfly' }
-  Plug 'liuchengxu/vim-which-key'
-  Plug 'itchyny/lightline.vim'
-  Plug 'lambdalisue/vim-suda'
-  Plug 'tpope/vim-vinegar'
-  Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-  Plug 'junegunn/fzf.vim'
-call plug#end()
-
-syntax enable
-set laststatus=2
-let g:lightline = {
-      \ 'colorscheme': 'one',
-      \ 'separator': { 'left': "\ue0b0", 'right': "\ue0b2" },
-      \ 'subseparator': { 'left': "\ue0b1", 'right': "\ue0b3" },
-      \ }
-
-nnoremap <silent> <leader> :WhichKey '<Space>'<CR>
-
-" ===============================
-" Theme & Transparency
-" ===============================
-colorscheme nightfly
-highlight Normal      ctermbg=NONE guibg=NONE
-highlight NormalNC    ctermbg=NONE guibg=NONE
-highlight EndOfBuffer ctermbg=NONE guibg=NONE
-autocmd ColorScheme * highlight Normal      ctermbg=NONE guibg=NONE
-autocmd ColorScheme * highlight NormalNC    ctermbg=NONE guibg=NONE
-autocmd ColorScheme * highlight EndOfBuffer ctermbg=NONE guibg=NONE
-
-" ===============================
 " Paths
 " ===============================
-silent !mkdir -p $XDG_CACHE_HOME/vim/{swapfiles,backup} > /dev/null 2>&1
-set directory=$XDG_CACHE_HOME/vim/swapfiles//
-set backupdir=$XDG_CACHE_HOME/vim/backup//
-set viminfo+=n$XDG_CACHE_HOME/vim/viminfo
-set packpath+=$XDG_CONFIG_HOME/vim/
-set runtimepath^=$XDG_CONFIG_HOME/vim
-set runtimepath+=$XDG_CONFIG_HOME/vim/after,
-            \$XDG_CONFIG_HOME/vim/ftplugin,
-            \$XDG_CONFIG_HOME/vim/spell/
-set undodir=expand("~/.local/state/vim/undodir")
+
+let s:vimrc_path = expand('<sfile>:p')
+if s:vimrc_path =~ '\.config/vim/vimrc$'
+  let s:config_dir = expand('~/.config/vim')
+  let s:data_dir   = expand('~/.local/share/vim')
+  let s:state_dir  = expand('~/.local/state/vim')
+  let s:cache_dir  = expand('~/.cache/vim')
+else
+  let s:config_dir = expand('~/.vim')
+  let s:data_dir   = expand('~/.vim')
+  let s:state_dir  = expand('~/.vim')
+  let s:cache_dir  = expand('~/.vim')
+endif
+
+" -- Define vim directories
+let &directory   = s:cache_dir . '/swapfiles'
+let &backupdir   = s:cache_dir . '/backup'
+let &undodir     = s:state_dir . '/undo'
+let &viminfofile = s:state_dir . '/viminfo'
+
+" -- create directories that do not exist
+for s:dir in [ s:data_dir, s:state_dir, s:cache_dir, &directory, &backupdir, &undodir, ]
+  if !isdirectory(s:dir)
+    call mkdir(s:dir, 'p', 0700)
+  endif
+endfor
+
+" -- add trailing slashes for full path of the file being edited (with % for /)
+let &directory   = &directory . '//'
+let &backupdir   = &backupdir . '//'
+
+" -- Runtime paths (works whether vimrc is ~/.vimrc or ~/.config/vim/vimrc)
+let &packpath = s:data_dir . ',' . &packpath
+let &runtimepath = s:config_dir
+      \ . ',' . &runtimepath
+      \ . ',' . s:data_dir
+      \ . ',' . s:config_dir . '/after'
+      \ . ',' . s:config_dir . '/ftplugin'
+      \ . ',' . s:config_dir . '/spell'
+
+" ===============================
+" Plugins
+" ===============================
+" Auto-install vim-plug if not present
+let s:plug_path = s:data_dir . '/autoload/plug.vim'
+if empty(glob(s:plug_path))
+  silent execute '!curl -fsLo ' . s:plug_path . ' --create-dirs
+    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+  execute 'source ' . s:plug_path
+endif
+
+if executable('git')
+  if !isdirectory(s:data_dir . '/plugged')
+    autocmd VimEnter * PlugInstall --sync | source $MYVIMRC | doautocmd ColorScheme
+  endif
+  call plug#begin(s:data_dir . '/plugged')
+    Plug 'bluz71/vim-nightfly-colors', { 'as': 'nightfly' }
+    Plug 'liuchengxu/vim-which-key'
+    Plug 'itchyny/lightline.vim'
+    Plug 'lambdalisue/vim-suda'
+    Plug 'tpope/vim-vinegar'
+    Plug 'junegunn/fzf', executable('fzf') ? {} : { 'do': { -> fzf#install() } }
+    Plug 'junegunn/fzf.vim'
+  call plug#end()
+
+  if has_key(g:plugs, 'lightline') && isdirectory(g:plugs['lightline'].dir)
+    set laststatus=2
+    let g:lightline = {
+          \ 'colorscheme': 'one',
+          \ 'separator': { 'left': "\ue0b0", 'right': "\ue0b2" },
+          \ 'subseparator': { 'left': "\ue0b1", 'right': "\ue0b3" },
+          \ }
+  endif
+  if has_key(g:plugs, 'nightfly') && isdirectory(g:plugs['nightfly'].dir)
+    colorscheme nightfly
+    highlight Normal      ctermbg=NONE guibg=NONE
+    highlight NormalNC    ctermbg=NONE guibg=NONE
+    highlight EndOfBuffer ctermbg=NONE guibg=NONE
+    autocmd VimEnter,ColorScheme * highlight Normal      ctermbg=NONE guibg=NONE
+    autocmd VimEnter,ColorScheme * highlight NormalNC    ctermbg=NONE guibg=NONE
+    autocmd VimEnter,ColorScheme * highlight EndOfBuffer ctermbg=NONE guibg=NONE
+  endif
+else
+  highlight CursorLine     cterm=NONE term=NONE gui=NONE ctermbg=1 guibg=#202050
+  highlight ColorColumn    ctermbg=1 guibg=#191950
+  highlight SignColumn     term=NONE gui=NONE cterm=NONE ctermbg=NONE guibg=NONE
+  highlight CursorLineSign term=NONE gui=NONE cterm=NONE ctermbg=NONE guibg=#202050
+  highlight CursorLineNr   term=NONE gui=NONE cterm=bold ctermfg=3 guifg=Yellow guibg=#202050
+endif
 
 " ===============================
 " Basic Settings
@@ -86,6 +128,7 @@ set incsearch
 " ===============================
 " Visuals
 " ===============================
+syntax enable
 if exists('+termguicolors')
     let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
     let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
@@ -179,9 +222,12 @@ endfunction
 nnoremap <leader>z :call ToggleZoom()<CR>
 nnoremap <leader>o :only<CR>
 
-" Which Key
-nnoremap <silent> <leader>      :<c-u>WhichKey '<Space>'<CR>
-nnoremap <silent> <localleader> :<c-u>WhichKey ','<CR>
+" WhichKey
+if exists('g:plugs') && has_key(g:plugs, 'vim-which-key')
+  " nnoremap <silent> <leader>      :WhichKey      '<Space>'<CR>
+  nnoremap <silent> <leader>      :<c-u>WhichKey '<Space>'<CR>
+  nnoremap <silent> <localleader> :<c-u>WhichKey ','<CR>
+endif
 
 " Yank to EOL
 nnoremap Y y$
@@ -263,14 +309,6 @@ if exists('$TMUX') || &term =~ 'tmux' || &term =~ 'screen'
     nnoremap <Esc><C-K> :resize -2<CR>
     nnoremap <Esc><C-H>  :vertical resize -2<CR>
     nnoremap <Esc><C-L>  :vertical resize +2<CR>
-
-    " Move lines up/down
-    nnoremap <Esc>[1;6B :m .+1<CR>==
-    nnoremap <Esc>[1;6A :m .-2<CR>==
-    nnoremap <Esc>J :m .+1<CR>==
-    nnoremap <Esc>K :m .-2<CR>==
-    vnoremap <Esc>J :m '>+1<CR>gv=gv
-    vnoremap <Esc>K :m '<-2<CR>gv=gv
 else
     " Resizing Splits
     nnoremap <C-Down>  :resize +2<CR>
@@ -281,15 +319,17 @@ else
     nnoremap <A-C-K> :resize -2<CR>
     nnoremap <A-C-H> :vertical resize -2<CR>
     nnoremap <A-C-L> :vertical resize +2<CR>
-
-    " Move lines up/down
-    nnoremap <C-S-Down> :m .+1<CR>==
-    nnoremap <C-S-Up>   :m .-2<CR>==
-    nnoremap <A-S-J> :m .+1<CR>==
-    nnoremap <A-S-K> :m .-2<CR>==
-    vnoremap <A-S-J> :m '>+1<CR>gv=gv
-    vnoremap <A-S-K> :m '<-2<CR>gv=gv
 endif
+
+" Move lines up/down
+nnoremap <C-S-Down> :m .+1<CR>==
+nnoremap <C-S-Up>   :m .-2<CR>==
+nnoremap <Esc>[1;6B :m .+1<CR>==
+nnoremap <Esc>[1;6A :m .-2<CR>==
+nnoremap <Esc>J :m .+1<CR>==
+nnoremap <Esc>K :m .-2<CR>==
+vnoremap <Esc>J :m '>+1<CR>gv=gv
+vnoremap <Esc>K :m '<-2<CR>gv=gv
 
 function! ToggleSplitLayout()
   " Only operate on exactly 2 windows
@@ -423,13 +463,6 @@ nnoremap <leader>rl :source $MYVIMRC<CR>
 
 " Clear some customizations to make copying easier
 nnoremap <silent> <expr> <leader>cp "\:set cursorline! list! number! breakindent! " . (&colorcolumn == '' ? "colorcolumn=80 " : "colorcolumn= ") . (&signcolumn == 'number' ? "signcolumn=no " : "signcolumn=number "). "<CR>"
-
-" ===============================
-" Autocommands
-" ===============================
-if !isdirectory(expand("~/.local/state/vim/undodir"))
-  call mkdir(expand("~/.local/state/vim/undodir"), "p")
-endif
 
 augroup UserConfig
   autocmd!
