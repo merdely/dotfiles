@@ -1,5 +1,13 @@
 #!/bin/sh
 
+if which hostname > /dev/null 2>&1; then
+  hostname=$(hostname)
+else
+  hostname=$(hostnamectl hostname)
+fi
+hostname=${hostname%%.*}
+pullgitscripts $hostname
+
 # Sync my dotfiles into the dotfiles repo
 CONFIGS=(
   $HOME/.config/fuzzy-chooser.conf
@@ -38,8 +46,8 @@ CONFIGS=(
 )
 
 SCRIPTS=(
-  /srv/scripts/bin/CONFIGFILE.txt
-  /srv/scripts/bin/GETOPTS.txt
+  /srv/scripts/doc/GETOPTS.txt
+  /srv/scripts/lib/_config
   /srv/scripts/bin/g
   /srv/scripts/bin/mic-mute
   /srv/scripts/bin/mic-unmute
