@@ -16,8 +16,8 @@
 get_config_value() {
   # No section: variable=( $(get_config_value file key) )
   # Section:    variable=( $(get_config_value file section key) )
-  local OPTIND=1 trim=1
-  while getopts ":T" opt; do case "$opt" in T) trim=0 ;; esac; done; shift $(( OPTIND - 1 ))
+  local OPTIND=1 ltrim=1 rtrim=1
+  while getopts ":LT" opt;do case "$opt" in L)ltrim=0;;T)rtrim=0;;esac;done;shift $((OPTIND-1))
   [ -z "$2" ] && return 1
   local _configfile=${1/#\~/$HOME} _section="" _key=$2
   [ -n "$3" ] && _section=$2 && _key=$3
@@ -26,7 +26,7 @@ get_config_value() {
     return 1
   fi
   if [ -n "${_section}" ]; then
-    awk -v section="${_section}" -v key="${_key}" -v trim=${trim:-1} '
+    awk -v section="${_section}" -v key="${_key}" -v ltrim=${ltrim:-1} -v rtrim=${rtrim:-1} '
       BEGIN {
         in_section = 0
       }
@@ -37,15 +37,17 @@ get_config_value() {
         in_section = 1
       }
       in_section == 1 && $0 ~ "^[[:space:]]*"key"[[:space:]]*[:=]" {
-        sub(/^[^:=]+[:=][[:space:]]*/, "")
-        if (trim == 1) sub(/[[:space:]]+$/,"")
+        sub(/^[^:=]+[:=]/, "")
+        if (ltrim == 1) sub(/^[[:space:]]+/, "")
+        if (rtrim == 1) sub(/[[:space:]]+$/,"")
         print
       }' "${_configfile}"
   else
-    awk -v key="${_key}" -v trim=${trim:-1} '
+    awk -v key="${_key}" -v ltrim=${ltrim:-1} -v rtrim=${rtrim:-1} '
       $0 ~ "^[[:space:]]*"key"[[:space:]]*[:=]" {
-        sub(/^[^:=]+[:=][[:space:]]*/, "")
-        if (trim == 1) sub(/[[:space:]]+$/, "")
+        sub(/^[^:=]+[:=]/, "")
+        if (ltrim == 1) sub(/^[[:space:]]+/, "")
+        if (rtrim == 1) sub(/[[:space:]]+$/, "")
         print
       }' "${_configfile}"
   fi
@@ -63,6 +65,11 @@ if ! (return 2> /dev/null); then
   printf "test_key = '%s'\n" "$(get_config_value "${_config_file}" "test_key")"
 
   echo
+  echo "=> Testing without section without trimming leading spaces"
+  echo "get_config_value -L \"${_config_file}\" \"test_key\""
+  printf "test_key = '%s'\n" "$(get_config_value -L "${_config_file}" "test_key")"
+
+  echo
   echo "=> Testing without section without trimming trailing spaces"
   echo "get_config_value -T \"${_config_file}\" \"test_key\""
   printf "test_key = '%s'\n" "$(get_config_value -T "${_config_file}" "test_key")"
@@ -71,6 +78,11 @@ if ! (return 2> /dev/null); then
   echo "=> Testing with section"
   echo "get_config_value \"${_config_file}\" \"test_section\" \"test_key1\""
   printf "test_section / test_key1 = '%s'\n" "$(get_config_value "${_config_file}" "test_section" "test_key1")"
+
+  echo
+  echo "=> Testing with section without trimming leading spaces"
+  echo "get_config_value -L \"${_config_file}\" \"test_section\" \"test_key1\""
+  printf "test_section / test_key1 = '%s'\n" "$(get_config_value -L "${_config_file}" "test_section" "test_key1")"
 
   echo
   echo "=> Testing with section without trimming trailing spaces"
