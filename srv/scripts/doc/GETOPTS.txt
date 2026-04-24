@@ -67,23 +67,24 @@ usage() {
 }
 
 shopt -s extglob
-long=false
-longer=false
-evenlonger=false
+long_count=0
 aarg=()
 args=("$0")
 while [[ $# -gt 0 ]]; do
   case "$1" in
     -l|--long)
       # An example of how to use -l more than once
-      $longer && evenlonger=true
-      $long && longer=true
-      long=true
+      # Can be used in the script with:
+      ## ((long_count >= 1)) && echo level 1
+      ## ((long_count >= 2)) && echo level 2
+      ## ((long_count >= 3)) && echo level 3
+
+      (( long_count++ ))
       shift
       ;;
     -a|--arg)
       # Verify an argument was actually passed to -a
-      [[ -z "$2" || $2 =~ ^- ]] && shift && echo "Error: Missing argument" && usage 1
+      [[ -z "$2" || $2 == -?* ]] && { echo "Error: Missing argument"; usage 1; }
       # By using an array, -a can be used more than once
       aarg+=("$2")
       shift 2
@@ -92,13 +93,12 @@ while [[ $# -gt 0 ]]; do
       echo ${progversion:-0.0.0}
       exit
       ;;
+    --) shift; args+=("$@"); break ;;
     -h|--help|-*)
       # Remove "|-*" from above to allow having "-*" in follow on args not processed as switches
-      usage
+      usage 0
       ;;
     *)
-      # If argument is "--", save the rest of the args in args[] and stop processing args
-      [ $1 = "--" ] && shift && args+=("$@") && break
       # Add non-switch args to args[]
       args+=("$1")
       shift

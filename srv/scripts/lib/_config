@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+
+##############################################################
+## This library provides the following functions:
+## - get_config_value: Reads configuration settings from a configuration file
+##   If the key appears more than once, a list is returned that can be stored in an array
+
+##############################################################
+## Usage:
+## libpath="${0%/*}"/../lib:$HOME/src/scripts/lib:/srv/scripts/lib
+## PATH="$libpath" . _config 2> /dev/null || { echo "Error: Cannot load config library" >&2; exit 1; }
+##
+## value=( $(get_config_value ~/.config/myfile mykey) )
+## value=( $(get_config_value ~/.config/myfile mysection mykey) )
+
+get_config_value() {
+  # No section: variable=( $(get_config_value file key) )
+  # Section:    variable=( $(get_config_value file section key) )
+
+  [ -z "$2" ] && return 1
+  local _configfile=${1/#\~/$HOME} _section="" _key=$2
+  [ -n "$3" ] && _section=$2 && _key=$3
+  if [ ! -r "${_configfile}" ]; then
+    ${debug:-false} && echo "Warning: Cannot read ${_configfile##*/} for ${_section:+[${_section}] }${_key}" >&2
+    return 1
+  fi
+  if [ -n "${_section}" ]; then
+    awk -v section="${_section}" -v key="${_key}" '
+      BEGIN {
+        in_section = 0
+      }
+      $0 ~ /^[[:space:]]*\[/ {
+        in_section = 0
+      }
+      $0 ~ "^[[:space:]]*\\["section"\\]" {
+        in_section = 1
+      }
+      in_section == 1 && $0 ~ "^[[:space:]]*"key"[[:space:]]*[:=]" {
+        sub(/^[^:=]+[:=][[:space:]]*/, "")
+        sub(/[[:space:]]+$/,"")
+        print
+      }' "${_configfile}"
+  else
+    awk -v key="${_key}" '
+      $0 ~ "^[[:space:]]*"key"[[:space:]]*[:=]" {
+        sub(/^[^:=]+[:=][[:space:]]*/, "")
+        sub(/[[:space:]]+$/, "")
+        print
+      }' "${_configfile}"
+  fi
+}
+
+if ! (return 2> /dev/null); then
+  # library is being called directory
+  _config_file=$(mktemp)
+  printf "test_key = testvalue\n[test_section]\ntest_key1: testvalue1\n" > "${_config_file}"
+  echo "=> Test config file"
+  nl "${_config_file}"
+  echo
+  echo "=> Testing without section"
+  echo "get_config_value \"${_config_file}\" \"test_key\""
+  printf "test_key = "
+  get_config_value "${_config_file}" "test_key"
+  echo
+  echo "=> Testing with section"
+  echo "get_config_value \"${_config_file}\" \"test_section\" \"test_key1\""
+  printf "test_section / test_key1 = "
+  get_config_value "${_config_file}" "test_section" "test_key1"
+  echo
+fi
+
+##############################################################
+## Examples without using the function
+
+## Without sections
+# test_key1=( $(awk -vk="test_key1" '$0~"^[[:space:]]*"k"[[:space:]]*[:=]"{sub(/^[^:=]+[:=][[:space:]]*/,"");sub(/[[:space:]]+$/,"");print}' config_test.ini) )
+
+## With sections
+# test_key1=( $(awk -vs="test_section" -vk="test_key1" 'BEGIN{p=0}$0~/^[[:space:]]*\[/{p=0}$0~"^[[:space:]]*\\["s"\\]"{p=1}p==1&&$0~"^[[:space:]]*"k"[[:space:]]*[:=]"{sub(/^[^:=]+[:=][[:space:]]*/,"");sub(/[[:space:]]+$/,"");print}' config_test.ini) )
+
