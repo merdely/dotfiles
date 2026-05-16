@@ -98,9 +98,9 @@ toggle_minimize() {
 
 do_exec() {
   if [[ "$mode" == desktop ]]; then
-    echo "gtk-launch $@"
+    echo "gtk-launch $*"
   else
-    echo "$@"
+    echo "$*"
   fi
 }
 
@@ -117,7 +117,7 @@ run_cmd() {
     echo "include \"$tmpconfig\"" >> "$HOME"/.config/niri/config.kdl
   fi
   niri_floating_ws=$(niri msg -j workspaces | jq -r --arg n "$niri_floating_ws_name" '.[] | select(.name==$n) | .id')
-  niri msg action spawn -- "$(do_exec "$1")"
+  niri msg action spawn -- $(do_exec "$1")
   cur_ws=$(niri msg -j focused-window | jq -r '.workspace_id')
   unset app_id
   count=0
