@@ -251,6 +251,11 @@ if command -v fzf > /dev/null 2>&1; then
   fi
 fi
 
+# Fix PATH
+path_add -b /srv/scripts/sbin
+path_add -b /srv/scripts/bin
+path_add -b $HOME/.local/bin
+
 # History stuff
 HISTFILE=$XDG_CACHE_HOME/shell_history
 HISTFILESIZE=100000
