@@ -272,8 +272,8 @@ set -o vi
 
 # Aliases
 alias reprofile='. $HOME/.profile'
-[[ -r "$HOME"/.bash_profile ]] && alias reprofile='. $HOME/.bash_profile'
-[[ -r "$HOME"/.zprofile ]] && alias reprofile='. $HOME/.zprofile'
+[[ -n "$BASH_VERSION" && -r "$HOME"/.bash_profile ]] && alias reprofile='. $HOME/.bash_profile'
+[[ -n "$ZSH_VERSION" && -r "$HOME"/.zprofile ]] && alias reprofile='. $HOME/.zprofile'
 alias cdp='cd $(pwd -P)'
 alias ls='ls -F'
 [[ "$kernel_name" == Linux ]] && alias ls='ls -N --color=auto'
