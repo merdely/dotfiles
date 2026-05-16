@@ -5,7 +5,7 @@ get_image_index_by_name() {
   image=${1##*/}
   image=${image%.png}
   local i=0
-  for ((i=0 ; i < ${#images[@]}; h++)); do
+  for ((i=0 ; i < ${#images[@]}; i++)); do
     [[ "$imgdir"/"$image".png == "${images[i]}" ]] && echo "$(( i + 1 ))" && return 0
   done
   echo 1
