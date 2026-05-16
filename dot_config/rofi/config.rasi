@@ -1,0 +1,11 @@
+configuration {
+  drun-display-format: "{icon} {name}";
+  show-icons: true;
+  drun { display-name: "App Launcher"; }
+  run { display-name: "Program Launcher"; }
+  window { display-name: "Window Chooser"; }
+  ssh { display-name: "SSH to Host"; }
+  myssh { display-name: "SSH to Host"; }
+}
+
+@theme "mike.rasi"

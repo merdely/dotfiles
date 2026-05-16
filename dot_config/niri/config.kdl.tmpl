@@ -1,0 +1,5 @@
+{{- if lstat "/usr/share/doc/niri/default-config.kdl" }}
+{{- include "/usr/share/doc/niri/default-config.kdl" }}
+{{- end }}
+include "local.kdl"
+// vim: set filetype=kdl :

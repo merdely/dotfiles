@@ -1,0 +1,8 @@
+noblacklist ${HOME}/Documents
+read-only ${HOME}/Documents
+
+noblacklist ${HOME}/Downloads
+read-only ${HOME}/Downloads
+
+noblacklist ${HOME}/.local/share/Syncthing
+read-only ${HOME}/.local/share/Syncthing

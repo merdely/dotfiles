@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+progname=${0##*/}
+progname=${progname%.sh}
+usage() {
+  echo "usage: $progname [-h] [-P|-S SEARCH] command"
+  echo "          -P        : Is parent process -- kill children too"
+  echo "          -s SEARCH : Use SEARCH to find process to kill"
+  exit "${1:-0}"
+}
+
+unset search
+parent=false
+[[ "$1" == "-h" || "$1" == "--help" ]] && usage
+[[ -z "$1" ]] && usage 1
+[[ "$1" == "-P" ]] && shift && parent=true
+[[ "$1" == "-S" ]] && shift && search=$1 && shift
+
+cmd=$1
+if [ -n "$search" ]; then
+  if pgrep -u "$LOGNAME" -f -- "$search"; then
+    pkill -u "$LOGNAME" -f -- "$search"
+  else
+    "$@" &
+  fi
+elif ! "$parent"; then
+  if pgrep -u "$LOGNAME" -x -- "$cmd"; then
+    pkill -u "$LOGNAME" -x -- "$cmd"
+  else
+    "$@" &
+  fi
+else
+  if p=$(pgrep -u "$LOGNAME" -x -- "$cmd"); then
+    pkill -u "$LOGNAME" -P "$p"
+  else
+    "$@" &
+  fi
+fi

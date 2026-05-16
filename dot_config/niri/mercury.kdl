@@ -1,0 +1,204 @@
+output "eDP-1" {
+    position x=0 y=0
+    /-layout {
+      background-color "#010101"
+    }
+    // backdrop-color "#111111"
+    scale 1
+}
+
+output "DP-1" {
+    focus-at-startup
+    position x=1920 y=0
+    /-layout {
+      background-color "#000022"
+    }
+    // backdrop-color "#000033"
+    scale 1
+}
+
+output "HDMI-A-1" {
+    position x=3840 y=0
+    /-layout {
+      background-color "#002200"
+    }
+    // backdrop-color "#003300"
+    scale 1
+}
+
+spawn-sh-at-startup "[[ ! -r $HOME/quickstart ]] && sleep 1 && $HOME/.config/niri/scripts/minimize signal"
+spawn-sh-at-startup "[[ ! -r $HOME/quickstart ]] && $HOME/.config/niri/scripts/minimize logseq-desktop Logseq"
+spawn-sh-at-startup "[[ ! -r $HOME/quickstart ]] && sleep 2 && $HOME/.config/niri/scripts/minimize bitwarden"
+spawn-sh-at-startup "[[ ! -r $HOME/quickstart ]] && sleep 2 && $HOME/.config/niri/scripts/minimize -m org.kde.kdeconnect.sms"
+
+spawn-sh-at-startup "[[ ! -r $HOME/quickstart ]] && gtk-launch librewolf"
+// Want to keep Grayjay so sync always works
+spawn-sh-at-startup "[[ ! -r $HOME/quickstart ]] && sleep 4 && gtk-launch app.grayjay.Grayjay"
+
+binds {
+  Mod+F4            hotkey-overlay-title="Focus Grayjay"  { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app app.grayjay.Grayjay cef"; }
+  Mod+KP_LEFT       hotkey-overlay-title="Focus Grayjay"  { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app app.grayjay.Grayjay cef"; }
+  Mod+Ctrl+Shift+N  hotkey-overlay-title="Nvtop on Earth" { spawn-sh "$HOME/.config/niri/scripts/minimize nvtop-earth"; }
+  Mod+Ctrl+Shift+I  hotkey-overlay-title="Htop on Earth"  { spawn-sh "$HOME/.config/niri/scripts/minimize htop-earth"; }
+  Mod+Ctrl+Shift+A  hotkey-overlay-title="Signal Flatpak" { spawn-sh "$HOME/.config/niri/scripts/minimize org.signal.Signal"; }
+}
+
+window-rule {
+    match app-id=r#"^org\.mozilla\.Thunderbird$"#
+    exclude app-id=r#"^org\.mozilla\.Thunderbird$"# title=r#"Mozilla Thunderbird$"#
+    open-floating true
+}
+window-rule {
+    match app-id=r#"^org\.mozilla\.Thunderbird$"# title=r#"Mozilla Thunderbird$"#
+    open-maximized true
+    open-floating false
+}
+window-rule {
+    match app-id=r#"^org\.mozilla\.Thunderbird$"# title=r#"Mozilla Thunderbird$"# at-startup=true
+    open-maximized true
+    open-floating false
+    open-focused false
+    open-on-output "HDMI-A-1"
+}
+window-rule {
+    match app-id=r#"^(FreeTube|firefox|librewolf)"# at-startup=true
+    open-on-output "HDMI-A-1"
+    open-focused false
+}
+
+window-rule {
+    match app-id=r#"^cef$"# title=r#"^Grayjay$"# at-startup=true
+    open-on-output "HDMI-A-1"
+    open-focused false
+}
+
+window-rule {
+    match app-id=r#"^(firefox|librewolf)"# title=r#"Live . Frigate . (LibreWolf|Firefox)"#
+    open-on-output "eDP-1"
+    open-focused false
+}
+
+window-rule {
+    match app-id=r#"^(nvtop-earth|htop-earth)$"#
+    open-floating true
+    open-maximized false
+}
+
+window-rule {
+    match app-id=r#"^(nvtop-earth|htop-earth)$"# at-startup=true
+    open-on-workspace "🗒️"
+    open-floating false
+    open-focused false
+    open-maximized true
+    default-window-height { proportion 1.00; }
+}
+
+window-rule {
+    match app-id=r#"^mpvcam"#
+    match title=r#"^mpvcam"#
+    // open-fullscreen true
+    // open-focused false
+    open-maximized true
+    open-on-workspace "Cameras"
+}
+
+/-window-rule {
+    match app-id=r#"^mpvcammulti"#
+    match title=r#"^mpvcammulti"#
+    open-fullscreen false
+    // open-focused false
+    open-maximized false
+    open-on-workspace "Cameras"
+    default-column-width { proportion 0.50; }
+    default-window-height { proportion 0.50; }
+}
+
+window-rule {
+    match app-id=r#"^mpvcammulti garagecam"#
+    match title=r#"^mpvcammulti garagecam"#
+    open-maximized false
+    open-on-workspace "Cameras"
+    open-floating true
+    default-column-width { proportion 0.50; }
+    default-window-height { proportion 0.50; }
+    default-floating-position x=0 y=0 relative-to="top-left"
+}
+
+window-rule {
+    match app-id=r#"^mpvcammulti garagedoorcam"#
+    match title=r#"^mpvcammulti garagedoorcam"#
+    open-maximized false
+    open-on-workspace "Cameras"
+    open-floating true
+    default-column-width { proportion 0.50; }
+    default-window-height { proportion 0.50; }
+    default-floating-position x=0 y=0 relative-to="bottom-left"
+}
+
+window-rule {
+    match app-id=r#"^mpvcammulti frontdoorcam"#
+    match title=r#"^mpvcammulti frontdoorcam"#
+    open-maximized false
+    open-on-workspace "Cameras"
+    open-floating true
+    default-column-width { proportion 0.50; }
+    default-window-height { proportion 0.50; }
+    default-floating-position x=0 y=0 relative-to="bottom-right"
+}
+
+// must go after the rule for frontdoorcam
+window-rule {
+    match app-id=r#"^mpvcammulti frontdoorcam2"#
+    match title=r#"^mpvcammulti frontdoorcam2"#
+    open-maximized false
+    open-on-workspace "Cameras"
+    open-floating true
+    default-column-width { proportion 0.50; }
+    default-window-height { proportion 0.50; }
+    default-floating-position x=0 y=0 relative-to="top-right"
+}
+
+window-rule {
+    match app-id=r#"^mpvcammulti backyardcam"#
+    match title=r#"^mpvcammulti backyardcam"#
+    open-maximized false
+    open-on-workspace "Cameras"
+    open-floating true
+    default-column-width { proportion 0.50; }
+    default-window-height { proportion 0.50; }
+    default-floating-position x=0 y=0 relative-to="bottom-left"
+}
+
+window-rule {
+    match app-id=r#"^mpvcammulti backyardcam2"#
+    match title=r#"^mpvcammulti backyardcam2"#
+    open-maximized false
+    open-on-workspace "Cameras"
+    open-floating true
+    default-column-width { proportion 0.50; }
+    default-window-height { proportion 0.50; }
+    default-floating-position x=0 y=0 relative-to="bottom-right"
+}
+
+window-rule {
+    match app-id=r#"^mpvcammulti chimneycam"#
+    match title=r#"^mpvcammulti chimneycam"#
+    open-maximized false
+    open-on-workspace "Cameras"
+    open-floating true
+    default-column-width { proportion 0.50; }
+    default-window-height { proportion 0.50; }
+    default-floating-position x=0 y=0 relative-to="top-left"
+}
+
+window-rule {
+    match app-id=r#"^mpvcammulti shedcam"#
+    match title=r#"^mpvcammulti shedcam"#
+    open-maximized false
+    open-on-workspace "Cameras"
+    open-floating true
+    default-column-width { proportion 0.50; }
+    default-window-height { proportion 0.50; }
+    default-floating-position x=0 y=0 relative-to="top-right"
+}
+

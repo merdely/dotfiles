@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+w=0
+h=0
+t=0
+rotated=false
+eval "$(niri msg -j focused-output | jq -r '"w=\(.logical.width) h=\(.logical.height) t=\(.logical.transform)"')"
+(( t == 90 || t == 270 )) && rotated=true
+
+margin=330
+(( w < 1400 )) && margin=230
+(( h < 800  )) && margin=230
+
+declare -A default_opts default_rot_opts
+default_opts[nwg-bar]=""
+default_opts[wleave]="-x -f -m $margin -b 4"
+default_opts[wlogout]="-s -m $margin -b 4"
+
+default_rot_opts[nwg-bar]="-s rotated.css"
+default_rot_opts[wleave]="-x -f -m $margin -b 2"
+default_rot_opts[wlogout]="-s -m $margin -b 2"
+
+power_menu=wleave
+[[ -r "$HOME"/.config/powermenurc ]] && source "$HOME"/.config/powermenurc
+
+[[ "$1" =~ ^(wleave|wlogout|nwg-bar)$ ]] && power_menu=$1
+
+opts=${power_opts:-${default_opts[$power_menu]}}
+rot_opts=${power_rot_opts:-${default_rot_opts[$power_menu]}}
+
+open_power_menu() {
+  set -o xtrace
+  "$rotated" && opts=$rot_opts
+  niri msg action spawn -- "$power_menu" "$opts" &
+}
+
+if pgrep -u "$LOGNAME" -x "$power_menu" &> /dev/null; then
+  pkill -u "$LOGNAME" -x "$power_menu"
+else
+  open_power_menu
+fi

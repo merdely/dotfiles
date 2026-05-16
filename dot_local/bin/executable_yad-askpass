@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+ontop='--on-top'
+unset css
+width=350
+
+#if which hostname > /dev/null 2>&1; then
+#  hostname=$(hostname)
+#else
+#  hostname=$(hostnamectl hostname)
+#fi
+#hostname=${hostname%%.*}
+#if [[ $hostname =~ ^(neptune|styx)$ ]]; then
+#  css="* { font-size: 16px; }"
+#  width=600
+#fi
+
+css=""
+warning_color="orange"
+text="<span font-size='large'>SSH Key Passphrase</span>"
+label="Enter passphrase:"
+icon=dialog-password
+if [[ "$*" == "Bad passphrase"* ]]; then
+  text="${text}\n<span fgcolor='$warning_color' font-size='small'>Bad passphrase, try again</span>"
+  label="Re-enter passphrase:"
+else
+  text="${text}\n<span font-size='small'> </span>"
+fi
+
+title="SSH Key Passphrase"
+window_icon="dialog-password"
+window_type="dialog"
+
+# For testing
+# export GTK_DEBUG=interactive
+
+yad \
+  --title="$title" \
+  --window-icon="$window_icon" \
+  --window-type="$window_type" \
+  "$ontop" \
+  --width="$width" \
+  --center \
+  --fixed \
+  --css="$css" \
+  --entry \
+  --entry-label="$label" \
+  --hide-text \
+  --ricon=edit-clear \
+  --ricon-action="echo ''" \
+  --text="$text" \
+  --text-align=center \
+  --image="$icon"
+

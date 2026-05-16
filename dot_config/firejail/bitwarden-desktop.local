@@ -1,0 +1,14 @@
+ignore dbus-user none
+
+# Allow Bitwarden to open Links
+whitelist ${HOME}/.config/librewolf/librewolf/profiles.ini
+read-only ${HOME}/.config/librewolf/librewolf/profiles.ini
+
+whitelist ${HOME}/.librewolf/profiles.ini
+read-only ${HOME}/.librewolf/profiles.ini
+
+whitelist ${HOME}/.config/mozilla/firefox/profiles.ini
+read-only ${HOME}/.config/mozilla/firefox/profiles.ini
+
+whitelist ${HOME}/.mozilla/firefox/profiles.ini
+read-only ${HOME}/.mozilla/firefox/profiles.ini

@@ -1,0 +1,47 @@
+{{- if not (lookPath "nvim") }}
+.config/nvim
+{{- end }}
+
+{{- if not (lookPath "firejail") }}
+.config/firejail
+{{- end }}
+
+{{- if not (lookPath "fuzzel") }}
+.config/fuzzel
+{{- end }}
+
+{{- if not (lookPath "kitty") }}
+.config/kitty
+{{- end }}
+
+{{- if not (lookPath "niri") }}
+.config/niri
+{{- end }}
+
+{{- if not (lookPath "nvim") }}
+.config/nvim
+{{- end }}
+
+{{- if not (lookPath "rofi") }}
+.config/rofi
+{{- end }}
+
+{{- if not (lookPath "rofi-rbw") }}
+.cache/rofi-rbw.runcache
+{{- end }}
+
+{{- if not (lookPath "rbw") }}
+.config/rbw
+{{- end }}
+
+{{- if not (lookPath "tmux") }}
+.config/tmux
+{{- end }}
+
+{{- if not (lookPath "vim") }}
+.config/vim
+{{- end }}
+
+{{- if not (lookPath "yazi") }}
+.config/yazi
+{{- end }}

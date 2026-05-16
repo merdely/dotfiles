@@ -1,0 +1,42 @@
+# Allow controlling media
+dbus-user.own org.mpris.MediaPlayer2.firefox.*
+
+# Enable native notifications.
+dbus-user.talk org.freedesktop.Notifications
+
+# Allow inhibiting screensavers.
+dbus-user.talk org.freedesktop.ScreenSaver
+
+# Plasma browser integration.
+# Commenting until I figure out why I need this
+# dbus-user.own org.mpris.MediaPlayer2.plasma-browser-integration
+# dbus-user.talk org.kde.JobViewServer
+# dbus-user.talk org.kde.kuiserver
+
+# Needed for screensharing
+dbus-user.talk org.freedesktop.portal.Desktop
+whitelist /usr/share/pipewire/client.conf
+read-only /usr/share/pipewire/client.conf
+ignore noroot
+
+# Get GPU working
+# noblacklist /usr/lib/x86_64-linux-gnu/dri
+# read-only /usr/lib/x86_64-linux-gnu/dri
+#
+# noblacklist /usr/lib/i386-linux-gnu/dri
+# read-only /usr/lib/i386-linux-gnu/dri
+#
+# noblacklist /dev/dri
+# read-only /dev/dri
+#
+# noblacklist /dev/nvidia*
+# read-only /dev/nvidia*
+#
+# noblacklist /tmp/.X11-unix
+# read-only /tmp/.X11-unix
+#
+# noblacklist /sys/module
+# read-only /sys/module
+#
+# whitelist /sys/module/nvidia*
+# read-only /sys/module/nvidia*

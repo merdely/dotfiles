@@ -1,0 +1,123 @@
+/************************************************
+ * ROFI Color theme
+ * User: Michael Erdely
+ * Copyright: 2017 leofa, 2025 Michael Erdely
+ ***********************************************/
+
+* {
+    font: "mono 13";
+    selected-normal-foreground:  rgba ( 249, 249, 249, 100 % );
+    foreground:                  rgba ( 196, 203, 212, 100 % );
+    foreground-dim:              rgba ( 196, 203, 212, 40 % );
+    normal-foreground:           @foreground;
+    red:                         rgba ( 220, 50, 47, 100 % );
+    selected-urgent-foreground:  rgba ( 249, 249, 249, 100 % );
+    blue:                        rgba ( 38, 139, 210, 100 % );
+    urgent-foreground:           rgba ( 204, 102, 102, 100 % );
+    active-foreground:           rgba ( 101, 172, 255, 100 % );
+    // lightbg:                     rgba ( 238, 232, 213, 100 % );
+    lightbg:                     rgba ( 238, 238, 238, 80 % );
+    selected-active-foreground:  rgba ( 249, 249, 249, 100 % );
+    background:                  rgba ( 45, 48, 59, 95 % );
+    normal-background:           @background;
+    lightfg:                     rgba ( 88, 104, 117, 100 % );
+    selected-normal-background:  rgba ( 64, 132, 214, 100 % );
+    // border-color:                @foreground;
+    border-color:                @selected-normal-background;
+    spacing:                     2;
+    separatorcolor:              rgba ( 29, 31, 33, 100 % );
+    urgent-background:           rgba ( 29, 31, 33, 17 % );
+    selected-urgent-background:  rgba ( 165, 66, 66, 100 % );
+    background-color:            rgba ( 0, 0, 0, 0 % );
+    active-background:           rgba ( 29, 31, 33, 17 % );
+    selected-active-background:  rgba ( 68, 145, 237, 100 % );
+}
+window {
+    background-color:  @background;
+    border:            2px;
+    border-color:      @border-color;
+    border-radius:     16px;
+    padding:           5px;
+}
+mainbox {
+    padding:           5px 20px;
+}
+message {
+    padding:           1px;
+}
+textbox {
+    padding:           10px 40px;
+    background-color:  @lightbg;
+    text-color:        black;
+}
+listview {
+    fixed-height:      0;
+    spacing:           2px;
+    scrollbar:         true;
+    padding:           2px 0px 0px;
+}
+element {
+    padding:           1px;
+}
+element-text {
+    background:        transparent;
+    text-color:        inherit;
+}
+element.alternate.normal, element.normal.normal {
+    background:        transparent;
+    text-color:        @normal-foreground;
+}
+element.alternate.urgent, element.normal.urgent {
+    background:        transparent;
+    text-color:        @urgent-foreground;
+}
+element.alternate.active, element.normal.active {
+    background:        transparent;
+    text-color:        @active-foreground;
+}
+element.selected.normal {
+    background-color:  @selected-normal-background;
+    text-color:        @selected-normal-foreground;
+}
+element.selected.urgent {
+    background:        transparent;
+    text-color:        @selected-urgent-foreground;
+}
+element.selected.active {
+    background:        transparent;
+    text-color:        @selected-active-foreground;
+}
+num-filtered-rows {
+    expand:            false;
+    text-color:        Gray;
+}
+num-rows {
+    expand:            false;
+    text-color:        Gray;
+}
+textbox-num-sep {
+    expand:            false;
+    str:               "/";
+    text-color:        Gray;
+}
+inputbar {
+    text-color:        @normal-foreground;
+    padding:           1px;
+    // children:         [ "prompt","textbox-prompt-colon","entry","overlay","num-filtered-rows","textbox-num-sep","num-rows","case-indicator" ];
+    children:         [ "prompt","textbox-prompt-colon","entry","overlay"];
+    // children:         [ "prompt","entry","overlay","num-filtered-rows","textbox-num-sep","num-rows","case-indicator" ];
+}
+entry {
+    text-color:        @normal-foreground;
+    // placeholder:    "Search";
+    placeholder-color: @foreground-dim;
+}
+prompt {
+    text-color:        @normal-foreground;
+}
+textbox-prompt-colon {
+    expand:     false;
+    margin:     0em 0.3em 0em 0.3em ;
+    str:        ">";
+    text-color: @normal-foreground;
+}

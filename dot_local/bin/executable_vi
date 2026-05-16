@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+if [[ -n "$SUDO_USER" ]] && [[ "$(ps -o comm= -p $PPID)" == "sudo" ]]; then
+  echo "Use sudoedit" >&2
+  exit 1
+else
+  args=()
+  chezmoi=()
+  mapfile -t chezmoi_managed < <(chezmoi managed -p absolute)
+  
+  # Look for chezmoi managed files and edit them with chezmoi edit instead of vi
+  for arg in "$@"; do
+    if [[ -n "$arg" && " ${chezmoi_managed[*]} " == *" $(realpath "$arg" 2> /dev/null) "* ]]; then
+      chezmoi+=("$arg")
+    else
+      args+=("$arg")
+    fi
+  done
+
+  if (( ${#chezmoi[@]} > 0 )); then
+    echo "Using 'chezmoi edit' for: ${chezmoi[@]}"
+    chezmoi edit "${chezmoi[@]}"
+  fi
+
+  # Edit any other files with nvim or vim
+  if (( ${#args[@]} > 0 )); then
+    if command -v nvim &> /dev/null; then
+      echo "Using 'nvim' for: ${args[@]}"
+      exec nvim "${args[@]}"
+    elif command -v vim &> /dev/null; then
+      echo "Using 'vim' for: ${args[@]}"
+      exec vim "${args[@]}"
+    else
+      echo "Error: Cannot find neovim or vim" >&2
+    fi
+  fi
+fi

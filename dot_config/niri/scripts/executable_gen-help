@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+
+# Check for prerequisite commands
+command -v git &> /dev/null || { echo "Error: Cannot find Git" >&2 ; exit 1 ; }
+command -v magick &> /dev/null || { echo "Error: Cannot find ImageMagick" >&2 ; exit 1 ; }
+
+# Set up trap for tmpfiles
+TMPFILES=()
+trap 'rm -Rf "${TMPFILES[@]}"' EXIT
+trap 'exit 1' INT TERM
+
+# Define imgdir and github_proj URL
+imgdir=$HOME/.config/niri/help
+github_proj="https://github.com/merdely/gen-keybinding-img.git"
+
+# Set up github working directory in XDG_STATE_HOME
+if [[ -d "${XDG_STATE_HOME:=$HOME/.local/state}" ]]; then
+  mkdir -p "$XDG_STATE_HOME"
+fi
+scriptdir="$XDG_STATE_HOME"/gen-keybinding-img
+
+# Check out or update working directory
+if [[ ! -x "$scriptdir"/gen-keybinding-img ]]; then
+  git -C "$XDG_STATE_HOME" clone -q "$github_proj"
+else
+  git -C "$scriptdir" pull -q
+fi
+
+# Exit if missing required python modules
+unset msg
+! python -c 'import PIL' &> /dev/null && msg="$msg PIL(python-pillow)"
+! python -c 'import cairocffi' &> /dev/null && msg="$msg cairocffi(python-cairocffi)"
+[[ -n "$msg" ]] && { echo "Error: Missing prerequesites:$msg" >&2 ; exit 1 ; }
+
+# Download niri logo if missing
+if [[ ! -r "$scriptdir"/niri.png ]]; then
+  curl -sfLo "$scriptdir"/niri.svg \
+    "https://raw.githubusercontent.com/niri-wm/niri/refs/heads/main/docs/wiki/logo/niri-logo.svg"
+  [[ ! -s "$scriptdir"/niri.svg ]] && { echo "Error: Could not download niri logo" >&2 ; exit 1 ; }
+  magick "$scriptdir"/niri.svg -fuzz 35% -transparent white -resize 200x "$scriptdir"/niri.png &> /dev/null
+  [[ ! -s "$scriptdir"/niri.png ]] && { echo "Error: Could not create niri logo" >&2 ; exit 1 ; }
+fi
+
+# Set up tmp dir for images
+tmpimgdir=$(mktemp -d)
+TMPFILES+=("$tmpimgdir")
+
+# Create image dir if necessary
+[[ ! -d "$imgdir" ]] && mkdir -p "$imgdir"
+
+# Generate new images
+"$scriptdir"/gen-keybinding-img -d \
+  -o "$tmpimgdir" -l "$scriptdir"/niri.png \
+  -c "$scriptdir"/scripts/niri-keys \
+  -t Niri \
+  -k '{"Screen":"Monitor","Group":"Wrkspce"}'
+
+# If any image files were created, replace existing images
+if compgen -G "$tmpimgdir"/*.png &> /dev/null; then
+  rm -f "$imgdir"/*.png
+  cp "$tmpimgdir"/*.png "$imgdir"/
+fi
+[[ -r "$imgdir"/no_modifier.png ]] && mv "$imgdir"/no_modifier.png "$imgdir"/None.png

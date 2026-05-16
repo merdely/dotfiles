@@ -1,0 +1,7 @@
+whitelist ${RUNUSER}/qutebrowser
+
+whitelist /usr/share/pdf.js/web
+read-only /usr/share/pdf.js/web
+
+whitelist ${HOME}/.netrc
+read-only ${HOME}/.netrc

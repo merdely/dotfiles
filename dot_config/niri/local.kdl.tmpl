@@ -1,0 +1,355 @@
+// vim: set filetype=kdl :
+
+environment {
+    XDG_CURRENT_DESKTOP "niri"
+    QT_QPA_PLATFORM "wayland"
+    ELECTRON_OZONE_PLATFORM_HINT "auto"
+    QT_QPA_PLATFORMTHEME "gtk3"
+    QT_QPA_PLATFORMTHEME_QT6 "gtk3"
+
+    SSH_ASKPASS "yad-askpass"
+    SSH_AUTH_SOCK "/run/user/1000/ssh-agent.socket"
+
+    TERMINAL "kitty"
+}
+
+workspace "1"       { open-on-output "DP-1";  }
+workspace "Cameras" { open-on-output "eDP-1"; }
+workspace "🗒️"      { open-on-output "eDP-1"; }
+
+spawn-sh-at-startup "systemctl --user import-environment"
+spawn-sh-at-startup "[[ ! -r $HOME/quickstart ]] && gtk-launch solaar-applet"
+spawn-sh-at-startup "[[ ! -r $HOME/quickstart ]] && gtk-launch udiskie-applet"
+spawn-sh-at-startup "$TERMINAL || alacritty"
+spawn-sh-at-startup "sleep ; wm-ssh-add"
+
+binds {
+    Mod+D                  hotkey-overlay-title="Program DMS Spotlight"  { spawn-sh "dms ipc call spotlight toggle"; }
+    Mod+Ctrl+B             hotkey-overlay-title="Toggle DMS Bar"         { spawn-sh "dms ipc call bar toggle index 0"; }
+    Mod+Return             hotkey-overlay-title="Launch Terminal"        { spawn-sh "$TERMINAL || alacritty"; }
+    Mod+I                  hotkey-overlay-title="Toggle Idle Inhibitor"  { spawn-sh "dms ipc call inhibit toggle"; }
+    XF86Tools              hotkey-overlay-title="Lock Screen"            { spawn-sh "dms ipc call lock lock && niri msg action power-off-monitors"; }
+    F12                    hotkey-overlay-title="Lock Screen"            { spawn-sh "dms ipc call lock lock && niri msg action power-off-monitors"; }
+    Mod+U                  hotkey-overlay-title="DMS Settings"           { spawn-sh "dms ipc call settings toggle"; }
+    Mod+P                  hotkey-overlay-title="DMS Power Menu"         { spawn-sh "dms ipc call powermenu toggle"; }
+    Ctrl+Alt+Delete        hotkey-overlay-title="DMS Power Menu"         { spawn-sh "dms ipc call powermenu toggle"; }
+
+    // Notifications
+    Ctrl+Space             hotkey-overlay-title="Clear Notifications"    { spawn-sh "dms ipc call notifications clearAll;dms ipc call notifications close"; }
+    Mod+Shift+Space        hotkey-overlay-title="Hide Notifications"     { spawn-sh "dms ipc call notifications dismissAllPopups"; }
+    Mod+Space              hotkey-overlay-title="Notification Panel"     { spawn-sh "dms ipc call notifications toggle"; }
+
+    // Quick Apps: KP_End|Down|Next|Left|Begin|Right|Home|Up|Prior
+    Mod+F1                 hotkey-overlay-title="Focus First Terminal"   { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app preferred-terminal.desktop $TERMINAL"; }
+    Mod+KP_END             hotkey-overlay-title="Focus First Terminal"   { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app preferred-terminal.desktop $TERMINAL"; }
+    Mod+F2                 hotkey-overlay-title="Focus First Browser"    { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app -c '-P Mike' librewolf.desktop librewolf"; }
+    Mod+KP_DOWN            hotkey-overlay-title="Focus First Browser"    { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app -c '-P Mike' librewolf.desktop librewolf"; }
+    Mod+F3                 hotkey-overlay-title="Focus Thunderbird"      { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app org.mozilla.Thunderbird.desktop org.mozilla.Thunderbird"; }
+    Mod+KP_NEXT            hotkey-overlay-title="Focus Thunderbird"      { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app org.mozilla.Thunderbird.desktop org.mozilla.Thunderbird"; }
+    Mod+F4                 hotkey-overlay-title="Focus Second Browser"   { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app -c '-P Media' librewolf-media.desktop librewolf"; }
+    Mod+KP_LEFT            hotkey-overlay-title="Focus Second Browser"   { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app -c '-P Media' librewolf-media.desktop librewolf"; }
+    Mod+F5                 hotkey-overlay-title="Focus Cameras"          { focus-workspace "Cameras"; }
+    Mod+KP_BEGIN           hotkey-overlay-title="Focus Cameras"          { focus-workspace "Cameras"; }
+    Mod+F6                 hotkey-overlay-title="Focus Scratchpad"       { focus-workspace "🗒️"; }
+    Mod+KP_RIGHT           hotkey-overlay-title="Focus Scratchpad"       { focus-workspace "🗒️"; }
+ 
+    // Apps
+    Mod+N                  hotkey-overlay-title="Bitwarden Chooser"      { spawn-sh "$HOME/.config/niri/scripts/app-toggle -P rofi-rbw --use-notify-send"; }
+    Mod+Shift+X            hotkey-overlay-title="Camera Chooser"         { spawn-sh "$HOME/.config/niri/scripts/app-toggle -S \"([r]ofi|[f]uzzel) -p View Camera ?>? ? -d(menu)?\" wm-cam-chooser"; }
+    Mod+Shift+Z            hotkey-overlay-title="Bitwarden"              { spawn-sh "$HOME/.config/niri/scripts/minimize bitwarden Bitwarden"; }
+    Mod+Shift+C            hotkey-overlay-title="Calculator"             { spawn-sh "$HOME/.config/niri/scripts/minimize -R galculator"; }
+    Mod+Shift+Return       hotkey-overlay-title="Terminal Scratchpad"    { spawn-sh "$HOME/.config/niri/scripts/minimize term-scratchpad"; }
+    Mod+Shift+BracketLeft  hotkey-overlay-title="Terminal File Manager"  { spawn-sh "$HOME/.config/niri/scripts/minimize termfm"; }
+    Mod+Shift+P            hotkey-overlay-title="GUI File Manager"       { spawn-sh "$HOME/.config/niri/scripts/minimize org.gnome.Nautilus"; }
+    Mod+Shift+BracketRight hotkey-overlay-title="Text Editor"            { spawn-sh "dms ipc call notepad toggle"; }
+    Mod+Shift+Backslash    hotkey-overlay-title="LocalSend"              { spawn-sh "$HOME/.config/niri/scripts/minimize localsend"; }
+    Mod+Shift+Apostrophe   hotkey-overlay-title="Bluetooth Manager"      { spawn-sh "$HOME/.config/niri/scripts/minimize blueman-manager"; }
+    Mod+Shift+N            hotkey-overlay-title="Nvtop"                  { spawn-sh "$HOME/.config/niri/scripts/minimize nvtop"; }
+    Mod+Shift+I            hotkey-overlay-title="System Monitor (htop)"  { spawn-sh "$HOME/.config/niri/scripts/minimize htop"; }
+    Mod+Shift+Y            hotkey-overlay-title="System Monitor (btop)"  { spawn-sh "$HOME/.config/niri/scripts/minimize btop"; }
+    Mod+Shift+U            hotkey-overlay-title="ToDo Manager"           { spawn-sh "$HOME/.config/niri/scripts/minimize cfait"; }
+    Mod+Shift+Q            hotkey-overlay-title="Logseq"                 { spawn-sh "$HOME/.config/niri/scripts/minimize logseq-desktop Logseq"; }
+    Mod+Shift+SemiColon    hotkey-overlay-title="Audio Mixer"            { spawn-sh "$HOME/.config/niri/scripts/minimize org.pulseaudio.pavucontrol pavucontrol"; }
+    Mod+Shift+A            hotkey-overlay-title="Signal"                 { spawn-sh "$HOME/.config/niri/scripts/minimize signal"; }
+    Mod+Shift+W            hotkey-overlay-title="KDE Connect SMS"        { spawn-sh "$HOME/.config/niri/scripts/minimize org.kde.kdeconnect.sms"; }
+
+    // Niri Help Shortcuts
+    Alt+Shift+Slash        hotkey-overlay-title="Niri Help: A+Sh"        { spawn-sh "$HOME/.config/niri/scripts/view-help Alt-Shift"; }
+    Alt+Slash              hotkey-overlay-title="Niri Help: A"           { spawn-sh "$HOME/.config/niri/scripts/view-help Alt"; }
+    Ctrl+Alt+Slash         hotkey-overlay-title="Niri Help: C+A"         { spawn-sh "$HOME/.config/niri/scripts/view-help Control-Alt"; }
+    Ctrl+Shift+Slash       hotkey-overlay-title="Niri Help: C+Sh"        { spawn-sh "$HOME/.config/niri/scripts/view-help Control-Shift"; }
+    Ctrl+Slash             hotkey-overlay-title="Niri Help: C"           { spawn-sh "$HOME/.config/niri/scripts/view-help Control"; }
+    Mod+Alt+Slash          hotkey-overlay-title="Niri Help: Su+A"        { spawn-sh "$HOME/.config/niri/scripts/view-help Super-Alt"; }
+    Mod+Backslash          hotkey-overlay-title="Niri Help: none"        { spawn-sh "$HOME/.config/niri/scripts/view-help None"; }
+    Mod+Ctrl+Shift+Slash   hotkey-overlay-title="Niri Help: Su+C+Sh"     { spawn-sh "$HOME/.config/niri/scripts/view-help Super-Control-Shift"; }
+    Mod+Ctrl+Slash         hotkey-overlay-title="Niri Help: Su+C"        { spawn-sh "$HOME/.config/niri/scripts/view-help Super-Control"; }
+    Mod+Shift+Slash        hotkey-overlay-title="Niri Help: Su+Sh"       { spawn-sh "$HOME/.config/niri/scripts/view-help Super-Shift"; }
+    Mod+Slash              hotkey-overlay-title="Niri Help: Su"          { spawn-sh "$HOME/.config/niri/scripts/view-help Super"; }
+    Mod+Ctrl+Alt+Shift+Slash hotkey-overlay-title="Generate Niri Help"   { spawn-sh "notify-send -a niri 'Niri Help Images' 'Generating help images' ; wm-gen-help"; }
+
+    // Screenshots
+    Mod+Shift+S            hotkey-overlay-title="Screenshot Selection"   { spawn-sh "niri msg action screenshot"; }
+    Shift+Print            hotkey-overlay-title="Screenshot Screen"      { spawn-sh "niri msg action screenshot-screen"; }
+
+    // Keybindings for my mouse buttons
+    Mod+Ctrl+Alt+Shift+H   hotkey-overlay-title=null                     { focus-column-or-monitor-left; }
+    Mod+Ctrl+Alt+Shift+L   hotkey-overlay-title=null                     { focus-column-or-monitor-right; }
+
+    // Change Window/Column Focus
+    Mod+J                  hotkey-overlay-title="Focus Column Down"      { focus-window-or-workspace-down; }
+    Mod+K                  hotkey-overlay-title="Focus Column Up"        { focus-window-or-workspace-up; }
+    Mod+Alt+H              hotkey-overlay-title="Focus First Column"     { focus-column-first; }
+    Mod+Alt+L              hotkey-overlay-title="Focus Last Column"      { focus-column-last; }
+    Mod+Alt+Shift+H        hotkey-overlay-title="Move Column to First"   { move-column-to-first; }
+    Mod+Alt+Shift+L        hotkey-overlay-title="Move Column to Last"    { move-column-to-last; }
+
+    // Move Window/Column
+    Mod+Shift+H            hotkey-overlay-title="Move Column Left"       { move-column-left; }
+    Mod+Shift+J            hotkey-overlay-title="Move Column Down"       { move-window-down-or-to-workspace-down; }
+    Mod+Shift+K            hotkey-overlay-title="Move Column Up"         { move-window-up-or-to-workspace-up; }
+    Mod+Shift+L            hotkey-overlay-title="Move Column Right"      { move-column-right; }
+
+    // Resize Window/Column
+    Mod+Ctrl+H             hotkey-overlay-title="Resize Column Left"     { set-column-width "-10%"; }
+    Mod+Ctrl+J             hotkey-overlay-title="Resize Window Up"       { set-window-height "+10%"; }
+    Mod+Ctrl+K             hotkey-overlay-title="Resize Window Down"     { set-window-height "-10%"; }
+    Mod+Ctrl+L             hotkey-overlay-title="Resize Column Left"     { set-column-width "+10%"; }
+
+    // Move Window/Column between Screens
+    Mod+Comma              hotkey-overlay-title="Focus Prev Screen"       { focus-monitor-left; }
+    Mod+Period             hotkey-overlay-title="Focus Next Screen"       { focus-monitor-right; }
+    Mod+Alt+Comma          hotkey-overlay-title="Move WS Prev Screen"     { move-workspace-to-monitor-left; }
+    Mod+Alt+Period         hotkey-overlay-title="Move WS Next Screen"     { move-workspace-to-monitor-right; }
+    Mod+Shift+Comma        hotkey-overlay-title="Move Window Prev Screen" { move-window-to-monitor-left; }
+    Mod+Shift+Period       hotkey-overlay-title="Move Window Next Screen" { move-window-to-monitor-right; }
+    Mod+Ctrl+Comma         hotkey-overlay-title="Focus Prev Workspace"    { focus-workspace-up; }
+    Mod+Ctrl+Period        hotkey-overlay-title="Focus Prev Workspace"    { focus-workspace-down; }
+
+    // Move Window to Workspace
+    Mod+Shift+1            hotkey-overlay-title="Move Window to WS 1"    { move-window-to-workspace 1; }
+    Mod+Shift+2            hotkey-overlay-title="Move Window to WS 2"    { move-window-to-workspace 2; }
+    Mod+Shift+3            hotkey-overlay-title="Move Window to WS 3"    { move-window-to-workspace 3; }
+    Mod+Shift+4            hotkey-overlay-title="Move Window to WS 4"    { move-window-to-workspace 4; }
+    Mod+Shift+5            hotkey-overlay-title="Move Window to WS 5"    { move-window-to-workspace 5; }
+    Mod+Shift+6            hotkey-overlay-title="Move Window to WS 6"    { move-window-to-workspace 6; }
+    Mod+Shift+7            hotkey-overlay-title="Move Window to WS 7"    { move-window-to-workspace 7; }
+    Mod+Shift+8            hotkey-overlay-title="Move Window to WS 8"    { move-window-to-workspace 8; }
+    Mod+Shift+9            hotkey-overlay-title="Move Window to WS 9"    { move-window-to-workspace 9; }
+
+    // Move the focused window between the floating and the tiling layout.
+    Mod+B                  hotkey-overlay-title="Switch Focus Float/Tile" { switch-focus-between-floating-and-tiling; }
+    Mod+Apostrophe         hotkey-overlay-title="Resize/Center Window"    { spawn-sh "$HOME/.config/niri/scripts/resize-window"; }
+    Mod+C                  hotkey-overlay-title="Center Window"           { center-window; }
+
+    // Speaker Volume
+    Mod+Left   allow-when-locked=true hotkey-overlay-title="Speaker Volume Down" { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.05-"; }
+    Mod+Right  allow-when-locked=true hotkey-overlay-title="Speaker Volume Up"   { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.05+"; }
+    Mod+Ctrl+M allow-when-locked=true hotkey-overlay-title="Mute Speakers"       { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"; }
+
+    // Mic Volume
+    Shift+XF86AudioLowerVolume allow-when-locked=true hotkey-overlay-title="Mic Volume Down" { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SOURCE@ 0.05-"; }
+    Mod+Shift+Left             allow-when-locked=true hotkey-overlay-title="Mic Volume Down" { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SOURCE@ 0.05-"; }
+    Shift+XF86AudioRaiseVolume allow-when-locked=true hotkey-overlay-title="Mic Volume Up"   { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SOURCE@ 0.05+"; }
+    Mod+Shift+Right            allow-when-locked=true hotkey-overlay-title="Mic Volume Up"   { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SOURCE@ 0.05+"; }
+    Shift+XF86AudioMute        allow-when-locked=true hotkey-overlay-title="Mute Mic"        { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"; }
+    Mod+Shift+M                allow-when-locked=true hotkey-overlay-title="Mute Mic"        { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"; }
+
+    // Brightness Control
+    Super+Down allow-when-locked=true hotkey-overlay-title="Decrease Brightness" { spawn-sh "brightnessctl -n1 set 10%-"; }
+    Super+Up   allow-when-locked=true hotkey-overlay-title="Decrease Brightness" { spawn-sh "brightnessctl -n1 set 10%+"; }
+
+    // Move/Focus with Mouse
+    Mod+MouseMiddle      repeat=false    hotkey-overlay-title="Close Window"             { close-window; }
+    Mod+WheelScrollDown  cooldown-ms=500 hotkey-overlay-title="Focus Next Column/Screen" { focus-column-or-monitor-right; }
+    Mod+WheelScrollUp    cooldown-ms=500 hotkey-overlay-title="Focus Prev Column/Screen" { focus-column-or-monitor-left; }
+    Mod+Shift+WheelScrollDown cooldown-ms=500 hotkey-overlay-title="Move Column Right"   { move-column-right-or-to-monitor-right; }
+    Mod+Shift+WheelScrollUp   cooldown-ms=500 hotkey-overlay-title="Move Column Left"    { move-column-left-or-to-monitor-left; }
+}
+
+input {
+    keyboard { xkb { options "menu:super" ; }; }
+    touchpad {
+        dwt
+        click-method "clickfinger"
+        scroll-method "two-finger"
+    }
+    workspace-auto-back-and-forth
+    focus-follows-mouse max-scroll-amount="49%"
+}
+
+layout {
+    gaps 8
+    always-center-single-column
+    preset-column-widths {
+        proportion 0.33333
+        proportion 0.5
+        proportion 0.66667
+        proportion 1.0
+    }
+    preset-window-heights {
+        proportion 0.33333
+        proportion 0.5
+        proportion 0.66667
+        proportion 1.0
+    }
+    focus-ring { off; }
+    border {
+        on
+        width 1
+        active-color "#3daee9"
+        inactive-color "#31363b"
+        urgent-color "#9b0000"
+    }
+}
+
+hotkey-overlay {
+    skip-at-startup
+    hide-not-bound
+}
+
+cursor {
+    hide-when-typing
+    hide-after-inactive-ms 3000
+}
+debug { wait-for-frame-completion-before-queueing; }
+gestures { hot-corners { off; }; }
+
+prefer-no-csd
+screenshot-path "~/Pictures/Screenshots/Screenshot-%Y-%m-%d_%H-%M-%S.png"
+
+window-rule {
+    match app-id=r#"^(com\.seafile\.seafile-applet|galculator|imv|nm-connection-editor|nwg-drawer|nwg-look|onboard|org\.gnome\.Nautilus|org\.kde\.kdeconnect\..*|org\.kde\.plasma\.emojier|piper|thunar|solaar|syncthingtray|vimiv)$"#
+    match app-id=r#"^(librewolf|firefox)"# title=r#"^($|(Firefox|LibreWolf) - Choose User Profile|Enter name of file to save to…|Library$|Page Info)"#
+    match app-id="org.remmina.Remmina" title="Remmina Remote Desktop Client"
+    match title=r#"^(Open File|Open|Save|Save As|Export|Import|Choose File|Rename)"#
+    match title=r#"^[Xx]dg-desktop-portal-(gnome|gtk|hyprland|wlr)"#
+    open-floating true
+    min-width 640
+    min-height 480
+}
+
+window-rule {
+    match app-id=r#"^(code-oss|chromium|fr\.handbrake\.ghb|FreeTube|io\.github\.celluloid_player\.Celluloid|io\.github\.ungoogled_software\.ungoogled_chromium|gimp|labwc|LM Studio|obsidian|vlc|Tor Browser)$"#
+    match app-id=r#"^(firefox|librewolf)"#
+    open-maximized true
+}
+
+window-rule {
+    match app-id=r#"^cef$"# title=r#"^Grayjay$"#
+    open-maximized true
+}
+
+window-rule {
+    match app-id=r#"^org\.wezfurlong\.wezterm$"#
+    default-column-width {}
+}
+
+window-rule {
+    match app-id="Pinentry-gtk"
+    open-floating true
+    open-focused true
+}
+
+window-rule {
+    match title="Enter SSH Key Passphrase" at-startup=true
+    open-floating true
+    open-focused true
+}
+
+window-rule {
+    match title="Howdy Test" app-id="python3"
+    open-floating true
+    min-width 1280
+    min-height 1024
+    default-floating-position x=32 y=32 relative-to="top-left"
+}
+
+window-rule {
+    match app-id=r#"(firefox|librewolf)"# title="^Picture-in-Picture$"
+    open-floating true
+}
+
+window-rule {
+    match app-id=r#"^(Bitwarden|blueman-manager|cfait|Element|com\.erdelynet\.todomanager|featherpad|io\.github\.alainm23\.planify|io\.missioncenter\.MissionCenter|localsend|Logseq|signal|org\.signal\.Signal|Signal|pavucontrol|htop|btop|net\.nokyan\.Resources|nvtop|term-scratchpad|termfm)$"#
+    open-floating true
+    open-maximized false
+}
+
+window-rule {
+    match app-id=r#"^(steam)$"#
+    // open-on-workspace ""
+    open-floating true
+}
+
+window-rule {
+    match app-id=r#"^(Bitwarden|blueman-manager|cfait|Element|com\.erdelynet\.todomanager|featherpad|io\.github\.alainm23\.planify|io\.missioncenter\.MissionCenter|localsend|Logseq|signal|org\.signal\.Signal|Signal|pavucontrol|htop|btop|net\.nokyan\.Resources|nvtop|term-scratchpad|termfm)$"# at-startup=true
+    open-on-workspace "🗒️"
+    open-floating false
+    open-focused false
+    open-maximized true
+    default-window-height { proportion 1.00; }
+}
+
+window-rule {
+    match app-id=r#"^(com\.mitchellh\.ghostty|kitty)$"# at-startup=true
+    open-maximized true
+}
+
+window-rule {
+    match app-id="virt-manager"
+    match title="^Virtual Machine Manager$"
+    open-maximized true
+}
+
+window-rule {
+    match app-id="virt-manager"
+    exclude title="^Virtual Machine Manager$"
+    open-maximized true
+}
+
+// (This example rule is commented out with a "/-" in front.)
+window-rule {
+    match app-id=r#"^org\.keepassxc\.KeePassXC$"#
+    match app-id=r#"^org\.gnome\.World\.Secrets$"#
+    match app-id=r#"^Bitwarden$"#
+    match app-id=r#"^signal$"#
+    match app-id=r#"^Signal$"#
+    match app-id=r#"^org\.signal\.Signal$"#
+    match app-id=r#"^yad$"# title=r#"^Enter SSH Key Passphrase$"#
+    block-out-from "screen-capture"
+    // block-out-from "screencast"
+}
+
+window-rule {
+    match is-window-cast-target=true
+    border {
+        width 6
+        active-color "#f38ba8"
+        inactive-color "#7d0d2d"
+    }
+}
+
+window-rule {
+    geometry-corner-radius 8
+    clip-to-geometry true
+}
+
+// Open DMS windows as floating by default
+layer-rule {
+    match namespace="^quickshell$"
+    place-within-backdrop true
+}
+window-rule {
+    match app-id=r#"org.quickshell$"#
+    open-floating true
+}
+
+include optional=true "dms/alttab.kdl"
+include optional=true "dms/binds.kdl"
+include optional=true "dms/colors.kdl"
+include optional=true "dms/cursor.kdl"
+include optional=true "dms/layout.kdl"
+include optional=true "dms/outputs.kdl"
+include optional=true "dms/windowrules.kdl"
+
+include optional=true "{{- .chezmoi.hostname }}.kdl"

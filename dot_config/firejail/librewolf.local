@@ -1,0 +1,3 @@
+noblacklist ${HOME}/.config/librewolf
+mkdir ${HOME}/.config/librewolf
+whitelist ${HOME}/.config/librewolf

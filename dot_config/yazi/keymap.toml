@@ -1,0 +1,157 @@
+[[mgr.prepend_keymap]]
+on   = "!"
+for  = "unix"
+run  = 'shell "$SHELL" --block'
+desc = "Open $SHELL here"
+
+[[input.prepend_keymap]]
+on   = "<Esc>"
+run  = "close"
+desc = "Cancel input"
+
+[[mgr.prepend_keymap]]
+on   = "o"
+run  = "plugin smart-enter"
+desc = "Enter the child directory, or open the file"
+
+[[mgr.prepend_keymap]]
+on   = "<Enter>"
+run  = "plugin smart-enter"
+desc = "Enter the child directory, or open the file"
+
+[[mgr.prepend_keymap]]
+on   = "p"
+run  = "plugin smart-paste"
+desc = "Paste into the hovered directory or CWD"
+
+[[mgr.append_keymap]]
+on = "I"
+run = "shell -- imv -r \"%s\""
+desc = "Go to Syncthing"
+
+# Key maps to change directories
+[[mgr.append_keymap]]
+on = [ "g", "A" ]
+run = "cd ~/src/ansible"
+desc = "Go to Ansible src"
+
+[[mgr.append_keymap]]
+on = [ "g", "b" ]
+run = "cd ~/src/scripts/bin"
+desc = "Go to ~/src/scripts/bin"
+
+[[mgr.append_keymap]]
+on = [ "g", "B" ]
+run = "cd ~/.local/bin"
+desc = "Go to ~/.local/bin"
+
+[[mgr.append_keymap]]
+on = [ "g", "C" ]
+run = "cd ~/.config"
+desc = "Go to ~/.config"
+
+[[mgr.append_keymap]]
+on = [ "g", "c" ]
+run = "cd ~/.config/DankMaterialShell"
+desc = "Go to dms config"
+
+[[mgr.append_keymap]]
+on = [ "g", "D" ]
+run = "cd --interactive"
+desc = "Prompt for directory to change to"
+
+[[mgr.append_keymap]]
+on = [ "g", "E" ]
+run = "cd /etc"
+desc = "Go to /etc"
+
+[[mgr.append_keymap]]
+on = [ "g", "G" ]
+run = "cd ~/git"
+desc = "Go to ~/git"
+
+[[mgr.append_keymap]]
+on = [ "g", "H" ]
+run = "cd ~"
+desc = "Go to Home"
+
+[[mgr.append_keymap]]
+on = [ "g", "L" ]
+run = "cd ~/.local"
+desc = "Go to ~/.local"
+
+[[mgr.append_keymap]]
+on = [ "g", "l" ]
+run = "cd \"~/.local/share/Syncthing/Logseq/Mike's Notes\""
+desc = "Go to Logseq"
+
+[[mgr.append_keymap]]
+on = [ "g", "M" ]
+run = [ "shell -- /usr/bin/ya emit cd /run/media/$LOGNAME" ]
+desc = "Go to automount media directory"
+
+[[mgr.append_keymap]]
+on = [ "g", "N" ]
+run = "cd ~/.config/nvim"
+desc = "Go to nvim directory"
+
+[[mgr.append_keymap]]
+on = [ "g", "n" ]
+run = "cd ~/.config/niri"
+desc = "Go to niri directory"
+
+[[mgr.append_keymap]]
+on = [ "g", "O" ]
+run = "cd ~/.config/nvim/lua/plugins"
+desc = "Go to nvim plugins directory"
+
+[[mgr.append_keymap]]
+on = [ "g", "P" ]
+run = "cd ~/Pictures/Screenshots"
+desc = "Go to Screenshots (Pictures)"
+
+[[mgr.append_keymap]]
+on = [ "g", "p" ]
+run = "cd ~/Pictures"
+desc = "Go to Pictures"
+
+[[mgr.append_keymap]]
+on = [ "g", "R" ]
+run = "cd /srv/scripts"
+desc = "Go to /srv/scripts"
+
+[[mgr.append_keymap]]
+on = [ "g", "r" ]
+run = "cd /srv/docker"
+desc = "Go to /srv/docker"
+
+[[mgr.append_keymap]]
+on = [ "g", "S" ]
+run = "cd ~/src"
+desc = "Go to src"
+
+[[mgr.append_keymap]]
+on = [ "g", "s" ]
+run = "cd ~/.local/share/Syncthing"
+desc = "Go to Syncthing"
+
+[[mgr.append_keymap]]
+on = [ "g", "T" ]
+run = [ "shell -- /usr/bin/ya emit cd /run/user/$EUID/tmp" ]
+desc = "Go to ~tmp"
+
+[[mgr.append_keymap]]
+on = [ "g", "t" ]
+run = "cd ~/src/scripts"
+desc = "Go to Syncthing"
+
+[[mgr.append_keymap]]
+on = [ "g", "W" ]
+run = "cd ~/Work"
+desc = "Go to Work"
+
+[[mgr.append_keymap]]
+on = [ "g", "Y" ]
+run = "cd ~/.config/yazi"
+desc = "Go to yazi directory"
+

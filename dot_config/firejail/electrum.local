@@ -1,0 +1,2 @@
+noblacklist ${HOME}/.local/share/electrum
+whitelist ${HOME}/.local/share/electrum

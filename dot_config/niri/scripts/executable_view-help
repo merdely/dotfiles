@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+
+get_image_index_by_name() {
+  [[ -z "$1" ]] && return 1
+  image=${1##*/}
+  image=${image%.png}
+  local i=0
+  for ((i=0 ; i < ${#images[@]}; h++)); do
+    [[ "$imgdir"/"$image".png == "${images[i]}" ]] && echo "$(( i + 1 ))" && return 0
+  done
+  echo 1
+  return 1
+}
+
+unset pid
+unset imv_current_index
+declare -a images
+imgdir="$HOME"/.config/niri/help
+images[${#images[@]}]="$imgdir"/Super.png                    # 1
+images[${#images[@]}]="$imgdir"/Super-Control.png            # 2
+images[${#images[@]}]="$imgdir"/Super-Control-Alt.png        # 3
+images[${#images[@]}]="$imgdir"/Super-Control-Alt-Shift.png  # 4
+images[${#images[@]}]="$imgdir"/Super-Control-Shift.png      # 5
+images[${#images[@]}]="$imgdir"/Super-Alt.png                # 6
+images[${#images[@]}]="$imgdir"/Super-Alt-Shift.png          # 7
+images[${#images[@]}]="$imgdir"/Super-Shift.png              # 8
+images[${#images[@]}]="$imgdir"/Control.png                  # 9
+images[${#images[@]}]="$imgdir"/Control-Alt.png              # 10
+images[${#images[@]}]="$imgdir"/Control-Alt-Shift.png        # 11
+images[${#images[@]}]="$imgdir"/Control-Shift.png            # 12
+images[${#images[@]}]="$imgdir"/Alt.png                      # 13
+images[${#images[@]}]="$imgdir"/Alt-Shift.png                # 14
+images[${#images[@]}]="$imgdir"/Shift.png                    # 15
+images[${#images[@]}]="$imgdir"/None.png                     # 16
+
+if [[ ! "$1" =~ ^[0-9]+$ ]]; then
+  newindex=$(get_image_index_by_name "$1")
+else
+  newindex=$1
+fi
+
+if ! pid=$(pgrep -f "^((/usr(/local)?)?/bin/)?imv(-wayland)? -w nirihelp" 2> /dev/null); then
+  unset pid
+fi
+
+if [[ -n "$pid" ]]; then
+  # print current index to a file
+  imv-msg "$pid" exec echo \$imv_current_index
+  # do it twice since the first time it seems not to work sometimes
+  imv-msg "$pid" exec echo \$imv_current_index
+  imv_current_index=$(tail -n1 "$XDG_RUNTIME_DIR"/imv_output."$pid")
+
+  if [[ "$imv_current_index" == "$newindex" ]]; then
+    imv-msg "$pid" quit
+  else
+    imv-msg "$pid" goto "$newindex"
+  fi
+else
+  # Set up pipe to capture imv output
+  pipedir=$(mktemp -d)
+  mkfifo "$pipedir"/imvpipe
+
+  width=$(( $(niri msg -j focused-output | jq -r '.logical.width') * 90 / 100 ))
+  height=$(( $(niri msg -j focused-output | jq -r '.logical.height') * 90 / 100 ))
+
+  # Run imv
+  imv -w nirihelp -W "$width" -H "$height" -n "$newindex" "${images[@]}" > "$pipedir"/imvpipe &
+  imvpid=$!
+
+  # Send pipe output to logfile with imv's pid in it
+  cat "$pipedir"/imvpipe > "$XDG_RUNTIME_DIR"/imv_output."$imvpid"
+
+  # cleanup
+  rm -Rf "$pipedir" "$XDG_RUNTIME_DIR"/imv_output."$imvpid"
+fi

@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+resize_height=90%
+resize_width=$resize_height
+
+if [[ "$(niri msg -j focused-window | jq -r .is_floating)" == false ]]; then
+  echo "Warning: The active window is not a floating window... not minimizing" >&2
+  exit 0
+fi
+
+niri msg action set-window-height "$resize_height"
+niri msg action set-window-width "$resize_width"
+sleep .1
+niri msg action center-window

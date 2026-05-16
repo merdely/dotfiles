@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+
+TMPFILES=()
+trap 'rm -Rf -- "${TMPFILES[@]}"' EXIT
+trap 'exit 1' INT TERM
+
+[[ -r /etc/os-release ]] && source /etc/os-release
+
+if [[ "$ID" =~ ^(arch|artix|cachyos|garuda|endeavouros|manjaro)$ || " $ID_LIKE " == *" arch "* ]]; then
+  # Go through the package list and find packages that are not installed
+  packages=()
+  for pkg in \
+    base-devel git openssh neovim vim man-db apparmor firejail rsync ripgrep fd \
+    networkmanager nm-connection-editor openresolv htop btop jq 7zip \
+    niri alacritty fuzzel \
+    dms-shell-niri greetd-dms-greeter-git accountsservice cava cups-pk-helper dgop \
+    khal kimageformats matugen power-profiles-daemon qt6-imageformats \
+    kitty rofi rofi-rbw gcr ydotool wl-clipboard wl-clip-persist \
+    noto-fonts noto-fonts-emoji ttf-liberation ttf-dejavu-nerd \
+    ttf-jetbrains-mono ttf-roboto ttf-roboto-mono woff2-font-awesome \
+    ttf-nerd-fonts-symbols ttf-nerd-fonts-symbols-common ttf-nerd-fonts-symbols-mono \
+    imv imagemagick python-pillow python-cairocffi \
+    nwg-look adw-gtk-theme breeze-gtk breeze-icons \
+    yad galculator nautilus gvfs-dnssd librewolf-bin
+  do
+    pacman -Qqs ^"$pkg"$ &> /dev/null || packages+=("$pkg")
+  done
+
+  # Add home repo to pacman.conf
+  if ! pacman -Sl home &> /dev/null; then
+    echo "Adding home repo to pacman.conf"
+    echo "" | sudo tee -a /etc/pacman.conf
+    echo "[home]" | sudo tee -a /etc/pacman.conf
+    echo "SigLevel = Optional TrustAll" | sudo tee -a /etc/pacman.conf
+    echo "Server = https://repo.erdely.in/Systems/Arch/aur/" | sudo tee -a /etc/pacman.conf
+  fi
+
+  # Install missing packages
+  if (( ${#packages[@]} > 0 )); then
+    echo "Installing packages: ${packages[@]}"
+    sudo pacman -Syu --needed --noconfirm "${packages[@]}"
+  fi
+
+  # Setup vi command
+  if [[ ( ! -e /usr/bin/vi || -L /usr/bin/vi ) && -e $HOME/.local/bin/vi ]]; then
+    echo "Installing vi script that encourages use of sudoedit"
+    rm -f /usr/bin/vi &> /dev/null
+    sudo install -o root -g root -m 755 "$HOME"/.local/bin/vi /usr/bin/vi
+  fi
+
+  # Setup dms-greeter
+  if ! grep -qE "^\s*command\s*=.*dms-greeter" /etc/greetd/config.toml; then
+    if ! grep -q "^\[default_session\]" /etc/greetd/config.toml; then
+      echo "Error: greetd config missing default_session section" >&2
+    else
+      echo "Setting up greetd to use dms-greeter with niri"
+      # Comment out any lines with command = 
+      sudo sed -ri 's/^(\s*)(command.*)$/\1# \2/' /etc/greetd/config.toml
+      # Under the default_session section heading, add a dms-greeter line
+      sudo sed -ri 's#^(\[default_session].*)$#\1\r\ncommand = "/usr/bin/dms-greeter --no-save-username --command niri"#' /etc/greetd/config.toml
+      # Enable the service
+      sudo systemctl enable greetd
+    fi
+  fi
+
+  # Enable services: DMS and ydotool
+  systemctl --user enable dms.service ssh-agent.service ydotool.service
+
+  # Add user to needed groups
+  for group in video render input wheel; do
+    # Skip groups from the list that do not exist
+    getent group "$group" &> /dev/null && continue
+    # Add user to group (ok if already a member)
+    echo "Adding $LOGNAME to $group"
+    sudo usermod -aG "$group" "$LOGNAME"
+  done
+else
+  echo "Error: Unsupported OS (${ID:-Could not determine OS})" >&2
+  exit 1
+fi
+
