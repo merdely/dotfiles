@@ -98,9 +98,9 @@ toggle_minimize() {
 
 do_exec() {
   if [[ "$mode" == desktop ]]; then
-    echo "gtk-launch $*"
+    echo "gtk-launch $@"
   else
-    echo "$*"
+    echo "$@"
   fi
 }
 
