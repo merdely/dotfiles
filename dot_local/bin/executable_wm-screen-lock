@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+
+progname=${0##*/}
+progname=${progname%.sh}
+forget_ssh=true
+forget_bitwarden=true
+forget_rbw=true
+pause_players=true
+mute_speakers=true
+mute_mic=true
+stop_idle_inhibitor=true
+locker="${locker:-swaylock -f}"
+
+[ -r $HOME/.config/screenlockrc ] && source $HOME/.config/screenlockrc
+
+usage() {
+  echo "usage: $progname [-h] [-L]"
+  echo "  -h           : This help text"
+  echo "  -L           : Do not call screen locker ($locker)"
+  exit $1
+}
+
+dontlock=false
+while getopts ":hL" opt; do
+  case $opt in
+    L) dontlock=true ;;
+    *) usage ;;
+  esac
+done
+shift $((OPTIND -1))
+
+! $dontlock && pgrep -u $LOGNAME -f -- "$locker" && exit
+
+ret=0
+# Prep for locking
+$stop_idle_inhibitor && wm-toggle-idle-inhibit disable && ((ret+=$?))
+$forget_ssh          && ssh-add -D && ((ret+=$?))
+$forget_bitwarden    && keyctl purge user bw_session && ((ret+=$?))
+$forget_rbw          && rbw lock && ((ret+=$?))
+$pause_players       && [ "$(playerctl -a status 2> /dev/null)" = "Playing" ] && playerctl -a pause && ((ret+=$?))
+$mute_speakers       && speaker-mute && ((ret+=$?))
+$mute_mic            && mic-mute && ((ret+=$?))
+
+# Lock screen
+! $dontlock && setsid $locker && ((ret+=$?))
+
+exit $ret

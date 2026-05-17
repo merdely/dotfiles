@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+progname=${0##*/}
+progname=${progname%.sh}
+screen_on=true
+screen_undim=true
+speaker_unmute=false
+mic_unmute=false
+ssh_add=true
+locker="${locker:-swaylock -f}"
+
+[ -r $HOME/.config/screenlockrc ] && source $HOME/.config/screenlockrc
+[ -r $HOME/.config/screenunlockrc ] && source $HOME/.config/screenunlockrc
+
+usage() {
+  echo "usage: $progname [-h] [-L]"
+  echo "  -h           : This help text"
+  echo "  -L           : Do not check screen locker ($locker)"
+  exit $1
+}
+
+dontchecklock=false
+while getopts ":hL" opt; do
+  case $opt in
+    L) dontchecklock=true ;;
+    *) usage ;;
+  esac
+done
+shift $((OPTIND -1))
+
+! $dontchecklock && { pgrep -u $LOGNAME -f -- "$locker" || exit; }
+
+ret=0
+rm -f /run/user/$EUID/.manual_lock
+$screen_on      && wm-screen-on && ((ret+=$?))
+$screen_undim   && wm-screen-undim && ((ret+=$?))
+$speaker_unmute && speaker-unmute -c && ((ret+=$?))
+$mic_unmute     && mic-unmute && ((ret+=$?))
+$ssh_add        && wm-ssh-add && ((ret+=$?))
+
+exit $ret
