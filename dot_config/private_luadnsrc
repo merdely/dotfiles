@@ -1,0 +1,21 @@
+[default]
+domain_name: default.domain.name
+#host_name: default
+user_name: default_user_name
+api_key: 1234
+
+[erdelynet.com]
+domain_name: erdelynet.com
+user_name: {{ pass "services/luadns/username" }}
+api_key: {{ pass "services/luadns/apikey" }}
+
+[orletsky]
+domain_name: erdely.dev
+user_name: {{ pass "services/luadns/username" }}
+api_key: {{ pass "services/luadns/erdely.dev-apikey" }}
+
+[orletsky-internal]
+domain_name: erdely.dev
+user_name: {{ pass "services/luadns/username" }}
+api_key: {{ pass "services/luadns/erdely.dev-apikey" }}
+
