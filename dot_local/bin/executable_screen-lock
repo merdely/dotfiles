@@ -33,7 +33,7 @@ shift $((OPTIND -1))
 
 ret=0
 # Prep for locking
-$stop_idle_inhibitor && wm-toggle-idle-inhibit disable && ((ret+=$?))
+$stop_idle_inhibitor && idle-inhibit-toggle disable && ((ret+=$?))
 $forget_ssh          && ssh-add -D && ((ret+=$?))
 $forget_bitwarden    && keyctl purge user bw_session && ((ret+=$?))
 $forget_rbw          && rbw lock && ((ret+=$?))
