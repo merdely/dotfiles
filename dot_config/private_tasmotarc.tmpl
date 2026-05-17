@@ -1,0 +1,6 @@
+[tasmota]
+ha_token: {{ pass "systems/homeassistant/tasmota_token" }}
+entity: sensor.tasmota_devices_list
+tasmota_pass: {{ pass "systems/tasmota/password" }}
+backup_dir: /ext/Backups/tasmota
+
