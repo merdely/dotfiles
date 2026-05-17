@@ -36,6 +36,6 @@ $screen_on      && wm-screen-on && ((ret+=$?))
 $screen_undim   && wm-screen-undim && ((ret+=$?))
 $speaker_unmute && speaker-unmute -c && ((ret+=$?))
 $mic_unmute     && mic-unmute && ((ret+=$?))
-$ssh_add        && wm-ssh-add && ((ret+=$?))
+$ssh_add        && run-ssh-add && ((ret+=$?))
 
 exit $ret
