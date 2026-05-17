@@ -1,0 +1,136 @@
+#!/usr/bin/env python3
+
+import argparse
+import os
+import re
+import subprocess
+import sys
+
+# Determine the location of notify-send
+possible_paths = [ "/usr/bin/notify-send", "/usr/local/bin/notify-send" ]
+notify_send = None
+for path in possible_paths:
+    if os.path.isfile(path) and os.access(path, os.X_OK):
+        notify_send = path
+        break
+
+# Save the output of "notify-send --help" to parse its usage
+if not notify_send:
+    print(f"{command} not found in the specified paths.")
+    quit()
+result = subprocess.run([notify_send, "--help"], capture_output=True, text=True)
+
+# Get the output of "notify-send --version"
+version = subprocess.run([notify_send, "--version"], capture_output=True, text=True)
+
+# Parse notify-send's usage and recreate for this wrapper
+usage = None
+grab = 0
+lines = result.stdout.split('\n')
+for i in range(len(lines)):
+    if lines[i] == "Usage:":
+        usage = re.sub(r'^\s*.*notify-send ', '', lines[i+1])
+        argparser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]), usage=f"%(prog)s {usage}", conflict_handler="resolve")
+        argparser.add_argument("-?", "--help", action="help", help="Show help options")
+    elif lines[i] == "Application Options:":
+        grab = 1
+    elif grab == 1:
+        short = long = longarg = desc = None
+        match = re.match(r'^\s*-([^,]), --([^=\s]+)=?([^\s]+)?\s+(.*)$', lines[i])
+        if match:
+            short = match.group(1)
+            long = match.group(2)
+            longarg = match.group(3)
+            desc = match.group(4)
+            #if short == "h":
+            #    short="H"
+            #    desc = f"{desc} NOTE: This wrapper uses -H but {notify_send} uses -h."
+            if long == "action":
+                argparser.add_argument(f"-{short}", f"--{long}", action="append", metavar=longarg, help=desc)
+            elif longarg:
+                argparser.add_argument(f"-{short}", f"--{long}", metavar=longarg, help=desc)
+            else:
+                argparser.add_argument(f"-{short}", f"--{long}", action="store_true", help=desc)
+
+# Add arguments for SUMMARY and BODY
+argparser.add_argument("SUMMARY", nargs="?", default=None, help=argparse.SUPPRESS)
+argparser.add_argument("BODY", help=argparse.SUPPRESS)
+flags = argparser.parse_args()
+
+# Go through the given arguments to determine what to send to notify-send
+arg_list = []
+if flags.icon:
+    arg_list.append(f"--icon={flags.icon}")
+else:
+    arg_list.append("--icon=dialog-information")
+if flags.urgency:
+    if flags.urgency in [ 1, 2, "1", "2", "low", "lowest", "min" ]:
+        arg_list.append(f"--urgency=low")
+        try:
+            del arg_list[arg_list.index("--icon=dialog-information")]
+        except:
+            pass
+        if not any(arg.startswith('--icon') for arg in arg_list):
+            arg_list.append("--icon=info")
+    elif flags.urgency in [ 4, "4", "critical", "high" ]:
+        arg_list.append(f"--urgency=critical")
+        try:
+            del arg_list[arg_list.index("--icon=dialog-information")]
+        except:
+            pass
+        if not any(arg.startswith('--icon') for arg in arg_list):
+            arg_list.append("--icon=dialog-warning")
+    elif flags.urgency in [ 5, "5", "highest", "urgent", "max" ]:
+        arg_list.append(f"--urgency=critical")
+        try:
+            del arg_list[arg_list.index("--icon=dialog-information")]
+        except:
+            pass
+        if not any(arg.startswith('--icon') for arg in arg_list):
+            arg_list.append("--icon=dialog-error")
+    else:
+        arg_list.append(f"--urgency=normal")
+if flags.expire_time:
+    arg_list.append(f"--expire-time={flags.expire_time}")
+if flags.app_name:
+    arg_list.append(f"--app-name={flags.app_name}")
+if flags.category:
+    arg_list.append(f"--category={flags.category}")
+if flags.transient:
+    arg_list.append("--transient")
+if flags.hint:
+    arg_list.append(f"--hint={flags.hint}")
+if flags.print_id:
+    arg_list.append("--print-id")
+if flags.replace_id:
+    arg_list.append(f"--replace-id={flags.replace_id}")
+if flags.wait:
+    arg_list.append("--wait")
+if flags.action:
+    for action in flags.action:
+        arg_list.append(f"--action={action}")
+if flags.SUMMARY:
+    if flags.SUMMARY == "rofi-rbw":
+        try:
+            del arg_list[arg_list.index("--icon=dialog-information")]
+        except:
+            pass
+        if not any(arg.startswith('--icon') for arg in arg_list):
+            arg_list.append("--icon=/usr/share/icons/hicolor/64x64/apps/bitwarden.png")
+        if not flags.app_name:
+            arg_list.append(f"--app-name=rofi-rbw")
+        flags.SUMMARY = "Bitwarden"
+    if re.fullmatch(r'\s+', flags.SUMMARY) and flags.app_name == "Home Assistant":
+        flags.SUMMARY = flags.app_name
+    arg_list.append(flags.SUMMARY)
+if flags.BODY:
+    arg_list.append(flags.BODY)
+if flags.version:
+    print(version.stdout.rstrip('\n'))
+    quit()
+
+# Actually run notify-send
+arg_list.insert(0, notify_send)
+cmd_out = subprocess.run(arg_list, capture_output=True, text=True)
+if cmd_out.stdout:
+    print(cmd_out.stdout.rstrip('\n'))
