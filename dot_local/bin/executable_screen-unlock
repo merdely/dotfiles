@@ -32,8 +32,8 @@ shift $((OPTIND -1))
 
 ret=0
 rm -f /run/user/$EUID/.manual_lock
-$screen_on      && wm-screen-on && ((ret+=$?))
-$screen_undim   && wm-screen-undim && ((ret+=$?))
+$screen_on      && screen-on && ((ret+=$?))
+$screen_undim   && screen-undim && ((ret+=$?))
 $speaker_unmute && speaker-unmute -c && ((ret+=$?))
 $mic_unmute     && mic-unmute && ((ret+=$?))
 $ssh_add        && run-ssh-add && ((ret+=$?))
