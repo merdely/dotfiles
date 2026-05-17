@@ -1,0 +1,10 @@
+[opnsense]
+server = {{ pass "systems/opnsense/url" }}
+api_key = {{ pass "systems/opnsense/apikey" }}
+api_secret = {{ pass "systems/opnsense/apisecret" }}
+
+[adguard]
+server = {{ pass "systems/opnsense/url" }}:8443
+username = mike
+password = {{ pass "systems/mike/internal_password" }}
+dnslist = https://{{ pass "systems/src/token_marsread" }}@src.erdely.in/api/v1/repos/mars/configs/raw/InternalDnsConfig.txt
