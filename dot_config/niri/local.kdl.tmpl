@@ -21,7 +21,7 @@ spawn-sh-at-startup "systemctl --user import-environment"
 spawn-sh-at-startup "[[ ! -r $HOME/quickstart ]] && gtk-launch solaar-applet"
 spawn-sh-at-startup "[[ ! -r $HOME/quickstart ]] && gtk-launch udiskie-applet"
 spawn-sh-at-startup "$TERMINAL || alacritty"
-spawn-sh-at-startup "sleep ; wm-ssh-add"
+spawn-sh-at-startup "sleep ; run-ssh-add"
 
 binds {
     Mod+D                  hotkey-overlay-title="Program DMS Spotlight"  { spawn-sh "dms ipc call spotlight toggle"; }
@@ -55,7 +55,7 @@ binds {
  
     // Apps
     Mod+N                  hotkey-overlay-title="Bitwarden Chooser"      { spawn-sh "$HOME/.config/niri/scripts/app-toggle -P rofi-rbw --use-notify-send"; }
-    Mod+Shift+X            hotkey-overlay-title="Camera Chooser"         { spawn-sh "$HOME/.config/niri/scripts/app-toggle -S \"([r]ofi|[f]uzzel) -p View Camera ?>? ? -d(menu)?\" wm-cam-chooser"; }
+    Mod+Shift+X            hotkey-overlay-title="Camera Chooser"         { spawn-sh "$HOME/.config/niri/scripts/app-toggle -S \"([r]ofi|[f]uzzel) -p View Camera ?>? ? -d(menu)?\" cam-chooser"; }
     Mod+Shift+Z            hotkey-overlay-title="Bitwarden"              { spawn-sh "$HOME/.config/niri/scripts/minimize bitwarden Bitwarden"; }
     Mod+Shift+C            hotkey-overlay-title="Calculator"             { spawn-sh "$HOME/.config/niri/scripts/minimize -R galculator"; }
     Mod+Shift+Return       hotkey-overlay-title="Terminal Scratchpad"    { spawn-sh "$HOME/.config/niri/scripts/minimize term-scratchpad"; }
@@ -85,7 +85,7 @@ binds {
     Mod+Ctrl+Slash         hotkey-overlay-title="Niri Help: Su+C"        { spawn-sh "$HOME/.config/niri/scripts/view-help Super-Control"; }
     Mod+Shift+Slash        hotkey-overlay-title="Niri Help: Su+Sh"       { spawn-sh "$HOME/.config/niri/scripts/view-help Super-Shift"; }
     Mod+Slash              hotkey-overlay-title="Niri Help: Su"          { spawn-sh "$HOME/.config/niri/scripts/view-help Super"; }
-    Mod+Ctrl+Alt+Shift+Slash hotkey-overlay-title="Generate Niri Help"   { spawn-sh "notify-send -a niri 'Niri Help Images' 'Generating help images' ; wm-gen-help"; }
+    Mod+Ctrl+Alt+Shift+Slash hotkey-overlay-title="Generate Niri Help"   { spawn-sh "notify-send -a niri 'Niri Help Images' 'Generating help images' ; $HOME/.config/niri/scripts/gen-help"; }
 
     // Screenshots
     Mod+Shift+S            hotkey-overlay-title="Screenshot Selection"   { spawn-sh "niri msg action screenshot"; }
