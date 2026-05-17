@@ -52,7 +52,7 @@ case "$1" in
     case "$2" in
       locked)
         dms ipc call inhibit disable
-        wm-screen-lock -L
+        screen-lock -L
         ;;
       *)
         echo "Error: $2 is an unsupported function" > /dev/stderr
@@ -63,7 +63,7 @@ case "$1" in
   onSessionUnlocked)
     case "$2" in
       unlocked)
-        wm-screen-unlock -L
+        screen-unlock -L
         ;;
       *)
         echo "Error: $2 is an unsupported function" > /dev/stderr
