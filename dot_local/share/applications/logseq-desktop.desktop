@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Logseq
+Comment=Privacy-first, open-source platform for knowledge sharing and management
+Exec=logseq --disable-gpu --ozone-platform=wayland %u
+Icon=logseq
+Terminal=false
+StartupNotify=true
+Categories=Office;
+MimeType=x-scheme-handler/logseq;
+StartupWMClass=Logseq

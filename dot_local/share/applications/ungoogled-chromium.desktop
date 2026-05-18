@@ -1,0 +1,70 @@
+[Desktop Entry]
+Version=1.0
+Name=Chromium
+GenericName=Web Browser
+Comment=Access the Internet
+Exec=chromium --ozone-platform=wayland --user-data-dir=/home/mike/.config/ungoogled-chromium-mike %U
+StartupWMClass=chromium-browser
+StartupNotify=true
+Terminal=false
+Icon=chromium
+Type=Application
+Categories=Network;WebBrowser;WebDevelopment;Viewer;
+Keywords=chrome;internet;browser;chromium;google;ungoogled;
+MimeType=application/pdf;application/rdf+xml;application/rss+xml;application/xhtml+xml;application/xhtml_xml;application/xml;image/gif;image/jpeg;image/png;image/webp;text/html;text/xml;x-scheme-handler/http;x-scheme-handler/https;
+Actions=noprofile;noprofile-private-window;noprofile-private-window-proxy;noprofile-window-proxy;mike-profile;mike-private-window;mike-private-window-proxy;mike-proxy;mike-nogpu;doh-profile;doh-private-window;doh-private-window-proxy;doh-window-proxy;temp-non-firejail;
+X-Flatpak=io.github.ungoogled_software.ungoogled_chromium
+X-Flatpak-RenamedFrom=com.github.Eloston.UngoogledChromium.desktop;
+
+[Desktop Action temp-non-firejail]
+Name=Temporary Non-Firejail
+Exec=bash -c 'tmp=$(mktemp -d /run/user/$EUID/ugc.XXXXXXXXX); /usr/bin/chromium --ozone-platform=wayland --user-data-dir="$tmp"; rm -Rf "$tmp"'
+
+[Desktop Action mike-private-window]
+Name=Mike Private
+Exec=chromium --ozone-platform=wayland --user-data-dir=/home/mike/.config/ungoogled-chromium-mike --incognito %U
+
+[Desktop Action mike-private-window-proxy]
+Name=Mike Private Proxy
+Exec=chromium --ozone-platform=wayland --user-data-dir=/home/mike/.config/ungoogled-chromium-mike --incognito --proxy-server="socks5://127.0.0.1:1080" %U
+
+[Desktop Action mike-proxy]
+Name=Mike Proxy
+Exec=chromium --ozone-platform=wayland --user-data-dir=/home/mike/.config/ungoogled-chromium-mike --proxy-server="socks5://127.0.0.1:1080" %U
+
+[Desktop Action mike-nogpu]
+Name=Mike NoGPU
+Exec=chromium --ozone-platform=wayland --user-data-dir=/home/mike/.config/ungoogled-chromium-mike --disable-gpu %U
+
+[Desktop Action noprofile]
+Name=NoProfile
+Exec=chromium --ozone-platform=wayland --user-data-dir=/home/mike/.config/ungoogled-chromium %U
+
+[Desktop Action noprofile-private-window]
+Name=NoProfile Private
+Exec=chromium --ozone-platform=wayland --user-data-dir=/home/mike/.config/ungoogled-chromium --incognito %U
+
+[Desktop Action noprofile-private-window-proxy]
+Name=NoProfile Private Proxy
+Exec=chromium --ozone-platform=wayland --user-data-dir=/home/mike/.config/ungoogled-chromium --incognito --proxy-server="socks5://127.0.0.1:1080" %U
+
+[Desktop Action noprofile-window-proxy]
+Name=NoProfile Proxy
+Exec=chromium --ozone-platform=wayland --user-data-dir=/home/mike/.config/ungoogled-chromium --proxy-server="socks5://127.0.0.1:1080" %U
+
+[Desktop Action doh-profile]
+Name=DoH
+Exec=chromium --ozone-platform=wayland --user-data-dir=/home/mike/.config/ungoogled-chromium-doh %U
+
+[Desktop Action doh-private-window]
+Name=DoH Private
+Exec=chromium --ozone-platform=wayland --user-data-dir=/home/mike/.config/ungoogled-chromium-doh --incognito %U
+
+[Desktop Action doh-private-window-proxy]
+Name=DoH Private Proxy
+Exec=chromium --ozone-platform=wayland --user-data-dir=/home/mike/.config/ungoogled-chromium-doh --incognito --proxy-server="socks5://127.0.0.1:1080" %U
+
+[Desktop Action doh-window-proxy]
+Name=DoH Proxy
+Exec=chromium --ozone-platform=wayland --user-data-dir=/home/mike/.config/ungoogled-chromium-doh --proxy-server="socks5://127.0.0.1:1080" %U
+

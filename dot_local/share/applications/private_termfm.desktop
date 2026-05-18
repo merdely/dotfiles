@@ -1,0 +1,7 @@
+[Desktop Entry]
+Exec=x-terminal-emulator --title Yazi -e --class termfm yazi
+Name=Terminal File Manager
+Icon=utilities-terminal
+StartupNotify=false
+Type=Application
+X-KDE-GlobalAccel-CommandShortcut=true

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Udiskie Applet
+Comment=Automounter for Removable Media
+Icon=drive-removable-media-usb
+Exec=udiskie --no-menu-update-workaround --menu flat --no-file-manager --no-terminal --tray
+Terminal=false
+Type=Application
+StartupNotify=true
+Categories=GTK;GNOME;Settings;HardwareSettings;

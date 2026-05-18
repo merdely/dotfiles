@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Terminal=false
+Icon=libreoffice-calc
+Type=Application
+Exec=libreoffice --calc "/home/mike/Documents/Computer/Network Devices.ods"
+Name=Network Devices Worksheet (netdev)
+Comment=Worksheet for documenting Home Network Devices
+Comment[en]=Worksheet for documenting Home Network Devices
+StartupNotify=true
+StartupWMClass=libreoffice-calc
+
