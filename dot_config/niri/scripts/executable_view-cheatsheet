@@ -1,0 +1,16 @@
+#!/bin/sh
+
+progname=${0##*/}
+progname=${progname%.sh}
+[ -z "$1" ] && echo "usage: $progname IMAGEFILE" && exit 1
+img=$1
+[ ! -r "$img" ] && echo "Error: Cannot open '$img'" && exit 1
+
+run_imv() {
+  imv -W 1600 -H 1000 "$1" &
+}
+
+if pgrep -f "^imv(-wayland)? .* $img"; then
+  pkill -f "^imv(-wayland)? .* $img" || \
+  run_imv "$img"
+fi
