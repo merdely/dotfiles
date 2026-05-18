@@ -1,0 +1,244 @@
+#!/usr/bin/env bash
+
+progname=${0##*/}
+progname=${progname%.sh}
+if [ -r $HOME/.config/librewolf/librewolf/profiles.ini ]; then
+  profile_dir=${profile_dir:-$HOME/.config/librewolf/librewolf}
+elif [ -r $HOME/.librewolf/profiles.ini ]; then
+  profile_dir=${profile_dir:-$HOME/.librewolf}
+elif [ -r $HOME/.config/mozilla/firefox/profiles.ini ]; then
+  profile_dir=${profile_dir:-$HOME/.config/mozilla/firefox}
+else
+  profile_dir=${profile_dir:-$HOME/.mozilla}
+fi
+
+rcfile=${rcfile:-$HOME/.config/firefoxcookiemgrrc}
+adguard_list=${adguard_list:-false}
+opnsense_dnsmasq=${opnsense_dnsmasq:-false}
+opnsenserc=${opnsenserc:-$HOME/.config/opnsenserc}
+debug=${debug:-false}
+debug_exit=${debug_exit:-false}
+usage() {
+  echo "usage: $progname [-h] [-c FILE] [-O FILE] [-P PATH] [-a|-o] [-i FILE -p FILE]"
+  echo "          -h        : show this help text"
+  echo "          -c FILE   : use FILE for $progname settings instead of $rcfile"
+  echo "          -O FILE   : use FILE for OpnSense settings instead of $opnsenserc"
+  echo "          -P PATH   : use PATH instead of default Firefox path location"
+  echo "          -a        : use AdGuard Blocklist from Git to download a list of hostnames"
+  echo "          -o        : use OpnSense to download a list of hostnames from dnsmasq"
+  echo "          -i FILE   : import file saved previously to permissions file specified with -p"
+  echo "          -p FILE   : import file specified by -i to permissions file -p"
+  echo
+  echo "  Examples:"
+  echo "     NOTE: This is the default mode... the -p is optional"
+  echo "     $progname -m > media_out.txt"
+  echo "     $progname > out.txt"
+  echo "     $progname -P path-to-browser-profile > out.txt"
+  echo
+  echo "     NOTE: Firefox must not be running for an import"
+  echo "     $progname -i out.txt -p ~/.mozilla/firefox/*.NewProfile/permissions.sqlite"
+  exit $1
+}
+opnsenserc_set=false
+profile_path_set=false
+adguard_list_set=false
+opnsense_dnsmasq_set=false
+import_file_set=false
+permissions_file_set=false
+while getopts ":hdDc:O:P:aoi:p:" opt; do
+  case $opt in
+    d) debug=true ;;
+    D) debug=true ; debug_exit=true ;;
+    c) rcfile=$OPTARG ;;
+    O) opnsenserc=$OPTARG ; opnsenserc_set=true ;;
+    P)
+       profile_path=${OPTARG%/permissions.sqlite}
+       # Check if profile path is a label like "Default"
+       if [[ ! $profile_path =~ \/ ]] && [ ! -d "$profile_path" ] && [ ! -d "$profile_dir"/"$profile_path" ]; then
+         profile_path=${profile_path#????????.}
+         set -- "$profile_dir"/*."$profile_path"
+         profile_path=$1
+       # Check if profile path is a Profile Path Name like "abcd1234.Default"
+       elif [ ! -d $profile_path ] && [ -d "$profile_dir"/"${profile_path##*/}" ]; then
+         profile_path=$profile_dir/${profile_path##*/}
+       fi
+       if [ ! -r "$profile_path"/permissions.sqlite ]; then
+         echo "Error: Invalid profile path ($profile_path)" >&2
+         exit 1
+       fi
+       profile_path_set=true
+       ;;
+    a) adguard_list=true ; adguard_list_set=true ;;
+    o) opnsense_dnsmasq=true ; opnsense_dnsmasq_set=true ;;
+    i) import_file=$OPTARG ; import_file_set=true ;;
+    p) permissions_file=$OPTARG ; permissions_file_set=true ;;
+    *) usage ;;
+  esac
+done
+shift $((OPTIND -1))
+
+libpath="${0%/*}"/../lib:$HOME/src/scripts/lib:/srv/scripts/lib
+PATH="$libpath" . _config 2> /dev/null || { echo "Error: Cannot load _config library" >&2; exit 1; }
+
+unset opnsenserc_setting profile_path_setting 
+if [ -r $rcfile ]; then
+  ! $opnsenserc_set && \
+    opensenserc_setting=$(get_config_value "$rcfile" main opensenserc)
+  [ -n "$opnsenserc_setting" ] && opnsenserc=$opnsenserc_setting
+
+  ! $profile_path_set && \
+    profile_path_setting=$(get_config_value "$rcfile" main profile_path)
+  [ -n "$profile_path_setting" ] && profile_path=$profile_path_setting
+
+  ! $opnsense_dnsmasq_set && \
+    adguard_list_setting=$(get_config_value "$rcfile" main adguard_list)
+  [ -n "$adguard_list_setting" ] && adguard_list=$adguard_list_setting
+
+  ! $adguard_list_set && \
+    opnsense_dnsmasq_setting=$(get_config_value "$rcfile" main opnsense_dnsmasq)
+  [ -n "$opnsense_dnsmasq_setting" ] && opnsense_dnsmasq=$opnsense_dnsmasq_setting
+fi
+
+if $adguard_list && $opnsense_dnsmasq; then
+  echo "Error: Only one of -a and -o can be used"
+  exit 1
+fi
+
+if $opnsense_dnsmasq; then
+  if [ -r $opnsenserc ]; then
+    opnsense_server=$(get_config_value "$opnsenserc" opnsense server)
+    opnsense_key=$(get_config_value "$opnsenserc" opnsense api_key)
+    opnsense_secret=$(get_config_value "$opnsenserc" opnsense api_secret)
+    [ -z "$opnsense_server" ] && echo "Error: Could not read OpnSense Server from $opnsenserc" && exit 1
+    [ -z "$opnsense_key" ] && echo "Error: Could not read OpnSense Username from $opnsenserc" && exit 1
+    [ -z "$opnsense_secret" ] && echo "Error: Could not read OpnSense Password from $opnsenserc" && exit 1
+  else
+    echo "Error: Cannot read $opnsenserc for OpnSense dnsmasq settings" && exit 1
+  fi
+fi
+
+if $adguard_list; then
+  if [ -r $opnsenserc ]; then
+    adguard_list_url=$(get_config_value "$opnsenserc" adguard dnslist)
+    [ -z "$adguard_list_url" ] && echo "Error: Could not read AdGuard List URL from $opnsenserc" && exit 1
+  else
+    echo "Error: Cannot read $opnsenserc for AdGuard List URL" && exit 1
+  fi
+fi
+
+if [ -z "$profile_path" ]; then
+  # figure out default profile in $profile_dir
+  profile=$(grep -E "^\[Profile[0-9]+\]" "$profile_dir"/profiles.ini)
+  if [ $(echo "$profile" | wc -w) = 1 ]; then
+    profile=${profile#\[}
+    profile=${profile%]}
+    profile_name_path=$(get_config_value "$profile_dir"/profiles.ini "$profile" Path)
+    [ -z "$profile_name_path" ] && echo "Error: Could not get the Profile Path Name for $profile from $profile_dir/profiles.ini" && exit 1
+  else
+    installstring=$(grep -E "^\[Install[A-Za-z0-9]+\]" "$profile_dir"/profiles.ini)
+    if [ $(echo "$installstring" | wc -w) = 1 ]; then
+      installstring=${installstring#\[}
+      installstring=${installstring%]}
+      profile_name_path=$(get_config_value "$profile_dir"/profiles.ini "$installstring" Default)
+      [ -z "$profile_name_path" ] && echo "Error: Could not get the Default Profile Path Name from $profile_dir/profiles.ini" && exit 1
+    else
+      echo "Error: Could not \"Install\" section string from $profile_dir/profiles.ini" && exit 1
+    fi
+    profile_path=$profile_dir/$profile_name_path
+  fi
+  # set -- $profile_dir/*.Mike
+  # profile_path=$1
+fi
+
+if $debug; then
+  echo "opnsenserc=$opnsenserc"
+  echo "profile_path=$profile_path"
+  echo "adguard_list=$adguard_list"
+  echo "opnsense_dnsmasq=$opnsense_dnsmasq"
+  echo "import_file=$import_file"
+  echo "permissions_file=$permissions_file"
+  [ -n "$opnsense_server" ] && echo "opnsense_server=$opnsense_server"
+  [ -n "$opnsense_key" ] && echo "opnsense_key=$opnsense_key"
+  [ -n "$opnsense_secret" ] && echo "opnsense_secret=$opnsense_secret"
+  [ -n "$adguard_list_url" ] && echo "adguard_list_url=$adguard_list_url"
+  echo debug_exit=$debug_exit
+  $debug_exit && exit
+fi
+
+if [ -z "$import_file" -a -n "$permissions_file" ] || \
+   [ -n "$import_file" -a -z "$permissions_file" ]; then
+  echo "Error: -i FILE is required with -p FILE"
+  exit 1
+elif [ -n "$import_file" ] && [ -n "$permissions_file" ]; then
+  [ ! -r "$import_file" ] && echo "Error: Cannot read file for -i ($import_file)" && exit 1
+  [ ! -r "$permissions_file" ] && echo "Error: Cannot read file for -i ($permissions_file)" && exit 1
+  sqlite3 -readonly $permissions_file ".tables" | grep -q moz_perms > /dev/null 2>&1
+  if [ $? != 0 ]; then
+    echo "Error: Either $permissions_file is correct, not a Sqlite file, or is locked"
+    exit 1
+  fi
+  goodcount=$(grep -Ec "^(https?://|about:)" $import_file)
+  badcount=$(grep -Evc "^(https?://|about:)" $import_file)
+  [ "$badcount" != 0 ] && echo "Error: $import_file has non-websites in it" && exit 1
+  [ "$goodcount" = 0 ] && echo "Error: $import_file has no websites in it" && exit 1
+
+  last=$(sqlite3 -readonly "$permissions_file" "select id from moz_perms order by id" | tail -n1)
+  [[ ! $last =~ ^[0-9]+$ ]] && last=0
+  next=$((last+1))
+  oifs=$IFS
+  IFS=$'\n'
+  add=0
+  notadd=0
+  for line in $(cat $import_file); do
+    out=$(sqlite3 -readonly "$permissions_file" \
+      "select id from moz_perms where type='cookie' and origin='$line'")
+    [ -n "$out" ] && notadd=$((notadd+1))
+    if [ -z "$out" ]; then
+      time=$(date +%s%N)
+      sqlite3 "$permissions_file" "INSERT INTO moz_perms(id,origin,type,permission,expireType,expireTime,modificationTime) VALUES($next,'$line','cookie',1,0,0,${time:0:-6});"
+      add=$((add+1))
+      next=$((next+1))
+    fi
+  done
+  echo Added $add sites
+  echo Did not need to add $notadd sites
+else
+  unsort=$(mktemp)
+  sorted=$(mktemp)
+
+  # If using an OpnSense dnsmasq list, extract hostnames
+  if $opnsense_dnsmasq; then
+    curl -sL -X GET -u "$opnsense_key:$opnsense_secret" $opnsense_server/api/dnsmasq/settings/download_hosts | python3 -c "
+      import csv
+      import sys
+      reader = csv.reader(sys.stdin)
+      next(reader, None)
+      for row in reader:
+          #parts = []
+          if row[0] and row[1]:
+              # parts.append(f'{row[0]}.{row[1]}')
+              print(f'https://{row[0]}.{row[1]}')
+          if len(row) >= 12 and row[11]:
+              #parts.append(row[11])
+              print(f\"https://{row[11].replace(',','\nhttps://')}\")
+      " >> $unsort
+  fi # if $opnsense
+
+  # If using an AdGuard list, extract hostnames
+  if $adguard_list; then
+    curl -s $adguard_list_url | awk -F '[|^;]' '/;(A|CNAME);/{sub(/^https?:\/\//,"");print "https://" $2}' | grep -Ev "(adguard\.adguard)$" >> $unsort
+  fi
+
+  db=$(mktemp)
+
+  [ ! -r "$profile_path"/permissions.sqlite ] && echo "Error: Could not find permissions.sqlite from $profile_path" && exit 1
+
+  cp "$profile_path"/permissions.sqlite $db
+
+  sqlite3 -readonly $db "select origin from moz_perms where type='cookie'" | grep -vE "(erdely\.co|erdely\.in|erde\.ly|erdelynet\.com)$" >> $unsort
+
+  sort -u $unsort > $sorted
+  cat $sorted
+  rm -f $unsort $sorted $db
+fi
+
