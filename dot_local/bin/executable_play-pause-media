@@ -1,0 +1,57 @@
+#!/bin/sh
+
+choices() {
+  for f in $@; do
+    #echo $f
+    echo "$(playerctl -p "$f" metadata artist) - $(playerctl -p "$f" metadata title) on $f"
+  done
+}
+unset i_flag
+if playerctl -a metadata | grep -Eq "^mpv\s+xesam:url\s+rtsp"; then
+  i_flag="-i mpv"
+fi
+
+if playerctl -a status $i_flag | grep -q Playing; then
+  playerctl -a pause $i_flag
+else
+  # list=$(playerctl -l $i_flag)
+  # if [[ $(echo "$list" | wc -l) -gt 1 ]]; then
+  #   IFS=$(printf '\n\b')
+  #   choice=$(choices $list | sort | rofi -dmenu)
+  #   player=$(echo $choice | awk '{print $NF}')
+  #   playerctl -p $player $i_flag play
+  # else
+  #   playerctl $i_flag play
+  # fi
+
+  declare -A status
+  declare -A title
+  declare -A choosers
+
+  choosers[fuzzel]='fuzzel -p "Choose player to play > " -d --width=55 --with-nth=2'
+  choosers[rofi]='rofi -p "Choose player to play" -dmenu -display-columns 2'
+
+  [ -r $XDG_CONFIG_HOME/fuzzy-chooser.conf ] && source $XDG_CONFIG_HOME/fuzzy-chooser.conf
+  [ -z "$chooser" ] && chooser=$fuzzy_chooser
+
+  dochooser=${choosers[rofi]}
+
+  for f in $(playerctl -l); do
+    playerctl -p $f metadata | grep -Eq "mpv\s+xesam:url\s+rtsp" && continue
+    status[$f]=$(playerctl -p $f status)
+    if [ "${status[$f]}" != Playing ]; then
+      title[$f]=$(playerctl -p $f metadata | awk '/xesam:title/{sub(/^.*xesam:title\s+/,"");print}')
+    fi
+  done
+
+  if [ "${#title[@]}" = 1 ]; then
+    playerctl -p "${!title[@]}" play
+  elif [ "${#title[@]}" -gt 1 ]; then
+    choice=$(for f in "${!title[@]}"; do
+      printf "$f\t${title["$f"]}\n"
+    done | sort | $dochooser)
+    if [ -n "${choice%%	*}" ]; then
+      playerctl -p "${choice%%	*}" play
+    fi
+  fi
+fi
