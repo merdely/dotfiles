@@ -158,6 +158,9 @@ binds {
     Super+Down allow-when-locked=true hotkey-overlay-title="Decrease Brightness" { spawn-sh "brightnessctl -n1 set 10%-"; }
     Super+Up   allow-when-locked=true hotkey-overlay-title="Decrease Brightness" { spawn-sh "brightnessctl -n1 set 10%+"; }
 
+    // Play-Pause media
+    XF86AudioPlay        allow-when-locked=true { spawn-sh "play-pause-media"; }
+
     // Move/Focus with Mouse
     Mod+MouseMiddle      repeat=false    hotkey-overlay-title="Close Window"             { close-window; }
     Mod+WheelScrollDown  cooldown-ms=500 hotkey-overlay-title="Focus Next Column/Screen" { focus-column-or-monitor-right; }
