@@ -1,0 +1,122 @@
+{
+	"name": "Vimium C",
+	"@time": "2/2/2026, 8:28:44 AM",
+	"time": 1770038924766,
+	"environment": {
+		"extension": "2.12.3",
+		"platform": "linux",
+		"firefox": 147
+	},
+	"exclusionRules": [
+		{
+			"passKeys": "",
+			"pattern": ":https://mail.google.com/"
+		},
+		{
+			"passKeys": "! \" # % ' * . / : ; < > F G I X [ ] a b c d e h j k l m n p r s u v x y ",
+			"pattern": ":https://app.fastmail.com/"
+		},
+		{
+			"passKeys": "",
+			"pattern": ":https://carme.erdely.in/kvm/"
+		},
+		{
+			"passKeys": "",
+			"pattern": ":https://metis.erdely.in/kvm/"
+		},
+		{
+			"passKeys": "",
+			"pattern": ":https://pikvm.erdely.in/kvm/"
+		},
+		{
+			"passKeys": "",
+			"pattern": ":https://metis-kvm.erdely.in/kvm/"
+		},
+		{
+			"passKeys": "",
+			"pattern": ":https://music-browser.erdely.in/"
+		}
+	],
+	"keyLayout": 34,
+	"keyMappings": [
+		"#!no-check",
+		"map g1 firstTab count=9",
+		"map g2 firstTab count=10",
+		"map g3 firstTab count=11",
+		"map g4 firstTab count=12",
+		"map g5 firstTab count=13",
+		"map g6 firstTab count=14",
+		"map g7 firstTab count=15",
+		"map g8 firstTab count=16",
+		"map g9 firstTab count=17",
+		"map ; visitPreviousTab",
+		"# map <c-f> enterFindMode",
+		"# unmap /",
+		"# unmap n",
+		"# unmap N",
+		""
+	],
+	"nextPatterns": "next,more,newer,>,›,→,»,≫,>>",
+	"previousPatterns": "prev,previous,back,older,<,‹,←,«,≪,<<",
+	"searchEngines": [
+		"am: https://www.amazon.com/s?k=%s Amazon",
+		"ao: https://www.amazon.com/your-orders/search?opt=ab&search=%s Amazon Orders",
+		"man: https://man.archlinux.org/man/%s Arch Man Pages",
+		"ap: https://archlinux.org/packages/?q=%s Arch Packages",
+		"aw: https://wiki.archlinux.org/index.php?search=%s Arch Wiki",
+		"aurs: https://aur.archlinux.org/packages?O=0&K=%s Arch AUR Search",
+		"cg: https://chatgpt.com/?q=%s ChatGPT",
+		"cl: https://claude.ai/new/?q=%s Claude AI",
+		"ddgh: https://html.duckduckgo.com/html/?q=%s DDG HTML",
+		"di: https://duckduckgo.com/?t=h_&iax=images&ia=images&q=%s DDG Images",
+		"ddg: https://start.duckduckgo.com/lite/?q=%s DDG Lite",
+		"dh: https://hub.docker.com/search?q=%s DockerHub",
+		"fd: https://search.f-droid.org/?lang=en&q=%s F-Droid",
+		"fp: https://packages.fedoraproject.org/search?query=%s Fedora Packages",
+		"fm: https://music.erdely.in/#/search/song?query=%s Feishin Music",
+		"fa: https://addons.mozilla.org/en-US/firefox/search/?q=%s Firefox Add-ons",
+		"fh: https://flathub.org/apps/search?q=%s FlatHub",
+		"gh: https://github.com/search?type=repositories&q=%s GitHub",
+		"imdb: https://www.imdb.com/find/?q=%s IMDB",
+		"jf: https://jellyfin.erdelynet.com:38920/web/#/search.html?query=%s Jellyfin",
+		"cb: https://chatbot.erdely.in/?q=%s My ChatBot",
+		"nf: https://www.nerdfonts.com/cheat-sheet?q=%s NerdFonts",
+		"oman: https://man.openbsd.org/%s OpenBSD Man",
+		"x: https://baresearch.org/search?q=%s SearXNG BareSearch",
+		"spl: [[https://splunk.erdely.in/en-US/app/search/search?q=search %s]] Splunk",
+		"sd: https://help.splunk.com/en/search?q=%s Splunk Docs",
+		"sp: https://www.startpage.com/sp/search?query=%s StartPage",
+		"si: https://www.startpage.com/sp/search?cat=images&query=%s StartPage Images",
+		"na: https://www.startpage.com/do/search?query=%s+-site%3Aamazon.com+-site%3Aamazon.co.uk+-site%3Aamazon.com.au StartPage No Amazon",
+		"tmdb: https://www.themoviedb.org/search?query=%s The Movie DB",
+		"wp: https://en.wikipedia.org/wiki/?search=%s Wikipedia",
+		"yt: https://www.youtube.com/results?search_query=%s Youtube",
+		"ym: https://music.youtube.com/search?q=%s Youtube Music",
+		"yy: https://yts.erdely.in/?query_term=%s YTS",
+		"",
+		"g|go|gg|google|Google: https://www.google.com/search?q=%s \\",
+		"  www.google.com re=/^(?:\\.[a-z]{2,4})?\\/search\\b.*?[#&?]q=([^#&]*)/i \\",
+		"  blank=https://www.google.com/ Google",
+		"ec|ecosia: https://www.ecosia.org/search?q=%s Ecosia",
+		"qw|qwant: https://www.qwant.com/?q=%s Qwant",
+		"",
+		"g.m|gm|g.map|gmap: https://www.google.com/maps?q=%s \\",
+		"  blank=https://www.google.com/maps Google Maps",
+		"y|yt: https://www.youtube.com/results?search_query=%s \\",
+		"  blank=https://www.youtube.com/ YouTube",
+		"w|wiki: https://www.wikipedia.org/w/index.php?search=%s Wikipedia",
+		"",
+		"az|amazon: https://www.amazon.com/s?k=%s \\",
+		"  blank=https://www.amazon.com/ Amazon",
+		"",
+		"\\:i: vimium://sed/s/^//,lower\\ $S re= Lower case",
+		"v.m|math: vimium://math\\ $S re= Calculate",
+		"v.p: vimium://parse\\ $S re= Redo Search",
+		"gh|github: https://github.com/search?q=$s \\",
+		"  blank=https://github.com/ GitHub Repo",
+		"js\\:|Js: javascript:\\ $S; JavaScript",
+		""
+	],
+	"searchUrl": "https://www.startpage.com/sp/search?query=$s&cat=web&pl=opensearch StartPage",
+	"vimSync": true
+}
