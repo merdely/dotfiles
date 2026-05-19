@@ -6,11 +6,11 @@ unset sys
 case "$ID" in
   arch|artix|cachyos|garuda|endeavouros|manjaro) sys=arch ;;
 esac
-case "$ID_LIKE"
+case "$ID_LIKE" in
   *arch*) sys=arch ;;
 esac
 
 if [ "$sys" = "arch" ]; then
-  sudo pacman -Syu pass git gnupg
+  sudo pacman -Syu --needed pass git gnupg
 fi
 
