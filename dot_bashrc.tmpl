@@ -411,8 +411,19 @@ if cmdcheck docker; then
   fi
 
   dr() {
-    [[ $# -lt 1 ]] && return 1
-    docker run --rm -it --name "${1%%:*}" "$1" sh -c "command -v bash && exec bash || exec ash"
+    (( $# -lt 1 )) && return 1
+    local name_base=dr_"${1%%:*}" name=dr_"${1%%:*}" ok=false existing tag
+    while ! $ok; do
+      ok=true
+      for existing in alpine alpine.1 alpine.2 $(docker ps -a --format '{{ "{{" }}.Names}}'); do
+        if [[ "$name" == "$existing" ]]; then
+          ok=false
+          [[ -z "$tag" ]] && tag=0 || tag=$(( tag + 1 ))
+          name=$name_base.$tag
+        fi
+      done
+    done
+    echo docker run --rm -it --name "$name" "$1" sh -c "command -v bash && exec bash || exec ash"
   }
 fi
 
