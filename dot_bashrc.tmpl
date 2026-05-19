@@ -250,7 +250,7 @@ if [[ -n "$BASH_VERSION" ]]; then
   __prompt_dollar() { ((__prompt_exit != 0)) && printf '\e[91m' || printf '\e[92m'; }
 
   # Set the prompt
-  [[ "$CHEZMOI_SUBSHELL" == 1 ]] && __subshell=$'\[\e[1;92m\](chezmoi)\[\e[22;39m\]'
+  [[ "$CHEZMOI_SUBSHELL" == 1 ]] && __subshell=$'\1\e[1;95m\2(chezmoi)\1\e[22;39m\2'
   PS1="[\[\e[96m\]\u\[\e[39m\]@\[\e[92m\]\h\[\e[39m\] \[\e[94m\]\$(__prompt_trim_pwd "\W")\[\e[39m\]]\[\e[22;24;27;49m\]\${__subshell}\$(__git_ps1 ' (\[\e[1;${__orange}m\]${__gitglyph}\[\e[1;39m\]%s\[\e[22m\])' 2>/dev/null) \[\$(__prompt_dollar)\]\\$\[\e[39m\] \[\e[0m\]"
   unset __gitglyph
 
