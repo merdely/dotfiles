@@ -309,6 +309,7 @@ if [[ -r /srv/scripts/sbin/daily_report_linux ]]; then
   alias check_reboot='sudo /srv/scripts/sbin/daily_report_linux reboot'
   alias check_restart='sudo /srv/scripts/sbin/daily_report_linux restart'
 fi
+command -v chezmoi > /dev/null 2>&1 && alias cm=chezmoi
 [[ -d /opt/splunk || -d /opt/splunkforwarder ]] && alias susplunk='sudo su - splunk'
 [[ -d /etc/acme ]] && alias suacme='sudo su -s /bin/bash -l acme'
 command -v python2 > /dev/null 2>&1 && alias python=python2
