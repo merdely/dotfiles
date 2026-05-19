@@ -26,12 +26,12 @@ export GIT_COMMITTER_EMAIL=$GIT_AUTHOR_EMAIL
 [[ -z "$EUID" ]] && EUID=$(id -u 2>/dev/null) && export EUID
 
 # Set PATH
-[[ -d /srv/scripts/sbin && ":$PATH:" != *:/srv/scripts/sbin:* ]] && PATH=/srv/scripts/sbin:$PATH
-[[ -d /srv/scripts/bin  && ":$PATH:" != *:/srv/scripts/bin:*  ]] && PATH=/srv/scripts/bin:$PATH
-[[ ":$PATH:" != *":$HOME/.local/bin:"* ]] && PATH=$HOME/.local/bin:$PATH
-[[ ":$PATH:" != *:/usr/sbin:* ]] && PATH=$PATH:/usr/sbin
+[[ -d /srv/scripts/sbin && ":$PATH:" != *:/srv/scripts/sbin:* ]] && PATH=/srv/scripts/sbin:"$PATH"
+[[ -d /srv/scripts/bin  && ":$PATH:" != *:/srv/scripts/bin:*  ]] && PATH=/srv/scripts/bin:"$PATH"
+[[ ":$PATH:" != *":$HOME/.local/bin:"* ]] && PATH=$HOME/.local/bin:"$PATH"
+[[ ":$PATH:" != *:/usr/sbin:* ]] && PATH="$PATH":/usr/sbin
 [[ -x /usr/lib/nagios/plugins/check_disk && ":$PATH:" != *:/usr/local/nagios/plugins:* ]] && \
-  PATH=$PATH:/usr/lib/nagios/plugins
+  PATH="$PATH":/usr/lib/nagios/plugins
 export PATH
 
 # XDG PATHS (https://wiki.archlinux.org/title/XDG_Base_Directory)
@@ -40,12 +40,25 @@ export XDG_CACHE_HOME=${XDG_CACHE_HOME:-$HOME/.cache}
 export XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}
 export XDG_STATE_HOME=${XDG_STATE_HOME:-$HOME/.local/state}
 export XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR:-/run/user/$EUID}
-export XDG_DATA_DIRS=$XDG_DATA_HOME:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}
+export XDG_DATA_DIRS="$XDG_DATA_HOME":"${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
 
 # Make sure specific XDG directories are writeable
-[[ ! -w "$XDG_RUNTIME_DIR" ]] && export XDG_RUNTIME_DIR=/tmp/.$EUID && mkdir -pm 700 "$XDG_RUNTIME_DIR" > /dev/null 2>&1
-[[ ! -w "$XDG_CACHE_HOME" ]] && export XDG_CACHE_HOME=$XDG_RUNTIME_DIR/.cache && mkdir -pm 700 "$XDG_CACHE_HOME" > /dev/null 2>&1
-[[ ! -w "$XDG_STATE_HOME" ]] && export XDG_STATE_HOME=$XDG_RUNTIME_DIR/.state && mkdir -pm 700 "$XDG_STATE_HOME" > /dev/null 2>&1
+if [[ -w /dev/shm ]]; then
+  [[ ! -w "$XDG_RUNTIME_DIR" ]] && export XDG_RUNTIME_DIR=/dev/shm/.$EUID && \
+    mkdir -pm 700 "$XDG_RUNTIME_DIR" > /dev/null 2>&1
+else
+  [[ ! -w "$XDG_RUNTIME_DIR" ]] && export XDG_RUNTIME_DIR=/tmp/.$EUID && \
+    mkdir -pm 700 "$XDG_RUNTIME_DIR" > /dev/null 2>&1
+fi
+[[ ! -w "$XDG_CACHE_HOME" ]] && export XDG_CACHE_HOME=$XDG_RUNTIME_DIR/cache && \
+  mkdir -pm 700 "$XDG_CACHE_HOME" > /dev/null 2>&1
+[[ ! -w "$XDG_STATE_HOME" ]] && export XDG_STATE_HOME=$XDG_RUNTIME_DIR/state && \
+  mkdir -pm 700 "$XDG_STATE_HOME" > /dev/null 2>&1
+
+# Create XDG directories if necessary
+for dir in "$XDG_CONFIG_HOME" "$XDG_CACHE_HOME" "$XDG_DATA_HOME" "$XDG_STATE_HOME"; do
+  [[ ! -d "$dir" ]] && mkdir -p "$dir"
+done
 
 # Configuration settings to not pollute $HOME
 # XDG_CONFIG_HOME ($HOME/.config)
@@ -76,14 +89,17 @@ export GOPATH=$XDG_DATA_HOME/go
 export GOBIN=$XDG_DATA_HOME/go/bin
 export LEIN_HOME=$XDG_DATA_HOME/lein
 export MACHINE_STORAGE_PATH=$XDG_DATA_HOME/docker-machine
+export PASSWORD_STORE_DIR=$XDG_DATA_HOME/password-store
 export VSCODE_PORTABLE=$XDG_DATA_HOME/vscode
 # XDG_RUNTIME_DIR (/run/user/1000 or /tmp/.1000)
 export SCREENDIR=$XDG_RUNTIME_DIR/screen
 
 # Read variables from ~/.config/environment.d/$LOGNAME.conf
 if [[ -r "$XDG_CONFIG_HOME"/environment.d/"$LOGNAME".conf ]]; then
+  # Enable automatic exporting of variables
   set -a
   . "$XDG_CONFIG_HOME"/environment.d/"$LOGNAME".conf
+  # Disable automatic exporting of variables
   set +a
 fi
 
@@ -102,21 +118,24 @@ export HOSTNAME=${HOSTNAME%%.*}
 # Remove a directory from PATH
 path_prune() {
   [[ -z "$1" ]] && return 1
-  local n r="$PATH:"
-  while [[ -n "$r" ]]; do
-    [[ "$1" != "${r%%:*}" ]] && n="${n}:${r%%:*}"
-    r="${r#*:}"
+  local left_side right_side="$PATH:"
+
+  # Loop through the PATH variable, moving elements from the right to the left,
+  # skipping the prune-part
+  while [[ -n "$right_side" ]]; do
+    [[ "$1" != "${right_side%%:*}" ]] && left_side="${left_side}:${right_side%%:*}"
+    right_side=${right_side#*:}
   done
-  export PATH=${n#:}
+  export PATH=${left_side#:}
 }
 
 # Intelligently add a directory to PATH
 path_add() {
-  local b=false
-  [[ "$1" == "-b" ]] && b=true && shift
+  local before=false
+  [[ "$1" == "-b" ]] && before=true && shift
   [[ -z "$1" ]] && return 1
   path_prune "$1"
-  if "$b"; then
+  if "$before"; then
     export PATH="$1":"$PATH"
   else
     export PATH="$PATH":"$1"
@@ -125,18 +144,18 @@ path_add() {
 
 # For use in PS1, better PROMPT_DIRTRIM/\w
 __prompt_trim_pwd() {
-    local default="${1:-\\w}"
+    local default=${1:-\\w}
     [[ -z "$BASH_VERSION" ]] && { echo "$default" ; return 0 ; }
-    local ellipsis="…" pwd="${PWD/#$HOME/\~}" parts trimmed
+    local ellipsis="…" pwd=${PWD/#$HOME/\~} parts trimmed
     [[ -z "$PROMPT_DIRTRIM" || "$PROMPT_DIRTRIM" -lt 1 ]] && { echo "$default" ; return 1 ; }
     eval 'IFS=/ read -ra parts <<< "$pwd"'
     if (( ${#parts[@]} == 0 )); then
       echo "$default" ; return 1
     elif [[ "${parts[0]}" == "~" && "${#parts[@]}" -gt $(( PROMPT_DIRTRIM + 2 )) ]]; then
-        trimmed="${parts[*]: -$PROMPT_DIRTRIM}"
+        trimmed=${parts[*]: -$PROMPT_DIRTRIM}
         echo "~/${ellipsis}/${trimmed// //}"
     elif [[ "${parts[0]}" != "~" && "${#parts[@]}" -gt $(( PROMPT_DIRTRIM + 1 )) ]]; then
-        trimmed="${parts[*]: -$PROMPT_DIRTRIM}"
+        trimmed=${parts[*]: -$PROMPT_DIRTRIM}
         echo "${ellipsis}/${trimmed// //}"
     else
         echo "$pwd"
