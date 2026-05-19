@@ -205,8 +205,8 @@ typeset -f __git_ps1 > /dev/null 2>&1 || alias __git_ps1=true
 unset __subshell
 [[ "$CHEZMOI_SUBSHELL" == 1 ]] && __subshell="{C}"
 # printf '\033%%G' switches terminal to UTF-8
-[[ "$TERM" == vt220 ]] && { printf '\033%%G' ; }
-PS1="[\u@\h \$(__prompt_trim_pwd '\W')]\${__subshell}\$(__git_ps1 ' (${__gitglyph}%s)' 2>/dev/null) \\$ "
+# [[ "$TERM" == vt220 ]] && { printf '\033%%G' ; }
+PS1="[\u@\h \$(__prompt_trim_pwd '\W')]\${__subshell}\$(__git_ps1 ' (\[\e%G\]${__gitglyph}\[\e%@\]%s)' 2>/dev/null) \\$ "
 
 # Set the prompt for bash
 if [[ -n "$BASH_VERSION" ]]; then
