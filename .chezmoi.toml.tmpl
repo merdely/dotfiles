@@ -1,0 +1,12 @@
+# vim: set filetype=toml :
+progress = true
+
+[edit]
+    apply = true
+
+[git]
+    autoCommit = true
+    autoPush = true
+
+[hooks.read-source-state.pre]
+command = ".local/share/chezmoi/.prep-chezmoi.sh"

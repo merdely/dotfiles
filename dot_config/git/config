@@ -1,0 +1,28 @@
+# This is Git's per-user configuration file.
+[user]
+	name = Michael Erdely
+	email = mike@erdelynet.com
+	signingkey = /home/mike/.ssh/id_ed25519
+[credential]
+	helper = store
+[init]
+	defaultBranch = main
+[gpg]
+	format = ssh
+[commit]
+	gpgSign = true
+[safe]
+	directory = /etc
+	directory = /srv
+	directory = /srv/scripts
+	directory = /usr
+	directory = /var
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+[submodule]
+	recurse = true
+[push]
+	recurseSubmodules = on-demand

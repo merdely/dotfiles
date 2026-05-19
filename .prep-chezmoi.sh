@@ -11,6 +11,6 @@ case "$ID_LIKE"
 esac
 
 if [ "$sys" = "arch" ]; then
-  sudo pacman -Syu pass git
+  sudo pacman -Syu pass git gnupg
 fi
 
