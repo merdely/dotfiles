@@ -415,7 +415,7 @@ if cmdcheck docker; then
     local name_base=dr_"${1%%:*}" name=dr_"${1%%:*}" ok=false existing tag
     while ! $ok; do
       ok=true
-      for existing in dr_alpine dr_alpine.1 dr_alpine.2 $(docker ps -a --format '{{ "{{" }}.Names}}'); do
+      for existing in dr_alpine dr_alpine.0 dr_alpine.1 dr_alpine.2 $(docker ps -a --format '{{ "{{" }}.Names}}'); do
         if [[ "$name" == "$existing" ]]; then
           ok=false
           [[ -z "$tag" ]] && tag=0 || tag=$(( tag + 1 ))
