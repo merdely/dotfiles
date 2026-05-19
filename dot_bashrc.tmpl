@@ -337,7 +337,11 @@ fi
 command -v sudoedit > /dev/null 2>&1 && alias sudovi=sudoedit
 
 # Config file aliases
-alias vip='vi "$XDG_CONFIG_HOME"/shell/merdely.profile'
+if command -v chezmoi > /dev/null 2>&1; then
+  alias vip='chezmoi edit "$HOME"/.bashrc'
+else
+  alias vip='vi "$HOME"/.bashrc'
+fi
 [[ -r "$HOME"/.profile.local ]] && alias vipl='vi "$HOME"/.profile.local'
 command -v hyprctl > /dev/null 2>&1 && alias vih='vi -O "$XDG_CONFIG_HOME"/hypr/hyprland.conf'
 command -v i3-msg  > /dev/null 2>&1 && alias vi3='vi "$XDG_CONFIG_HOME"/i3/config'
