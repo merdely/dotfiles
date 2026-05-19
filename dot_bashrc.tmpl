@@ -186,7 +186,7 @@ if command -v git > /dev/null 2>&1; then
     GIT_PS1_SHOWUPSTREAM="auto"  # auto verbose name legacy git svn
     unset GIT_PS1_SHOWCOLORHINTS
     [[ -z "$KSH_VERSION" ]] && GIT_PS1_SHOWCOLORHINTS=true
-    __gitglyph="§ "  # unicode section sign
+    __gitglyph="§ "  # unicode section sign U+00A7
     [[ "$TERM" != linux ]] && __gitglyph=" "  # git branch symbol from nerd fonts
   fi
   pgrep -x gpg-agent > /dev/null 2>&1 || export GPG_TTY=$(tty)
@@ -203,8 +203,9 @@ typeset -f __git_ps1 > /dev/null 2>&1 || alias __git_ps1=true
 
 # Set up a basic prompt
 unset __subshell
-[[ "$CHEZMOI_SUBSHELL" == 1 ]] && __subshell="(chezmoi)"
-[[ "$TERM" == vt220 ]] && { unset __gitglyph ; }
+[[ "$CHEZMOI_SUBSHELL" == 1 ]] && __subshell="{C}"
+# printf '\033%%G' switches terminal to UTF-8
+[[ "$TERM" == vt220 ]] && { printf '\033%%G' ; }
 PS1="[\u@\h \$(__prompt_trim_pwd '\W')]\${__subshell}\$(__git_ps1 ' (${__gitglyph}%s)' 2>/dev/null) \\$ "
 
 # Set the prompt for bash
