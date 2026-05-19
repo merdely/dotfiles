@@ -202,9 +202,9 @@ typeset -f __git_ps1 > /dev/null 2>&1 || alias __git_ps1=true
 #fi
 
 # Set up a basic prompt
-[[ "$TERM" == vt220 ]] && unset __gitglyph
 unset __subshell
-[[ "$CHEZMOI_SUBSHELL" == 1 ]] && __subshell=(c)
+[[ "$CHEZMOI_SUBSHELL" == 1 ]] && __subshell=""
+[[ "$TERM" == vt220 ]] && { unset __gitglyph ; [[ -n "$__subshell" ]] && __subshell="©" ; }
 PS1="[\u@\h \$(__prompt_trim_pwd '\W')]\${__subshell}\$(__git_ps1 ' (${__gitglyph}%s)' 2>/dev/null) \\$ "
 
 # Set the prompt for bash
