@@ -163,6 +163,10 @@ __prompt_trim_pwd() {
     fi
 }
 
+cmdcheck() {
+  command -v "$@" > /dev/null 2>&1
+}
+
 # Load git prompt
 if command -v git > /dev/null 2>&1; then
   unalias __git_ps1 > /dev/null 2>&1
@@ -337,7 +341,7 @@ fi
 command -v sudoedit > /dev/null 2>&1 && alias sudovi=sudoedit
 
 # Config file aliases
-if command -v chezmoi > /dev/null 2>&1; then
+if cmdcheck chezmoi; then
   alias vip='chezmoi edit "$HOME"/.bashrc'
 else
   alias vip='vi "$HOME"/.bashrc'
@@ -358,7 +362,7 @@ if command -v dog > /dev/null 2>&1; then
 fi
 
 # Set some variables
-if command -v docker > /dev/null 2>&1; then
+if cmdcheck docker; then
   [[ -r /srv/docker/docker-compose.yaml ]] && export COMPOSE_FILE=/srv/docker/docker-compose.yaml
   [[ -r /srv/docker/compose.yaml ]] && export COMPOSE_FILE=/srv/docker/compose.yaml
   export COMPOSE_DOCKER_CLI_BUILD=0
@@ -405,6 +409,10 @@ if command -v docker > /dev/null 2>&1; then
     command -v mariadb > /dev/null 2>&1 || alias mariadb="docker compose exec -it -u mysql mysql mariadb"
     command -v mariadb-dump > /dev/null 2>&1 || alias mariadb-dump="docker compose exec -it -u mysql mysql mariadb-dump"
   fi
+
+  dr() {
+    docker run --rm -it --name "$1" "$1" sh -c "command -v bash && exec bash || exec ash"
+  }
 fi
 
 # Ansible aliases
