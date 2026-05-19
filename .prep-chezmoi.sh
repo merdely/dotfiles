@@ -11,6 +11,8 @@ case "$ID_LIKE" in
 esac
 
 if [ "$sys" = "arch" ]; then
-  sudo pacman -Syu --needed pass git gnupg
+  if pacman -Q git gnupg pass > /dev/null 2>&1; then
+    sudo pacman -Syu --needed --noconfirm pass git gnupg
+  fi
 fi
 
