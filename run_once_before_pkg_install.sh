@@ -66,10 +66,14 @@ if [[ "$ID" =~ ^(arch|artix|cachyos|garuda|endeavouros|manjaro)$ || " $ID_LIKE "
   # Enable services: DMS and ydotool
   systemctl --user enable dms.service ssh-agent.service ydotool.service
 
+  groups=$(groups $LOGNAME)
+  groups=${groups#$LOGNAME : }
   # Add user to needed groups
   for group in video render input wheel; do
     # Skip groups from the list that do not exist
-    getent group "$group" &> /dev/null && continue
+    getent group "$group" &> /dev/null || continue
+    # Skip groups already a member of
+    echo "$groups" | grep -qw "$group" && continue
     # Add user to group (ok if already a member)
     echo "Adding $LOGNAME to $group"
     sudo usermod -aG "$group" "$LOGNAME"
