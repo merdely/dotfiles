@@ -411,7 +411,8 @@ if cmdcheck docker; then
   fi
 
   dr() {
-    docker run --rm -it --name "$1" "$1" sh -c "command -v bash && exec bash || exec ash"
+    [[ $# -lt 1 ]] && return 1
+    docker run --rm -it --name "${1%%:*}" "$1" sh -c "command -v bash && exec bash || exec ash"
   }
 fi
 
