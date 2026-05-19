@@ -59,6 +59,7 @@ fi
 for dir in "$XDG_CONFIG_HOME" "$XDG_CACHE_HOME" "$XDG_DATA_HOME" "$XDG_STATE_HOME"; do
   [[ ! -d "$dir" ]] && mkdir -p "$dir"
 done
+unset dir
 
 # Configuration settings to not pollute $HOME
 # XDG_CONFIG_HOME ($HOME/.config)
@@ -554,10 +555,10 @@ case "$HOSTNAME" in
         alias dmesg='sudo dmesg'
 
         pushprofile() {
+          local f list ros roh out
           cd "$HOME" || return 1
           list="jupiter earth carme metis sinope tarvos neso"
           [[ -n "$1" ]] && list="$*"
-          unset ros
           roh=" carme metis sinope tarvos neso "
           for f in $list; do
             echo "$f"
@@ -573,6 +574,7 @@ case "$HOSTNAME" in
         }
 
         pushknownhosts() {
+          local f list
           list="mercury jupiter earth carme metis tarvos"
           [[ -n "$1" ]] && list="$*"
           for f in $list; do
@@ -592,10 +594,10 @@ case "$HOSTNAME" in
         }
 
         pushvimrc() {
+          local f list ros roh out
           cd "$HOME" || return 1
           list="jupiter earth carme metis sinope tarvos"
           [[ -n "$1" ]] && list="$*"
-          unset ros
           roh=" carme metis sinope tarvos "
           for f in $list; do
             echo "$f"
