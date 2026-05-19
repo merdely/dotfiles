@@ -423,7 +423,7 @@ if cmdcheck docker; then
         fi
       done
     done
-    docker run --rm -it --name "$name" "$1" sh -c "command -v bash && exec bash || exec ash"
+    docker run --rm -it --name "$name" "$1" sh -c "command -v bash>/dev/null && exec bash || exec ash"
   }
 fi
 
