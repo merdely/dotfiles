@@ -412,7 +412,7 @@ if cmdcheck docker; then
 
   dr() {
     (( $# < 1 )) && return 1
-    local name_base=dr_"${1%%:*}" name=dr_"${1%%:*}" ok=false existing tag
+    local name_base="${1%%:*}" name="${1%%:*}" ok=false existing tag
     while ! $ok; do
       ok=true
       for existing in $(docker ps -a --format '{{ "{{" }}.Names}}'); do
