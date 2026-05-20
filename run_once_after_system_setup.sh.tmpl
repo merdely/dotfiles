@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# vim: set filetype=sh :
+
+{{- $trusted_hosts := .trusted_hosts | default list -}}
+
+{{- $profiles := joinPath .chezmoi.homeDir ".config" "chezmoi" "profiles" -}}
+{{- $is_desktop := stat (joinPath $profiles "desktop") -}}
+{{- $is_server  := stat (joinPath $profiles "server") -}}
+{{- $is_trusted := has .chezmoi.hostname $trusted_hosts -}}
+
+TMPFILES=()
+trap 'rm -Rf -- "${TMPFILES[@]}"' EXIT
+trap 'exit 1' INT TERM
+
+  {{- if $is_desktop }}
+  # Setup dms-greeter
+  if [ -e /etc/greetd/config.toml ]; then
+    if [ -r "$HOME"/.config/niri/greeter/settings.json ]; then
+      echo "Configuring dms-greeter settings"
+      sudo cp "$HOME"/.config/niri/greeter/settings.json /var/cache/dms-greeter
+    fi
+    if [ -r "$HOME"/.config/niri/greeter/colors.json ]; then
+      echo "Configuring dms-greeter colors"
+      sudo cp "$HOME"/.config/niri/greeter/colors.json /var/cache/dms-greeter
+    fi
+  fi
+  {{- end }}
+fi
+
