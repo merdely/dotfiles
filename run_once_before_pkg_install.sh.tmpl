@@ -19,7 +19,7 @@ if [[ "$ID" =~ ^(arch|artix|cachyos|garuda|endeavouros|manjaro)$ || " $ID_LIKE "
   need=()
   packages=(
     base-devel git openssh neovim vim man-db apparmor firejail rsync ripgrep fd
-    networkmanager nm-connection-editor openresolv htop btop jq 7zip
+    networkmanager openresolv htop btop jq 7zip
   )
   {{- if $is_desktop }}
   packages+=(
@@ -32,7 +32,7 @@ if [[ "$ID" =~ ^(arch|artix|cachyos|garuda|endeavouros|manjaro)$ || " $ID_LIKE "
     ttf-nerd-fonts-symbols ttf-nerd-fonts-symbols-common ttf-nerd-fonts-symbols-mono
     imv imagemagick python-pillow python-cairocffi
     nwg-look adw-gtk-theme breeze-gtk breeze-icons
-    yad galculator nautilus gvfs-dnssd librewolf-bin
+    nm-connection-editor yad galculator nautilus gvfs-dnssd librewolf-bin
   )
   {{- end }}
 
@@ -62,6 +62,21 @@ if [[ "$ID" =~ ^(arch|artix|cachyos|garuda|endeavouros|manjaro)$ || " $ID_LIKE "
     sudo install -o root -g root -m 755 "$HOME"/.local/bin/vi /usr/bin/vi
   fi
 
+  groups=$(groups $LOGNAME)
+  groups=${groups#$LOGNAME : }
+
+  # Add user to needed groups
+  for group in video render input wheel; do
+    # Skip groups from the list that do not exist
+    getent group "$group" &> /dev/null || continue
+    # Skip groups already a member of
+    echo "$groups" | grep -qw "$group" && continue
+    # Add user to group (ok if already a member)
+    echo "Adding $LOGNAME to $group"
+    sudo usermod -aG "$group" "$LOGNAME"
+  done
+
+  {{- if $is_desktop }}
   # Setup dms-greeter
   if ! grep -qE "^\s*command\s*=.*dms-greeter" /etc/greetd/config.toml; then
     if ! grep -q "^\[default_session\]" /etc/greetd/config.toml; then
@@ -79,19 +94,7 @@ if [[ "$ID" =~ ^(arch|artix|cachyos|garuda|endeavouros|manjaro)$ || " $ID_LIKE "
 
   # Enable services: DMS and ydotool
   systemctl --user enable dms.service ssh-agent.service ydotool.service
-
-  groups=$(groups $LOGNAME)
-  groups=${groups#$LOGNAME : }
-  # Add user to needed groups
-  for group in video render input wheel; do
-    # Skip groups from the list that do not exist
-    getent group "$group" &> /dev/null || continue
-    # Skip groups already a member of
-    echo "$groups" | grep -qw "$group" && continue
-    # Add user to group (ok if already a member)
-    echo "Adding $LOGNAME to $group"
-    sudo usermod -aG "$group" "$LOGNAME"
-  done
+  {{- end }}
 else
   echo "Error: Unsupported OS (${ID:-Could not determine OS})" >&2
   exit 1
