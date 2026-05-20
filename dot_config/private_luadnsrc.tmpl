@@ -8,16 +8,16 @@ api_key: 1234
 
 [erdelynet.com]
 domain_name: erdelynet.com
-user_name: {{ if has .chezmoi.hostname (.trusted_hosts|default list) }}{{ pass "services/luadns/username" }}{{ end }}
-api_key: {{ if has .chezmoi.hostname (.trusted_hosts|default list) }}{{ pass "services/luadns/apikey" }}{{ end }}
+user_name: {{ pass "services/luadns/username" }}
+api_key: {{ pass "services/luadns/apikey" }}
 
 [orletsky]
 domain_name: erdely.dev
-user_name: {{ if has .chezmoi.hostname (.trusted_hosts|default list) }}{{ pass "services/luadns/username" }}{{ end }}
-api_key: {{ if has .chezmoi.hostname (.trusted_hosts|default list) }}{{ pass "services/luadns/erdely.dev-apikey" }}{{ end }}
+user_name: {{ pass "services/luadns/username" }}
+api_key: {{ pass "services/luadns/erdely.dev-apikey" }}
 
 [orletsky-internal]
 domain_name: erdely.dev
-user_name: {{ if has .chezmoi.hostname (.trusted_hosts|default list) }}{{ pass "services/luadns/username" }}{{ end }}
-api_key: {{ if has .chezmoi.hostname (.trusted_hosts|default list) }}{{ pass "services/luadns/erdely.dev-apikey" }}{{ end }}
+user_name: {{ pass "services/luadns/username" }}
+api_key: {{ pass "services/luadns/erdely.dev-apikey" }}
 

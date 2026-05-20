@@ -1,8 +1,8 @@
 # vim: set filetype=rc :
 
 [tasmota]
-ha_token: {{ if has .chezmoi.hostname (.trusted_hosts|default list) }}{{ pass "systems/homeassistant/tasmota_token" }}{{ end }}
+ha_token: {{ pass "systems/homeassistant/tasmota_token" }}
 entity: sensor.tasmota_devices_list
-tasmota_pass: {{ if has .chezmoi.hostname (.trusted_hosts|default list) }}{{ pass "systems/tasmota/password" }}{{ end }}
+tasmota_pass: {{ pass "systems/tasmota/password" }}
 backup_dir: /ext/Backups/tasmota
 

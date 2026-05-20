@@ -1,5 +1,5 @@
 # vim: set filetype=rc :
 [notifications]
-ha_server={{ if has .chezmoi.hostname (.trusted_hosts|default list) }}{{ pass "systems/homeassistant/url" }}{{ end }}
-ha_token={{ if has .chezmoi.hostname (.trusted_hosts|default list) }}{{ pass "systems/homeassistant/token" }}{{ end }}
+ha_server={{ pass "systems/homeassistant/url" }}
+ha_token={{ pass "systems/homeassistant/token" }}
 
