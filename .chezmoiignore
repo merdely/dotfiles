@@ -48,6 +48,8 @@
 #{{ if not $is_server }}
 #{{ end }}
 
+.config/cam-chooser.conf.tmpl
+.config/librewolf
 
 {{ if not (and $is_desktop $is_trusted) }}
 .cache/rofi-rbw.runcache
