@@ -6,28 +6,28 @@ dns_record: smtpx
 
 # 300 / day
 [brevo]
-api_key: {{ pass "services/brevo/apikey" }}
+api_key: {{ if has .chezmoi.hostname (.trusted_hosts|default list) }}{{ pass "services/brevo/apikey" }}{{ end }}
 limit: 300
 
 # 200 / day
 [mailjet]
-api_key: {{ pass "services/mailjet/apikey" }}
-secret_key: {{ pass "services/mailjet/apisecret" }}
+api_key: {{ if has .chezmoi.hostname (.trusted_hosts|default list) }}{{ pass "services/mailjet/apikey" }}{{ end }}
+secret_key: {{ if has .chezmoi.hostname (.trusted_hosts|default list) }}{{ pass "services/mailjet/apisecret" }}{{ end }}
 limit: 200
 
 # 100 / day
 [mailgun]
-api_key: {{ pass "services/mailgun/apikey" }}
-secret_key: {{ pass "services/mailgun/apisecret" }}
+api_key: {{ if has .chezmoi.hostname (.trusted_hosts|default list) }}{{ pass "services/mailgun/apikey" }}{{ end }}
+secret_key: {{ if has .chezmoi.hostname (.trusted_hosts|default list) }}{{ pass "services/mailgun/apisecret" }}{{ end }}
 limit: 100
 
 # 1000 / month
 [smtp2go]
-api_key: {{ pass "services/smtp2go/apikey" }}
+api_key: {{ if has .chezmoi.hostname (.trusted_hosts|default list) }}{{ pass "services/smtp2go/apikey" }}{{ end }}
 limit: 1000
 
 # 1000 / month
 [mailersend]
-api_key: {{ pass "services/smtp2go/apikey" }}
+api_key: {{ if has .chezmoi.hostname (.trusted_hosts|default list) }}{{ pass "services/smtp2go/apikey" }}{{ end }}
 limit: 1000
 

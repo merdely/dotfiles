@@ -1,12 +1,12 @@
 # vim: set filetype=rc :
 
 [opnsense]
-server = {{ pass "systems/opnsense/url" }}
-api_key = {{ pass "systems/opnsense/apikey" }}
-api_secret = {{ pass "systems/opnsense/apisecret" }}
+server = {{ if has .chezmoi.hostname (.trusted_hosts|default list) }}{{ pass "systems/opnsense/url" }}{{ end }}
+api_key = {{ if has .chezmoi.hostname (.trusted_hosts|default list) }}{{ pass "systems/opnsense/apikey" }}{{ end }}
+api_secret = {{ if has .chezmoi.hostname (.trusted_hosts|default list) }}{{ pass "systems/opnsense/apisecret" }}{{ end }}
 
 [adguard]
-server = {{ pass "systems/opnsense/url" }}:8443
+server = {{ if has .chezmoi.hostname (.trusted_hosts|default list) }}{{ pass "systems/opnsense/url" }}:8443{{ end }}
 username = mike
-password = {{ pass "systems/mike/internal_password" }}
-dnslist = https://{{ pass "systems/src/token_marsread" }}@src.erdely.in/api/v1/repos/mars/configs/raw/InternalDnsConfig.txt
+password = {{ if has .chezmoi.hostname (.trusted_hosts|default list) }}{{ pass "systems/mike/internal_password" }}{{ end }}
+dnslist = https://{{ if has .chezmoi.hostname (.trusted_hosts|default list) }}{{ pass "systems/src/token_marsread" }}@src.erdely.in/api/v1/repos/mars/configs/raw/InternalDnsConfig.txt{{ end }}

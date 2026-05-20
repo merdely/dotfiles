@@ -5,7 +5,7 @@
 {{- $is_server  := stat (joinPath $profiles "server") -}}
 {{- $is_trusted := has .chezmoi.hostname $trusted_hosts -}}
 
-{{ if not $is_desktop }}
+{{- if not $is_desktop }}
 .config/electron-flags.conf
 .config/environment.d
 .config/firejail
@@ -43,25 +43,25 @@
 .local/bin/speaker-unmute
 .local/bin/yad-askpass
 .local/share/applications
-{{ end }}
+{{- end }}
 
-#{{ if not $is_server }}
-#{{ end }}
+#{{- if not $is_server }}
+#{{- end }}
 
 .config/cam-chooser.conf.tmpl
 .config/librewolf
 
-{{ if not (and $is_desktop $is_trusted) }}
+{{- if not (and $is_desktop $is_trusted) }}
 .cache/rofi-rbw.runcache
 .config/cam-chooser.conf.tmpl
 .config/librewolf
-{{ end }}
+{{- end }}
 
-{{ if not $is_trusted }}
+{{- if not $is_trusted }}
 .config/hassrc
 .config/luadnsrc
 .config/opnsenserc
 .config/rbw
 .config/smtprc
 .config/tasmotarc
-{{ end }}
+{{- end }}
