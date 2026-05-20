@@ -1,9 +1,4 @@
 [Added Associations]
-application/epub+zip=zathura.desktop;
-image/png=imv.desktop;
-text/x-python3=geany-3.desktop;geany-2.desktop;
-x-scheme-handler/http=librewolf-mike.desktop;
-x-scheme-handler/https=librewolf-mike.desktop;
 application/octet-stream=io.github.celluloid_player.Celluloid.desktop;
 
 [Default Applications]
