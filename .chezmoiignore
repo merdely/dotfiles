@@ -1,19 +1,65 @@
 {{- $profiles := joinPath .chezmoi.homeDir ".config" "chezmoi" "profiles" -}}
 {{- $trusted_hosts := list "host1" "host2" -}}
+{{- $is_desktop := stat (joinPath $profiles "desktop") -}}
+{{- $is_server  := stat (joinPath $profiles "server") -}}
+{{- $is_trusted := has .chezmoi.hostname $trusted_hosts -}}
 
-{{ if not (stat (joinPath $profiles "desktop")) }}
-.config/cam-chooser.conf.tmpl
+
+{{ if not $is_desktop }}
 .config/electron-flags.conf
 .config/environment.d
 .config/firejail
 .config/fuzzel
+.config/gtk-3.0
+.config/gtk-4.0
+.config/idle_inhibitor
+.config/imv
+.config/kitty
+.config/mimapps.list
+.config/niri
+.config/rofi
+.config/signal-desktop-flags.conf
+.config/chromium-flags.conf
+.config/wallpaper-lock.png
+.config/wallpaper.png
+.config/wm-minimize.conf
+.config/xsettingsd
+.local/bin/cam-chooser
+.local/bin/dankhooks.sh
+.local/bin/firefox-cookie-mgr
+.local/bin/idle-inhibit-toggle
+.local/bin/mic_mute
+.local/bin/mic_unmute
+.local/bin/notify-send
+.local/bin/play-pause-media
+.local/bin/run-ssh-add
+.local/bin/screen-dim
+.local/bin/screen-lock
+.local/bin/screen-off
+.local/bin/screen-on
+.local/bin/screen-undim
+.local/bin/screen-unlock
+.local/bin/speaker-mute
+.local/bin/speaker-unmute
+.local/bin/yad-askpass
+.local/share/applications
 {{ end }}
 
-{{ if not (stat (joinPath $profiles "server")) }}
-conf1
+#{{ if not $is_server }}
+#{{ end }}
+
+
+{{ if not (and $is_desktop $is_trusted) }}
+.cache/rofi-rbw.runcache
+.config/cam-chooser.conf.tmpl
+.config/librewolf
 {{ end }}
 
-{{ if not (has .chezmoi.hostname $trusted_hosts) }}
-file1
-file2
+{{ if not $is_trusted }}
+.config/hassrc
+.config/luadnsrc
+.config/opnsenserc
+.config/rbw
+.config/smtprc
+.config/tasmotarc
 {{ end }}
