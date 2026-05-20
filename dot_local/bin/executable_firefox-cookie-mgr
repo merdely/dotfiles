@@ -77,9 +77,6 @@ while getopts ":hdDc:O:P:aoi:p:" opt; do
 done
 shift $((OPTIND -1))
 
-libpath="${0%/*}"/../lib:$HOME/src/scripts/lib:/srv/scripts/lib
-PATH="$libpath" . _config 2> /dev/null || { echo "Error: Cannot load _config library" >&2; exit 1; }
-
 unset opnsenserc_setting profile_path_setting 
 if [ -r $rcfile ]; then
   ! $opnsenserc_set && \
