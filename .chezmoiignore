@@ -15,6 +15,7 @@
 .config/idle_inhibitor
 .config/imv
 .config/kitty
+.config/librewolf
 .config/mimapps.list
 .config/niri
 .config/rofi
@@ -51,7 +52,6 @@
 {{- if not (and $is_desktop $is_trusted) }}
 .cache/rofi-rbw.runcache
 .config/cam-chooser.conf
-.config/librewolf
 {{- end }}
 
 {{- if not $is_trusted }}
@@ -62,3 +62,4 @@
 .config/smtprc
 .config/tasmotarc
 {{- end }}
+
