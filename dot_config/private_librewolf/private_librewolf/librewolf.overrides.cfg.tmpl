@@ -15,13 +15,13 @@ const fpp_overrides = JSON.stringify([
   {"firstPartyDomain": "messages.google.com", "overrides": "-JSDateTimeUTC"},
   {"firstPartyDomain": "fastmail.com", "overrides": "-JSDateTimeUTC"},
   {"firstPartyDomain": "office365.us", "overrides": "-JSDateTimeUTC"},
-  {"firstPartyDomain": "{{ pass "chezmoi/librewolf/work_url1" }}", "overrides": "-JSDateTimeUTC"},
-  {"firstPartyDomain": "{{ pass "chezmoi/librewolf/bcs_url1" }}", "overrides": "-JSDateTimeUTC"},
-  {"firstPartyDomain": "{{ pass "chezmoi/librewolf/bcs_url2" }}", "overrides": "-JSDateTimeUTC"},
+  {{- if has .chezmoi.hostname (.trusted_hosts|default list) }}{"firstPartyDomain": "{{ pass "chezmoi/librewolf/work_url1" }}", "overrides": "-JSDateTimeUTC"},{{ end }}
+  {{- if has .chezmoi.hostname (.trusted_hosts|default list) }}{"firstPartyDomain": "{{ pass "chezmoi/librewolf/bcs_url1" }}", "overrides": "-JSDateTimeUTC"},{{ end }}
+  {{- if has .chezmoi.hostname (.trusted_hosts|default list) }}{"firstPartyDomain": "{{ pass "chezmoi/librewolf/bcs_url2" }}", "overrides": "-JSDateTimeUTC"},{{ end }}
 ]);
 
 defaultPref("privacy.fingerprintingProtection.granularOverrides", fpp_overrides);
-defaultPref("privacy.resistFingerprinting.exemptedDomains", "claude.ai,*.erdelynet.com,*.erdely.co,*.erde.ly,*.erdely.in,*.fastmail.com,messages.google.com,{{ pass "chezmoi/librewolf/bcs_url2" }}");
+defaultPref("privacy.resistFingerprinting.exemptedDomains", "claude.ai,*.erdelynet.com,*.erdely.co,*.erde.ly,*.erdely.in,*.fastmail.com,messages.google.com{{ if has .chezmoi.hostname (.trusted_hosts|default list) }},{{ pass "chezmoi/librewolf/bcs_url1" }},{{ pass "chezmoi/librewolf/bcs_url2" }}{{ end }}");
 
 defaultPref("webgl.disabled", false);
 defaultPref("media.ffmpeg.vaapi.enabled", true);
