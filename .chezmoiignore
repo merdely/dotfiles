@@ -1,5 +1,6 @@
+{{- $trusted_hosts := list "earth" "carme" "mercury" "neptune" "uranus" -}}
+
 {{- $profiles := joinPath .chezmoi.homeDir ".config" "chezmoi" "profiles" -}}
-{{- $trusted_hosts := list "host1" "host2" -}}
 {{- $is_desktop := stat (joinPath $profiles "desktop") -}}
 {{- $is_server  := stat (joinPath $profiles "server") -}}
 {{- $is_trusted := has .chezmoi.hostname $trusted_hosts -}}
