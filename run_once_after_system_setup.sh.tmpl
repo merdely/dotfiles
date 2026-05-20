@@ -12,18 +12,18 @@ TMPFILES=()
 trap 'rm -Rf -- "${TMPFILES[@]}"' EXIT
 trap 'exit 1' INT TERM
 
-  {{- if $is_desktop }}
-  # Setup dms-greeter
-  if [ -e /etc/greetd/config.toml ]; then
-    if [ -r "$HOME"/.config/niri/greeter/settings.json ]; then
-      echo "Configuring dms-greeter settings"
-      sudo cp "$HOME"/.config/niri/greeter/settings.json /var/cache/dms-greeter
-    fi
-    if [ -r "$HOME"/.config/niri/greeter/colors.json ]; then
-      echo "Configuring dms-greeter colors"
-      sudo cp "$HOME"/.config/niri/greeter/colors.json /var/cache/dms-greeter
-    fi
+{{- if $is_desktop }}
+# Setup dms-greeter
+if [ -e /etc/greetd/config.toml ]; then
+  if [ -r "$HOME"/.config/niri/greeter/settings.json ] && \
+     ! sudo test -r /var/cache/dms-greeter/settings.json; then
+    echo "Configuring dms-greeter settings"
+    sudo cp "$HOME"/.config/niri/greeter/settings.json /var/cache/dms-greeter
   fi
-  {{- end }}
+  if [ -r "$HOME"/.config/niri/greeter/colors.json ] && \
+    ! sudo test -r /var/cache/dms-greeter/colors.json; then
+    echo "Configuring dms-greeter colors"
+    sudo cp "$HOME"/.config/niri/greeter/colors.json /var/cache/dms-greeter
+  fi
 fi
-
+{{- end }}
