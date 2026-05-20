@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-{{- $trusted_hosts := .profiles | default list -}}
+{{- $trusted_hosts := .trusted_hosts | default list -}}
 
 {{- $profiles := joinPath .chezmoi.homeDir ".config" "chezmoi" "profiles" -}}
 {{- $is_desktop := stat (joinPath $profiles "desktop") -}}
