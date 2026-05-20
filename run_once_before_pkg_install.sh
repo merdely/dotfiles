@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+{{- $trusted_hosts := .profiles | default list -}}
+
+{{- $profiles := joinPath .chezmoi.homeDir ".config" "chezmoi" "profiles" -}}
+{{- $is_desktop := stat (joinPath $profiles "desktop") -}}
+{{- $is_server  := stat (joinPath $profiles "server") -}}
+{{- $is_trusted := has .chezmoi.hostname $trusted_hosts -}}
+
 TMPFILES=()
 trap 'rm -Rf -- "${TMPFILES[@]}"' EXIT
 trap 'exit 1' INT TERM
@@ -8,22 +15,28 @@ trap 'exit 1' INT TERM
 
 if [[ "$ID" =~ ^(arch|artix|cachyos|garuda|endeavouros|manjaro)$ || " $ID_LIKE " == *" arch "* ]]; then
   # Go through the package list and find packages that are not installed
-  packages=()
-  for pkg in \
-    base-devel git openssh neovim vim man-db apparmor firejail rsync ripgrep fd \
-    networkmanager nm-connection-editor openresolv htop btop jq 7zip \
-    niri alacritty fuzzel \
-    dms-shell-niri greetd-dms-greeter-git accountsservice cava cups-pk-helper dgop \
-    khal kimageformats matugen power-profiles-daemon qt6-imageformats \
-    kitty rofi rofi-rbw gcr ydotool wl-clipboard wl-clip-persist \
-    noto-fonts noto-fonts-emoji ttf-liberation ttf-dejavu-nerd \
-    ttf-jetbrains-mono ttf-roboto ttf-roboto-mono woff2-font-awesome \
-    ttf-nerd-fonts-symbols ttf-nerd-fonts-symbols-common ttf-nerd-fonts-symbols-mono \
-    imv imagemagick python-pillow python-cairocffi \
-    nwg-look adw-gtk-theme breeze-gtk breeze-icons \
+  need=()
+  packages=(
+    base-devel git openssh neovim vim man-db apparmor firejail rsync ripgrep fd
+    networkmanager nm-connection-editor openresolv htop btop jq 7zip
+  )
+  {{- if $is_desktop }}
+  packages+=(
+    niri alacritty fuzzel
+    dms-shell-niri greetd-dms-greeter-git accountsservice cava cups-pk-helper dgop
+    khal kimageformats matugen power-profiles-daemon qt6-imageformats
+    kitty rofi rofi-rbw gcr ydotool wl-clipboard wl-clip-persist
+    noto-fonts noto-fonts-emoji ttf-liberation ttf-dejavu-nerd
+    ttf-jetbrains-mono ttf-roboto ttf-roboto-mono woff2-font-awesome
+    ttf-nerd-fonts-symbols ttf-nerd-fonts-symbols-common ttf-nerd-fonts-symbols-mono
+    imv imagemagick python-pillow python-cairocffi
+    nwg-look adw-gtk-theme breeze-gtk breeze-icons
     yad galculator nautilus gvfs-dnssd librewolf-bin
-  do
-    pacman -Qqs ^"$pkg"$ &> /dev/null || packages+=("$pkg")
+  )
+  {{- end }}
+
+  for pkg in "${packages[@]}"; do
+    pacman -Qqs ^"$pkg"$ &> /dev/null || need+=("$pkg")
   done
 
   # Add home repo to pacman.conf
@@ -36,9 +49,9 @@ if [[ "$ID" =~ ^(arch|artix|cachyos|garuda|endeavouros|manjaro)$ || " $ID_LIKE "
   fi
 
   # Install missing packages
-  if (( ${#packages[@]} > 0 )); then
-    echo "Installing packages: ${packages[@]}"
-    sudo pacman -Syu --needed --noconfirm "${packages[@]}"
+  if (( ${#need[@]} > 0 )); then
+    echo "Installing packages: ${need[@]}"
+    sudo pacman -Syu --needed --noconfirm "${need[@]}"
   fi
 
   # Setup vi command
