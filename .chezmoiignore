@@ -1,0 +1,19 @@
+{{- $profiles := joinPath .chezmoi.homeDir ".config" "chezmoi" "profiles" -}}
+{{- $trusted_hosts := list "host1" "host2" -}}
+
+{{ if not (stat (joinPath $profiles "desktop")) }}
+.config/cam-chooser.conf.tmpl
+.config/electron-flags.conf
+.config/environment.d
+.config/firejail
+.config/fuzzel
+{{ end }}
+
+{{ if not (stat (joinPath $profiles "server")) }}
+conf1
+{{ end }}
+
+{{ if not (has .chezmoi.hostname $trusted_hosts) }}
+file1
+file2
+{{ end }}
