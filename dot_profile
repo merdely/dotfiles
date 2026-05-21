@@ -1,0 +1,2 @@
+# Set up PATH for systemd environments
+export PATH=$HOME/.local/bin:/srv/scripts/bin:/srv/scripts/sbin:$PATH:/usr/sbin
