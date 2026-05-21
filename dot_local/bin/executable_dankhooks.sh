@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+verbose=false
+
 progname=${0##*/}
 progname=${progname%.sh}
 
@@ -43,8 +45,7 @@ case "$1" in
         rm -f "$idle_file"
         ;;
       *)
-        echo "Warning: $2 is an unsupported function for $1" >&2
-        exit 1
+        $verbose && echo "Warning: $2 is an unsupported function for $1" >&2
         ;;
     esac
     ;;
@@ -55,8 +56,7 @@ case "$1" in
         screen-lock -L > /dev/null 2>&1
         ;;
       *)
-        echo "Warning: $2 is an unsupported function for $1" >&2
-        exit 1
+        $verbose && echo "Warning: $2 is an unsupported function for $1" >&2
         ;;
     esac
     ;;
@@ -66,17 +66,15 @@ case "$1" in
         screen-unlock -L > /dev/null 2>&1
         ;;
       *)
-        echo "Warning: $2 is an unsupported function for $1" >&2
-        exit 1
+        $verbose && echo "Warning: $2 is an unsupported function for $1" >&2
         ;;
     esac
     ;;
   *)
-    echo "Warning: $1 is an not a defined hook function" >&2
-    exit 1
+    $verbose && echo "Warning: $1 is an not a defined hook function" >&2
     ;;
 esac
 
-date "+%Y-%m-%d %H:%M:%S: $progname: $1: $2" >> ${XDG_RUNTIME_DIR:=/run/user/1000}/$progname.log
+$verbose && date "+%Y-%m-%d %H:%M:%S: $progname: $1: $2" >> ${XDG_RUNTIME_DIR:=/run/user/1000}/$progname.log
 # notify-send -a $progname "$1 Changed" "$1 -> $2"
 
