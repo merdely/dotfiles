@@ -148,8 +148,8 @@ window-rule {
 
 // must go after the rule for frontdoorcam
 window-rule {
-    match app-id=r#"^mpvcammulti frontdoorcam2"#
-    match title=r#"^mpvcammulti frontdoorcam2"#
+    match app-id=r#"^mpvcammulti frontdoor2cam"#
+    match title=r#"^mpvcammulti frontdoor2cam"#
     open-maximized false
     open-on-workspace "Cameras"
     open-floating true
@@ -170,8 +170,8 @@ window-rule {
 }
 
 window-rule {
-    match app-id=r#"^mpvcammulti backyardcam2"#
-    match title=r#"^mpvcammulti backyardcam2"#
+    match app-id=r#"^mpvcammulti backyard2cam"#
+    match title=r#"^mpvcammulti backyard2cam"#
     open-maximized false
     open-on-workspace "Cameras"
     open-floating true
