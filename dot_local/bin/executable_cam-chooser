@@ -57,9 +57,9 @@ if [ -z "$1" ]; then
 󰕰  Back View	backview
 󰞮  Garage Camera	garagecam
 󰞮  Backyard Camera	backyardcam
-󰞮  Backyard Camera 2	backyardcam2
+󰞮  Backyard Camera 2	backyard2cam
 󰞮  Front Door Camera	frontdoorcam
-󰞮  Front Door Camera 2	frontdoorcam2
+󰞮  Front Door Camera 2	frontdoor2cam
 󰞮  Shed Camera	shedcam
 󰞮  Chimney Camera	chimneycam
 󰞮  Garage Door Camera	garagedoorcam
