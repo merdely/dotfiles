@@ -43,7 +43,7 @@ case "$1" in
         rm -f "$idle_file"
         ;;
       *)
-        echo "Error: $2 is an unsupported function" > /dev/stderr
+        echo "Warning: $2 is an unsupported function for $1" >&2
         exit 1
         ;;
     esac
@@ -55,7 +55,7 @@ case "$1" in
         screen-lock -L
         ;;
       *)
-        echo "Error: $2 is an unsupported function" > /dev/stderr
+        echo "Warning: $2 is an unsupported function for $1" >&2
         exit 1
         ;;
     esac
@@ -66,13 +66,13 @@ case "$1" in
         screen-unlock -L
         ;;
       *)
-        echo "Error: $2 is an unsupported function" > /dev/stderr
+        echo "Warning: $2 is an unsupported function for $1" >&2
         exit 1
         ;;
     esac
     ;;
   *)
-    echo "Error: $1 is an hook function" > /dev/stderr
+    echo "Warning: $1 is an not a defined hook function" >&2
     exit 1
     ;;
 esac
