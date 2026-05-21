@@ -52,7 +52,7 @@ case "$1" in
     case "$2" in
       locked)
         dms ipc call inhibit disable
-        screen-lock -L
+        screen-lock -L > /dev/null
         ;;
       *)
         echo "Warning: $2 is an unsupported function for $1" >&2
@@ -63,7 +63,7 @@ case "$1" in
   onSessionUnlocked)
     case "$2" in
       unlocked)
-        screen-unlock -L
+        screen-unlock -L > /dev/null
         ;;
       *)
         echo "Warning: $2 is an unsupported function for $1" >&2
