@@ -102,7 +102,7 @@ case $cam in
   garagedoorcam)
     rtsp_url="${cameras[$cam]}"
     ;;
-  *cam|*cam2)
+  *cam|*2cam|*cam2)
     rtsp_url="${cameras[$cam]}/$uri&subtype=${subtypes[main]}"
     ;;
   multiview|backview)
@@ -111,13 +111,13 @@ case $cam in
     cam1=shedcam
     cam2=backyardcam
     cam3=chimneycam
-    cam4=backyardcam2
+    cam4=backyard2cam
     ;;
   frontview)
     echo "loading frontview..." >&2
     multiview=true
     cam1=garagecam
-    cam2=frontdoorcam2
+    cam2=frontdoor2cam
     cam3=backyardcam
     cam4=frontdoorcam
     ;;
@@ -125,8 +125,8 @@ case $cam in
     echo "loading splitview..." >&2
     multiview=true
     cam1=garagecam
-    cam2=frontdoorcam2
-    cam3=backyardcam2
+    cam2=frontdoor2cam
+    cam3=backyard2cam
     cam4=backyardcam
     ;;
   *)
