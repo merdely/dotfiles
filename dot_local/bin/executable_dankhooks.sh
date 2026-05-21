@@ -78,3 +78,4 @@ esac
 $verbose && date "+%Y-%m-%d %H:%M:%S: $progname: $1: $2" >> ${XDG_RUNTIME_DIR:=/run/user/1000}/$progname.log
 # notify-send -a $progname "$1 Changed" "$1 -> $2"
 
+exit 0
