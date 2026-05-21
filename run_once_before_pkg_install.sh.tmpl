@@ -19,7 +19,7 @@ if [[ "$ID" =~ ^(arch|artix|cachyos|garuda|endeavouros|manjaro)$ || " $ID_LIKE "
   need=()
   packages=(
     base-devel git openssh neovim vim man-db apparmor firejail rsync
-    networkmanager openresolv htop btop jq 7zip bat ripgrep fd
+    networkmanager openresolv htop btop jq 7zip bat ripgrep fd cronie
   )
   {{- if $is_desktop }}
   packages+=(
@@ -55,7 +55,7 @@ if [[ "$ID" =~ ^(arch|artix|cachyos|garuda|endeavouros|manjaro)$ || " $ID_LIKE "
     echo "Installing packages: ${need[@]}"
     sudo pacman -Syu --disable-download-timeout --needed --noconfirm "${need[@]}"
     ret=$?
-    if [ $ret -ne 0 ]; then
+    if (( ret != 0 )); then
       echo "Error: pacman exited with error code $ret" >&2
       exit 1
     fi
@@ -64,63 +64,4 @@ else
   echo "Error: Unsupported OS (${ID:-Could not determine OS})" >&2
   exit 1
 fi
-
-# Setup vi command
-if [[ ( ! -e /usr/bin/vi || -L /usr/bin/vi ) && -e $HOME/.local/bin/vi ]]; then
-  echo "Installing vi script that encourages use of sudoedit"
-  rm -f /usr/bin/vi &> /dev/null
-  sudo install -o root -g root -m 755 "$HOME"/.local/bin/vi /usr/bin/vi
-  if [ $? -ne 0 ]; then
-    echo "Error: Could not install vi script to /usr/bin/vi" >&2
-    exit 1
-  fi
-fi
-
-groups=$(groups $LOGNAME)
-groups=${groups#$LOGNAME : }
-
-# Add user to needed groups
-for group in video render input wheel; do
-  # Skip groups from the list that do not exist
-  getent group "$group" &> /dev/null || continue
-  # Skip groups already a member of
-  echo "$groups" | grep -qw "$group" && continue
-  # Add user to group (ok if already a member)
-  echo "Adding $LOGNAME to $group"
-  sudo usermod -aG "$group" "$LOGNAME"
-  if [ $? -ne 0 ]; then
-    echo "Error: Could not add $LOGNAME to $group" >&2
-    exit 1
-  fi
-done
-
-{{- if $is_desktop }}
-# Setup dms-greeter
-if [ -e /etc/greetd/config.toml ]; then
-  if ! grep -qE "^\s*command\s*=.*dms-greeter" /etc/greetd/config.toml; then
-    if ! grep -q "^\[default_session\]" /etc/greetd/config.toml; then
-      echo "Error: greetd config missing default_session section" >&2
-    else
-      echo "Setting up greetd to use dms-greeter with niri"
-      # Comment out any lines with command = 
-      sudo sed -ri 's/^(\s*)(command.*)$/\1# \2/' /etc/greetd/config.toml
-      # Under the default_session section heading, add a dms-greeter line
-      sudo sed -ri 's#^(\[default_session].*)$#\1\r\ncommand = "/usr/bin/dms-greeter --no-save-username --command niri"#' /etc/greetd/config.toml
-      # Enable the service
-      sudo systemctl enable greetd
-    fi
-  fi
-  if getent group greeter > /dev/null 2>&1 && ! groups | sed "s/^$LOGNAME : //" | grep -qw greeter; then
-    echo "Adding $LOGNAME to $group"
-    sudo usermod -aG greeter "$LOGNAME"
-  fi
-fi
-
-if command -v systemctl > /dev/null 2>&1; then
-  # Enable services: DMS and ydotool
-  command -v dms > /dev/null 2>&1 && systemctl --user enable dms.service
-  command -v ssh-agent > /dev/null 2>&1 && systemctl --user enable ssh-agent.service
-  command -v ydotool > /dev/null 2>&1 && systemctl --user enable ydotool.service
-fi
-{{- end }}
 
