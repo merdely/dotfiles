@@ -17,7 +17,7 @@ umask 0022 > /dev/null 2>&1
 # Stop if non-interactive
 [[ $- != *i* ]] && return
 
-# Load aliases
+# Load aliases and functions
 [ -r "$HOME"/.config/shell/aliases ] && . "$HOME"/.config/shell/aliases
 [ -r "$HOME"/.config/shell/functions ] && . "$HOME"/.config/shell/functions
 
