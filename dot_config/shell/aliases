@@ -20,8 +20,8 @@ if [ -r /srv/scripts/sbin/daily_report_linux ]; then
   alias check_reboot='sudo /srv/scripts/sbin/daily_report_linux reboot'
   alias check_restart='sudo /srv/scripts/sbin/daily_report_linux restart'
 fi
-[[ -d /opt/splunk || -d /opt/splunkforwarder ]] && alias susplunk='sudo su -l splunk'
-[[ -d /etc/acme ]]  && alias suacme='sudo su /bin/bash -l acme'
+[ -d /opt/splunk -o -d /opt/splunkforwarder ] && alias susplunk='sudo su -l splunk'
+[ -d /etc/acme ]  && alias suacme='sudo su /bin/bash -l acme'
 cmdcheck chezmoi    && alias cm=chezmoi
 cmdcheck python2    && alias python=python2
 cmdcheck python3    && alias python=python3
@@ -44,7 +44,7 @@ if cmdcheck chezmoi; then
 else
   alias vip='vi "$HOME"/.bashrc'
 fi
-[[ -r "$HOME"/.profile.local ]] && alias vipl='vi "$HOME"/.profile.local'
+[ -r "$HOME"/.profile.local ] && alias vipl='vi "$HOME"/.profile.local'
 cmdcheck hyprctl && alias vih='vi -O "$XDG_CONFIG_HOME"/hypr/hyprland.conf'
 cmdcheck i3-msg  && alias vi3='vi "$XDG_CONFIG_HOME"/i3/config'
 cmdcheck swaymsg && alias vis='vi "$XDG_CONFIG_HOME"/sway/config'
@@ -61,34 +61,34 @@ fi
 
 # Docker Aliases
 if cmdcheck docker; then
-  [[ -x /usr/bin/dc ]] && alias _dc='/usr/bin/dc'
+  [ -x /usr/bin/dc ] && alias _dc='/usr/bin/dc'
   alias dc='docker compose'
   alias dctop='watch docker compose ps'
-  if [[ -d /srv/docker/naemon ]]; then
+  if [ -d /srv/docker/naemon ]; then
     alias naemoncheck='docker compose exec naemon runuser -u naemon -- naemon -v /etc/naemon/naemon.cfg'
     alias naemonreload='docker compose exec naemon pkill -P 1 -x naemon'
-    if [[ ! -d /srv/docker/nagios ]]; then
+    if [ ! -d /srv/docker/nagios ]; then
       alias nagioscheck='docker compose exec naemon runuser -u naemon -- naemon -v /etc/naemon/naemon.cfg'
       alias nagiosreload='docker compose exec naemon pkill -P 1 -x naemon'
     fi
   fi
 
-  if [[ -d /srv/docker/nagios ]]; then
+  if [ -d /srv/docker/nagios ]; then
     alias nagioscheck='docker compose exec nagios nagioscheck'
     alias nagiosreload='docker compose exec nagios nagiosreload'
   fi
 
-  if [[ -d /srv/docker/nginx ]]; then
+  if [ -d /srv/docker/nginx ]; then
     cmdcheck nginx || alias nginx='docker compose exec nginx nginx'
     alias nginxcheck='docker compose exec nginx nginx -t'
     alias nginxreload='docker compose exec nginx nginx -s reload'
   fi
 
-  if ! cmdcheck ollama && [[ -d /srv/docker/ollama ]]; then
+  if ! cmdcheck ollama && [ -d /srv/docker/ollama ]; then
     alias ollama='docker compose -f $COMPOSE_FILE exec -it ollama ollama'
   fi
 
-  if ! cmdcheck psql && [[ -d /srv/docker/postgres ]]; then
+  if ! cmdcheck psql && [ -d /srv/docker/postgres ]; then
     alias psql='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres env HISTSIZE=10000 HISTFILE=~/.psql_history psql'
     alias pbash='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres bash'
     alias pg_dump='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres pg_dump'
@@ -100,7 +100,7 @@ if cmdcheck docker; then
     alias dropdb='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres dropdb'
   fi
 
-  if [[ -d /srv/docker/mysql ]]; then
+  if [ -d /srv/docker/mysql ]; then
     cmdcheck mariadb || alias mariadb="docker compose exec -it -u mysql mysql mariadb"
     cmdcheck mariadb-dump || alias mariadb-dump="docker compose exec -it -u mysql mysql mariadb-dump"
   fi
@@ -120,9 +120,9 @@ cmdcheck sudo
 ret_sudo=$?
 cmdcheck doas
 ret_doas=$?
-(( ret_sudo == 0 )) && alias sudo='sudo '
-(( ret_sudo != 0 && ret_doas == 0 )) && alias sudo='doas '
-(( ret_sudo == 0 && ret_doas != 0 )) && alias doas='sudo '
+[ $ret_sudo -eq 0 ] && alias sudo='sudo '
+[ $ret_sudo -ne 0 -a $ret_doas -eq 0 ] && alias sudo='doas '
+[ $ret_sudo -eq 0 -a $ret_doas -ne 0 ] && alias doas='sudo '
 unset ret_sudo ret_doas
 
 # Window Manager aliases
@@ -150,7 +150,7 @@ fi
 case "$DISTRO" in
   arch)
     alias ls_orphans='pacman -Qdtq'
-    alias rm_orphans='o=$(pacman -Qdtq); [[ -n "$o" ]] && echo Removing "$o" && sudo pacman -Rcns "$o"; unset o'
+    alias rm_orphans='o=$(pacman -Qdtq); [ -n "$o" ] && echo Removing "$o" && sudo pacman -Rcns "$o"; unset o'
     alias updates='echo Using pacman; sudo pacman -S --needed archlinux-keyring ; sudo pacman -Syu --noconfirm'
     ;;
   debian)
@@ -168,7 +168,7 @@ if cmdcheck adguardcli; then
 fi
 
 # Some host-specific settings
-if [ "$HOSTNAME" == "mercury" -o "$HOSTNAME" == "neptune" ]; then
+if [ "$HOSTNAME" = "mercury" -o "$HOSTNAME" = "neptune" ]; then
   alias dmesg='sudo dmesg'
   alias fp=fix-music-perms
 
@@ -185,9 +185,9 @@ if [ "$HOSTNAME" == "mercury" -o "$HOSTNAME" == "neptune" ]; then
   alias cleanlock='ssh -t earth docker compose -f /srv/docker/compose.yaml exec archbuild rm -f /home/mike/.gnupg/public-keys.d/pubring.db.lock'
 fi
 
-if [[ "$HOSTNAME" == "mercury" ]]; then
+if [ "$HOSTNAME" = "mercury" ]; then
   # Arch only settings
-  if [[ "$DISTRO" == "arch" ]]; then
+  if [ "$DISTRO" = "arch" ]; then
     alias pu="pacman -Q > \"$XDG_CONFIG_HOME\"/pacman_\"$HOSTNAME\".list;git commit -m \"Package updates\" \"$XDG_CONFIG_HOME\"/pacman_\"$HOSTNAME\".list"
   fi
 
