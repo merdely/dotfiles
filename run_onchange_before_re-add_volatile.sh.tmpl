@@ -1,6 +1,0 @@
-#!/usr/bin/env bash
-
-{{- if eq .chezmoi.hostname "mercury" }}
-# .cache/rofi-rbw.runcache hash: {{ include "dot_cache/rofi-rbw.runcache" | sha256sum }}
-chezmoi re-add "$HOME"/.cache/rofi-rbw.runcache
-{{- end }}
