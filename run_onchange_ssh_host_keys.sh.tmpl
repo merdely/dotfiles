@@ -2,7 +2,7 @@
 # vim: filetype=sh :
 
 # When this script or any of the hashes below change, update files
-# .ssh/home_known_hosts: {{ include ".ssh/home_known_hosts" | sha256sum }}
+# .ssh/home_known_hosts: {{ include "private_dot_ssh/home_known_hosts" | sha256sum }}
 
 hostname=$(hostname)
 hostname=${hostname%%.*}
