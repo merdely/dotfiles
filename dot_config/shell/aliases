@@ -1,0 +1,216 @@
+## Shell Aliases
+# vim: set filetype=sh :
+
+# If not running interactively, don't do anything
+case "$-" in *i*) ;; *) return ;; esac
+
+# Aliases
+alias reprofile='. $HOME/.profile'
+[ -n "$BASH_VERSION" -a -r "$HOME"/.bash_profile ] && alias reprofile='. $HOME/.bash_profile'
+[ -n "$ZSH_VERSION" -a -r "$HOME"/.zprofile ] && alias reprofile='. $HOME/.zprofile'
+alias cdp='cd $(pwd -P)'
+alias ls='ls -F'
+[ "${OPSYS:=linux}" = "linux" ] && alias ls='ls -N --color=auto'
+[ "$OPSYS" = "linux" ] && alias grep='grep --color=auto'
+[ "$OPSYS" = "linux" ] && alias diff='diff --color=auto'
+[ -e /dev/pf ] && alias pflog='doas tcpdump -n -e -ttt -i pflog0'
+[ -e /srv/scripts/bin/nohist ] && alias nohist='. /srv/scripts/bin/nohist'
+! cmdcheck mail && cmdcheck s-nail && alias mail=s-nail
+if [ -r /srv/scripts/sbin/daily_report_linux ]; then
+  alias check_reboot='sudo /srv/scripts/sbin/daily_report_linux reboot'
+  alias check_restart='sudo /srv/scripts/sbin/daily_report_linux restart'
+fi
+[[ -d /opt/splunk || -d /opt/splunkforwarder ]] && alias susplunk='sudo su -l splunk'
+[[ -d /etc/acme ]]  && alias suacme='sudo su /bin/bash -l acme'
+cmdcheck chezmoi    && alias cm=chezmoi
+cmdcheck python2    && alias python=python2
+cmdcheck python3    && alias python=python3
+cmdcheck rsync      && alias dos_rsync='rsync -rtcvP'
+cmdcheck batman     && eval "$(batman --export-env)"
+cmdcheck bat        && alias cat='bat --paging=never --plain'
+cmdcheck bat        && export PAGER='bat'
+cmdcheck subnetcalc && alias ipcalc=subnetcalc
+cmdcheck flatpak    && alias fu='flatpak update -y ; flatpak uninstall --unused -y'
+cmdcheck mpv        && alias testcamera='mpv av://v4l2:/dev/video0 --profile=low-latency --untimed'
+cmdcheck git && [ -d /srv/scripts ] && alias us='sudo git -C /srv/scripts pull'
+cmdcheck which || alias which='command -v'
+type source    || alias source='.'
+
+# Editor aliases
+cmdcheck view || alias view='vi -R'
+if cmdcheck nvim; then
+  export EDITOR=nvim SUDO_EDITOR=nvim
+elif cmdcheck vim; then
+  export EDITOR=vim SUDO_EDITOR=vim
+else
+  export EDITOR=vi SUDO_EDITOR=vi
+fi
+cmdcheck sudoedit && alias sudovi=sudoedit
+
+# Config file aliases
+if cmdcheck chezmoi; then
+  alias vip='chezmoi edit "$HOME"/.bashrc'
+else
+  alias vip='vi "$HOME"/.bashrc'
+fi
+[[ -r "$HOME"/.profile.local ]] && alias vipl='vi "$HOME"/.profile.local'
+cmdcheck hyprctl && alias vih='vi -O "$XDG_CONFIG_HOME"/hypr/hyprland.conf'
+cmdcheck i3-msg  && alias vi3='vi "$XDG_CONFIG_HOME"/i3/config'
+cmdcheck swaymsg && alias vis='vi "$XDG_CONFIG_HOME"/sway/config'
+cmdcheck niri    && alias vin='vi "$XDG_CONFIG_HOME"/niri/local.kdl'
+cmdcheck tmux    && alias vit='vi "$XDG_CONFIG_HOME"/tmux/tmuxrc'
+cmdcheck vim     && alias viv='vi "$XDG_CONFIG_HOME"/vim/vimrc'
+cmdcheck nvim    && alias viv='vi "$XDG_CONFIG_HOME"/nvim/init.lua'
+
+# DNS Command aliases
+if cmdcheck dog; then
+  cmdcheck dig || alias dig=dog
+  cmdcheck host || alias host=dog
+fi
+
+# Docker Aliases
+if cmdcheck docker; then
+  [[ -x /usr/bin/dc ]] && alias _dc='/usr/bin/dc'
+  alias dc='docker compose'
+  alias dctop='watch docker compose ps'
+  if [[ -d /srv/docker/naemon ]]; then
+    alias naemoncheck='docker compose exec naemon runuser -u naemon -- naemon -v /etc/naemon/naemon.cfg'
+    alias naemonreload='docker compose exec naemon pkill -P 1 -x naemon'
+    if [[ ! -d /srv/docker/nagios ]]; then
+      alias nagioscheck='docker compose exec naemon runuser -u naemon -- naemon -v /etc/naemon/naemon.cfg'
+      alias nagiosreload='docker compose exec naemon pkill -P 1 -x naemon'
+    fi
+  fi
+
+  if [[ -d /srv/docker/nagios ]]; then
+    alias nagioscheck='docker compose exec nagios nagioscheck'
+    alias nagiosreload='docker compose exec nagios nagiosreload'
+  fi
+
+  if [[ -d /srv/docker/nginx ]]; then
+    cmdcheck nginx || alias nginx='docker compose exec nginx nginx'
+    alias nginxcheck='docker compose exec nginx nginx -t'
+    alias nginxreload='docker compose exec nginx nginx -s reload'
+  fi
+
+  if ! cmdcheck ollama && [[ -d /srv/docker/ollama ]]; then
+    alias ollama='docker compose -f $COMPOSE_FILE exec -it ollama ollama'
+  fi
+
+  if ! cmdcheck psql && [[ -d /srv/docker/postgres ]]; then
+    alias psql='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres env HISTSIZE=10000 HISTFILE=~/.psql_history psql'
+    alias pbash='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres bash'
+    alias pg_dump='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres pg_dump'
+    alias pg_dumpall='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres pg_dumpall'
+    alias pg_restore='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres pg_restore'
+    alias createuser='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres createuser'
+    alias dropuser='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres dropuser'
+    alias createdb='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres createdb'
+    alias dropdb='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres dropdb'
+  fi
+
+  if [[ -d /srv/docker/mysql ]]; then
+    cmdcheck mariadb || alias mariadb="docker compose exec -it -u mysql mysql mariadb"
+    cmdcheck mariadb-dump || alias mariadb-dump="docker compose exec -it -u mysql mysql mariadb-dump"
+  fi
+fi
+
+# Ansible aliases
+if cmdcheck ansible-playbook; then
+  alias ap=ansible-playbook
+  alias apv='ansible-playbook --ask-vault-pass'
+  alias apkv='ANSIBLE_SSH_ARGS="-o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" ansible-playbook --ask-vault-pass'
+  alias apk='ANSIBLE_SSH_ARGS="-o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" ansible-playbook'
+  export ANSIBLE_NOCOWS=1
+fi
+
+# sudo/doas aliases
+# The space after sudo/mysudo allows for alias expansion in sudo
+cmdcheck sudo
+ret_sudo=$?
+cmdcheck doas
+ret_doas=$?
+(( ret_sudo == 0 )) && alias sudo='sudo '
+(( ret_sudo != 0 && ret_doas == 0 )) && alias sudo='doas '
+(( ret_sudo == 0 && ret_doas != 0 )) && alias doas='sudo '
+unset ret_sudo ret_doas
+
+# Window Manager aliases
+cmdcheck Hyprland && alias h='Hyprland'
+cmdcheck mango    && alias m='mango'
+cmdcheck niri     && alias n='niri-session > /dev/null 2>&1'
+cmdcheck sway     && alias S='sway'
+
+# SSH without saving known_hosts
+alias sshk='ssh -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
+alias scpk='scp -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
+cmdcheck rsync && alias rsynck='rsync -e "ssh -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"'
+
+# tmux-specific stuff
+if cmdcheck tmux; then
+  [ -e "$XDG_CONFIG_HOME"/tmux/tmux.conf.remain ] && \
+    alias remain='tmux -f "$XDG_CONFIG_HOME"/tmux/tmux.conf.remain new-session -A -s main'
+
+  if [ "${SSH_CLIENT%% *}" = "192.168.25.38" -o "${SSH_CLIENT%% *}" = "192.168.25.38" ]; then
+    alias tmux='ssh carme tmux'
+  fi
+fi
+
+# OS Specific Aliases
+case "$DISTRO" in
+  arch)
+    alias ls_orphans='pacman -Qdtq'
+    alias rm_orphans='o=$(pacman -Qdtq); [[ -n "$o" ]] && echo Removing "$o" && sudo pacman -Rcns "$o"; unset o'
+    alias updates='echo Using pacman; sudo pacman -S --needed archlinux-keyring ; sudo pacman -Syu --noconfirm'
+    ;;
+  debian)
+    alias updates='echo Using apt dist-upgrade; sudo apt update && sudo apt dist-upgrade -y'
+    ;;
+  openbsd)
+    # Print status of command without interrupting it (e.g. ping)
+    alias updates="echo running syspatch; doas syspatch; echo running pkg_add -u; doas pkg_add -ui"
+    ;;
+esac
+
+if cmdcheck adguardcli; then
+  alias cag='adguardcli clear'
+  alias ral='adguardcli refresh'
+fi
+
+# Some host-specific settings
+if [ "$HOSTNAME" == "mercury" -o "$HOSTNAME" == "neptune" ]; then
+  alias dmesg='sudo dmesg'
+  alias fp=fix-music-perms
+
+  alias ya=ytdlalbum
+  alias ys=ytdlsong
+  alias yy=ytdlartist
+  alias pa='ssh jupiter docker compose -f /srv/docker/compose.yaml exec ytdlp-shell /home/mike/bin/ytdl.py --print-album'
+  alias ytdl.py='ssh jupiter docker compose -f /srv/docker/compose.yaml exec ytdlp-shell /home/mike/bin/ytdl.py'
+
+  # AUR Build aliases
+  alias archbuild='ssh -t earth docker compose -f /srv/docker/compose.yaml exec archbuild bash -l'
+  alias buildpkgs='ssh -t earth docker compose -f /srv/docker/compose.yaml exec archbuild buildpkgs'
+  alias buildpkg=buildpkgs
+  alias cleanlock='ssh -t earth docker compose -f /srv/docker/compose.yaml exec archbuild rm -f /home/mike/.gnupg/public-keys.d/pubring.db.lock'
+fi
+
+if [[ "$HOSTNAME" == "mercury" ]]; then
+  # Arch only settings
+  if [[ "$DISTRO" == "arch" ]]; then
+    alias pu="pacman -Q > \"$XDG_CONFIG_HOME\"/pacman_\"$HOSTNAME\".list;git commit -m \"Package updates\" \"$XDG_CONFIG_HOME\"/pacman_\"$HOSTNAME\".list"
+  fi
+
+  alias remain='echo SSH to carme'
+  alias cdi='sudo /usr/share/libalpm/scripts/nvidia-ctk-cdi'
+  alias synctmux='rsync -av carme:.config/tmux/ ~/.config/tmux/'
+  alias change_password='tmux neww -dn chpass;for f in earth jupiter dione venus tarvos sinope carme metis;do tmux splitw -dt:$ "ssh $f";tmux selectl -t:$ tiled;done;tmux set -wt:$ synchronize-panes;tmux set -wt:$ pane-active-border-style fg=red;tmux selectl -t:$ main-vertical;tmux selectw -t:$'
+
+  # Impersonation
+  alias sunrpe='sudo su -s /bin/bash -l nrpe'
+  alias suvcheck='sudo su -s /bin/bash -l vcheck'
+fi
+
+cmdcheck pikvm-update && alias updates='echo Using pikvm-update; sudo pikvm-update --no-reboot'
+
+true

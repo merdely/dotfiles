@@ -1,0 +1,207 @@
+## Shell Variables
+# vim: set filetype=sh :
+
+# Determine system type
+[ -r /etc/os-release ] && . /etc/os-release
+OPSYS=linux
+case "$ID" in
+  arch|artix|cachyos|garuda|endeavouros|manjaro|parabola|hyperbola|blackarch)  DISTRO=arch ;;
+  debian|ubuntu|linuxmint|pop|elementary|kali|parrot|mx|raspbian|tails|zorin)  DISTRO=debian ;;
+  fedora|rhel|centos|rocky|almalinux|ol|scientific|eurolinux|nobara)           DISTRO=fedora ;;
+  opensuse*|sles|sled)                                                         DISTRO=suse ;;
+  alpine)                                                                      DISTRO=alpine ;;
+  void)                                                                        DISTRO=void ;;
+  gentoo|calculate|sabayon|funtoo)                                             DISTRO=gentoo ;;
+  nixos)                                                                       DISTRO=nixos ;;
+  slackware)                                                                   DISTRO=slackware ;;
+esac
+[ -z "$DISTRO" ] && case "$ID_LIKE" in
+  *' arch '*)                           DISTRO=arch ;;
+  *' debian '*|*' ubuntu '*)            DISTRO=debian ;;
+  *' fedora '*|*' rhel '*|*' centos '*) DISTRO=fedora ;;
+  *' suse '*)                           DISTRO=suse ;;
+  *' gentoo '*)                         DISTRO=gentoo ;;
+esac
+[ -z "$DISTRO" ] && case "$(uname -s 2>/dev/null)" in
+  Linux)                DISTRO=linux ;;
+  Darwin)               DISTRO=macos     ; OPSYS=$DISTRO ;;
+  FreeBSD)              DISTRO=freebsd   ; OPSYS=$DISTRO ;;
+  OpenBSD)              DISTRO=openbsd   ; OPSYS=$DISTRO ;;
+  NetBSD)               DISTRO=netbsd    ; OPSYS=$DISTRO ;;
+  DragonFly)            DISTRO=dragonfly ; OPSYS=$DISTRO ;;
+  SunOS)                DISTRO=solaris   ; OPSYS=$DISTRO ;;
+  CYGWIN*|MINGW*|MSYS*) DISTRO=windows   ; OPSYS=$DISTRO ;;
+esac
+[ -z "$DISTRO" ] && DISTRO=unknown && OPSYS=$DISTRO
+
+# Remove a directory from PATH
+path_prune() {
+  [ -z "$1" ] && return 1
+  local left_side right_side="$PATH:"
+  # Loop through the PATH variable, moving elements from the right to the left,
+  # skipping the prune-part
+  while [ -n "$right_side" ]; do
+    [ "$1" != "${right_side%%:*}" ] && left_side="${left_side}:${right_side%%:*}"
+    right_side=${right_side#*:}
+  done
+  export PATH=${left_side#:}
+}
+
+# Intelligently add a directory to PATH
+path_add() {
+  local before=false check=false
+  while getopts ":be" opt; do
+    case $opt in
+      b) before=true ;;
+      e) check=true ;;
+      *) ;;
+    esac
+  done
+  shift $(( OPTARG - 1 ))
+  [ -z "$1" ] && return 1
+  path_prune "$1"
+  "$check" && [ ! -d "$1" ] && return 1
+  if "$before"; then
+    export PATH="$1":"$PATH"
+  else
+    export PATH="$PATH":"$1"
+  fi
+}
+
+# Quietly check if a command exists
+cmdcheck() { command -v "$@" > /dev/null 2>&1 ; }
+
+# Set non-interactive variables
+export LANG=en_US.UTF-8
+export LC_CTYPE=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+export GIT_AUTHOR_NAME="Michael Erdely"
+export GIT_AUTHOR_EMAIL="mike@erdelynet.com"
+export GIT_COMMITTER_NAME=$GIT_AUTHOR_NAME
+export GIT_COMMITTER_EMAIL=$GIT_AUTHOR_EMAIL
+
+# Set EUID if not set
+[ -z "$EUID" ] && EUID=$(id -u 2>/dev/null) && export EUID
+
+# Set PATH
+path_add -be /srv/scripts/sbin
+path_add -be /srv/scripts/bin
+path_add -b $HOME/.local/bin
+path_add /usr/sbin
+path_add -e /usr/local/bin/nagios/plugins
+
+# XDG PATHS (https://wiki.archlinux.org/title/XDG_Base_Directory)
+export XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
+export XDG_CACHE_HOME=${XDG_CACHE_HOME:-$HOME/.cache}
+export XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}
+export XDG_STATE_HOME=${XDG_STATE_HOME:-$HOME/.local/state}
+export XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR:-/run/user/$EUID}
+export XDG_DATA_DIRS=$XDG_DATA_HOME:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}
+
+# Create XDG directories if necessary
+mkdir -p "$XDG_CONFIG_HOME" "$XDG_CACHE_HOME" "$XDG_DATA_HOME" "$XDG_STATE_HOME" 2> /dev/null
+
+# Configuration settings to not pollute $HOME
+# XDG_CONFIG_HOME ($HOME/.config)
+export ANSIBLE_CONFIG=$XDG_CONFIG_HOME/ansible.cfg
+export ANSIBLE_HOME=$XDG_CONFIG_HOME/ansible
+export DOCKER_CONFIG=$XDG_CONFIG_HOME/docker
+export GTK2_RC_FILES=$XDG_CONFIG_HOME/gtk-2.0/gtkrc-2.0
+export NPM_CONFIG_USERCONFIG=$XDG_CONFIG_HOME/npm/npmrc
+export SCREENRC=$XDG_CONFIG_HOME/screen/screenrc
+export WGETRC=$XDG_CONFIG_HOME/wget/wgetrc
+export PSQLRC=$XDG_CONFIG_HOME/pg/psqlrc
+# XDG_CACHE_HOME $($HOME/.cache)
+export ANSIBLE_GALAXY_CACHE_DIR=$XDG_CACHE_HOME/ansible/galaxy_cache
+export CUDA_CACHE_PATH=$XDG_CACHE_HOME/nv
+export DEAD=$XDG_CACHE_HOME/dead.letter
+export LESSHISTFILE=$XDG_CACHE_HOME/less-history
+export MYSQL_HISTFILE=$XDG_CACHE_HOME/mysql_history
+export PSQL_HISTORY=$XDG_CACHE_HOME/psql_history
+export PYTHON_HISTORY=$XDG_CACHE_HOME/python-history
+export SQLITE_HISTORY=$XDG_CACHE_HOME/sqlite_history
+# XDG_STATE_HOME ($HOME/.local/state)
+export CARGO_HOME=$XDG_STATE_HOME/cargo
+export DVDCSS_CACHE=$XDG_STATE_HOME/dvdcss
+export GNUPGHOME=$XDG_STATE_HOME/gnupg
+# XDG_DATA_HOME ($HOME/.local/share)
+export ELECTRUMDIR=$XDG_DATA_HOME/electrum
+export GOPATH=$XDG_DATA_HOME/go
+export GOBIN=$XDG_DATA_HOME/go/bin
+export LEIN_HOME=$XDG_DATA_HOME/lein
+export MACHINE_STORAGE_PATH=$XDG_DATA_HOME/docker-machine
+export PASSWORD_STORE_DIR=$XDG_DATA_HOME/password-store
+export VSCODE_PORTABLE=$XDG_DATA_HOME/vscode
+# XDG_RUNTIME_DIR (/run/user/1000 or /tmp/.1000)
+export SCREENDIR=$XDG_RUNTIME_DIR/screen
+
+# Read variables from ~/.config/environment.d/$LOGNAME.conf
+if [ -r "$XDG_CONFIG_HOME"/environment.d/"$LOGNAME".conf ]; then
+  # Enable automatic exporting of variables
+  set -a
+  . "$XDG_CONFIG_HOME"/environment.d/"$LOGNAME".conf
+  # Disable automatic exporting of variables
+  set +a
+fi
+
+# Used in aliases below
+[ -z "$HOSTNAME" ] && HOSTNAME=$(hostname 2> /dev/null)
+export HOSTNAME=${HOSTNAME%%.*}
+
+# History stuff
+HISTFILE=$XDG_CACHE_HOME/shell_history
+HISTFILESIZE=100000
+HISTCONTROL=ignoreboth:erasedups
+HISTSIZE=$HISTFILESIZE
+
+# Variables
+export LESS=REX
+[ "$DISTRO" = "openbsd" ] && export LESS=FRSXc
+cmdcheck virsh && export VIRSH_DEFAULT_CONNECT_URI=qemu:///system LIBVIRT_DEFAULT_URI=qemu:///system
+
+# Set some variables
+if cmdcheck docker; then
+  [ -r /srv/docker/docker-compose.yaml ] && export COMPOSE_FILE=/srv/docker/docker-compose.yaml
+  [ -r /srv/docker/compose.yaml ] && export COMPOSE_FILE=/srv/docker/compose.yaml
+  export COMPOSE_DOCKER_CLI_BUILD=0
+fi
+
+# Wayland stuff
+if [ "$XDG_SESSION_TYPE" = wayland ]; then
+  export SSH_ASKPASS=yad-askpass
+  export SSH_AUTH_SOCK=$XDG_RUNTIME_DIR/ssh-agent.socket
+fi
+
+# Wayland stuff over SSH
+if [ -z "$SUDO_USER" -a -z "$DOAS_USER" -a -n "$SSH_CONNECTION" ]; then
+  WAYLAND_DISPLAY_FILE=$(find "$XDG_RUNTIME_DIR" -maxdepth 1 -regex ".*/wayland-[0-9]+")
+  if [ -n "$WAYLAND_DISPLAY_FILE" ]; then
+    export XDG_SESSION_TYPE=wayland
+    export WAYLAND_DISPLAY=${WAYLAND_DISPLAY_FILE##*/}
+
+    if cmdcheck swaymsg; then
+      SWAYSOCK=$(find "$XDG_RUNTIME_DIR" -maxdepth 1 -name "sway-ipc.*.*.sock")
+      [ -n "$SWAYSOCK" ] && export SWAYSOCK
+      [ -z "$SWAYSOCK" ] && unset SWAYSOCK
+      export XDG_CURRENT_DESKTOP=sway
+    fi
+
+    if cmdcheck hyprctl; then
+      HYPRLAND_INSTANCE_SIGNATURE=$(hyprctl -j instances 2>/dev/null | jq -r '.[-1].instance' 2> /dev/null)
+      [ -n "$HYPRLAND_INSTANCE_SIGNATURE" ] && export HYPRLAND_INSTANCE_SIGNATURE
+      [ -z "$HYPRLAND_INSTANCE_SIGNATURE" ] && unset HYPRLAND_INSTANCE_SIGNATURE
+      export XDG_CURRENT_DESKTOP=Hyprland
+    fi
+
+    if cmdcheck niri; then
+      NIRI_SOCKET=$(find "$XDG_RUNTIME_DIR" -maxdepth 1 -name "niri.wayland-*.sock")
+      [ -n "$NIRI_SOCKET" ] && export NIRI_SOCKET
+      [ -z "$NIRI_SOCKET" ] && unset NIRI_SOCKET
+      export XDG_CURRENT_DESKTOP=niri
+    fi
+  else
+    unset WAYLAND_DISPLAY_FILE
+  fi
+fi
+
+true
