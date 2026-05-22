@@ -1,5 +1,7 @@
-# SSH Settings
+#SSH Settings
 # vim: set filetype=sh :
+
+[ ! -d "$HOME"/.ssh ] && mkdir -pm 700 "$HOME"/.ssh
 
 # Create SSH ctl directory
 [ ! -d "$XDG_RUNTIME_DIR"/ssh-ctl ] && mkdir -pm 700 "$XDG_RUNTIME_DIR"/ssh-ctl
