@@ -1,18 +1,18 @@
 ## Mike's Master shell profile
 # vim: set filetype=sh :
 
+# Set umask early
+umask 0022 > /dev/null 2>&1
+
+# Load environment variables
+[ -r "$HOME"/.config/shell/variables ] && . "$HOME"/.config/shell/variables
+
 # Include system .bashrc from /etc/skel
 # =====================================
 {{- if lstat "/etc/skel/.bashrc" }}
 {{- include "/etc/skel/.bashrc" }}
 {{- end }}
 # =====================================
-
-# Set umask early
-umask 0022 > /dev/null 2>&1
-
-# Load environment variables
-[ -r "$HOME"/.config/shell/variables ] && . "$HOME"/.config/shell/variables
 
 # Stop if non-interactive
 [[ $- != *i* ]] && return
