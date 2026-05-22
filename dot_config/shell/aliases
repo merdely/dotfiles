@@ -26,9 +26,7 @@ cmdcheck chezmoi    && alias cm=chezmoi
 cmdcheck python2    && alias python=python2
 cmdcheck python3    && alias python=python3
 cmdcheck rsync      && alias dos_rsync='rsync -rtcvP'
-cmdcheck batman     && eval "$(batman --export-env)"
 cmdcheck bat        && alias cat='bat --paging=never --plain'
-cmdcheck bat        && export PAGER='bat'
 cmdcheck subnetcalc && alias ipcalc=subnetcalc
 cmdcheck flatpak    && alias fu='flatpak update -y ; flatpak uninstall --unused -y'
 cmdcheck mpv        && alias testcamera='mpv av://v4l2:/dev/video0 --profile=low-latency --untimed'
@@ -38,13 +36,6 @@ type source    || alias source='.'
 
 # Editor aliases
 cmdcheck view || alias view='vi -R'
-if cmdcheck nvim; then
-  export EDITOR=nvim SUDO_EDITOR=nvim
-elif cmdcheck vim; then
-  export EDITOR=vim SUDO_EDITOR=vim
-else
-  export EDITOR=vi SUDO_EDITOR=vi
-fi
 cmdcheck sudoedit && alias sudovi=sudoedit
 
 # Config file aliases
@@ -121,7 +112,6 @@ if cmdcheck ansible-playbook; then
   alias apv='ansible-playbook --ask-vault-pass'
   alias apkv='ANSIBLE_SSH_ARGS="-o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" ansible-playbook --ask-vault-pass'
   alias apk='ANSIBLE_SSH_ARGS="-o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" ansible-playbook'
-  export ANSIBLE_NOCOWS=1
 fi
 
 # sudo/doas aliases
