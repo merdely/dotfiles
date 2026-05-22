@@ -12,6 +12,7 @@ progress = true
     autoPush = true
 
 {{- if eq .chezmoi.hostname "mercury" }}
+
 [hooks.apply.pre]
 command = "chezmoi"
 args = ["re-add", "~/.cache/rofi-rbw.runcache"]
