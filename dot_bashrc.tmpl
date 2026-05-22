@@ -78,12 +78,6 @@ typeset -f __git_ps1 > /dev/null 2>&1 || alias __git_ps1=true
 #  [ -n "$current_netns" ] && netnsp="-[$current_netns]"
 #fi
 
-# Set up a basic prompt
-unset __subshell
-[[ "$CHEZMOI_SUBSHELL" == 1 ]] && __subshell=" {C}"
-[[ "$TERM" == vt220 ]] && { unset __gitglyph ; }
-PS1="[\u@\h \$(__prompt_trim_pwd '\W')]\${__subshell}\$(__git_ps1 ' (${__gitglyph}%s)' 2>/dev/null) \\$ "
-
 # Set the prompt for bash
 if [[ -n "$BASH_VERSION" ]]; then
   # \1 & \2 are good for the vi-ins-mode-string but \[ and \] are good for PS1
@@ -117,18 +111,15 @@ if [[ -n "$BASH_VERSION" ]]; then
   eval 'IFS=";" read -ra parts <<< "$PROMPT_COMMAND"'
   PROMPT_COMMAND=""
   for part in "${parts[@]}"; do
-    [[ -z "$part" || "$part" == "history "* || "$part" == "__prompt_exit="* || "$part" == ":" ]] && continue
+    [[ -z "$part" || "$part" == "history "* || "$part" == "(( \$? )) && "* || "$part" == ":" ]] && continue
     PROMPT_COMMAND="$PROMPT_COMMAND;$part"
   done
-  PROMPT_COMMAND="__prompt_exit=\$?$PROMPT_COMMAND;history -a;history -c;history -r"
+  PROMPT_COMMAND="(( \$? )) && __prompt_color=$'\e[91m' || __prompt_color=$'\e[92m'$PROMPT_COMMAND;history -a;history -c;history -r"
   unset parts part
-
-  # Set prompt color based on exit status of last command
-  __prompt_dollar() { ((__prompt_exit != 0)) && printf '\e[91m' || printf '\e[92m'; }
 
   # Set the prompt
   [[ "$CHEZMOI_SUBSHELL" == 1 ]] && __subshell=$' \1\e[1;95m\2{C}\1\e[22;39m\2'
-  PS1="[\[\e[96m\]\u\[\e[39m\]@\[\e[92m\]\h\[\e[39m\] \[\e[94m\]\$(__prompt_trim_pwd "\W")\[\e[39m\]]\[\e[22;24;27;49m\]\${__subshell}\$(__git_ps1 ' (\[\e[1;${__orange}m\]${__gitglyph}\[\e[1;39m\]%s\[\e[22m\])' 2>/dev/null) \[\$(__prompt_dollar)\]\\$\[\e[39m\] \[\e[0m\]"
+  PS1="[\[\e[96m\]\u\[\e[39m\]@\[\e[92m\]\h\[\e[39m\] \[\e[94m\]\$(__prompt_trim_pwd "\W")\[\e[39m\]]\[\e[22;24;27;49m\]\${__subshell}\$(__git_ps1 ' (\[\e[1;${__orange}m\]${__gitglyph}\[\e[1;39m\]%s\[\e[22m\])' 2>/dev/null) \[\${__prompt_color}\]\\$\[\e[39m\] \[\e[0m\]"
   unset __gitglyph
 
   # Set readline options
@@ -140,6 +131,12 @@ if [[ -n "$BASH_VERSION" ]]; then
   bind 'set colored-completion-prefix on'  # display common prefix in ls-style colors
   bind 'set mark-symlinked-directories on' # show directory symlinks with trailing slash
   bind 'set visible-stats on'              # append character indicating type
+else
+  # Set up a basic prompt
+  unset __subshell
+  [[ "$CHEZMOI_SUBSHELL" == 1 ]] && __subshell=" {C}"
+  [[ "$TERM" == vt220 ]] && { unset __gitglyph ; }
+  PS1="[\u@\h \$(__prompt_trim_pwd '\W')]\${__subshell}\$(__git_ps1 ' (${__gitglyph}%s)' 2>/dev/null) \\$ "
 fi
 
 # Load fzf for command history for bash and zsh
