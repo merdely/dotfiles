@@ -4,7 +4,8 @@
 # When this script or any of the hashes below change, update files
 # .ssh/home_known_hosts: {{ include "private_dot_ssh/home_known_hosts" | sha256sum }}
 
-hostname=$(hostname)
+hostname=$(hostname 2> /dev/null || hostnamectl hostname 2> /dev/null)
+[ -z "$hostname" ] && { echo "Error: Could not determine hostname" >&2 ; exit 1 ; }
 hostname=${hostname%%.*}
 
 # Copy home_known_hosts to /etc/ssh/ssh_known_hosts if they differ
