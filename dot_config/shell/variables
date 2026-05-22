@@ -158,6 +158,7 @@ HISTSIZE=$HISTFILESIZE
 export LESS=REX
 [ "$DISTRO" = "openbsd" ] && export LESS=FRSXc
 cmdcheck virsh && export VIRSH_DEFAULT_CONNECT_URI=qemu:///system LIBVIRT_DEFAULT_URI=qemu:///system
+cmdcheck ansible && ANSIBLE_NOCOWS=1
 
 # Set some variables
 if cmdcheck docker; then
