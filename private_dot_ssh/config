@@ -1,0 +1,44 @@
+Include ~/.ssh/config.top
+
+Host sol mercury venus earth mars jupiter saturn uranus neptune pluto homeassistant carme metis tarvos neso sinope dia e5530
+
+Host marsconsole marscon
+  Hostname metis
+  RemoteCommand screen /dev/serial/by-id/usb-FINTEK_USB_TO_UART_BRIDGE_88635600168801-if00-port0 115200
+  RequestTTY yes
+
+Host git.erdely.in
+  Port 2222
+  HostKeyAlias git.erdely.in
+  User git
+
+Host *
+  Protocol 2
+  AddKeysToAgent yes
+  ForwardAgent yes
+  EnableEscapeCommandline yes
+  # ForwardX11 yes
+  # Keep connections alive to switches for 5 minutes: 27 * 30 = 15 minutes
+  ServerAliveInterval 27
+  ServerAliveCountMax 30
+  HashKnownHosts no
+  UserKnownHostsFile .ssh/known_hosts .ssh/home_known_hosts
+  HostKeyAlgorithms ssh-ed25519,ecdsa-sha2-nistp256-cert-v01@openssh.com,ecdsa-sha2-nistp384-cert-v01@openssh.com,ecdsa-sha2-nistp521-cert-v01@openssh.com,ssh-ed25519-cert-v01@openssh.com,rsa-sha2-512-cert-v01@openssh.com,rsa-sha2-256-cert-v01@openssh.com,ssh-rsa-cert-v01@openssh.com,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,rsa-sha2-512,rsa-sha2-256,ssh-rsa
+  CanonicalDomains erdely.in erdelynet.com
+  CanonicalizeHostname yes
+
+Host * !*_j
+  ControlMaster auto
+  # %L=local hostname
+  # %l=local hostname with domain
+  # %r=remote user
+  # %h=remote hostname
+  # %p=remote port
+  # %n=remote hostname as given on command line
+  # %C=hash of %l%h%p%r (%l=local hostname with domain)
+  # ControlPath ~/.ssh/ctl-%C
+  # ControlPath ~/.ssh/ctl-%L-%r-%h-%p
+  ControlPath ~/.ssh/ctl/%r-%h-%p
+  # VerifyHostKeyDNS yes
+
+Include ~/.ssh/config.bottom
