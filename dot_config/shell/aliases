@@ -32,7 +32,7 @@ cmdcheck flatpak    && alias fu='flatpak update -y ; flatpak uninstall --unused 
 cmdcheck mpv        && alias testcamera='mpv av://v4l2:/dev/video0 --profile=low-latency --untimed'
 cmdcheck git && [ -d /srv/scripts ] && alias us='sudo git -C /srv/scripts pull'
 cmdcheck which || alias which='command -v'
-type source    || alias source='.'
+type source > /dev/null 2>&1 || alias source='.'
 
 # Editor aliases
 cmdcheck view || alias view='vi -R'
