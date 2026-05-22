@@ -1,0 +1,31 @@
+#!/bin/sh
+# vim: filetype=sh :
+
+# When this script or any of the hashes below change, update files
+# .ssh/home_known_hosts: {{ include ".ssh/home_known_hosts" | sha256sum }}
+
+hostname=$(hostname)
+hostname=${hostname%%.*}
+
+# Copy home_known_hosts to /etc/ssh/ssh_known_hosts if they differ
+if ! cmp -s "$HOME"/.ssh/home_known_hosts /etc/ssh/ssh_known_hosts; then
+  sudo install -m 644 -o root -g "$(id -gn root)" "$HOME"/.ssh/home_known_hosts /etc/ssh/ssh_known_hosts
+fi
+
+# Ensure /etc/ssh/ssh_host_ed25519_key matches public key in home_known_hosts
+defined_pub_key=$(awk -vh="$hostname" '
+  $1 ~ "^"h"([,:]|$)" {
+    for ( i = 1; i <= NF; i++ )
+      if ( $i == "ssh-ed25519" ) {
+        print $(i + 1)
+        exit
+      }
+  }' "$HOME"/.ssh/home_known_hosts)
+system_key=$(ssh-keyscan -t ed25519 localhost 2> /dev/null | awk '$2=="ssh-ed25519"{print $3}')
+
+if [ "$defined_pub_key" != "$system_key" ]; then
+  # Updating system ssh_host_ed25519_key
+  pass show systems/"$hostname"/ssh_host_ed25519_key | sudo tee /etc/ssh/ssh_host_ed25519_key > /dev/null
+  sudo chmod 600 /etc/ssh/ssh_host_ed25519_key
+fi
+
