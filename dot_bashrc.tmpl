@@ -41,34 +41,7 @@ __prompt_trim_pwd() {
 }
 
 # Load git prompt
-if cmdcheck git; then
-  unalias __git_ps1 > /dev/null 2>&1
-  for file in "$HOME"/.local/bin/git-prompt.sh /usr/lib/git-core/git-sh-prompt \
-              /usr/share/git-core/git-prompt.sh /usr/share/git/completion/git-prompt.sh
-  do [[ -e "$file" ]] && . "$file" && break; done
-  unset file
-
-  if ! typeset -f __git_ps1 > /dev/null 2>&1; then
-    [[ ! -d "$HOME"/.local/bin ]] && mkdir -p "$HOME"/.local/bin
-    curl -sLo "$HOME"/.local/bin/git-prompt.sh \
-      https://raw.githubusercontent.com/git/git/refs/heads/master/contrib/completion/git-prompt.sh
-    [[ -s "$HOME"/.local/bin/git-prompt.sh ]] && . "$HOME"/.local/bin/git-prompt.sh
-  fi
-
-  if typeset -f __git_ps1 > /dev/null 2>&1; then
-    GIT_PS1_COMPRESSSPARSESTATE=true
-    GIT_PS1_SHOWDIRTYSTATE=true
-    GIT_PS1_SHOWUNTRACKEDFILES=true
-    GIT_PS1_SHOWSTASHSTATE=true
-    GIT_PS1_SHOWUPSTREAM="auto"  # auto verbose name legacy git svn
-    unset GIT_PS1_SHOWCOLORHINTS
-    [[ -z "$KSH_VERSION" ]] && GIT_PS1_SHOWCOLORHINTS=true
-    __gitglyph="§ "  # unicode section sign
-    [[ "$TERM" != linux ]] && __gitglyph=" "  # git branch symbol from nerd fonts
-  fi
-  pgrep -x gpg-agent > /dev/null 2>&1 || export GPG_TTY=$(tty)
-fi
-typeset -f __git_ps1 > /dev/null 2>&1 || alias __git_ps1=true
+[ -r "$HOME"/.config/shell/git-prompt ] && . "$HOME"/.config/shell/git-prompt
 
 ## Get current namespace name for prompt
 #if cmdcheck ip; then
@@ -151,24 +124,6 @@ fi
 # Use vi-mode
 set -o vi
 
-if cmdcheck docker; then
-  dr() {
-    (( $# < 1 )) && return 1
-    local name_base=dr_"${1%%:*}" name=dr_"${1%%:*}" ok=false existing tag
-    while ! $ok; do
-      ok=true
-      for existing in $(docker ps -a --format '{{ "{{" }}.Names}}'); do
-        if [[ "$name" == "$existing" ]]; then
-          ok=false
-          [[ -z "$tag" ]] && tag=0 || tag=$(( tag + 1 ))
-          name=$name_base.$tag
-        fi
-      done
-    done
-    docker run --rm -it --name "$name" "$1" sh -c "command -v bash>/dev/null && exec bash || exec ash"
-  }
-fi
-
 # Create SSH ctl directory
 [[ ! -d "$XDG_RUNTIME_DIR"/ssh-ctl ]] && mkdir -pm 700 "$XDG_RUNTIME_DIR"/ssh-ctl
 [[ ! -L "$HOME"/.ssh/ctl ]] && ln -s "$XDG_RUNTIME_DIR"/ssh-ctl "$HOME"/.ssh/ctl
@@ -179,58 +134,6 @@ fi
 if [[ -n "$SSH_CONNECTION" && ! -S "$XDG_RUNTIME_DIR"/ssh-auth-sock && -S "$SSH_AUTH_SOCK" ]]; then
   ln -sf "$SSH_AUTH_SOCK" "$XDG_RUNTIME_DIR"/ssh-auth-sock
 fi
-
-# Random password generator
-if ! cmdcheck passgen; then
-  passgen() {
-    LENGTH=$1
-    tr -cd '[:alnum:]' < /dev/urandom | fold -w "${LENGTH:-64}" | head -n 1 | tr -d '\n' ; echo
-  }
-fi
-! cmdcheck genpass && alias genpass=passgen
-
-# Get file age
-fileage() {
-  mode=seconds
-  verbose=false
-  local opt OPTIND=1 str filename
-  local usage="usage: fileage [-v] [-s|-m|-h|-d|-y] FILE\n         -v         : print label\n         -s|m|h|d|y : seconds|minutes|days|years (default: seconds)\n"
-  while getopts ":hsmhdyv" opt; do
-    case $opt in
-      s) mode=seconds ; mult=1 ;;
-      m) mode=minutes ; mult=60 ;;
-      h) [[ -z "$2" || ${2:0:1} == - ]] && { printf "%b" "$usage" >&2 ; return 1 ; }
-         mode=hours   ; mult=$((60 * 60)) ;;
-      d) mode=days    ; mult=$((60 * 60 * 24)) ;;
-      y) mode=years    ; mult=$((60 * 60 * 24 * 365)) ;;
-      v) verbose=true ;;
-      *) printf "%b" "$usage" && return 1 ;;
-    esac
-  done
-  shift $(( OPTIND - 1 ))
-  $verbose && str=" $mode"
-  filename=$(realpath "$1")
-  [[ ! -r "$filename" ]] && { echo "Error: Cannot find $filename" >&2 ; return 1 ; }
-  echo $(( ($(date +%s) - $(stat -c %Y "$filename")) / $((${mult:-1})) ))"$str"
-}
-
-cmdcheck firejail && \
-fj() {
-  [[ -z "$1" ]] && { echo "usage: fj FIREJAILED_APP" >&2 ; return 1 ; }
-  [[ "$1" == -l ]] && { firejail --list | awk -F: '! /(\/usr\/bin\/)?firejail --join/{sub(/^(\/usr\/bin\/)?firejail /,"",$NF);print $NF}' ; return ; }
-  echo "$1" | grep -q firejail && { echo "Error: 'firejail' cannot be used in app string" >&2 ; return 1 ; }
-  app_pid=$(firejail --list | awk -F: "/$1/ { print \$1 }")
-  count=$(echo "$app_pid" | wc -w)
-  if (( count == 0 )); then
-    echo "Error: No matches found for '$1'" >&2
-    return 1
-  elif (( count > 1 )); then
-    echo "Error: More than one match found for '$1'" >&2
-    return 1
-  fi
-  echo "$app_pid"|grep -Eq "^[0-9]+$" || { echo "Error: Invalid FIREJAILED_APP (pid: $app_pid)" >&2 ;return 1; }
-  firejail --join="$app_pid" bash
-}
 
 # OS Specific Commands
 case "$DISTRO" in
