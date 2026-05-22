@@ -18,7 +18,7 @@ if [[ "$ID" =~ ^(arch|artix|cachyos|garuda|endeavouros|manjaro)$ || " $ID_LIKE "
   # Go through the package list and find packages that are not installed
   need=()
   packages=(
-    base-devel git openssh neovim vim man-db apparmor firejail rsync
+    base-devel git openssh neovim vim man-db apparmor firejail rsync inetutils
     networkmanager openresolv htop btop jq 7zip bat ripgrep fd cronie
   )
   {{- if $is_desktop }}
