@@ -52,6 +52,7 @@
 {{- if not (and $is_desktop $is_trusted) }}
 .cache/rofi-rbw.runcache
 .config/cam-chooser.conf
+.logseq
 {{- end }}
 
 {{- if not $is_trusted }}
