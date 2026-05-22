@@ -19,6 +19,7 @@ umask 0022 > /dev/null 2>&1
 
 # Load aliases
 [ -r "$HOME"/.config/shell/aliases ] && . "$HOME"/.config/shell/aliases
+[ -r "$HOME"/.config/shell/functions ] && . "$HOME"/.config/shell/functions
 
 # For use in PS1, better PROMPT_DIRTRIM/\w
 __prompt_trim_pwd() {
