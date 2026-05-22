@@ -1,0 +1,99 @@
+# Shell functions
+# vim: set filetype=sh :
+
+cmdcheck docker && dr() {
+  [ $# -lt 1 ] && return 1
+  local name_base=dr_"${1%%:*}" name=dr_"${1%%:*}" ok=false existing tag
+  while ! $ok; do
+    ok=true
+    for existing in $(docker ps -a --format '{{.Names}}'); do
+      if [ "$name" = "$existing" ]; then
+        ok=false
+        [ -z "$tag" ] && tag=0 || tag=$(( tag + 1 ))
+        name=$name_base.$tag
+      fi
+    done
+  done
+  docker run --rm -it --name "$name" "$1" sh -c "command -v bash>/dev/null && exec bash || exec ash"
+}
+
+# Random password generator
+cmdcheck passgen || passgen() {
+  LENGTH=$1
+  tr -cd '[:alnum:]' < /dev/urandom | fold -w "${LENGTH:-64}" | head -n 1 | tr -d '\n' ; echo
+}
+! cmdcheck genpass && alias genpass=passgen
+
+# Get file age
+fileage() {
+  mode=seconds
+  verbose=false
+  local opt OPTIND=1 str filename
+  local usage="usage: fileage [options] FILE\noptions:\n -v         : print label\n -s|m|h|d|y : seconds|minutes|days|years (default: seconds)\n"
+  while getopts ":hsmhdyv" opt; do
+    case $opt in
+      s) mode=seconds ; mult=1 ;;
+      m) mode=minutes ; mult=60 ;;
+      h) [ -z "$2" -o "$(echo "$HOME" | cut -b1)" = "-" ] && { printf "%b" "$usage" >&2 ; return 1 ; }
+         mode=hours   ; mult=$((60 * 60)) ;;
+      d) mode=days    ; mult=$((60 * 60 * 24)) ;;
+      y) mode=years    ; mult=$((60 * 60 * 24 * 365)) ;;
+      v) verbose=true ;;
+      *) printf "%b" "$usage" && return 1 ;;
+    esac
+  done
+  shift $(( OPTIND - 1 ))
+  $verbose && str=" $mode"
+  filename=$(realpath "$1")
+  [ ! -r "$filename" ] && { echo "Error: Cannot find $filename" >&2 ; return 1 ; }
+  echo $(( ($(date +%s) - $(stat -c %Y "$filename")) / $((${mult:-1})) ))"$str"
+}
+
+cmdcheck firejail && fj() {
+  [ -z "$1" ] && { echo "usage: fj FIREJAILED_APP" >&2 ; return 1 ; }
+  [ "$1" = "-l" ] && { firejail --list | awk -F: '! /(\/usr\/bin\/)?firejail --join/{sub(/^(\/usr\/bin\/)?firejail /,"",$NF);print $NF}' ; return ; }
+  echo "$1" | grep -q firejail && { echo "Error: 'firejail' cannot be used in app string" >&2 ; return 1 ; }
+  app_pid=$(firejail --list | awk -F: "/$1/ { print \$1 }")
+  count=$(echo "$app_pid" | wc -w)
+  if [ $count -eq 0 ]; then
+    echo "Error: No matches found for '$1'" >&2
+    return 1
+  elif [ $count -gt 1 ]; then
+    echo "Error: More than one match found for '$1'" >&2
+    return 1
+  fi
+  echo "$app_pid"|grep -Eq "^[0-9]+$" || { echo "Error: Invalid FIREJAILED_APP (pid: $app_pid)" >&2 ;return 1; }
+  firejail --join="$app_pid" bash
+}
+
+# Get Server Expiration
+getsslexpire() {
+  [ -z "$1" ] && echo "usage: getsslexpire webserver.domain.tld[:port]" && return
+  local port=${1#*:}
+  [ $port = $1 ] && port=443
+  local date=$(echo | openssl s_client -servername ${1%:*} -connect ${1%:*}:$port 2>/dev/null | openssl x509 -noout -enddate)
+  if printf '%s\n' "$date" | \
+      grep -qE '^notAfter=[A-Z][a-z][a-z] [0-9 ][0-9] [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [0-9]{4} [A-Z]{3}'; then
+    echo "$1 expires ${date#notAfter=}"
+  else
+    echo "Error: Could not determine expiration date ($date)"
+  fi
+}
+
+# Telnet replacement
+cmdcheck telnet || telnet() {
+  local usage="usage: telnet [-h] HOST[:PORT}"
+  while getopts ":h" opt; do
+    case $opt in
+      *) printf "%b" "$usage" && return 1 ;;
+    esac
+  done
+  shift $((OPTIND -1))
+  [ -z "$1" ] && printf "%b" "$usage" && return 1
+  local host=${1%:*}
+  local port=${1#*:}
+  [ $host = $port ] && unset port && [ -n "$2" ] && port=$2
+  echo "Connecting to $host:${port:=23}"
+  curl telnet://$host:$port
+}
+

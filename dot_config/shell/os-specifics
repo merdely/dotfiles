@@ -1,0 +1,32 @@
+# OS Specific Settings
+# vim: filetype=sh :
+
+# OS Specific Commands
+case "$DISTRO" in
+  openbsd)
+    # Print status of command without interrupting it (e.g. ping)
+    stty status '^T'
+
+    # Allow ps on OpenBSD to accept -ef
+    ps() {
+      local W
+      if [ "$(echo "$1" | cut -b 1-3)" = "-ef" ]; then
+        case "$*" in
+          *ww) W=-ww ;;
+          *w*) W=-w ;;
+        esac
+        /bin/ps -A -o user,pid,ppid,pcpu,start,tty,time,args "$W"
+      else
+        /bin/ps "$@"
+      fi
+    }
+
+    # Shortcuts for using halt and reboot with shutdown group membership
+    if groups | grep -qw _shutdown; then
+      halt_func() { shutdown -h "$@" now; } ; alias halt=halt_func
+      reboot_func() { shutdown -r "$@" now; } ; alias reboot=reboot_func
+    fi
+    ;;
+esac
+
+true

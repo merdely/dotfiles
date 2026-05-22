@@ -1,0 +1,31 @@
+# Code to import git prompt
+# vim: set filetype=sh :
+
+if command -v git > /dev/null 2>&1; then
+  unalias __git_ps1 > /dev/null 2>&1
+  for file in "$HOME"/.local/bin/git-prompt.sh /usr/lib/git-core/git-sh-prompt \
+              /usr/share/git-core/git-prompt.sh /usr/share/git/completion/git-prompt.sh
+  do [[ -e "$file" ]] && . "$file" && break; done
+  unset file
+
+  if ! typeset -f __git_ps1 > /dev/null 2>&1; then
+    [[ ! -d "$HOME"/.local/bin ]] && mkdir -p "$HOME"/.local/bin
+    curl -sLo "$HOME"/.local/bin/git-prompt.sh \
+      https://raw.githubusercontent.com/git/git/refs/heads/master/contrib/completion/git-prompt.sh
+    [[ -s "$HOME"/.local/bin/git-prompt.sh ]] && . "$HOME"/.local/bin/git-prompt.sh
+  fi
+
+  if typeset -f __git_ps1 > /dev/null 2>&1; then
+    GIT_PS1_COMPRESSSPARSESTATE=true
+    GIT_PS1_SHOWDIRTYSTATE=true
+    GIT_PS1_SHOWUNTRACKEDFILES=true
+    GIT_PS1_SHOWSTASHSTATE=true
+    GIT_PS1_SHOWUPSTREAM="auto"  # auto verbose name legacy git svn
+    unset GIT_PS1_SHOWCOLORHINTS
+    [[ -z "$KSH_VERSION" ]] && GIT_PS1_SHOWCOLORHINTS=true
+    __gitglyph="§ "  # unicode section sign
+    [[ "$TERM" != linux ]] && __gitglyph=" "  # git branch symbol from nerd fonts
+  fi
+  pgrep -x gpg-agent > /dev/null 2>&1 || export GPG_TTY=$(tty)
+fi
+typeset -f __git_ps1 > /dev/null 2>&1 || alias __git_ps1=true

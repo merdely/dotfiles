@@ -1,0 +1,15 @@
+# SSH Settings
+# vim: set filetype=sh :
+
+# Create SSH ctl directory
+[ ! -d "$XDG_RUNTIME_DIR"/ssh-ctl ] && mkdir -pm 700 "$XDG_RUNTIME_DIR"/ssh-ctl
+[ ! -L "$HOME"/.ssh/ctl ] && ln -s "$XDG_RUNTIME_DIR"/ssh-ctl "$HOME"/.ssh/ctl
+
+# SSH key stuff
+[ ! -e "$XDG_RUNTIME_DIR"/ssh-auth-sock -a -n "$SSH_AUTH_SOCK" ] && \
+  ln -sf "$SSH_AUTH_SOCK" "$XDG_RUNTIME_DIR"/ssh-auth-sock
+if [ -n "$SSH_CONNECTION" -a ! -S "$XDG_RUNTIME_DIR"/ssh-auth-sock -a -S "$SSH_AUTH_SOCK" ]; then
+  ln -sf "$SSH_AUTH_SOCK" "$XDG_RUNTIME_DIR"/ssh-auth-sock
+fi
+
+true
