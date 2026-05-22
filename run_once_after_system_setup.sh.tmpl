@@ -44,9 +44,31 @@ if [[ ( ! -e /usr/bin/vi || -L /usr/bin/vi ) && -e $HOME/.local/bin/vi ]]; then
 fi
 
 # Fix $LOGNAME $HOME permissions
-if [[ -n "$(find "$HOME" \( -not -user "$LOGNAME" -or -not -group "$(id -gn)" \) -print -quit)" ]]; then
-  echo "Fixing $HOME permissions"
-  sudo chown -R "$LOGNAME:$(id -gn)" "$HOME"
+unset list
+if command -v fd > /dev/null 2>&1; then
+  if [ -n "$(fd --hidden --no-ignore --exclude ".snapshots" --owner '!'"$LOGNAME" --max-results 1 . "$HOME")" ]; then
+    echo "Fixing $HOME permissions"
+    fd --hidden --no-ignore --exclude ".snapshots" --owner '!'"$LOGNAME" --print0 . "$HOME" | \
+      xargs -0 -r chown "$LOGNAME"
+  fi
+elif command -v fdfind > /dev/null 2>&1; then
+  if [ -n "$(fdfind --hidden --no-ignore --exclude ".snapshots" --owner '!'"$LOGNAME" --max-results 1 . "$HOME")" ]; then
+    echo "Fixing $HOME permissions"
+    fdfind --hidden --no-ignore --exclude ".snapshots" --owner '!'"$LOGNAME" --print0 . "$HOME" | \
+      xargs -0 -r chown "$LOGNAME"
+  fi
+else
+  if [ -n "$(find "$HOME" -name ".snapshots" -prune -or -not -user "$LOGNAME" -print -quit)" ]; then
+    echo "Fixing $HOME permissions"
+    find "$HOME" -name ".snapshots" -prune -or -not -user "$LOGNAME" -print0 | \
+      xargs -0 -r chown "$LOGNAME"
+  fi
+fi
+
+# Use setfacl to make sure $LOGNAME has permissions on files in $HOME
+if ! getfacl --omit-header "$HOME" 2> /dev/null | grep -q "^default:user:$LOGNAME:rwx"; then
+    echo "Setting ACLs on $HOME"
+    setfacl -R -m "u:$LOGNAME:rwX,d:u:$LOGNAME:rwX" -- "$HOME" 2> /dev/null
 fi
 
 # Enable services: ssh-agent
