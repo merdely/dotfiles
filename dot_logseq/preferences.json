@@ -1,0 +1,22 @@
+{
+  "theme": null,
+  "themes": {
+    "mode": "dark",
+    "light": null,
+    "dark": {
+      "name": "Catppuccin Macchiato",
+      "url": "file:///home/mike/.logseq/plugins/logseq-catppuccin/ctp-macchiato.css",
+      "description": "Catppuccin Macchiato",
+      "mode": "dark",
+      "pid": "logseq-catppuccin",
+      "selected": false
+    }
+  },
+  "externals": [],
+  "pinnedToolbarItems": [
+    "logseq-journals-calendar:goto-today",
+    "logseq-todo-plugin:logseq-plugin-todo",
+    "logseq-journals-calendar:open-calendar",
+    "logseq-tags:tags-plugin-open"
+  ]
+}
