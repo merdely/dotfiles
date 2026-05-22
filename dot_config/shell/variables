@@ -49,7 +49,7 @@ path_prune() {
 
 # Intelligently add a directory to PATH
 path_add() {
-  local before=false check=false
+  local opt OPTARG OPTIND before=false check=false
   while getopts ":be" opt; do
     case $opt in
       b) before=true ;;
@@ -57,7 +57,7 @@ path_add() {
       *) ;;
     esac
   done
-  shift $(( OPTARG - 1 ))
+  shift $(( OPTIND - 1 ))
   [ -z "$1" ] && return 1
   path_prune "$1"
   "$check" && [ ! -d "$1" ] && return 1

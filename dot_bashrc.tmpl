@@ -210,7 +210,7 @@ fileage() {
       *) printf "%b" "$usage" && return 1 ;;
     esac
   done
-  shift $((OPTIND -1))
+  shift $(( OPTIND - 1 ))
   $verbose && str=" $mode"
   filename=$(realpath "$1")
   [[ ! -r "$filename" ]] && { echo "Error: Cannot find $filename" >&2 ; return 1 ; }
