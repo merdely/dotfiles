@@ -98,6 +98,17 @@ export XDG_STATE_HOME=${XDG_STATE_HOME:-$HOME/.local/state}
 export XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR:-/run/user/$EUID}
 export XDG_DATA_DIRS=$XDG_DATA_HOME:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}
 
+# Work around missing XDG_RUNTIME_DIR
+if [ ! -d "$XDG_RUNTIME_DIR" ]; then
+  if [ -w /dev/shm ]; then
+    XDG_RUNTIME_DIR=$(mktemp -d /dev/shm/.$EUID.XXXX)
+    export XDG_RUNTIME_DIR
+  elif [ -w /tmp ]; then
+    XDG_RUNTIME_DIR=$(mktemp -d /tmp/.$EUID.XXXX)
+    export XDG_RUNTIME_DIR
+  fi
+fi
+
 # Create XDG directories if necessary
 mkdir -p "$XDG_CONFIG_HOME" "$XDG_CACHE_HOME" "$XDG_DATA_HOME" "$XDG_STATE_HOME" 2> /dev/null
 
