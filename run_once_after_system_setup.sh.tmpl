@@ -133,9 +133,10 @@ if [ -e /etc/greetd/config.toml ]; then
   fi
   if [ -r "$HOME"/.config/niri/greeter/colors.json ]; then
     if [ ! -x /var/cache/dms-greeter ] || ! sudo test -r /var/cache/dms-greeter/colors.json; then
-    echo "Configuring dms-greeter colors"
-    sudo install -m 644 -o root -g "$(id -gn root)" \
-      "$HOME"/.config/niri/greeter/colors.json /var/cache/dms-greeter
+      echo "Configuring dms-greeter colors"
+      sudo install -m 644 -o root -g "$(id -gn root)" \
+        "$HOME"/.config/niri/greeter/colors.json /var/cache/dms-greeter
+    fi
   fi
 fi
 
