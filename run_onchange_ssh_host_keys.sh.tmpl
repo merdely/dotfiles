@@ -28,5 +28,6 @@ if [ "$defined_pub_key" != "$system_key" ]; then
   # Updating system ssh_host_ed25519_key
   pass show systems/"$hostname"/ssh_host_ed25519_key | sudo tee /etc/ssh/ssh_host_ed25519_key > /dev/null
   sudo chmod 600 /etc/ssh/ssh_host_ed25519_key
+  sudo systemctl restart sshd
 fi
 
