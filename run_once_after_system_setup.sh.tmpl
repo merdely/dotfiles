@@ -8,6 +8,8 @@
 {{- $is_server  := stat (joinPath $profiles "server") -}}
 {{- $is_trusted := has .chezmoi.hostname $trusted_hosts -}}
 
+echo "Processing Run Once After System Setup"
+
 TMPFILES=()
 trap 'rm -Rf -- "${TMPFILES[@]}"' EXIT
 trap 'exit 1' INT TERM
