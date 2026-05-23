@@ -16,9 +16,9 @@ pcall(require, "lazy_bootstrap")
 vim.opt.number = true                              -- Line numbers
 vim.opt.relativenumber = false                     -- Relative line numbers
 vim.opt.cursorline = true                          -- Highlight current line
-vim.opt.wrap = true                                -- Don't wrap lines
-vim.opt.scrolloff = 10                             -- Keep 10 lines above/below cursor 
-vim.opt.sidescrolloff = 8                          -- Keep 8 columns left/right of cursor
+vim.opt.wrap = true                                -- Line wrapping
+vim.opt.scrolloff = 10                             -- Number of lines to keep above/below cursor 
+vim.opt.sidescrolloff = 8                          -- Number of columns to keep left/right of cursor
 
 -- Indentation
 vim.opt.tabstop = 2                                -- Tab width
@@ -80,7 +80,7 @@ vim.opt.swapfile = false                           -- Don't create swap files
 vim.opt.undofile = true                            -- Persistent undo
 vim.opt.updatetime = 300                           -- Faster completion
 vim.opt.timeoutlen = 500                           -- Key timeout duration
-vim.opt.ttimeoutlen = 0                            -- Key code timeout
+vim.opt.ttimeoutlen = 50                           -- Key code timeout
 vim.opt.autoread = true                            -- Auto reload files changed outside vim
 vim.opt.autowrite = false                          -- Don't auto save
 
@@ -101,9 +101,9 @@ vim.opt.encoding = "utf-8"                         -- Set encoding
 vim.opt.guicursor = "n-v-c:block,i-ci-ve:block,r-cr:hor20,o:hor50,a:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor,sm:block-blinkwait175-blinkoff150-blinkon175"
 
 -- Folding settings
-vim.opt.foldmethod = "expr"                        -- Use expression for folding
-vim.opt.foldexpr = "v:lua.nvim.treesitter.foldexpr()"    -- Use treesitter for folding
-vim.opt.foldlevel = 99                             -- Start with all folds open
+vim.opt.foldmethod = "expr"                           -- Use expression for folding
+vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"  -- Use treesitter for folding
+vim.opt.foldlevel = 99                                -- Start with all folds open
 
 -- Split behavior
 vim.opt.splitbelow = true                          -- Horizontal splits go below
@@ -144,6 +144,15 @@ vim.api.nvim_set_hl(0, "EndOfBuffer", { bg = "none" })
 -- ============================================================================
 -- KEY MAPPINGS
 -- ============================================================================
+
+-- better movement in wrapped text
+vim.keymap.set("n", "j", function()
+  return vim.v.count == 0 and "gj" or "j"
+end, { expr = true, silent = true, desc = "Down (wrap-aware)" })
+vim.keymap.set("n", "k", function()
+  return vim.v.count == 0 and "gk" or "k"
+end, { expr = true, silent = true, desc = "Up (wrap-aware)" })
+
 -- Normal mode mappings
 vim.keymap.set("n", "<leader>c", ":nohlsearch<CR>", { desc = "Clear search highlights" })
 
@@ -660,7 +669,7 @@ if not has_statusline_plugin then
   local cached_branch = ""
   local last_check = 0
   local function git_branch()
-    local now = vim.loop.now()
+    local now = vim.uv.now()
     if now - last_check > 5000 then -- Check every 5 seconds
       cached_branch = vim.fn.system("git branch --show-current 2>/dev/null | tr -d '\n'")
       last_check = now
