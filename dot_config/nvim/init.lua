@@ -798,45 +798,46 @@ vim.api.nvim_create_autocmd("VimEnter", {
       return modes[mode] or (" \u{f059} " .. mode)
     end
 
-    _G.mode_icon = mode_icon
-    _G.git_branch = git_branch
-    _G.file_type = file_type
-    -- _G.file_size = file_size
+      _G.mode_icon = mode_icon
+      _G.git_branch = git_branch
+      _G.file_type = file_type
+      -- _G.file_size = file_size
 
-    -- Function to change statusline based on window focus
-    local function setup_dynamic_statusline()
-      vim.api.nvim_create_autocmd({ "WinEnter", "BufEnter" }, {
-        callback = function()
-          vim.opt_local.statusline = table.concat({
-            " ",
-            "%#StatusLineBold#",
-            "%{v:lua.mode_icon()}",
-            "%#StatusLine# ",
-            "\u{e0b1}",   -- left divider
-            "%{v:lua.git_branch()}",
-            "\u{e0b1}",   -- left divider
-            " %f %h%m%r", -- filename + flags
-            "%=",         -- Right-align everything after this
-            "%{&fenc!=''?&fenc:&enc}", -- encoding
-            " \u{e0b3}",  -- right divider
-            " %{&fileformat}",
-            " \u{e0b3}", -- right divider
-            " %{&filetype}",
-            " \u{e0b3}", -- right divider
-            " %P",       -- percentage through file
-            " \u{e0b3}", -- right divider
-            " %l:%c ",   -- line:col
-          })
-        end,
-      })
+      -- Function to change statusline based on window focus
+      local function setup_dynamic_statusline()
+        vim.api.nvim_create_autocmd({ "WinEnter", "BufEnter" }, {
+          callback = function()
+            vim.opt_local.statusline = table.concat({
+              " ",
+              "%#StatusLineBold#",
+              "%{v:lua.mode_icon()}",
+              "%#StatusLine# ",
+              "\u{e0b1}",   -- left divider
+              "%{v:lua.git_branch()}",
+              "\u{e0b1}",   -- left divider
+              " %f %h%m%r", -- filename + flags
+              "%=",         -- Right-align everything after this
+              "%{&fenc!=''?&fenc:&enc}", -- encoding
+              " \u{e0b3}",  -- right divider
+              " %{&fileformat}",
+              " \u{e0b3}", -- right divider
+              " %{&filetype}",
+              " \u{e0b3}", -- right divider
+              " %P",       -- percentage through file
+              " \u{e0b3}", -- right divider
+              " %l:%c ",   -- line:col
+            })
+          end,
+        })
 
-      vim.api.nvim_create_autocmd({ "WinLeave", "BufLeave" }, {
-        callback = function()
-          vim.opt_local.statusline = " %f %h%m%r \u{e0b1} %= %{v:lua.file_type()} \u{e0b3} %P \u{e0b3} %l:%c "
-        end,
-      })
+        vim.api.nvim_create_autocmd({ "WinLeave", "BufLeave" }, {
+          callback = function()
+            vim.opt_local.statusline = " %f %h%m%r \u{e0b1} %= %{v:lua.file_type()} \u{e0b3} %P \u{e0b3} %l:%c "
+          end,
+        })
+      end
+
+      setup_dynamic_statusline()
     end
-
-    setup_dynamic_statusline()
   end
 })
