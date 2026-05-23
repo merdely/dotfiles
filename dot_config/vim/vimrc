@@ -346,27 +346,8 @@ else
   nnoremap <A-C-L>   :vertical resize +2<CR>
 endif
 
-" Move lines up/down
-nnoremap <leader><Down> :m .+1<CR>==
-nnoremap <leader><Up>   :m .-2<CR>==
-nnoremap <leader>j      :m .+1<CR>==
-nnoremap <leader>k      :m .-2<CR>==
-nnoremap <C-S-Down> :m .+1<CR>==
-nnoremap <C-S-Up>   :m .-2<CR>==
-nnoremap <Esc>[1;6B :m .+1<CR>==
-nnoremap <Esc>[1;6A :m .-2<CR>==
-nnoremap <Esc>J :m .+1<CR>==
-nnoremap <Esc>K :m .-2<CR>==
-
-vnoremap <C-S-Down> :m .+1<CR>==
-vnoremap <C-S-Up>   :m .-2<CR>==
-vnoremap <Esc>[1;6B :m .+1<CR>==
-vnoremap <Esc>[1;6A :m .-2<CR>==
-vnoremap <Esc>J :m '>+1<CR>gv=gv
-vnoremap <Esc>K :m '<-2<CR>gv=gv
-
-function! ToggleSplitLayout()
-  " Only operate on exactly 2 windows
+" Toggle split layout (requires exactly 2 windows)
+function! ToggleSplitLayout() abort
   if winnr('$') != 2
     echohl WarningMsg | echo 'Layout toggle requires exactly 2 windows' | echohl None
     return
@@ -388,9 +369,40 @@ function! ToggleSplitLayout()
 endfunction
 nnoremap <leader>st :call ToggleSplitLayout()<CR>
 
+" Move lines up/down
+nnoremap <leader><Down> :m .+1<CR>==
+nnoremap <leader><Up>   :m .-2<CR>==
+nnoremap <leader>j      :m .+1<CR>==
+nnoremap <leader>k      :m .-2<CR>==
+nnoremap <C-S-Down> :m .+1<CR>==
+nnoremap <C-S-Up>   :m .-2<CR>==
+nnoremap <Esc>[1;6B :m .+1<CR>==
+nnoremap <Esc>[1;6A :m .-2<CR>==
+nnoremap <Esc>J :m .+1<CR>==
+nnoremap <Esc>K :m .-2<CR>==
+
+vnoremap <C-S-Down> :m .+1<CR>==
+vnoremap <C-S-Up>   :m .-2<CR>==
+vnoremap <Esc>[1;6B :m .+1<CR>==
+vnoremap <Esc>[1;6A :m .-2<CR>==
+vnoremap <Esc>J :m '>+1<CR>gv=gv
+vnoremap <Esc>K :m '<-2<CR>gv=gv
+
 " Better indenting in visual mode
 vnoremap < <gv
 vnoremap > >gv
+
+" Swap the character under the cursor with the one before/after it
+function! SwapCharPrev() abort
+  if col('.') == 1 | return | endif
+  normal! "cxh"cPl
+endfunction
+function! SwapCharNext() abort
+  if col('.') == col('$') - 1 | return | endif
+  normal! "zx"zph
+endfunction
+nnoremap <leader>sp :call SwapCharPrev()<CR>
+nnoremap <leader>sn :call SwapCharNext()<CR>
 
 " Quick file navigation
 nnoremap <leader>e :Explore<CR>
