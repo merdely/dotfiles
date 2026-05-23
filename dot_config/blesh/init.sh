@@ -11,6 +11,11 @@ function ble/widget/my/vi-command/backward-line {
   ble/widget/beginning-of-line
 }
 
+function ble/widget/my/discard-line-to-insert-mode {
+  ble/widget/discard-line
+  ble/widget/insert-mode
+}
+
 # Configure vim mode
 function my/vim-load-hook {
   # Do not show vi mode
@@ -22,7 +27,8 @@ function my/vim-load-hook {
   # Go to start of line when going up through history 
   ble-bind -m vi_nmap -f k my/vi-command/backward-line
   # Let C-c cancel a command in normal mode
-  ble-bind -m vi_nmap -f C-c discard-line
+  ble-bind -m vi_imap -f C-c discard-line
+  ble-bind -m vi_nmap -f C-c my/discard-line-to-insert-mode
   # When in normal mode, do not flash screen when pressing ESC
   ble-bind -m vi_nmap -f ESC nop
   ble-bind -m vi_nmap -f 'C-[' nop
