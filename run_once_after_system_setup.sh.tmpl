@@ -112,6 +112,11 @@ if command -v crontab > /dev/null 2>&1; then
   fi
 fi
 
+# Enable and start cronie.service
+if ! systemctl is-enabled -q cronie.service; then
+  sudo systemctl enable --now cronie.service
+fi
+
 {{- if $is_desktop }}
 # Set up DMS Idle Inhibitor Handler in cron
 if command -v crontab > /dev/null 2>&1 && [[ -e "$HOME"/.local/bin/handle_dms_idle_inhibitor.sh ]] && \
