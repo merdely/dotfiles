@@ -7,7 +7,7 @@
 -- ============================================================================
 -- BOOTSTRAP lazy.nvim
 -- ============================================================================
-require("lazy_bootstrap")
+local ok, err = pcall(require, "lazy_bootstrap")
 
 -- ============================================================================
 -- OPTIONS
@@ -38,6 +38,7 @@ vim.opt.incsearch = true                           -- Show matches as you type
 -- Visual settings
 vim.opt.termguicolors = true                       -- Enable 24-bit colors
 vim.opt.background = "dark"                        -- Change colorscheme to handle dark background
+vim.cmd.colorscheme('torte')                       -- Set the torte colorscheme
 vim.opt.signcolumn = "yes"                         -- Always show sign column
 vim.opt.colorcolumn = "80"                         -- Show column at 100 characters
 vim.opt.list = true                                -- Show list characters
@@ -121,7 +122,7 @@ end
 -- Leader must be set here for plugins to be able to use it
 vim.g.mapleader = " "                              -- Set leader key to space
 vim.g.maplocalleader = ","                         -- Set local leader key (NEW)
-require("lazy_setup")
+local ok, err = pcall(require, "lazy_setup")
 
 -- ============================================================================
 -- THEME & TRANSPARENCY
@@ -297,26 +298,28 @@ vim.keymap.set("n", "<leader>rc", ":edit $MYVIMRC<CR>", { desc = "Edit config" }
 vim.keymap.set("n", "<leader>rl", ":source $MYVIMRC<CR>", { desc = "Reload config" })
 
 -- Reload module
-vim.keymap.set("n", "<leader>rp", function()
-  local filepath = vim.fn.expand('%:p')
-  local module_name = filepath:match('lua/(.+)%.lua$')
-  -- local module_name = filepath:match('lua/plugins/(.+)%.lua$')
-  if module_name then
-    module_name = module_name:gsub('/', '.')
-    -- module_name = 'plugins.' .. module_name
-    package.loaded[module_name] = nil
-    require('lazy.core.loader').reload(module_name)
-    print('Reloaded ' .. module_name)
-    -- local ok, result = pcall(require, module_name)
-    -- if ok then
-    --   print('Reloaded ' .. module_name)
-    -- else
-    --   print('Error reloading ' .. module_name)
-    -- end
-  else
-    print('Not a lua module file')
-  end
-end, { desc = 'Reload current Lua Module' })
+if package.loaded["lazy"] then
+  vim.keymap.set("n", "<leader>rp", function()
+    local filepath = vim.fn.expand('%:p')
+    local module_name = filepath:match('lua/(.+)%.lua$')
+    -- local module_name = filepath:match('lua/plugins/(.+)%.lua$')
+    if module_name then
+      module_name = module_name:gsub('/', '.')
+      -- module_name = 'plugins.' .. module_name
+      package.loaded[module_name] = nil
+      require('lazy.core.loader').reload(module_name)
+      print('Reloaded ' .. module_name)
+      -- local ok, result = pcall(require, module_name)
+      -- if ok then
+      --   print('Reloaded ' .. module_name)
+      -- else
+      --   print('Error reloading ' .. module_name)
+      -- end
+    else
+      print('Not a lua module file')
+    end
+  end, { desc = 'Reload current Lua Module' })
+end
 
 -- ============================================================================
 -- USEFUL FUNCTIONS
