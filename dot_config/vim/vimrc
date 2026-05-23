@@ -58,10 +58,11 @@ function! s:ApplyHighlights() abort
   highlight ColorColumn    ctermbg=1  guibg=#182e3f
   highlight SignColumn     term=NONE  gui=NONE   cterm=NONE  ctermbg=NONE guibg=NONE
   highlight CursorLineSign term=NONE  gui=NONE   cterm=NONE  ctermbg=NONE guibg=#081e2f
-  highlight CursorLineNr   term=NONE  gui=NONE   cterm=bold  ctermfg=3    guifg=Yellow guibg=#081e2f
+  highlight CursorLineNr   term=NONE  gui=NONE   cterm=bold  ctermfg=3    guifg=Grey75 guibg=#081e2f
   highlight StatusLine     gui=NONE   cterm=NONE guifg=#c0c0d0 ctermfg=250 guibg=#081e2f ctermbg=17
   highlight StatusLineBold gui=bold   cterm=bold guifg=#c0c0d0 ctermfg=250 guibg=#081e2f ctermbg=17
   highlight StatusLineNC   gui=NONE   cterm=NONE guifg=#606070 ctermfg=242 guibg=#081e2f ctermbg=17
+  highlight HighlightedyankRegion guifg=#011627 guibg=#ffcb8b
 endfunction
 
 call s:ApplyHighlights()
@@ -94,10 +95,12 @@ if s:data_dir != ''
       Plug 'junegunn/fzf.vim'
     call plug#end()
 
+    let g:highlightedyank_highlight_duration = 150
+
     if has_key(g:plugs, 'lightline.vim') && isdirectory(g:plugs['lightline.vim'].dir)
       set laststatus=2
       let g:lightline = {
-            \ 'colorscheme': 'one',
+            \ 'colorscheme': 'selenized_black',
             \ 'separator':    { 'left': "\ue0b0", 'right': "\ue0b2" },
             \ 'subseparator': { 'left': "\ue0b1", 'right': "\ue0b3" },
             \ }
