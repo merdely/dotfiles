@@ -7,7 +7,7 @@
 " ===============================
 
 let s:vimrc_path = expand('<sfile>:p')
-if isdirectory(expand('~/.config/vim'))
+if s:vimrc_path =~ '\.config/vim/vimrc$'
   let s:config_dir = expand('~/.config/vim')
   let s:data_dir   = expand('~/.local/share/vim')
   let s:state_dir  = expand('~/.local/state/vim')
@@ -46,58 +46,53 @@ let &runtimepath = s:config_dir
       \ . ',' . s:config_dir . '/spell'
 
 " ===============================
-" Colorscheme defaults
-" ===============================
-highlight CursorLine     cterm=NONE term=NONE gui=NONE ctermbg=1 guibg=#202050
-highlight ColorColumn    ctermbg=1 guibg=#191950
-highlight SignColumn     term=NONE gui=NONE cterm=NONE ctermbg=NONE guibg=NONE
-highlight CursorLineSign term=NONE gui=NONE cterm=NONE ctermbg=NONE guibg=#202050
-highlight CursorLineNr   term=NONE gui=NONE cterm=bold ctermfg=3 guifg=Yellow guibg=#202050
-
-" ===============================
 " Plugins
 " ===============================
 " Auto-install vim-plug if not present
-if s:data_dir != ''
-  let s:plug_path = s:data_dir . '/autoload/plug.vim'
-  if empty(glob(s:plug_path))
-    silent execute '!curl -fsLo ' . s:plug_path . ' --create-dirs
-      \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
-    execute 'source ' . s:plug_path
-  endif
+let s:plug_path = s:data_dir . '/autoload/plug.vim'
+if empty(glob(s:plug_path))
+  silent execute '!curl -fsLo ' . s:plug_path . ' --create-dirs
+    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+  execute 'source ' . s:plug_path
+endif
 
-  if executable('git')
-    if !isdirectory(s:data_dir . '/plugged')
-      autocmd VimEnter * PlugInstall --sync | source $MYVIMRC | doautocmd ColorScheme
-    endif
-    call plug#begin(s:data_dir . '/plugged')
-      Plug 'bluz71/vim-nightfly-colors', { 'as': 'nightfly' }
-      Plug 'liuchengxu/vim-which-key'
-      Plug 'itchyny/lightline.vim'
-      Plug 'lambdalisue/vim-suda'
-      Plug 'tpope/vim-vinegar'
-      Plug 'junegunn/fzf', executable('fzf') ? {} : { 'do': { -> fzf#install() } }
-      Plug 'junegunn/fzf.vim'
-    call plug#end()
-
-    if has_key(g:plugs, 'lightline.vim') && isdirectory(g:plugs['lightline.vim'].dir)
-      set laststatus=2
-      let g:lightline = {
-            \ 'colorscheme': 'one',
-            \ 'separator': { 'left': "\ue0b0", 'right': "\ue0b2" },
-            \ 'subseparator': { 'left': "\ue0b1", 'right': "\ue0b3" },
-            \ }
-    endif
-    if has_key(g:plugs, 'nightfly') && isdirectory(g:plugs['nightfly'].dir)
-      colorscheme nightfly
-      highlight Normal      ctermbg=NONE guibg=NONE
-      highlight NormalNC    ctermbg=NONE guibg=NONE
-      highlight EndOfBuffer ctermbg=NONE guibg=NONE
-      autocmd VimEnter,ColorScheme * highlight Normal      ctermbg=NONE guibg=NONE
-      autocmd VimEnter,ColorScheme * highlight NormalNC    ctermbg=NONE guibg=NONE
-      autocmd VimEnter,ColorScheme * highlight EndOfBuffer ctermbg=NONE guibg=NONE
-    endif
+if executable('git')
+  if !isdirectory(s:data_dir . '/plugged')
+    autocmd VimEnter * PlugInstall --sync | source $MYVIMRC | doautocmd ColorScheme
   endif
+  call plug#begin(s:data_dir . '/plugged')
+    Plug 'bluz71/vim-nightfly-colors', { 'as': 'nightfly' }
+    Plug 'liuchengxu/vim-which-key'
+    Plug 'itchyny/lightline.vim'
+    Plug 'lambdalisue/vim-suda'
+    Plug 'tpope/vim-vinegar'
+    Plug 'junegunn/fzf', executable('fzf') ? {} : { 'do': { -> fzf#install() } }
+    Plug 'junegunn/fzf.vim'
+  call plug#end()
+
+  if has_key(g:plugs, 'lightline.vim') && isdirectory(g:plugs['lightline.vim'].dir)
+    set laststatus=2
+    let g:lightline = {
+          \ 'colorscheme': 'one',
+          \ 'separator': { 'left': "\ue0b0", 'right': "\ue0b2" },
+          \ 'subseparator': { 'left': "\ue0b1", 'right': "\ue0b3" },
+          \ }
+  endif
+  if has_key(g:plugs, 'nightfly') && isdirectory(g:plugs['nightfly'].dir)
+    colorscheme nightfly
+    highlight Normal      ctermbg=NONE guibg=NONE
+    highlight NormalNC    ctermbg=NONE guibg=NONE
+    highlight EndOfBuffer ctermbg=NONE guibg=NONE
+    autocmd VimEnter,ColorScheme * highlight Normal      ctermbg=NONE guibg=NONE
+    autocmd VimEnter,ColorScheme * highlight NormalNC    ctermbg=NONE guibg=NONE
+    autocmd VimEnter,ColorScheme * highlight EndOfBuffer ctermbg=NONE guibg=NONE
+  endif
+else
+  highlight CursorLine     cterm=NONE term=NONE gui=NONE ctermbg=1 guibg=#202050
+  highlight ColorColumn    ctermbg=1 guibg=#191950
+  highlight SignColumn     term=NONE gui=NONE cterm=NONE ctermbg=NONE guibg=NONE
+  highlight CursorLineSign term=NONE gui=NONE cterm=NONE ctermbg=NONE guibg=#202050
+  highlight CursorLineNr   term=NONE gui=NONE cterm=bold ctermfg=3 guifg=Yellow guibg=#202050
 endif
 
 " ===============================
