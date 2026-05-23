@@ -91,6 +91,9 @@ binds {
     Mod+Shift+S            hotkey-overlay-title="Screenshot Selection"   { spawn-sh "niri msg action screenshot"; }
     Shift+Print            hotkey-overlay-title="Screenshot Screen"      { spawn-sh "niri msg action screenshot-screen"; }
 
+    // Color picker
+    Mod+Shift+C            hotkey-overlay-title="Color picker"           { spawn-sh "niri msg pick-color | awk '/^Hex:/ {print $2}' | wl-copy"; }
+
     // Keybindings for my mouse buttons
     Mod+Ctrl+Alt+Shift+H   hotkey-overlay-title=null                     { focus-column-or-monitor-left; }
     Mod+Ctrl+Alt+Shift+L   hotkey-overlay-title=null                     { focus-column-or-monitor-right; }
