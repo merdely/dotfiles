@@ -53,11 +53,16 @@ let &runtimepath = s:config_dir
 " ===============================
 " Colorscheme defaults
 " ===============================
-highlight CursorLine     cterm=NONE term=NONE gui=NONE ctermbg=1 guibg=#202050
-highlight ColorColumn    ctermbg=1 guibg=#191950
+highlight CursorLine     cterm=NONE term=NONE gui=NONE ctermbg=1 guibg=#081e2f
+highlight ColorColumn    ctermbg=1 guibg=#182e3f
 highlight SignColumn     term=NONE gui=NONE cterm=NONE ctermbg=NONE guibg=NONE
-highlight CursorLineSign term=NONE gui=NONE cterm=NONE ctermbg=NONE guibg=#202050
-highlight CursorLineNr   term=NONE gui=NONE cterm=bold ctermfg=3 guifg=Yellow guibg=#202050
+highlight CursorLineSign term=NONE gui=NONE cterm=NONE ctermbg=NONE guibg=#081e2f
+highlight CursorLineNr   term=NONE gui=NONE cterm=bold ctermfg=3 guifg=Yellow guibg=#081e2f
+" highlight StatusLine     guifg=#c0c0d0 ctermbg=NONE guibg=#081e2f
+" highlight StatusLineBold gui=bold cterm=bold
+highlight StatusLine     gui=NONE     cterm=NONE     guifg=#c0c0d0 ctermfg=250 guibg=#081e2f ctermbg=17
+highlight StatusLineBold gui=bold     cterm=bold     guifg=#c0c0d0 ctermfg=250 guibg=#081e2f ctermbg=17
+highlight StatusLineNC   gui=NONE     cterm=NONE     guifg=#606070 ctermfg=242 guibg=#081e2f ctermbg=17
 
 " ===============================
 " Plugins
@@ -515,3 +520,155 @@ else
     " let &t_TE = "\<Esc>[>4;0m"
 endif
 
+" ============================================================================
+" STATUSLINE
+" ============================================================================
+
+let s:has_statusline_plugin = 0
+if (exists('g:plugs') && has_key(g:plugs, 'lightline.vim') && isdirectory(g:plugs['lightline.vim'].dir))
+      \ || exists('g:loaded_airline')
+      \ || exists('g:loaded_lightline')
+  let s:has_statusline_plugin = 1
+endif
+
+if !s:has_statusline_plugin
+
+  " -- Git branch with caching
+  let s:cached_branch = ''
+  let s:last_check    = 0
+
+  function! StatuslineGitBranch() abort
+    let l:now = localtime()
+    if l:now - s:last_check > 5
+      let s:cached_branch = system("git branch --show-current 2>/dev/null | tr -d '\n'")
+      let s:last_check = l:now
+    endif
+    if s:cached_branch !=# ''
+      return ' ' . "\ue725" . ' ' . s:cached_branch . ' '
+    endif
+    return ''
+  endfunction
+
+  " -- File type with Nerd Font icon
+  function! StatuslineFileType() abort
+    let l:ft = &filetype
+    let l:icons = {
+          \ 'lua':             "\ue620 ",
+          \ 'python':          "\ue73c ",
+          \ 'javascript':      "\ue74e ",
+          \ 'typescript':      "\ue628 ",
+          \ 'javascriptreact': "\ue7ba ",
+          \ 'typescriptreact': "\ue7ba ",
+          \ 'html':            "\ue736 ",
+          \ 'css':             "\ue749 ",
+          \ 'scss':            "\ue749 ",
+          \ 'json':            "\ue60b ",
+          \ 'markdown':        "\ue73e ",
+          \ 'vim':             "\ue62b ",
+          \ 'sh':              "\uf489 ",
+          \ 'bash':            "\uf489 ",
+          \ 'zsh':             "\uf489 ",
+          \ 'rust':            "\ue7a8 ",
+          \ 'go':              "\ue724 ",
+          \ 'c':               "\ue61e ",
+          \ 'cpp':             "\ue61d ",
+          \ 'java':            "\ue738 ",
+          \ 'php':             "\ue73d ",
+          \ 'ruby':            "\ue739 ",
+          \ 'swift':           "\ue755 ",
+          \ 'kotlin':          "\ue634 ",
+          \ 'dart':            "\ue798 ",
+          \ 'elixir':          "\ue62d ",
+          \ 'haskell':         "\ue777 ",
+          \ 'sql':             "\ue706 ",
+          \ 'yaml':            "\uf481 ",
+          \ 'toml':            "\ue615 ",
+          \ 'xml':             "\uf05c ",
+          \ 'dockerfile':      "\uf308 ",
+          \ 'gitcommit':       "\uf418 ",
+          \ 'gitconfig':       "\uf1d3 ",
+          \ 'vue':             "\ufd42 ",
+          \ 'svelte':          "\ue697 ",
+          \ 'astro':           "\ue628 ",
+          \ }
+    if l:ft ==# ''
+      return "\uf15b "
+    endif
+    return get(l:icons, l:ft, "\uf15b ") . l:ft
+  endfunction
+
+  " -- File size (kept for potential future use)
+  function! StatuslineFileSize() abort
+    let l:size = getfsize(expand('%'))
+    if l:size < 0
+      return ''
+    endif
+    if l:size < 1024
+      return "\uf016 " . l:size . 'B '
+    elseif l:size < 1024 * 1024
+      return "\uf016 " . printf('%.1fK', l:size / 1024.0) . ' '
+    else
+      return "\uf016 " . printf('%.1fM', l:size / 1024.0 / 1024.0) . ' '
+    endif
+  endfunction
+
+  " -- Mode indicator
+  function! StatuslineModeIcon() abort
+    let l:mode = mode()
+    let l:modes = {
+          \ 'n':    'NORMAL',
+          \ 'i':    'INSERT',
+          \ 'v':    'VISUAL',
+          \ 'V':    'V-LINE',
+          \ "\x16": 'V-BLOCK',
+          \ 'c':    'COMMAND',
+          \ 's':    'SELECT',
+          \ 'S':    'S-LINE',
+          \ "\x13": 'S-BLOCK',
+          \ 'R':    'REPLACE',
+          \ 'r':    'REPLACE',
+          \ '!':    'SHELL',
+          \ 't':    'TERMINAL',
+          \ }
+    return get(l:modes, l:mode, "\uf059 " . l:mode)
+  endfunction
+
+  function! s:SetActiveStatusline() abort
+    let &l:statusline =
+          \ ' %#StatusLineBold#%{StatuslineModeIcon()}%#StatusLine# '
+          \ . "\ue0b1"
+          \ . '%{StatuslineGitBranch()}'
+          \ . "\ue0b1"
+          \ . ' %f %h%m%r'
+          \ . '%='
+          \ . "%{&fenc!=''?&fenc:&enc}"
+          \ . ' ' . "\ue0b3"
+          \ . ' %{&fileformat}'
+          \ . ' ' . "\ue0b3"
+          \ . ' %{&filetype}'
+          \ . ' ' . "\ue0b3"
+          \ . ' %P'
+          \ . ' ' . "\ue0b3"
+          \ . ' %l:%c '
+  endfunction
+
+  " Note: inactive uses StatuslineFileType() with icon; active uses &filetype
+  " without — adjust if you want them consistent
+  function! s:SetInactiveStatusline() abort
+    let &l:statusline =
+          \ ' %f %h%m%r '
+          \ . "\ue0b1"
+          \ . ' %='
+          \ . '%{StatuslineFileType()} '
+          \ . "\ue0b3"
+          \ . ' %P '
+          \ . "\ue0b3"
+          \ . ' %l:%c '
+  endfunction
+  augroup UserStatusline
+    autocmd!
+    autocmd WinEnter,BufEnter * call s:SetActiveStatusline()
+    autocmd WinLeave,BufLeave * call s:SetInactiveStatusline()
+  augroup END
+  set laststatus=2
+endif
