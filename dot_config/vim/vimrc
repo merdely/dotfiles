@@ -243,7 +243,6 @@ function! ToggleZoom() abort
   endif
 endfunction
 nnoremap <leader>z :call ToggleZoom()<CR>
-nnoremap <leader>o :only<CR>
 
 " WhichKey
 if exists('g:plugs') && has_key(g:plugs, 'vim-which-key')
