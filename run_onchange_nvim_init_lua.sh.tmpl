@@ -1,0 +1,16 @@
+#!/bin/sh
+# vim: filetype=sh :
+
+# When this script or any of the hashes below change, update files
+# .config/nvim/init.lua: {{ include "dot_config/nvim/init.lua" | sha256sum }}
+
+echo "Processing Run OnChange for nvim init.lua"
+
+sudo mkdir -p /etc/xdg/nvim
+
+# Copy nvim init.lua to /etc/xdg/nvim
+if [ ! -e /etc/sdg/nvim/init.lua ] || \
+     ! cmp -s "$HOME"/.config/nvim/init.lua /etc/xdg/nvim/init.lua; then
+  echo "Installing nvim init.lua to /etc/xdg/nvim"
+  sudo install -m 644 -o root -g "$(id -gn root)" "$HOME"/.config/nvim/vinit.lua /etc/xdg/nvim
+fi

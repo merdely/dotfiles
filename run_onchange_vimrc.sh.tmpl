@@ -1,0 +1,31 @@
+#!/bin/sh
+# vim: filetype=sh :
+
+# When this script or any of the hashes below change, update files
+# .config/vim/vimrc: {{ include "dot_config/vim/vimrc" | sha256sum }}
+
+echo "Processing Run OnChange for vimrc"
+
+vimrc=$(vim --version | awk -F'"' '/system vimrc file:/{print $2}')
+
+# Have vimrc.local added to system vimrc if needed
+if ! grep "source $vimrc.local" "$vimrc"; then
+  cat << EOF >> "$vimrc"
+
+" load /etc/vimrc.local
+if !filereadable(expand('~/.config/vim/vimrc')) &&
+    \ !filereadable(expand('~/.vim/vimrc')) &&
+    \ !filereadable(expand('~/.vimrc')) &&
+    \ filereadable('/etc/vimrc.local')
+  source $vimrc.local
+endif
+EOF
+fi
+
+# Copy home_known_hosts to /etc/ssh/ssh_known_hosts if they differ
+if [ ! -e "$vimrc".local ] || \
+     ! cmp -s "$HOME"/.config/vim/vimrc "$vimrc".local; then
+  echo "Installing vimrc to $vimrc.local"
+  sudo install -m 644 -o root -g "$(id -gn root)" "$HOME"/.config/vim/vimrc "$vimrc".local
+fi
+
