@@ -24,24 +24,24 @@ else
   let s:cache_dir  = expand('~/.cache/vim')
 endif
 
-" -- Define vim directories
+" Define vim directories
 let &directory   = s:cache_dir . '/swapfiles'
 let &backupdir   = s:cache_dir . '/backup'
 let &undodir     = s:state_dir . '/undo'
 let &viminfofile = s:state_dir . '/viminfo'
 
-" -- create directories that do not exist
+" create directories that do not exist
 for s:dir in [ s:data_dir, s:state_dir, s:cache_dir, &directory, &backupdir, &undodir ]
   if s:dir != '' && !isdirectory(s:dir)
     call mkdir(s:dir, 'p', 0700)
   endif
 endfor
 
-" -- add trailing slashes for full path of the file being edited (with % for /)
+" add trailing slashes for full path of the file being edited (with % for /)
 let &directory = &directory . '//'
 let &backupdir = &backupdir . '//'
 
-" -- Runtime paths (works whether vimrc is ~/.vimrc or ~/.config/vim/vimrc)
+" Runtime paths (works whether vimrc is ~/.vimrc or ~/.config/vim/vimrc)
 let &packpath = s:data_dir . ',' . &packpath
 let &runtimepath = s:config_dir
       \ . ',' . &runtimepath
@@ -575,6 +575,8 @@ nnoremap <silent> <leader>x :call MakeExecutable()<CR>
 augroup UserConfig
   autocmd!
   " autocmd TextYankPost * silent! lua vim.highlight.on_yank()
+
+  " Return to last edit position when opening files
   autocmd BufReadPost *
         \ if line("'\"") > 0 && line("'\"") <= line("$") |
         \   exe "normal! g'\"" |
@@ -634,7 +636,7 @@ endif
 
 if !s:has_statusline_plugin
 
-  " -- Git branch with caching
+  " Git branch with caching
   let s:cached_branch = ''
   let s:last_check    = 0
 
@@ -650,7 +652,7 @@ if !s:has_statusline_plugin
     return ''
   endfunction
 
-  " -- File type with Nerd Font icon
+  " File type with Nerd Font icon
   function! StatuslineFileType() abort
     let l:ft = &filetype
     let l:icons = {
@@ -698,7 +700,7 @@ if !s:has_statusline_plugin
     return get(l:icons, l:ft, "\uf15b ") . l:ft
   endfunction
 
-  " -- File size (kept for potential future use)
+  " File size (kept for potential future use)
   function! StatuslineFileSize() abort
     let l:size = getfsize(expand('%'))
     if l:size < 0
@@ -713,9 +715,8 @@ if !s:has_statusline_plugin
     endif
   endfunction
 
-  " -- Mode indicator
+  " Mode indicator
   function! StatuslineModeIcon() abort
-    let l:mode = mode()
     let l:modes = {
           \ 'n':    'NORMAL',
           \ 'i':    'INSERT',
@@ -731,7 +732,7 @@ if !s:has_statusline_plugin
           \ '!':    'SHELL',
           \ 't':    'TERMINAL',
           \ }
-    return get(l:modes, l:mode, "\uf059 " . l:mode)
+    return get(l:modes, mode(), "\uf059 " . mode())
   endfunction
 
   function! s:SetActiveStatusline() abort
