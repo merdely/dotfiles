@@ -409,6 +409,7 @@ nnoremap <leader>sn :call SwapCharNext()<CR>
 
 " Quick file navigation
 nnoremap <leader>e  :Explore<CR>
+nnoremap -          :Explore<CR>
 nnoremap <leader>ff :Files<CR>
 nnoremap <leader>fc :Files ~/.config<CR>
 nnoremap <leader>fh :Files ~/<CR>
