@@ -26,6 +26,7 @@ umask 0022 > /dev/null 2>&1
 
 # Set up BLE
 if [ -z "$BLE_VERSION" ]; then
+  date +"Before BLE: %s"
   if [ ! -r "$XDG_DATA_HOME"/blesh/ble.sh ]; then
     work=$(mktemp -d)
     curl -sLo "$work"/ble.tar.xz https://github.com/akinomyoga/ble.sh/releases/download/nightly/ble-nightly.tar.xz
@@ -38,10 +39,12 @@ if [ -z "$BLE_VERSION" ]; then
     rm -Rf "$work"
   fi
 
+  date +"BLE Installed: %s"
   # If BLE is installed, set it up
   if [ -r "$XDG_DATA_HOME"/blesh/ble.sh ]; then
     source "$XDG_DATA_HOME"/blesh/ble.sh --attach=none
   fi
+  date +"After BLE: %s"
 fi
 
 # For use in PS1, better PROMPT_DIRTRIM/\w
@@ -165,5 +168,7 @@ set -o vi
 [[ -e "$HOME"/.profile.local ]] && . "$HOME"/.profile.local
 
 # Enable BLE
+date +"Before BLE Attach: %s"
 [ -z "${BLE_VERSION-}" ] || ble-attach
+date +"After BLE Attach: %s"
 true
