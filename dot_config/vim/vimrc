@@ -569,13 +569,9 @@ function! MakeExecutable() abort
 endfunction
 nnoremap <silent> <leader>x :call MakeExecutable()<CR>
 
-" Redraw screen
-nnoremap <leader>l :redraw!<CR>
-
-" Quick config editing
-nnoremap <leader>rc :edit $MYVIMRC<CR>
-nnoremap <leader>rl :source $MYVIMRC<CR>
-
+" ===============================
+" Autocommands
+" ===============================
 augroup UserConfig
   autocmd!
   " autocmd TextYankPost * silent! lua vim.highlight.on_yank()
@@ -583,15 +579,18 @@ augroup UserConfig
         \ if line("'\"") > 0 && line("'\"") <= line("$") |
         \   exe "normal! g'\"" |
         \ endif
-  autocmd FileType lua,python,php,markdown setlocal tabstop=4 shiftwidth=4
-  autocmd FileType javascript,typescript,json,html,css setlocal tabstop=2 shiftwidth=2
-  " autocmd TermClose * if v:event.status == 0 | execute 'bdelete!' | endif
-  " autocmd TermOpen * setlocal nonumber norelativenumber signcolumn=no
+
+  autocmd FileType python,php,markdown     setlocal tabstop=4 shiftwidth=4
+  autocmd FileType lua,javascript,typescript,json,html,css setlocal tabstop=2 shiftwidth=2
+
+  " Auto-resize splits when terminal window is resized
   autocmd VimResized * tabdo wincmd =
+
+  " Create parent directories on write (unconditional — no plugin dependency)
   autocmd BufWritePre * call mkdir(expand('<afile>:p:h'), 'p')
 augroup END
 
-" Put this in your vimrc/init.vim
+" Allow escape to exit netrw
 augroup netrw_mappings
   autocmd!
   autocmd FileType netrw nnoremap <buffer> <Esc> :bd<CR>
@@ -609,17 +608,17 @@ set maxmempattern=20000
 
 " Make the cursor look good with tmux
 if exists('$TMUX') || &term =~ 'tmux' || &term =~ 'screen'
-    let &t_SI = "\<Esc>Ptmux;\<Esc>\e[2 q\<Esc>\\"
-    let &t_EI = "\<Esc>Ptmux;\<Esc>\e[2 q\<Esc>\\"
-    " These were to make some vim keys work in tmux, but it made everything awful
-    " let &t_TI = "\<Esc>Ptmux;\<Esc>\<Esc>[>4;2m\<Esc>\\"
-    " let &t_TE = "\<Esc>Ptmux;\<Esc>\<Esc>[>4;0m\<Esc>\\"
+  let &t_SI = "\<Esc>Ptmux;\<Esc>\e[2 q\<Esc>\\"
+  let &t_EI = "\<Esc>Ptmux;\<Esc>\e[2 q\<Esc>\\"
+  " These were to make some vim keys work in tmux, but it made everything awful
+  " let &t_TI = "\<Esc>Ptmux;\<Esc>\<Esc>[>4;2m\<Esc>\\"
+  " let &t_TE = "\<Esc>Ptmux;\<Esc>\<Esc>[>4;0m\<Esc>\\"
 else
-    let &t_SI = "\e[2 q"
-    let &t_EI = "\e[2 q"
-    " These were to make some vim keys work in tmux, but it made everything awful
-    " let &t_TI = "\<Esc>[>4;2m"
-    " let &t_TE = "\<Esc>[>4;0m"
+  let &t_SI = "\e[2 q"
+  let &t_EI = "\e[2 q"
+  " These were to make some vim keys work in tmux, but it made everything awful
+  " let &t_TI = "\<Esc>[>4;2m"
+  " let &t_TE = "\<Esc>[>4;0m"
 endif
 
 " ============================================================================
