@@ -14,7 +14,7 @@ TMPFILES=()
 trap 'rm -Rf -- "${TMPFILES[@]}"' EXIT
 trap 'exit 1' INT TERM
 
-[[ -r /etc/os-release ]] && source /etc/os-release
+[ -r /etc/os-release ] && source /etc/os-release
 
 if [[ "$ID" =~ ^(arch|artix|cachyos|garuda|endeavouros|manjaro)$ || " $ID_LIKE " == *" arch "* ]]; then
   # Go through the package list and find packages that are not installed
@@ -53,11 +53,11 @@ if [[ "$ID" =~ ^(arch|artix|cachyos|garuda|endeavouros|manjaro)$ || " $ID_LIKE "
   fi
 
   # Install missing packages
-  if (( ${#need[@]} > 0 )); then
+  if [ ${#need[@]} -gt 0 ]; then
     echo "Installing packages: ${need[@]}"
     sudo pacman -Syu --disable-download-timeout --needed --noconfirm "${need[@]}"
     ret=$?
-    if (( ret != 0 )); then
+    if [ ret -ne 0 ]; then
       echo "Error: pacman exited with error code $ret" >&2
       exit 1
     fi
