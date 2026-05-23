@@ -837,6 +837,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
       end
 
       setup_dynamic_statusline()
+      vim.cmd("doautocmd BufEnter")
     end
   end
 })
