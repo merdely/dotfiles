@@ -10,7 +10,7 @@ vimrc=$(vim --version | awk -F'"' '/system vimrc file:/{print $2}')
 
 # Have vimrc.local added to system vimrc if needed
 if ! grep -q "source $vimrc.local" "$vimrc"; then
-  cat << EOF >> "$vimrc"
+  cat << EOF | sudo tee -a "$vimrc"
 
 " load /etc/vimrc.local
 if !filereadable(expand('~/.config/vim/vimrc')) &&
