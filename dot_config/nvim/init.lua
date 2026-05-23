@@ -691,9 +691,8 @@ vim.api.nvim_create_autocmd("VimEnter", {
         package.loaded["galaxyline"]   or
         package.loaded["express_line"]
     )
- 
+
     if not has_statusline_plugin then
- 
       -- Git branch function with caching and Nerd Font icon
       -- [FIXED]: vim.loop is deprecated since Neovim 0.10; use vim.uv
       local cached_branch = ""
