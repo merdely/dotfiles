@@ -12,11 +12,16 @@ if isdirectory(expand('~/.config/vim'))
   let s:data_dir   = expand('~/.local/share/vim')
   let s:state_dir  = expand('~/.local/state/vim')
   let s:cache_dir  = expand('~/.cache/vim')
-else
+elseif isdirectory(expand('~/.vim'))
   let s:config_dir = expand('~/.vim')
   let s:data_dir   = expand('~/.vim')
   let s:state_dir  = expand('~/.vim')
   let s:cache_dir  = expand('~/.vim')
+else
+  let s:config_dir = ''
+  let s:data_dir   = ''
+  let s:state_dir  = expand('~/.local/state/vim')
+  let s:cache_dir  = expand('~/.cache/vim')
 endif
 
 " -- Define vim directories
