@@ -381,10 +381,10 @@ nnoremap <Esc>[1;6A     :m .-2<CR>==
 nnoremap <Esc>J         :m .+1<CR>==
 nnoremap <Esc>K         :m .-2<CR>==
 
-vnoremap <C-S-Down>  :m .+1<CR>==
-vnoremap <C-S-Up>    :m .-2<CR>==
-vnoremap <Esc>[1;6B  :m .+1<CR>==
-vnoremap <Esc>[1;6A  :m .-2<CR>==
+vnoremap <C-S-Down>  :m '>+1<CR>gv=gv
+vnoremap <C-S-Up>    :m '<-2<CR>gv=gv
+vnoremap <Esc>[1;6B  :m '>+1<CR>gv=gv
+vnoremap <Esc>[1;6A  :m '<-2<CR>gv=gv
 vnoremap <Esc>J      :m '>+1<CR>gv=gv
 vnoremap <Esc>K      :m '<-2<CR>gv=gv
 
@@ -405,7 +405,7 @@ nnoremap <leader>sp :call SwapCharPrev()<CR>
 nnoremap <leader>sn :call SwapCharNext()<CR>
 
 " Quick file navigation
-nnoremap <leader>e :Explore<CR>
+nnoremap <leader>e  :Explore<CR>
 nnoremap <leader>ff :Files<CR>
 nnoremap <leader>fc :Files ~/.config<CR>
 nnoremap <leader>fh :Files ~/<CR>
@@ -414,6 +414,47 @@ nnoremap <leader>fh :Files ~/<CR>
 nnoremap <leader>w <Cmd>update<CR>
 nnoremap <leader>q <Cmd>:quit<CR>
 nnoremap <leader>Q <Cmd>:wqa<CR>
+
+" Clear some customizations to make copying easier
+function! ToggleCopyMode() abort
+  set cursorline! list! number! breakindent!
+  if &colorcolumn == ''
+    set colorcolumn=80
+  else
+    set colorcolumn=
+  endif
+  if &signcolumn ==# 'number'
+    set signcolumn=no
+  else
+    set signcolumn=number
+  endif
+endfunction
+nnoremap <silent> <leader>cp :call ToggleCopyMode()<CR>
+
+" Copy full file path to system clipboard
+nnoremap <leader>pa :let @+ = expand('%:p') \| echo 'file: ' . expand('%:p')<CR>
+
+" Make file executable
+function! MakeExecutable() abort
+  let l:file = expand('%:p')
+  if empty(l:file)
+    echoerr 'No filename'
+    return
+  endif
+  write
+  let l:group = '-'
+  if getfperm(l:file)[3] == 'r' || getfperm(l:file)[4] == 'w'
+    let l:group = 'x'
+  endif
+  let l:other = '-'
+  if getfperm(l:file)[6] == 'r' || getfperm(l:file)[7] == 'w'
+    let l:other = 'x'
+  endif
+  call setfperm(l:file, getfperm(l:file)[:1] . 'x' . getfperm(l:file)[3:4] . l:group . getfperm(l:file)[6:7] . l:other)
+  edit!
+  echom 'Made ' . l:file . ' executable (' . getfperm(l:file) . ')'
+endfunction
+nnoremap <silent> <leader>x :call MakeExecutable()<CR>
 
 " Quickly run macros
 nnoremap <leader>A @a
@@ -492,9 +533,6 @@ nnoremap <leader>l :redraw!<CR>
 " Quick config editing
 nnoremap <leader>rc :edit $MYVIMRC<CR>
 nnoremap <leader>rl :source $MYVIMRC<CR>
-
-" Clear some customizations to make copying easier
-nnoremap <silent> <expr> <leader>cp "\:set cursorline! list! number! breakindent! " . (&colorcolumn == '' ? "colorcolumn=80 " : "colorcolumn= ") . (&signcolumn == 'number' ? "signcolumn=no " : "signcolumn=number "). "<CR>"
 
 augroup UserConfig
   autocmd!
