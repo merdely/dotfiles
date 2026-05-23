@@ -32,21 +32,29 @@ vim.opt.breakindent = true                         -- Show wrapped lines indente
 -- Search settings
 vim.opt.ignorecase = true                          -- Case insensitive search
 vim.opt.smartcase = true                           -- Case sensitive if uppercase in search
-vim.opt.hlsearch = true                            -- Don't highlight search results 
+vim.opt.hlsearch = true                            -- Search results highlighting
 vim.opt.incsearch = true                           -- Show matches as you type
 
 -- Theme (Can be overridden by plugins)
 vim.opt.termguicolors = true                       -- Enable 24-bit colors
 vim.opt.background = "dark"                        -- Change colorscheme to handle dark background
-vim.cmd.colorscheme('vim')                       -- Load colorscheme: good ones are torte, elflord, wildcharm, vim, catppuccin 
-vim.api.nvim_set_hl(0, "SignColumn",  { bg = "NONE", ctermbg = "NONE" })    -- Adjust the background to be transparent
-vim.api.nvim_set_hl(0, "ColorColumn", { ctermbg = "NONE", bg = "#182e3f" }) -- Adjust the color column to be blue
-vim.api.nvim_set_hl(0, "CursorLine", { ctermbg = "NONE", bg = "#081e2f" })  -- Adjust the cursor line to be a slighly lighter blue
-local hl = vim.api.nvim_get_hl(0, { name = "CursorLine", link = false })    -- Copy CursorLine settings
-vim.api.nvim_set_hl(0, "CursorLineSign", hl)                                -- Match CursorLine
-vim.api.nvim_set_hl(0, "CursorLineNr", hl)                                  -- Match CursorLine
-vim.api.nvim_set_hl(0, "StatusLine", { fg = "#c0c0d0", ctermbg = "NONE", bg = "#081e2f" })
-vim.api.nvim_set_hl(0, "StatusLineBold", { bold = true })  -- make status line bold
+vim.cmd.colorscheme('vim')                         -- Load colorscheme: good ones are torte, elflord, wildcharm, vim, catppuccin 
+
+-- Highlight customizations moved into a ColorScheme autocmd so they persist
+-- when a plugin colorscheme (e.g. catppuccin) loads and re-fires the event,
+-- instead of being silently clobbered at startup.
+local function apply_highlights()
+  vim.api.nvim_set_hl(0, "SignColumn",  { bg = "NONE", ctermbg = "NONE" })    -- Adjust the background to be transparent
+  vim.api.nvim_set_hl(0, "ColorColumn", { ctermbg = "NONE", bg = "#182e3f" }) -- Adjust the color column to be blue
+  vim.api.nvim_set_hl(0, "CursorLine", { ctermbg = "NONE", bg = "#081e2f" })  -- Adjust the cursor line to be a slightly lighter blue
+  local hl = vim.api.nvim_get_hl(0, { name = "CursorLine", link = false })    -- Copy CursorLine settings
+  vim.api.nvim_set_hl(0, "CursorLineSign", hl)                                -- Match CursorLine
+  vim.api.nvim_set_hl(0, "CursorLineNr", hl)                                  -- Match CursorLine
+  vim.api.nvim_set_hl(0, "StatusLine", { fg = "#c0c0d0", ctermbg = "NONE", bg = "#081e2f" })
+  vim.api.nvim_set_hl(0, "StatusLineBold", { bold = true })
+end
+apply_highlights()
+vim.api.nvim_create_autocmd("ColorScheme", { callback = apply_highlights, })
 
 -- Visual settings
 vim.opt.signcolumn = "yes"                         -- Always show sign column
