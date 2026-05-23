@@ -11,7 +11,7 @@ function ble/widget/my/vi-command/backward-line {
   ble/widget/beginning-of-line
 }
 
-# Load these things when vim-mode is loaded
+# Configure vim mode
 function my/vim-load-hook {
   # Do not show vi mode
   bleopt keymap_vi_mode_show=
@@ -40,3 +40,12 @@ bleopt default_keymap=vi
 
 # Set auto complete to be gray instead of reversed
 ble-face -s auto_complete fg=240
+
+# Configure completion
+function my/complete-load-hook {
+  bleopt complete_auto_delay=300
+  bleopt complete_limit=100
+  bleopt complete_limit_auto=1500
+}
+ble-import core-complete -C 'my/set-up-completion'
+blehook/eval-after-load complete my/complete-load-hook
