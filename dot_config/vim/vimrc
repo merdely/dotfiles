@@ -627,7 +627,7 @@ if !s:has_statusline_plugin
       let s:last_check = l:now
     endif
     if s:cached_branch !=# ''
-      return ' ' . "\ue725" . ' ' . s:cached_branch . ' '
+      return ' ' . "\ue725" . ' ' . s:cached_branch . ' \ue0b1'
     endif
     return ''
   endfunction
@@ -720,7 +720,6 @@ if !s:has_statusline_plugin
           \ ' %#StatusLineBold#%{StatuslineModeIcon()}%#StatusLine# '
           \ . "\ue0b1"
           \ . '%{StatuslineGitBranch()}'
-          \ . "\ue0b1"
           \ . ' %f %h%m%r'
           \ . '%='
           \ . "%{&fenc!=''?&fenc:&enc}"
