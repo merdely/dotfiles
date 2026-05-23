@@ -47,5 +47,4 @@ function my/complete-load-hook {
   bleopt complete_limit=100
   bleopt complete_limit_auto=1500
 }
-ble-import core-complete -C 'my/set-up-completion'
 blehook/eval-after-load complete my/complete-load-hook
