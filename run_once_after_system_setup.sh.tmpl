@@ -18,7 +18,7 @@ groups=$(groups $LOGNAME)
 groups=${groups#$LOGNAME : }
 
 makeflag() {
-  { [ -z "$1" ] || [ "$1" != "${1%/*}" ] } && return
+  { [ -z "$1" ] || [ "$1" != "${1%/*}" ]; } && return
 
   mkdir -p "$HOME"/.local/state/chezmoi/done
   touch "$HOME"/.local/state/chezmoi/done/"$1"
@@ -40,7 +40,7 @@ for group in video render input wheel; do
 done
 
 # Setup vi command
-if { [ ! -e /usr/bin/vi ] || [ -L /usr/bin/vi ] } && [ -e $HOME/.local/bin/vi ]; then
+if { [ ! -e /usr/bin/vi ] || [ -L /usr/bin/vi ]; } && [ -e $HOME/.local/bin/vi ]; then
   echo "Installing vi script that encourages use of sudoedit"
   rm -f /usr/bin/vi &> /dev/null
   sudo install -o root -g root -m 755 "$HOME"/.local/bin/vi /usr/bin/vi
@@ -87,7 +87,7 @@ if command -v crontab > /dev/null 2>&1; then
   new_cron_lines=()
   for var in "${crontab_vars[@]}"; do
     ref="crontab_$var"
-    { [ -z "$var" ] || [ -z "${!ref}" ] } && continue
+    { [ -z "$var" ] || [ -z "${!ref}" ]; } && continue
 
     echo "$existing_crontab" | grep -qE "^$var *=" && continue
     echo "Adding $var variable to crontab"
