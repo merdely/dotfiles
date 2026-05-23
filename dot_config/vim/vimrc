@@ -442,15 +442,18 @@ function! MakeExecutable() abort
     return
   endif
   write
-  let l:group = '-'
-  if getfperm(l:file)[3] == 'r' || getfperm(l:file)[4] == 'w'
-    let l:group = 'x'
+
+  if has('unix')
+    call system('chmod +x ' . shellescape(l:file))
+    if v:shell_error
+      echoerr 'chmod +x failed'
+      return
+    endif
+  else
+    " Non-Unix fallback: set execute bits directly via setfperm
+    let l:perm = getfperm(l:file)
+    call setfperm(l:file, l:perm[:1] . 'x' . l:perm[3:4] . 'x' . l:perm[6:7] . 'x')
   endif
-  let l:other = '-'
-  if getfperm(l:file)[6] == 'r' || getfperm(l:file)[7] == 'w'
-    let l:other = 'x'
-  endif
-  call setfperm(l:file, getfperm(l:file)[:1] . 'x' . getfperm(l:file)[3:4] . l:group . getfperm(l:file)[6:7] . l:other)
   edit!
   echom 'Made ' . l:file . ' executable (' . getfperm(l:file) . ')'
 endfunction
