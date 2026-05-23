@@ -389,7 +389,7 @@ vim.keymap.set("n", "<leader>pa", function()
 end, { desc = "Copy full file path" })
 
 -- Toggle Diagnostics
-vim.keymap.set("n", "<leader>td", function()
+vim.keymap.set("n", "<leader>tD", function()
   vim.diagnostic.enable(not vim.diagnostic.is_enabled())
 end, { desc = "Toggle diagnostics" })
 
