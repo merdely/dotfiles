@@ -26,7 +26,7 @@ umask 0022 > /dev/null 2>&1
 
 # Set up BLE
 if [ -z "$BLE_VERSION" ]; then
-  if [ ! -d "$XDG_DATA_HOME"/blesh/ble.sh ]; then
+  if [ ! -r "$XDG_DATA_HOME"/blesh/ble.sh ]; then
     work=$(mktemp -d)
     curl -sLo "$work"/ble.tar.xz https://github.com/akinomyoga/ble.sh/releases/download/nightly/ble-nightly.tar.xz
     if [ -s "$work"/ble.tar.xz ]; then
