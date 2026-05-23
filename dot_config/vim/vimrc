@@ -543,32 +543,6 @@ function! SmartCloseBuffer() abort
 endfunction
 nnoremap <leader>bd :call SmartCloseBuffer()<CR>
 
-" Make file executable
-function! MakeExecutable() abort
-  let l:file = expand('%:p')
-  if empty(l:file)
-    echoerr 'No filename'
-    return
-  endif
-
-  write
-
-  let l:group = '-'
-  if getfperm(l:file)[3] == 'r' || getfperm(l:file)[4] == 'w'
-    let l:group = 'x'
-  endif
-
-  let l:other = '-'
-  if getfperm(l:file)[6] == 'r' || getfperm(l:file)[7] == 'w'
-    let l:other = 'x'
-  endif
-
-  edit!
-  call setfperm(l:file, getfperm(l:file)[:1] . 'x' . getfperm(l:file)[3:4] . l:group . getfperm(l:file)[6:7] . l:other)
-  echom 'Made ' . l:file . ' executable (' . getfperm(l:file) . ')'
-endfunction
-nnoremap <silent> <leader>x :call MakeExecutable()<CR>
-
 " ===============================
 " Autocommands
 " ===============================
