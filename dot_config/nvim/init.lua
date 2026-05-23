@@ -45,7 +45,6 @@ vim.api.nvim_set_hl(0, "CursorLine", { ctermbg = "NONE", bg = "#081e2f" })  -- A
 local hl = vim.api.nvim_get_hl(0, { name = "CursorLine", link = false })    -- Copy CursorLine settings
 vim.api.nvim_set_hl(0, "CursorLineSign", hl)                                -- Match CursorLine
 vim.api.nvim_set_hl(0, "CursorLineNr", hl)                                  -- Match CursorLine
-vim.api.nvim_set_hl(0, "StatusLine", hl)                                    -- Match CursorLine
 vim.api.nvim_set_hl(0, "StatusLine", { fg = "#c0c0d0", ctermbg = "NONE", bg = "#081e2f" })
 vim.api.nvim_set_hl(0, "StatusLineBold", { bold = true })  -- make status line bold
 
