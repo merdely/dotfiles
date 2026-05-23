@@ -31,15 +31,15 @@ let &undodir     = s:state_dir . '/undo'
 let &viminfofile = s:state_dir . '/viminfo'
 
 " -- create directories that do not exist
-for s:dir in [ s:data_dir, s:state_dir, s:cache_dir, &directory, &backupdir, &undodir, ]
-  if !isdirectory(s:dir)
+for s:dir in [ s:data_dir, s:state_dir, s:cache_dir, &directory, &backupdir, &undodir ]
+  if s:dir != '' && !isdirectory(s:dir)
     call mkdir(s:dir, 'p', 0700)
   endif
 endfor
 
 " -- add trailing slashes for full path of the file being edited (with % for /)
-let &directory   = &directory . '//'
-let &backupdir   = &backupdir . '//'
+let &directory = &directory . '//'
+let &backupdir = &backupdir . '//'
 
 " -- Runtime paths (works whether vimrc is ~/.vimrc or ~/.config/vim/vimrc)
 let &packpath = s:data_dir . ',' . &packpath
@@ -53,16 +53,19 @@ let &runtimepath = s:config_dir
 " ===============================
 " Colorscheme defaults
 " ===============================
-highlight CursorLine     cterm=NONE term=NONE gui=NONE ctermbg=1 guibg=#081e2f
-highlight ColorColumn    ctermbg=1 guibg=#182e3f
-highlight SignColumn     term=NONE gui=NONE cterm=NONE ctermbg=NONE guibg=NONE
-highlight CursorLineSign term=NONE gui=NONE cterm=NONE ctermbg=NONE guibg=#081e2f
-highlight CursorLineNr   term=NONE gui=NONE cterm=bold ctermfg=3 guifg=Yellow guibg=#081e2f
-" highlight StatusLine     guifg=#c0c0d0 ctermbg=NONE guibg=#081e2f
-" highlight StatusLineBold gui=bold cterm=bold
-highlight StatusLine     gui=NONE     cterm=NONE     guifg=#c0c0d0 ctermfg=250 guibg=#081e2f ctermbg=17
-highlight StatusLineBold gui=bold     cterm=bold     guifg=#c0c0d0 ctermfg=250 guibg=#081e2f ctermbg=17
-highlight StatusLineNC   gui=NONE     cterm=NONE     guifg=#606070 ctermfg=242 guibg=#081e2f ctermbg=17
+function! s:ApplyHighlights() abort
+  highlight CursorLine     cterm=NONE term=NONE gui=NONE ctermbg=1  guibg=#081e2f
+  highlight ColorColumn    ctermbg=1  guibg=#182e3f
+  highlight SignColumn     term=NONE  gui=NONE   cterm=NONE  ctermbg=NONE guibg=NONE
+  highlight CursorLineSign term=NONE  gui=NONE   cterm=NONE  ctermbg=NONE guibg=#081e2f
+  highlight CursorLineNr   term=NONE  gui=NONE   cterm=bold  ctermfg=3    guifg=Yellow guibg=#081e2f
+  highlight StatusLine     gui=NONE   cterm=NONE guifg=#c0c0d0 ctermfg=250 guibg=#081e2f ctermbg=17
+  highlight StatusLineBold gui=bold   cterm=bold guifg=#c0c0d0 ctermfg=250 guibg=#081e2f ctermbg=17
+  highlight StatusLineNC   gui=NONE   cterm=NONE guifg=#606070 ctermfg=242 guibg=#081e2f ctermbg=17
+endfunction
+
+call s:ApplyHighlights()
+autocmd ColorScheme * call s:ApplyHighlights()
 
 " ===============================
 " Plugins
@@ -94,7 +97,7 @@ if s:data_dir != ''
       set laststatus=2
       let g:lightline = {
             \ 'colorscheme': 'one',
-            \ 'separator': { 'left': "\ue0b0", 'right': "\ue0b2" },
+            \ 'separator':    { 'left': "\ue0b0", 'right': "\ue0b2" },
             \ 'subseparator': { 'left': "\ue0b1", 'right': "\ue0b3" },
             \ }
     endif
@@ -145,9 +148,9 @@ set incsearch
 " ===============================
 syntax enable
 if exists('+termguicolors')
-    let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
-    let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
-    set termguicolors
+  let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+  let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+  set termguicolors
 endif
 set background=dark
 set signcolumn=yes
@@ -162,7 +165,7 @@ set noshowmode
 set pumheight=10
 set conceallevel=0
 set concealcursor=
-set lazyredraw
+" set lazyredraw   " Causes glitches
 set synmaxcol=300
 
 " ===============================
@@ -175,7 +178,7 @@ set undofile
 set updatetime=300
 set timeoutlen=500
 " set ttimeout
-set ttimeoutlen=0
+set ttimeoutlen=50
 set autoread
 set noautowrite
 
@@ -214,17 +217,22 @@ set splitright
 " ===============================
 " Leader Key
 " ===============================
-let mapleader = " "
+let mapleader      = " "
 let maplocalleader = ","
 
 " ===============================
 " Key Mappings
 " ===============================
+" Better movement in wrapped text
+nnoremap <expr> j v:count == 0 ? 'gj' : 'j'
+nnoremap <expr> k v:count == 0 ? 'gk' : 'k'
+
 nnoremap <leader>c :nohlsearch<CR>
+nnoremap <leader>o :only<CR>
 
 " Toggle zoom in on one buffer
 let g:zoomed = 0
-function! ToggleZoom()
+function! ToggleZoom() abort
   if g:zoomed
     wincmd =
     let g:zoomed = 0
@@ -281,11 +289,15 @@ vnoremap p "_dP
 nnoremap x "_x
 vnoremap x "_x
 
-" Better window navigation
-nnoremap <C-h> <C-w>h
-nnoremap <C-j> <C-w>j
-nnoremap <C-k> <C-w>k
-nnoremap <C-l> <C-w>l
+" Delete without yanking (register-safe)
+nnoremap <leader>xx "_d
+vnoremap <leader>xx "_d
+
+" Change without replacing clipboard — uncomment if desired:
+" nnoremap c "_c
+" vnoremap c "_c
+" nnoremap C "_C
+" vnoremap C "_C
 
 " Switch to previous buffer
 nnoremap <leader>; <Cmd>e #<CR>
@@ -296,9 +308,8 @@ nnoremap <leader>bp :bprevious<CR>
 nnoremap <leader>sv :vsplit<CR>
 nnoremap <leader>sh :split<CR>
 
-" Split previous buffer vertically
+" Split previous buffer
 nnoremap <leader>sb <Cmd>vert sf #<CR>
-" Split previous buffer horizontally
 nnoremap <leader>sB <Cmd>bot sf #<CR>
 
 " Better split/window navigation
@@ -314,26 +325,28 @@ nnoremap <leader>sJ <C-w>J
 nnoremap <leader>sK <C-w>K
 nnoremap <leader>sL <C-w>L
 
+" Resize splits — use escape sequences when inside tmux/screen where
+" <C-Arrow> is intercepted; fall back to the standard form otherwise.
 if exists('$TMUX') || &term =~ 'tmux' || &term =~ 'screen'
-    " Resizing Splits
-    nnoremap <Esc>[1;5B :resize +2<CR>
-    nnoremap <Esc>[1;5A :resize -2<CR>
-    nnoremap <Esc>[1;5D :vertical resize -2<CR>
-    nnoremap <Esc>[1;5C :vertical resize +2<CR>
-    nnoremap <Esc><NL>  :resize +2<CR>
-    nnoremap <Esc><C-K> :resize -2<CR>
-    nnoremap <Esc><C-H>  :vertical resize -2<CR>
-    nnoremap <Esc><C-L>  :vertical resize +2<CR>
+  " Resizing Splits
+  nnoremap <Esc>[1;5B :resize +2<CR>
+  nnoremap <Esc>[1;5A :resize -2<CR>
+  nnoremap <Esc>[1;5D :vertical resize -2<CR>
+  nnoremap <Esc>[1;5C :vertical resize +2<CR>
+  nnoremap <Esc><NL>  :resize +2<CR>
+  nnoremap <Esc><C-K> :resize -2<CR>
+  nnoremap <Esc><C-H>  :vertical resize -2<CR>
+  nnoremap <Esc><C-L>  :vertical resize +2<CR>
 else
-    " Resizing Splits
-    nnoremap <C-Down>  :resize +2<CR>
-    nnoremap <C-Up>    :resize -2<CR>
-    nnoremap <C-Left>  :vertical resize -2<CR>
-    nnoremap <C-Right> :vertical resize +2<CR>
-    nnoremap <A-C-J> :resize +2<CR>
-    nnoremap <A-C-K> :resize -2<CR>
-    nnoremap <A-C-H> :vertical resize -2<CR>
-    nnoremap <A-C-L> :vertical resize +2<CR>
+  " Resizing Splits
+  nnoremap <C-Down>  :resize +2<CR>
+  nnoremap <C-Up>    :resize -2<CR>
+  nnoremap <C-Left>  :vertical resize -2<CR>
+  nnoremap <C-Right> :vertical resize +2<CR>
+  nnoremap <A-C-J> :resize +2<CR>
+  nnoremap <A-C-K> :resize -2<CR>
+  nnoremap <A-C-H> :vertical resize -2<CR>
+  nnoremap <A-C-L> :vertical resize +2<CR>
 endif
 
 " Move lines up/down
