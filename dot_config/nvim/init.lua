@@ -721,7 +721,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
           last_check = now
         end
         if cached_branch ~= "" then
-          return " \u{e725} " .. cached_branch .. " " -- nf-dev-git_branch
+          return " \u{e725} " .. cached_branch .. " \u{e0b1}" -- nf-dev-git_branch
         end
         return ""
       end
