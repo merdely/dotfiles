@@ -7,7 +7,7 @@
 -- ============================================================================
 -- BOOTSTRAP lazy.nvim
 -- ============================================================================
-local ok, err = pcall(require, "lazy_bootstrap")
+pcall(require, "lazy_bootstrap")
 
 -- ============================================================================
 -- OPTIONS
@@ -35,10 +35,18 @@ vim.opt.smartcase = true                           -- Case sensitive if uppercas
 vim.opt.hlsearch = true                            -- Don't highlight search results 
 vim.opt.incsearch = true                           -- Show matches as you type
 
--- Visual settings
+-- Theme (Can be overridden by plugins)
 vim.opt.termguicolors = true                       -- Enable 24-bit colors
 vim.opt.background = "dark"                        -- Change colorscheme to handle dark background
-vim.cmd.colorscheme('torte')                       -- Set the torte colorscheme
+vim.cmd.colorscheme('vim')                       -- Load colorscheme: good ones are torte, elflord, wildcharm, vim, catppuccin 
+vim.api.nvim_set_hl(0, "SignColumn",  { bg = "NONE", ctermbg = "NONE" })    -- Adjust the background to be transparent
+vim.api.nvim_set_hl(0, "ColorColumn", { ctermbg = "NONE", bg = "#191950" }) -- Adjust the color column to be blue
+vim.api.nvim_set_hl(0, "CursorLine", { ctermbg = "NONE", bg = "#202050" })  -- Adjust the cursor line to be a slighly lighter blue
+local hl = vim.api.nvim_get_hl(0, { name = "CursorLine", link = false })    -- Copy CursorLine settings
+vim.api.nvim_set_hl(0, "CursorLineSign", hl)                                -- Match CursorLine
+vim.api.nvim_set_hl(0, "CursorLineNr", hl)                                  -- Match CursorLine
+
+-- Visual settings
 vim.opt.signcolumn = "yes"                         -- Always show sign column
 vim.opt.colorcolumn = "80"                         -- Show column at 100 characters
 vim.opt.list = true                                -- Show list characters
@@ -122,7 +130,7 @@ end
 -- Leader must be set here for plugins to be able to use it
 vim.g.mapleader = " "                              -- Set leader key to space
 vim.g.maplocalleader = ","                         -- Set local leader key (NEW)
-local ok, err = pcall(require, "lazy_setup")
+pcall(require, "lazy_setup")
 
 -- ============================================================================
 -- THEME & TRANSPARENCY
@@ -157,6 +165,23 @@ end)
 vim.keymap.set('n', '<leader>w', '<Cmd>update<CR>', { desc = 'Write the current buffer' })
 vim.keymap.set('n', '<leader>q', '<Cmd>:quit<CR>', { desc = 'Quit the current buffer' })
 vim.keymap.set('n', '<leader>Q', '<Cmd>:wqa<CR>', { desc = 'Quit all buffers and write' })
+
+-- Open netrw
+-- vim.g.netrw_banner = 0 -- Hide the Netrw banner on top
+-- vim.g.netrw_altv = 1 -- Create the split of the Netrw window to the left
+-- vim.g.netrw_browse_split = 4 -- Open files in previous window. This emulates the typical "drawer" behavior
+-- vim.g.netrw_liststyle = 4 -- Set the styling of the file list to be one column with files inside
+-- vim.g.netrw_winsize = 14 -- Set the width of the "drawer"
+if vim.fn.maparg('-', 'n') == '' then
+  vim.keymap.set('n', '<leader>e', vim.cmd.Explore, { desc = 'Open netrw Explorer' })
+  vim.keymap.set('n', '-',         vim.cmd.Explore, { desc = 'Open netrw Explorer' })
+  vim.api.nvim_create_autocmd('FileType', {
+    pattern = 'netrw',
+    callback = function(ev)
+      vim.keymap.set('n', '<Escape>', '<C-^>', { buffer = ev.buf })
+    end,
+  })
+end
 
 -- Yank to EOL
 vim.keymap.set("n", "Y", "y$", { desc = "Yank to end of line" })
@@ -402,18 +427,20 @@ vim.api.nvim_create_autocmd("VimResized", {
 })
 
 -- Create directories when saving files
-vim.api.nvim_create_autocmd("BufWritePre", {
-  group = augroup,
-  callback = function()
-    if vim.tbl_contains({ "oil" }, vim.bo.ft) then
-      return
-    end
-    local dir = vim.fn.expand('<afile>:p:h')
-    if vim.fn.isdirectory(dir) == 0 then
-      vim.fn.mkdir(dir, 'p')
-    end
-  end,
-})
+if package.loaded["oil"] then
+  vim.api.nvim_create_autocmd("BufWritePre", {
+    group = augroup,
+    callback = function()
+      if vim.tbl_contains({ "oil" }, vim.bo.ft) then
+        return
+      end
+      local dir = vim.fn.expand('<afile>:p:h')
+      if vim.fn.isdirectory(dir) == 0 then
+        vim.fn.mkdir(dir, 'p')
+      end
+    end,
+  })
+end
 
 -- ============================================================================
 -- FLOATING TERMINAL
