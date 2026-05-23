@@ -25,10 +25,10 @@ else
   # Edit any other files with nvim or vim
   if (( ${#args[@]} > 0 )); then
     if command -v nvim &> /dev/null; then
-      echo "Using 'nvim' for: ${args[@]}"
+      # echo "Using 'nvim' for: ${args[@]}"
       exec nvim "${args[@]}"
     elif command -v vim &> /dev/null; then
-      echo "Using 'vim' for: ${args[@]}"
+      # echo "Using 'vim' for: ${args[@]}"
       exec vim "${args[@]}"
     else
       echo "Error: Cannot find neovim or vim" >&2
