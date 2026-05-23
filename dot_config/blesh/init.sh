@@ -13,7 +13,7 @@ function ble/widget/my/vi-command/backward-line {
 
 function ble/widget/my/discard-line-to-insert-mode {
   ble/widget/discard-line
-  ble/widget/vi-command/insert-mode
+  ble/widget/vi-nmap/insert-mode
 }
 
 # Configure vim mode
