@@ -17,7 +17,7 @@ vim.opt.number = true                              -- Line numbers
 vim.opt.relativenumber = false                     -- Relative line numbers
 vim.opt.cursorline = true                          -- Highlight current line
 vim.opt.wrap = true                                -- Line wrapping
-vim.opt.scrolloff = 10                             -- Number of lines to keep above/below cursor 
+vim.opt.scrolloff = 10                             -- Number of lines to keep above/below cursor
 vim.opt.sidescrolloff = 8                          -- Number of columns to keep left/right of cursor
 
 -- Indentation
@@ -38,7 +38,7 @@ vim.opt.incsearch = true                           -- Show matches as you type
 -- Theme (Can be overridden by plugins)
 vim.opt.termguicolors = true                       -- Enable 24-bit colors
 vim.opt.background = "dark"                        -- Change colorscheme to handle dark background
-vim.cmd.colorscheme('vim')                         -- Load colorscheme: good ones are torte, elflord, wildcharm, vim, catppuccin 
+vim.cmd.colorscheme('vim')                         -- Load colorscheme: good ones are torte, elflord, wildcharm, vim, catppuccin
 
 -- Highlight customizations moved into a ColorScheme autocmd so they persist
 -- when a plugin colorscheme (e.g. catppuccin) loads and re-fires the event,
@@ -58,7 +58,7 @@ vim.api.nvim_create_autocmd("ColorScheme", { callback = apply_highlights, })
 
 -- Visual settings
 vim.opt.signcolumn = "yes"                         -- Always show sign column
-vim.opt.colorcolumn = "80"                         -- Show column at 100 characters
+vim.opt.colorcolumn = "80"                         -- Column number where to show color column
 vim.opt.list = true                                -- Show list characters
 vim.opt.listchars:append {                         -- Show symbols for tabs and trailing spaces
   tab   = "▸ ",
@@ -68,16 +68,16 @@ vim.opt.listchars:append {                         -- Show symbols for tabs and 
 vim.opt.showmatch = true                           -- Highlight matching brackets
 vim.opt.matchtime = 2                              -- How long to show matching bracket
 vim.opt.cmdheight = 1                              -- Command line height
-vim.opt.completeopt = "menuone,noinsert,noselect"  -- Completion options 
-vim.opt.showmode = false                           -- Don't show mode in command line 
-vim.opt.pumheight = 10                             -- Popup menu height 
-vim.opt.pumblend = 10                              -- Popup menu transparency 
-vim.opt.winblend = 0                               -- Floating window transparency 
+vim.opt.completeopt = "menuone,noinsert,noselect"  -- Completion options
+vim.opt.showmode = false                           -- Don't show mode in command line
+vim.opt.pumheight = 10                             -- Popup menu height
+vim.opt.pumblend = 10                              -- Popup menu transparency
+vim.opt.winblend = 0                               -- Floating window transparency
 vim.opt.winborder = "rounded"                      -- Windows have rounded corners
-vim.opt.conceallevel = 0                           -- Don't hide markup 
-vim.opt.concealcursor = ""                         -- Don't hide cursor line markup 
+vim.opt.conceallevel = 0                           -- Don't hide markup
+vim.opt.concealcursor = ""                         -- Don't hide cursor line markup
 vim.opt.lazyredraw = true                          -- Don't redraw during macros
-vim.opt.synmaxcol = 300                            -- Syntax highlighting limit 
+vim.opt.synmaxcol = 300                            -- Syntax highlighting limit
 
 -- File handling
 local undodir = vim.fn.expand("~/.local/state/nvim/undodir")  -- define undodir
@@ -530,7 +530,7 @@ local function FloatingTerminal()
   terminal_state.is_open = true
   vim.cmd("startinsert")
 
-  -- Set up auto-close on buffer leave 
+  -- Set up auto-close on buffer leave
   vim.api.nvim_create_autocmd("BufLeave", {
     buffer = terminal_state.buf,
     callback = function()
