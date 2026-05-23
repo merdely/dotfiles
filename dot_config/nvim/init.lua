@@ -830,7 +830,6 @@ vim.api.nvim_create_autocmd("VimEnter", {
               "%#StatusLine# ",
               "\u{e0b1}",   -- left divider
               "%{v:lua.git_branch()}",
-              "\u{e0b1}",   -- left divider
               " %f %h%m%r", -- filename + flags
               "%=",         -- Right-align everything after this
               "%{&fenc!=''?&fenc:&enc}", -- encoding
