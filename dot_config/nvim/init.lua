@@ -76,7 +76,7 @@ vim.opt.winblend = 0                               -- Floating window transparen
 vim.opt.winborder = "rounded"                      -- Windows have rounded corners
 vim.opt.conceallevel = 0                           -- Don't hide markup
 vim.opt.concealcursor = ""                         -- Don't hide cursor line markup
-vim.opt.lazyredraw = true                          -- Don't redraw during macros
+-- vim.opt.lazyredraw = true                          -- Don't redraw during macros (unsafe?)
 vim.opt.synmaxcol = 300                            -- Syntax highlighting limit
 
 -- File handling
@@ -138,15 +138,15 @@ end
 -- SETUP lazy.nvim
 -- ============================================================================
 -- Leader must be set here for plugins to be able to use it
-vim.g.mapleader = " "                              -- Set leader key to space
-vim.g.maplocalleader = ","                         -- Set local leader key (NEW)
+vim.g.mapleader      = " "                         -- Set leader key to space
+vim.g.maplocalleader = ","                         -- Set local leader key
 pcall(require, "lazy_setup")
 
 -- ============================================================================
 -- THEME & TRANSPARENCY
 -- ============================================================================
-vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
-vim.api.nvim_set_hl(0, "NormalNC", { bg = "none" })
+vim.api.nvim_set_hl(0, "Normal",      { bg = "none" })
+vim.api.nvim_set_hl(0, "NormalNC",    { bg = "none" })
 vim.api.nvim_set_hl(0, "EndOfBuffer", { bg = "none" })
 
 -- ============================================================================
@@ -306,8 +306,21 @@ vim.keymap.set("v", ">", ">gv", { desc = "Indent right and reselect" })
 
 -- vim.keymap.set("n", "J", "mzJ`z", { desc = "Join lines and keep cursor position" })
 
--- Clear some customizations to make copying easier
-vim.keymap.set('n', '<leader>cp', function() vim.cmd(":set cursorline! list! number! breakindent! " .. (vim.o.colorcolumn == '' and "colorcolumn=80 " or "colorcolumn= ") .. (vim.o.signcolumn == 'number' and "signcolumn=no " or "signcolumn=number ")) end, { silent = true, expr = false })
+-- Toggles cursor line, list chars, line numbers, break-indent, color column, and sign column.
+local function toggle_copy_mode()
+  vim.cmd("set cursorline! list! number! breakindent!")
+  if vim.o.colorcolumn == '' then
+    vim.opt.colorcolumn = "80"
+  else
+    vim.opt.colorcolumn = ""
+  end
+  if vim.o.signcolumn == 'number' then
+    vim.opt.signcolumn = 'no'
+  else
+    vim.opt.signcolumn = 'number'
+  end
+end
+vim.keymap.set('n', '<leader>cp', toggle_copy_mode, { silent = true, desc = "Toggle copy-friendly mode" })
 
 -- Make file executable
 -- vim.keymap.set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { desc = "Make file executable", silent = true })
@@ -370,10 +383,15 @@ end
 -- ============================================================================
 -- Copy Full File-Path
 vim.keymap.set("n", "<leader>pa", function()
-	local path = vim.fn.expand("%:p")
-	vim.fn.setreg("+", path)
-	print("file:", path)
-end)
+  local path = vim.fn.expand("%:p")
+  vim.fn.setreg("+", path)
+  print("file:", path)
+end, { desc = "Copy full file path" })
+
+-- Toggle Diagnostics
+vim.keymap.set("n", "<leader>td", function()
+  vim.diagnostic.enable(not vim.diagnostic.is_enabled())
+end, { desc = "Toggle diagnostics" })
 
 -- Basic autocommands
 local augroup = vim.api.nvim_create_augroup("UserConfig", {})
@@ -482,7 +500,7 @@ local function FloatingTerminal()
   if not terminal_state.buf or not vim.api.nvim_buf_is_valid(terminal_state.buf) then
     terminal_state.buf = vim.api.nvim_create_buf(false, true)
     -- Set buffer options for better terminal experience
-    vim.api.nvim_buf_set_option(terminal_state.buf, 'bufhidden', 'hide')
+    vim.api.nvim_set_option_value('bufhidden', 'hide', { buf = terminal_state.buf })
   end
 
   -- Calculate window dimensions
@@ -503,15 +521,16 @@ local function FloatingTerminal()
   })
 
   -- Set transparency for the floating window
-  vim.api.nvim_win_set_option(terminal_state.win, 'winblend', 0)
+  vim.api.nvim_set_option_value('winblend', 0, { win = terminal_state.win })
 
   -- Set transparent background for the window
-  vim.api.nvim_win_set_option(terminal_state.win, 'winhighlight',
-    'Normal:FloatingTermNormal,FloatBorder:FloatingTermBorder')
+  vim.api.nvim_set_option_value('winhighlight',
+    'Normal:FloatingTermNormal,FloatBorder:FloatingTermBorder',
+    { win = terminal_state.win })
 
   -- Define highlight groups for transparency
   vim.api.nvim_set_hl(0, "FloatingTermNormal", { bg = "none" })
-  vim.api.nvim_set_hl(0, "FloatingTermBorder", { bg = "none", })
+  vim.api.nvim_set_hl(0, "FloatingTermBorder", { bg = "none" })
 
   -- Start terminal if not already running
   local has_terminal = false
