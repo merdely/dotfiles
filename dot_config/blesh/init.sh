@@ -28,7 +28,7 @@ function my/vim-load-hook {
   ble-bind -m vi_nmap -f k my/vi-command/backward-line
   # Let C-c cancel a command in normal mode
   ble-bind -m vi_imap -f C-c discard-line
-  ble-bind -m vi_nmap -f C-c my/discard-line-to-insert-mode
+  ble-bind -m vi_nmap -f C-c discard-line  # my/discard-line-to-insert-mode
   # When in normal mode, do not flash screen when pressing ESC
   ble-bind -m vi_nmap -f ESC nop
   ble-bind -m vi_nmap -f 'C-[' nop
