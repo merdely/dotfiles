@@ -473,7 +473,13 @@ nnoremap <leader>N @n
 " Redraw Screen
 nnoremap <leader>l :redraw!<CR>
 
+" Quick config editing
+nnoremap <leader>rc :edit $MYVIMRC<CR>
+nnoremap <leader>rl :source $MYVIMRC<CR>
+
+" ===============================
 " Tabs
+" ===============================
 nnoremap <leader>tt :tabnew<CR>
 nnoremap <leader>tx :tabclose<CR>
 nnoremap <leader>tp :tabp<CR>
@@ -490,10 +496,46 @@ nnoremap <leader>t7 :tabnext 7<CR>
 nnoremap <leader>t8 :tabnext 8<CR>
 nnoremap <leader>t9 :tabnext 9<CR>
 
+" Extended tab management functions
+function! OpenFileInTab() abort
+  let l:input = input('File to open in new tab: ', '', 'file')
+  if l:input !=# ''
+    execute 'tabnew ' . fnameescape(l:input)
+  endif
+endfunction
+
+function! DuplicateTab() abort
+  let l:current_file = expand('%:p')
+  if l:current_file !=# ''
+    execute 'tabnew ' . fnameescape(l:current_file)
+  else
+    tabnew
+  endif
+endfunction
+
+function! CloseTabsRight() abort
+  let l:current_tab = tabpagenr()
+  let l:last_tab    = tabpagenr('$')
+  for l:i in range(l:last_tab, l:current_tab + 1, -1)
+    execute l:i . 'tabclose'
+  endfor
+endfunction
+
+function! CloseTabsLeft() abort
+  let l:current_tab = tabpagenr()
+  for l:i in range(l:current_tab - 1, 1, -1)
+    1tabclose
+  endfor
+endfunction
+
+nnoremap <leader>tO :call OpenFileInTab()<CR>
+nnoremap <leader>td :call DuplicateTab()<CR>
+nnoremap <leader>tr :call CloseTabsRight()<CR>
+nnoremap <leader>tL :call CloseTabsLeft()<CR>
+
 " Function to close buffer but keep tab if it's the only buffer in tab
-function! SmartCloseBuffer()
-  let l:buffers_in_tab = len(tabpagebuflist())
-  if l:buffers_in_tab > 1
+function! SmartCloseBuffer() abort
+  if len(tabpagebuflist()) > 1
     bdelete
   else
     tabclose
