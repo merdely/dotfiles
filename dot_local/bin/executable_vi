@@ -5,7 +5,7 @@ if [[ -n "$SUDO_USER" ]] && [[ "$(ps -o comm= -p $PPID)" == "sudo" ]]; then
   exit 1
 else
   args=("$@")
-  if command -v chezmoi > /dev/null 2>&1; then
+  if command -v chezmoi > /dev/null 2>&1 && [ -d "$HOME"/.local/share/chezmoi ]; then
     args=()
     chezmoi=()
     mapfile -t chezmoi_managed < <(chezmoi managed -p absolute)
