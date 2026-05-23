@@ -327,25 +327,23 @@ nnoremap <leader>sL <C-w>L
 " Resize splits — use escape sequences when inside tmux/screen where
 " <C-Arrow> is intercepted; fall back to the standard form otherwise.
 if exists('$TMUX') || &term =~ 'tmux' || &term =~ 'screen'
-  " Resizing Splits
   nnoremap <Esc>[1;5B :resize +2<CR>
   nnoremap <Esc>[1;5A :resize -2<CR>
   nnoremap <Esc>[1;5D :vertical resize -2<CR>
   nnoremap <Esc>[1;5C :vertical resize +2<CR>
   nnoremap <Esc><NL>  :resize +2<CR>
   nnoremap <Esc><C-K> :resize -2<CR>
-  nnoremap <Esc><C-H>  :vertical resize -2<CR>
-  nnoremap <Esc><C-L>  :vertical resize +2<CR>
+  nnoremap <Esc><C-H> :vertical resize -2<CR>
+  nnoremap <Esc><C-L> :vertical resize +2<CR>
 else
-  " Resizing Splits
   nnoremap <C-Down>  :resize +2<CR>
   nnoremap <C-Up>    :resize -2<CR>
   nnoremap <C-Left>  :vertical resize -2<CR>
   nnoremap <C-Right> :vertical resize +2<CR>
-  nnoremap <A-C-J> :resize +2<CR>
-  nnoremap <A-C-K> :resize -2<CR>
-  nnoremap <A-C-H> :vertical resize -2<CR>
-  nnoremap <A-C-L> :vertical resize +2<CR>
+  nnoremap <A-C-J>   :resize +2<CR>
+  nnoremap <A-C-K>   :resize -2<CR>
+  nnoremap <A-C-H>   :vertical resize -2<CR>
+  nnoremap <A-C-L>   :vertical resize +2<CR>
 endif
 
 " Move lines up/down
