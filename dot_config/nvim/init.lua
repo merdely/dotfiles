@@ -325,9 +325,17 @@ vim.keymap.set('n', '<leader>cp', toggle_copy_mode, { silent = true, desc = "Tog
 -- Make file executable
 -- vim.keymap.set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { desc = "Make file executable", silent = true })
 vim.keymap.set("n", "<leader>x", function()
-  local file = vim.fn.expand("%")
+  local file = vim.fn.expand("%:p")  -- full path, not relative
+  if file == "" then
+    vim.notify("No file", vim.log.levels.ERROR)
+    return
+  end
   vim.cmd("write")
-  vim.system({ "chmod", "+x", file })
+  local result = vim.system({ "chmod", "+x", file }):wait()
+  if result.code ~= 0 then
+    vim.notify("chmod failed: " .. (result.stderr or ""), vim.log.levels.ERROR)
+    return
+  end
   vim.cmd("edit!")
   vim.notify("Made '" .. file .. "' executable")
 end, { desc = "Make file executable" })
@@ -395,6 +403,15 @@ end, { desc = "Toggle diagnostics" })
 
 -- Basic autocommands
 local augroup = vim.api.nvim_create_augroup("UserConfig", {})
+
+-- Prevent '#' from de-indenting in YAML files
+vim.api.nvim_create_autocmd("FileType", {
+  group = augroup,
+  pattern = { "yaml", "yaml.ansible" },
+  callback = function()
+    vim.opt_local.indentkeys:remove("0#")
+  end,
+})
 
 -- Highlight yanked text
 vim.api.nvim_create_autocmd("TextYankPost", {
