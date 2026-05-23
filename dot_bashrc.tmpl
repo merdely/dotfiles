@@ -18,11 +18,31 @@ umask 0022 > /dev/null 2>&1
 [[ $- != *i* ]] && return
 
 # Load aliases and functions
-[ -r "$HOME"/.config/shell/aliases ]        && . "$HOME"/.config/shell/aliases
-[ -r "$HOME"/.config/shell/functions ]      && . "$HOME"/.config/shell/functions
-[ -r "$HOME"/.config/shell/ssh-settings ]   && . "$HOME"/.config/shell/ssh-settings
-[ -r "$HOME"/.config/shell/os-specifics ]   && . "$HOME"/.config/shell/os-specifics
-[ -r "$HOME"/.config/shell/host-specifics ] && . "$HOME"/.config/shell/host-specifics
+[ -r "$XDG_CONFIG_HOME"/shell/aliases ]        && . "$XDG_CONFIG_HOME"/shell/aliases
+[ -r "$XDG_CONFIG_HOME"/shell/functions ]      && . "$XDG_CONFIG_HOME"/shell/functions
+[ -r "$XDG_CONFIG_HOME"/shell/ssh-settings ]   && . "$XDG_CONFIG_HOME"/shell/ssh-settings
+[ -r "$XDG_CONFIG_HOME"/shell/os-specifics ]   && . "$XDG_CONFIG_HOME"/shell/os-specifics
+[ -r "$XDG_CONFIG_HOME"/shell/host-specifics ] && . "$XDG_CONFIG_HOME"/shell/host-specifics
+
+# Set up BLE
+if [ -z "$BLE_VERSION" ]; then
+  if [ ! -d "$XDG_DATA_HOME"/blesh/ble.sh ]; then
+    work=$(mktemp -d)
+    curl -sLo "$work"/ble.tar.xz https://github.com/akinomyoga/ble.sh/releases/download/nightly/ble-nightly.tar.xz
+    if [ -s "$work"/ble.tar.xz ]; then
+      unxz --stdout "$work"/ble.tar.xz | tar -C "$work" -xf -
+    fi
+    if [ -r "$work"/ble-nightly/ble.sh ]; then
+      bash "$work"/ble-nightly/ble.sh --install "$XDG_DATA_HOME"
+    fi
+    rm -Rf "$work"
+  fi
+
+  # If BLE is installed, set it up
+  if [ -r "$XDG_DATA_HOME"/blesh/ble.sh ]; then
+    source "$XDG_DATA_HOME"/blesh/ble.sh --attach=none
+  fi
+fi
 
 # For use in PS1, better PROMPT_DIRTRIM/\w
 __prompt_trim_pwd() {
@@ -45,7 +65,7 @@ __prompt_trim_pwd() {
 }
 
 # Load git prompt
-[ -r "$HOME"/.config/shell/git-prompt ] && . "$HOME"/.config/shell/git-prompt
+[ -r "$XDG_CONFIG_HOME"/shell/git-prompt ] && . "$XDG_CONFIG_HOME"/shell/git-prompt
 
 ## Get current namespace name for prompt
 #if cmdcheck ip; then
@@ -91,8 +111,21 @@ if [[ -n "$BASH_VERSION" ]]; then
     [[ -z "$part" || "$part" == "history "* || "$part" == "(( \$? )) && "* || "$part" == ":" ]] && continue
     PROMPT_COMMAND="$PROMPT_COMMAND;$part"
   done
-  PROMPT_COMMAND="(( \$? )) && __prompt_color=$'\e[91m' || __prompt_color=$'\e[92m'$PROMPT_COMMAND;history -a;history -c;history -r"
-  # PROMPT_COMMAND="(( \$? )) && __prompt_color=$'\e[91m' || __prompt_color=$'\e[92m'$PROMPT_COMMAND"
+
+  # Do not do history-related things if using BLE
+  if [ -z "${BLE_VERSION-}" ]; then
+    # Append commands to history file
+    PROMPT_COMMAND="$PROMPT_COMMAND;history -a"
+
+    # Clear in-memory history
+    # PROMPT_COMMAND="$PROMPT_COMMAND;history -c"
+    # Load history file into memory
+    # PROMPT_COMMAND="$PROMPT_COMMAND;history -r"
+  fi
+
+  # Set the exit status of the previous command for the prompt
+  PROMPT_COMMAND="(( \$? )) && __prompt_color=$'\e[91m' || __prompt_color=$'\e[92m'$PROMPT_COMMAND"
+
   unset parts part
 
   # Set the prompt
@@ -131,4 +164,6 @@ set -o vi
 
 [[ -e "$HOME"/.profile.local ]] && . "$HOME"/.profile.local
 
+# Enable BLE
+[ -z "${BLE_VERSION-}" ] || ble-attach
 true
