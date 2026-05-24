@@ -12,4 +12,5 @@
 {:shortcuts {:plugin.logseq-randomutils-plugin/Go_to_today ["alt+ctrl+t" "g shift+t"]
  :plugin.logseq-randomutils-plugin/get_dictionary_meaning ["alt+ctrl+m"]
  :editor/move-block-down ["alt+shift+down" "shift+ctrl+down"]
- :editor/move-block-up ["alt+shift+up" "shift+ctrl+up"]}}
+ :editor/move-block-up ["alt+shift+up" "shift+ctrl+up"]
+ :plugin.logseq-markdown-table/$shortcut$mod_shift_t ["shift+ctrl+e"]}}

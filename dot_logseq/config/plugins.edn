@@ -7,4 +7,5 @@
  :logseq-block-calendar {:version "v0.2.11", :repo "vipzhicheng/logseq-plugin-block-calendar", :effect true, :theme false}
  :logseq-move-block {:version "v1.1.0", :repo "vipzhicheng/logseq-plugin-move-block", :effect true, :theme false}
  :logseq-excalidraw {:version "v1.5.1", :repo "haydenull/logseq-plugin-excalidraw", :effect true, :theme false}
- :logseq-randomutils-plugin {:version "v1.1.1", :repo "hkgnp/logseq-randomutils-plugin", :effect true, :theme false}}
+ :logseq-randomutils-plugin {:version "v1.1.1", :repo "hkgnp/logseq-randomutils-plugin", :effect true, :theme false}
+ :logseq-markdown-table {:version "v1.9.0", :repo "haydenull/logseq-plugin-markdown-table", :effect false, :theme false}}
