@@ -150,7 +150,7 @@ set noautochdir                                    " Don't auto change directory
 set path+=**                                       " Include subdirectories in search
 set mouse=a                                        " Enable mouse support
 set clipboard+=unnamedplus                         " Use system clipboard
-" set modifiable                                     " Allow buffer modifications (handled in autocmd)
+set modifiable                                     " Allow buffer modifications
 set encoding=utf-8                                 " Set encoding
 
 " Cursor settings
@@ -469,9 +469,6 @@ nnoremap <leader>pa :let @+ = expand('%:p') \| echo 'file: ' . expand('%:p')<CR>
 augroup UserConfig
   autocmd!
   autocmd FileType yaml,yaml.ansible setlocal indentkeys-=0#
-
-  " Set modifiable for normal buffers only
-  autocmd BufEnter * if empty(&buftype) | setlocal modifiable | endif
 
   " Return to last edit position when opening files
   autocmd BufReadPost *
