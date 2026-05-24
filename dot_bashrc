@@ -4,16 +4,6 @@
 # Set umask early
 umask 0022 > /dev/null 2>&1
 
-# Load environment variables
-[ -r "$HOME"/.config/shell/variables ] && . "$HOME"/.config/shell/variables
-
-# Include system .bashrc from /etc/skel
-# =====================================
-{{- if lstat "/etc/skel/.bashrc" }}
-{{- include "/etc/skel/.bashrc" }}
-{{- end }}
-# =====================================
-
 # Stop if non-interactive
 [[ $- != *i* ]] && return
 
