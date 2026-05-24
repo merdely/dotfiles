@@ -25,7 +25,8 @@ fi
 cmdcheck chezmoi    && alias cm=chezmoi
 cmdcheck chezmoi    && alias cA='chezmoi apply'
 cmdcheck chezmoi    && alias cI='chezmoi init'
-cmdcheck chezmoi    && alias cU='chezmoi init'
+cmdcheck chezmoi    && alias cR='chezmoi re-add'
+cmdcheck chezmoi    && alias cU='chezmoi update'
 cmdcheck python2    && alias python=python2
 cmdcheck python3    && alias python=python3
 cmdcheck rsync      && alias dos_rsync='rsync -rtcvP'
