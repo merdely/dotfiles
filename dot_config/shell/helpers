@@ -1,0 +1,39 @@
+## Shell Config Helpers
+# vim: set filetype=sh :
+
+# Remove a directory from PATH
+path_prune() {
+  [ -z "$1" ] && return 1
+  local left_side right_side="$PATH:"
+  # Loop through the PATH variable, moving elements from the right to the left,
+  # skipping the prune-part
+  while [ -n "$right_side" ]; do
+    [ "$1" != "${right_side%%:*}" ] && left_side="${left_side}:${right_side%%:*}"
+    right_side=${right_side#*:}
+  done
+  export PATH=${left_side#:}
+}
+
+# Intelligently add a directory to PATH
+path_add() {
+  local opt OPTARG OPTIND before=false check=false
+  while getopts ":be" opt; do
+    case $opt in
+      b) before=true ;;
+      e) check=true ;;
+      *) ;;
+    esac
+  done
+  shift $(( OPTIND - 1 ))
+  [ -z "$1" ] && return 1
+  path_prune "$1"
+  "$check" && [ ! -d "$1" ] && return 1
+  if "$before"; then
+    export PATH="$1":"$PATH"
+  else
+    export PATH="$PATH":"$1"
+  fi
+}
+
+# Quietly check if a command exists
+cmdcheck() { command -v "$@" > /dev/null 2>&1 ; }
