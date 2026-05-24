@@ -4,7 +4,7 @@
 # When this script or any of the hashes below change, update files
 # .config/nvim/init.lua: {{ include "dot_config/nvim/init.lua" | sha256sum }}
 
-command -v nvim > /dev/null 2>&1 | exit 0
+command -v nvim > /dev/null 2>&1 || exit 0
 
 echo "Processing Run OnChange for nvim init.lua"
 
