@@ -1,7 +1,7 @@
 # ~/.profile
 
 # Read in environment variables
-[ -r "$HOME"/.config/shell/helpers ] && . "$HOME"/.config/shell/helpers
+[ -r "$HOME"/.config/shell/variables ] && . "$HOME"/.config/shell/variables
 
 # Read in ~/.bashrc
 [ -n "$BASH_VERSION" ] && [ -r "$HOME"/.bashrc ] && . "$HOME"/.bashrc
