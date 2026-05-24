@@ -57,7 +57,7 @@ if [[ "$ID" =~ ^(arch|artix|cachyos|garuda|endeavouros|manjaro)$ || " $ID_LIKE "
     echo "Installing packages: ${need[@]}"
     sudo pacman -Syu --disable-download-timeout --needed --noconfirm "${need[@]}"
     ret=$?
-    if [ ret -ne 0 ]; then
+    if [ $ret -ne 0 ]; then
       echo "Error: pacman exited with error code $ret" >&2
       exit 1
     fi
