@@ -893,7 +893,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
           callback = function()
             vim.opt_local.statusline = table.concat({
               "%#StatusLineMode# %{v:lua.mode_icon()} ",
-              "%#StatusLineGit# \u{e0b0}",   -- left divider
+              "%#StatusLineGit#\u{e0b0}",   -- left divider
               "%{v:lua.git_branch()}%#StatusLineIcon#",
               "%#StatusLine# %f %h%m%r", -- filename + flags
               "%=",         -- Right-align everything after this
