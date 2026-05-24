@@ -36,12 +36,12 @@ if executable('git')
   endif
   if has_key(g:plugs, 'nightfly') && isdirectory(g:plugs['nightfly'].dir)
     colorscheme nightfly
-    highlight Normal      ctermbg=NONE guibg=NONE
-    highlight NormalNC    ctermbg=NONE guibg=NONE
-    highlight EndOfBuffer ctermbg=NONE guibg=NONE
-    autocmd VimEnter,ColorScheme * highlight Normal      ctermbg=NONE guibg=NONE
-    autocmd VimEnter,ColorScheme * highlight NormalNC    ctermbg=NONE guibg=NONE
-    autocmd VimEnter,ColorScheme * highlight EndOfBuffer ctermbg=NONE guibg=NONE
+    " highlight Normal      ctermbg=NONE guibg=NONE
+    " highlight NormalNC    ctermbg=NONE guibg=NONE
+    " highlight EndOfBuffer ctermbg=NONE guibg=NONE
+    " autocmd VimEnter,ColorScheme * highlight Normal      ctermbg=NONE guibg=NONE
+    " autocmd VimEnter,ColorScheme * highlight NormalNC    ctermbg=NONE guibg=NONE
+    " autocmd VimEnter,ColorScheme * highlight EndOfBuffer ctermbg=NONE guibg=NONE
   endif
 endif
 
