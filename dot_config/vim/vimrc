@@ -480,7 +480,11 @@ augroup UserConfig
   autocmd VimResized * tabdo wincmd =
 
   " Create parent directories on write (unconditional — no plugin dependency)
-  autocmd BufWritePre * call mkdir(expand('<afile>:p:h'), 'p')
+  autocmd BufWritePre * 
+    \ let s:dir = expand('<afile>:p:h') |
+    \ if s:dir !~ '^\$' && isdirectory(fnamemodify(s:dir, ':h'))
+    \ | call mkdir(s:dir, 'p')
+    \ | endif
 augroup END
 
 " Allow escape to exit netrw
