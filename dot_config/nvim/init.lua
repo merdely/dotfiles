@@ -523,14 +523,13 @@ vim.api.nvim_create_autocmd("FileType", {
     end
 
     vim.keymap.set('n', '<Esc>', ':bd<CR>',  { buffer = true })
-    -- Can't use gb gd gf gh gn gp
+    -- Can't use gb gd gf gF gg gh gn gp
     map('ga', '$HOME/src/ansible')
     map('gB', '$HOME/.local/bin')
     map('gc', '$HOME/.config')
     map('gd', '$HOME/Downloads')
     map('ge', '/etc')
-    map('gF', '%:p:h')
-    map('gg', '$HOME/git')
+    map('gG', '$HOME/git')
     map('gH', '$HOME')
     map('gL', '$HOME/.local/share/Syncthing/Logseq/Mike\'s Notes')
     map('gl', '$HOME/.local')
@@ -542,12 +541,13 @@ vim.api.nvim_create_autocmd("FileType", {
     map('gr', '/srv/docker')
     map('gS', '$HOME/src/scripts')
     map('gs', '$HOME/src')
-    map('gt', '/run/user/' .. os.getenv('EUID') .. '/tmp')
+    map('gT', '/run/user/' .. os.getenv('EUID') .. '/tmp')
     map('gv', '$HOME/.config/vim')
     map('gw', '$HOME/Work')
     map('gX', '$HOME/.local/share/Syncthing')
     map('gx', '$HOME/src/scripts/bin')
     map('gy', '$HOME/.config/yazi')
+    map('gZ', '%:p:h')
     vim.keymap.set('n', 'gz', function()
       local input = vim.fn.input("cd: ", vim.fn.expand("%:p:h"), "dir")
       if input ~= '' then vim.cmd('e ' .. input) end

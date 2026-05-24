@@ -502,14 +502,13 @@ endfunction
 augroup netrw_mappings
   autocmd!
   autocmd FileType netrw nnoremap <buffer> <Esc> :bd<CR>
-  " Can't use gb gd gf gh gn gp
+  " Can't use gb gd gf gF gg gh gn gp
   autocmd FileType netrw nnoremap <buffer> ga    :call NetrwOpenIfExists("$HOME/src/ansible")<CR>
   autocmd FileType netrw nnoremap <buffer> gB    :call NetrwOpenIfExists("$HOME/.local/bin")<CR>
   autocmd FileType netrw nnoremap <buffer> gc    :call NetrwOpenIfExists("$HOME/.config")<CR>
   autocmd FileType netrw nnoremap <buffer> gd    :call NetrwOpenIfExists("$HOME/Downloads")<CR>
   autocmd FileType netrw nnoremap <buffer> ge    :e /etc<CR>
-  autocmd FileType netrw nnoremap <buffer> gF    :call NetrwOpenIfExists("%:p:h")<CR>
-  autocmd FileType netrw nnoremap <buffer> gg    :call NetrwOpenIfExists("$HOME/git")<CR>
+  autocmd FileType netrw nnoremap <buffer> gG    :call NetrwOpenIfExists("$HOME/git")<CR>
   autocmd FileType netrw nnoremap <buffer> gH    :call NetrwOpenIfExists("$HOME")<CR>
   autocmd FileType netrw nnoremap <buffer> gL    :call NetrwOpenIfExists("$HOME/.local/share/Syncthing/Logseq/Mike\\'s\\ Notes")<CR>
   autocmd FileType netrw nnoremap <buffer> gl    :call NetrwOpenIfExists("$HOME/.local")<CR>
@@ -521,12 +520,13 @@ augroup netrw_mappings
   autocmd FileType netrw nnoremap <buffer> gr    :call NetrwOpenIfExists("/srv/docker")<CR>
   autocmd FileType netrw nnoremap <buffer> gS    :call NetrwOpenIfExists("$HOME/src/scripts")<CR>
   autocmd FileType netrw nnoremap <buffer> gs    :call NetrwOpenIfExists("$HOME/src")<CR>
-  autocmd FileType netrw nnoremap <buffer> gt    :call NetrwOpenIfExists("/run/user/$EUID/tmp")<CR>
+  autocmd FileType netrw nnoremap <buffer> gT    :call NetrwOpenIfExists("/run/user/$EUID/tmp")<CR>
   autocmd FileType netrw nnoremap <buffer> gv    :call NetrwOpenIfExists("$HOME/.config/vim")<CR>
   autocmd FileType netrw nnoremap <buffer> gw    :call NetrwOpenIfExists("$HOME/Work")<CR>
   autocmd FileType netrw nnoremap <buffer> gX    :call NetrwOpenIfExists("$HOME/.local/share/Syncthing")<CR>
   autocmd FileType netrw nnoremap <buffer> gx    :call NetrwOpenIfExists("$HOME/src/scripts/bin")<CR>
   autocmd FileType netrw nnoremap <buffer> gy    :call NetrwOpenIfExists("$HOME/.config/yazi")<CR>
+  autocmd FileType netrw nnoremap <buffer> gZ    :call NetrwOpenIfExists("%:p:h")<CR>
   autocmd FileType netrw nnoremap <buffer> gz    :e <C-r>=input("cd: ", expand("%:p:h"), "dir")<CR><CR>
 augroup END
 
