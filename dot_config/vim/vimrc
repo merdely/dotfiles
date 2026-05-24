@@ -705,6 +705,13 @@ if !s:has_statusline_plugin
     endif
   endfunction
 
+  function! StatuslinePercent() abort
+    if line('w0') == 1 && line('w$') == line('$')
+      return line('$') . 'L'
+    endif
+    return '%P'
+  endfunction
+
   " Mode indicator
   function! StatuslineModeIcon() abort
     let l:modes = {
@@ -739,7 +746,7 @@ if !s:has_statusline_plugin
           \ . ' ' . "\ue0b3"
           \ . ' %{&filetype}'
           \ . ' ' . "%#StatusLineIcon#\ue0b2"
-          \ . '%#StatusLinePerc# %P'
+          \ . '%#StatusLinePerc# %{StatuslinePercent()}'
           \ . ' ' . "\ue0b2"
           \ . '%#StatusLinePos# %l:%c '
   endfunction
