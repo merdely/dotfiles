@@ -42,13 +42,15 @@ let &directory = &directory . '//'
 let &backupdir = &backupdir . '//'
 
 " Runtime paths (works whether vimrc is ~/.vimrc or ~/.config/vim/vimrc)
-let &packpath = g:vim_data_dir . ',' . &packpath
-let &runtimepath = g:vim_config_dir
-      \ . ',' . &runtimepath
-      \ . ',' . g:vim_data_dir
-      \ . ',' . g:vim_config_dir . '/after'
-      \ . ',' . g:vim_config_dir . '/ftplugin'
-      \ . ',' . g:vim_config_dir . '/spell'
+if g:vim_config_dir != ''
+  let &packpath = g:vim_data_dir . ',' . &packpath
+  let &runtimepath = g:vim_config_dir
+        \ . ',' . &runtimepath
+        \ . ',' . g:vim_data_dir
+        \ . ',' . g:vim_config_dir . '/after'
+        \ . ',' . g:vim_config_dir . '/ftplugin'
+        \ . ',' . g:vim_config_dir . '/spell'
+endif
 
 " ===============================
 " COLORSCHEME DEFAULTS
