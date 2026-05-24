@@ -893,22 +893,22 @@ vim.api.nvim_create_autocmd("VimEnter", {
           callback = function()
             vim.opt_local.statusline = table.concat({
               " ",
-              "%#StatusLineBold#",
+              "%#StatusLineMode#",
               "%{v:lua.mode_icon()}",
-              "%#StatusLine# ",
-              "\u{e0b1}",   -- left divider
-              "%{v:lua.git_branch()}",
-              " %f %h%m%r", -- filename + flags
+              "%#StatusGit# ",
+              "\u{e0b0}",   -- left divider
+              "%{v:lua.git_branch()}%#StatusLineIcon#",
+              "%#StatusLine# %f %h%m%r", -- filename + flags
               "%=",         -- Right-align everything after this
               "%{&fenc!=''?&fenc:&enc}", -- encoding
               " \u{e0b3}",  -- right divider
               " %{&fileformat}",
               " \u{e0b3}", -- right divider
               " %{&filetype}",
-              " \u{e0b3}", -- right divider
-              " %P",       -- percentage through file
-              " \u{e0b3}", -- right divider
-              " %l:%c ",   -- line:col
+              " %#StatusLineIcon#\u{e0b2}", -- right divider
+              "%#StatusLinePerc# %P",       -- percentage through file
+              " \u{e0b2}", -- right divider
+              "%#StatusLinePos# %l:%c ",   -- line:col
             })
           end,
         })
