@@ -65,9 +65,18 @@ function! s:ApplyHighlights() abort
   highlight CursorLineSign term=NONE  gui=NONE   cterm=NONE  ctermbg=NONE guibg=#081e2f
   highlight CursorLineNr   term=NONE  gui=NONE   cterm=bold  ctermfg=3    guifg=Grey75 guibg=#081e2f
   highlight StatusLine     gui=NONE   cterm=NONE guifg=#c0c0d0 ctermfg=250 guibg=#081e2f ctermbg=17
-  highlight StatusLineBold gui=bold   cterm=bold guifg=#c0c0d0 ctermfg=250 guibg=#081e2f ctermbg=17
   highlight StatusLineNC   gui=NONE   cterm=NONE guifg=#606070 ctermfg=242 guibg=#081e2f ctermbg=17
   highlight HighlightedyankRegion guifg=#011627 guibg=#ffcb8b
+
+  " Status Line styles
+  highlight StatusLineMode gui=bold cterm=bold guifg=#2c3043 ctermfg=250 guibg=#82aaff ctermbg=17
+  highlight StatusLineGit  gui=NONE cterm=NONE guifg=#82aaff ctermfg=250 guibg=#2c3043 ctermbg=17
+
+  highlight StatusLineIcon  gui=NONE cterm=NONE guifg=#2c3043 ctermfg=250 guibg=#081e2f ctermbg=17
+
+  highlight StatusLinePerc gui=NONE cterm=NONE guifg=#82aaff ctermfg=250 guibg=#2c3043 ctermbg=17
+  highlight StatusLinePos  gui=NONE cterm=NONE guifg=#2c3043 ctermfg=250 guibg=#82aaff ctermbg=17
+
 
   highlight Normal         ctermbg=NONE guibg=NONE
   highlight NormalNC       ctermbg=NONE guibg=NONE
@@ -617,17 +626,20 @@ endif
 if !s:has_statusline_plugin
 
   " Git branch with caching
-  let s:cached_branch = ''
-  let s:last_check    = 0
+  let g:cached_branch = ''
+  let s:branch_cache = {}
+  let s:last_check   = {}
 
   function! StatuslineGitBranch() abort
+    let l:dir = expand('%:p:h')
     let l:now = localtime()
-    if l:now - s:last_check > 5
-      let s:cached_branch = system("git branch --show-current 2>/dev/null | tr -d '\n'")
-      let s:last_check = l:now
+    if !has_key(s:last_check, l:dir) || l:now - s:last_check[l:dir] > 5
+      let s:branch_cache[l:dir] = system('git -C ' . shellescape(l:dir) . " branch --show-current 2>/dev/null | tr -d '\n'")
+      let s:last_check[l:dir] = l:now
     endif
-    if s:cached_branch !=# ''
-      return ' ' . "\ue725" . ' ' . s:cached_branch . " \ue0b1"
+    let g:cached_branch = s:branch_cache[l:dir]
+    if g:cached_branch !=# ''
+      return ' ' . "\ue725" . ' ' . g:cached_branch . ' '
     endif
     return ''
   endfunction
@@ -717,20 +729,21 @@ if !s:has_statusline_plugin
 
   function! s:SetActiveStatusline() abort
     let &l:statusline =
-          \ ' %#StatusLineBold#%{StatuslineModeIcon()}%#StatusLine# '
-          \ . "\ue0b1"
-          \ . '%{StatuslineGitBranch()}'
-          \ . ' %f %h%m%r'
+          \ '%#StatusLineMode# %{StatuslineModeIcon()} '
+          \ . "%#StatusLineGit#\ue0b0"
+          \ . '%{StatuslineGitBranch()}%#StatusLineIcon#'
+          \ . '%{g:cached_branch != "" ? "\ue0b0" : ""}'
+          \ . '%#StatusLine# %f %h%m%r'
           \ . '%='
           \ . "%{&fenc!=''?&fenc:&enc}"
           \ . ' ' . "\ue0b3"
           \ . ' %{&fileformat}'
           \ . ' ' . "\ue0b3"
           \ . ' %{&filetype}'
-          \ . ' ' . "\ue0b3"
-          \ . ' %P'
-          \ . ' ' . "\ue0b3"
-          \ . ' %l:%c '
+          \ . ' ' . "%#StatusLineIcon#\ue0b2"
+          \ . '%#StatusLinePerc# %P'
+          \ . ' ' . "\ue0b2"
+          \ . '%#StatusLinePos# %l:%c '
   endfunction
 
   " Note: inactive uses StatuslineFileType() with icon; active uses &filetype
