@@ -22,8 +22,8 @@ return {
       ["g\\"] = { "actions.toggle_trash", mode = "n" },
       -- My keybinds
       ["GA"] = { function() require("oil").open(vim.fn.expand("$HOME/src/ansible")) end, desc = "Change to ansible directory" },
-      ["gB"] = { function() require("oil").open(vim.fn.expand("$HOME/.local/bin")) end, desc = "Change to ~/.local/bin" },
-      ["gb"] = { function() require("oil").open(vim.fn.expand("$HOME/src/scripts/bin")) end, desc = "Change to ~/src/scripts/bin" },
+      ["GB"] = { function() require("oil").open(vim.fn.expand("$HOME/.local/bin")) end, desc = "Change to ~/.local/bin" },
+      ["GX"] = { function() require("oil").open(vim.fn.expand("$HOME/src/scripts/bin")) end, desc = "Change to ~/src/scripts/bin" },
       ["gC"] = { function() require("oil").open(vim.fn.expand("$HOME/.config")) end, desc = "Change to HOME .config directory" },
       ["gc"] = { function() require("oil").open(vim.fn.expand("$HOME/.config/DankMaterialShell")) end, desc = "Change to dms config directory" },
       ["gD"] = { desc = "Prompt for directory to change to", function()
