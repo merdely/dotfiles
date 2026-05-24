@@ -7,7 +7,7 @@
 command -v vim > /dev/null 2>&1 || exit 0
 if ! command -v sudo > /dev/null 2>&1 && ! command -v doas > /dev/null 2>&1; then
   echo "Error: Cannot find sudo or doas" >&2
-  exit 1
+  exit 0
 fi
 
 sudo=doas

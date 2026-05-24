@@ -12,7 +12,7 @@ echo "Processing Run Once Before Package Install"
 
 TMPFILES=()
 trap 'rm -Rf -- "${TMPFILES[@]}"' EXIT
-trap 'exit 1' INT TERM
+trap 'exit 0' INT TERM
 
 [ -r /etc/os-release ] && source /etc/os-release
 
@@ -59,7 +59,7 @@ if [[ "$ID" =~ ^(arch|artix|cachyos|garuda|endeavouros|manjaro)$ || " $ID_LIKE "
     ret=$?
     if [ $ret -ne 0 ]; then
       echo "Error: pacman exited with error code $ret" >&2
-      exit 1
+      exit 0
     fi
   fi
 else

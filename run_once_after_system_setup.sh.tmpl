@@ -12,7 +12,7 @@ echo "Processing Run Once After System Setup"
 
 TMPFILES=()
 trap 'rm -Rf -- "${TMPFILES[@]}"' EXIT
-trap 'exit 1' INT TERM
+trap 'exit 0' INT TERM
 
 groups=$(groups $LOGNAME)
 groups=${groups#$LOGNAME : }
@@ -35,7 +35,7 @@ for group in video render input wheel; do
   sudo usermod -aG "$group" "$LOGNAME"
   if [ $? -ne 0 ]; then
     echo "Error: Could not add $LOGNAME to $group" >&2
-    exit 1
+    exit 0
   fi
 done
 
@@ -46,7 +46,7 @@ if { [ ! -e /usr/bin/vi ] || [ -L /usr/bin/vi ]; } && [ -e $HOME/.local/bin/vi ]
   sudo install -o root -g root -m 755 "$HOME"/.local/bin/vi /usr/bin/vi
   if [ $? -ne 0 ]; then
     echo "Error: Could not install vi script to /usr/bin/vi" >&2
-    exit 1
+    exit 0
   fi
 fi
 
