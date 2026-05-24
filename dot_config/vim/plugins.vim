@@ -2,7 +2,7 @@
 " Plugins
 " ===============================
 " Auto-install vim-plug if not present
-let s:plug_path = s:data_dir . '/autoload/plug.vim'
+let s:plug_path = g:vim_data_dir . '/autoload/plug.vim'
 if empty(glob(s:plug_path))
   silent execute '!curl -fsLo ' . s:plug_path . ' --create-dirs
     \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
@@ -10,10 +10,10 @@ if empty(glob(s:plug_path))
 endif
 
 if executable('git')
-  if !isdirectory(s:data_dir . '/plugged')
+  if !isdirectory(g:vim_data_dir . '/plugged')
     autocmd VimEnter * PlugInstall --sync | source $MYVIMRC | doautocmd ColorScheme
   endif
-  call plug#begin(s:data_dir . '/plugged')
+  call plug#begin(g:vim_data_dir . '/plugged')
     Plug 'bluz71/vim-nightfly-colors', { 'as': 'nightfly' }
     Plug 'liuchengxu/vim-which-key'
     Plug 'itchyny/lightline.vim'

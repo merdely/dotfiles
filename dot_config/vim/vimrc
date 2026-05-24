@@ -5,32 +5,31 @@
 " ===============================
 " Paths
 " ===============================
-let s:vimrc_path = expand('<sfile>:p')
 if isdirectory(expand('~/.config/vim'))
-  let s:config_dir = expand('~/.config/vim')
-  let s:data_dir   = expand('~/.local/share/vim')
-  let s:state_dir  = expand('~/.local/state/vim')
-  let s:cache_dir  = expand('~/.cache/vim')
+  let g:vim_config_dir = expand('~/.config/vim')
+  let g:vim_data_dir   = expand('~/.local/share/vim')
+  let g:vim_state_dir  = expand('~/.local/state/vim')
+  let g:vim_cache_dir  = expand('~/.cache/vim')
 elseif isdirectory(expand('~/.vim'))
-  let s:config_dir = expand('~/.vim')
-  let s:data_dir   = expand('~/.vim')
-  let s:state_dir  = expand('~/.vim')
-  let s:cache_dir  = expand('~/.vim')
+  let g:vim_config_dir = expand('~/.vim')
+  let g:vim_data_dir   = expand('~/.vim')
+  let g:vim_state_dir  = expand('~/.vim')
+  let g:vim_cache_dir  = expand('~/.vim')
 else
-  let s:config_dir = ''
-  let s:data_dir   = ''
-  let s:state_dir  = expand('~/.local/state/vim')
-  let s:cache_dir  = expand('~/.cache/vim')
+  let g:vim_config_dir = ''
+  let g:vim_data_dir   = ''
+  let g:vim_state_dir  = expand('~/.local/state/vim')
+  let g:vim_cache_dir  = expand('~/.cache/vim')
 endif
 
 " Define vim directories
-let &directory   = s:cache_dir . '/swapfiles'
-let &backupdir   = s:cache_dir . '/backup'
-let &undodir     = s:state_dir . '/undo'
-let &viminfofile = s:state_dir . '/viminfo'
+let &directory   = g:vim_cache_dir . '/swapfiles'
+let &backupdir   = g:vim_cache_dir . '/backup'
+let &undodir     = g:vim_state_dir . '/undo'
+let &viminfofile = g:vim_state_dir . '/viminfo'
 
 " create directories that do not exist
-for s:dir in [ s:data_dir, s:state_dir, s:cache_dir, &directory, &backupdir, &undodir ]
+for s:dir in [ g:vim_data_dir, g:vim_state_dir, g:vim_cache_dir, &directory, &backupdir, &undodir ]
   if s:dir != '' && !isdirectory(s:dir)
     call mkdir(s:dir, 'p', 0700)
   endif
@@ -41,13 +40,13 @@ let &directory = &directory . '//'
 let &backupdir = &backupdir . '//'
 
 " Runtime paths (works whether vimrc is ~/.vimrc or ~/.config/vim/vimrc)
-let &packpath = s:data_dir . ',' . &packpath
-let &runtimepath = s:config_dir
+let &packpath = g:vim_data_dir . ',' . &packpath
+let &runtimepath = g:vim_config_dir
       \ . ',' . &runtimepath
-      \ . ',' . s:data_dir
-      \ . ',' . s:config_dir . '/after'
-      \ . ',' . s:config_dir . '/ftplugin'
-      \ . ',' . s:config_dir . '/spell'
+      \ . ',' . g:vim_data_dir
+      \ . ',' . g:vim_config_dir . '/after'
+      \ . ',' . g:vim_config_dir . '/ftplugin'
+      \ . ',' . g:vim_config_dir . '/spell'
 
 " ===============================
 " Colorscheme defaults
@@ -70,9 +69,9 @@ autocmd ColorScheme * call s:ApplyHighlights()
 " ===============================
 " Basic Settings
 " ===============================
-if s:config_dir != ''
-  " silent! execute 'source ' . s:config_dir . '/plugins.vim'
-  execute 'source ' . s:config_dir . '/plugins.vim'
+if g:vim_config_dir != ''
+  " silent! execute 'source ' . g:vim_config_dir . '/plugins.vim'
+  execute 'source ' . g:vim_config_dir . '/plugins.vim'
 endif
 
 " ===============================
