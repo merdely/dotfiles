@@ -39,9 +39,19 @@ if [ "$defined_pub_key" != "$system_key" ]; then
   # Download updated pass database
   pass git pull
 
+  updated_key=$(pass show systems/"$hostname"/ssh_host_ed25519_key 2> /dev/null)
+  if [ -z "$update_key" ]; then
+    echo "Could not read ssh key from password store" >&2
+    exit 1
+  fi
+
   echo "Updating system ssh_host_ed25519_key"
-  pass show systems/"$hostname"/ssh_host_ed25519_key | $sudo tee /etc/ssh/ssh_host_ed25519_key > /dev/null
+  echo "$updated_key" | $sudo tee /etc/ssh/ssh_host_ed25519_key > /dev/null
   $sudo chmod 600 /etc/ssh/ssh_host_ed25519_key
-  $sudo systemctl restart sshd
+  if command -v rcctl > /dev/null 2>&1; then
+    $sudo rcctl restart sshd
+  else
+    $sudo systemctl restart sshd
+  fi
 fi
 
