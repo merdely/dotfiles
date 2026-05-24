@@ -512,6 +512,7 @@ augroup netrw_mappings
   " Can't use gb gd gf gF gg gh gn gp
   autocmd FileType netrw nnoremap <buffer> ga    :call NetrwOpenIfExists("$HOME/src/ansible")<CR>
   autocmd FileType netrw nnoremap <buffer> gB    :call NetrwOpenIfExists("$HOME/.local/bin")<CR>
+  autocmd FileType netrw nnoremap <buffer> gC    :call NetrwOpenIfExists("$HOME/src/scripts/bin")<CR>
   autocmd FileType netrw nnoremap <buffer> gc    :call NetrwOpenIfExists("$HOME/.config")<CR>
   autocmd FileType netrw nnoremap <buffer> gd    :call NetrwOpenIfExists("$HOME/Downloads")<CR>
   autocmd FileType netrw nnoremap <buffer> ge    :e /etc<CR>
@@ -531,7 +532,6 @@ augroup netrw_mappings
   autocmd FileType netrw nnoremap <buffer> gv    :call NetrwOpenIfExists("$HOME/.config/vim")<CR>
   autocmd FileType netrw nnoremap <buffer> gw    :call NetrwOpenIfExists("$HOME/Work")<CR>
   autocmd FileType netrw nnoremap <buffer> gX    :call NetrwOpenIfExists("$HOME/.local/share/Syncthing")<CR>
-  autocmd FileType netrw nnoremap <buffer> gx    :call NetrwOpenIfExists("$HOME/src/scripts/bin")<CR>
   autocmd FileType netrw nnoremap <buffer> gy    :call NetrwOpenIfExists("$HOME/.config/yazi")<CR>
   autocmd FileType netrw nnoremap <buffer> gZ    :call NetrwOpenIfExists("%:p:h")<CR>
   autocmd FileType netrw nnoremap <buffer> gz    :e <C-r>=input("cd: ", expand("%:p:h"), "dir")<CR><CR>
