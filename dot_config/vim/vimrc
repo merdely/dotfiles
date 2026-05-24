@@ -139,6 +139,7 @@ set timeoutlen=500                                 " Key timeout duration
 set ttimeoutlen=50                                 " Key code timeout
 set autoread                                       " Auto reload files changed outside vim
 set noautowrite                                    " Don't auto save
+let g:netrw_banner = 1                             " Handle showing netrw banner
 
 " Behavior
 set hidden                                         " Allow hidden buffers
