@@ -881,6 +881,19 @@ vim.api.nvim_create_autocmd("VimEnter", {
         return modes[mode] or (" \u{f059} " .. mode)
       end
 
+      _G.statusline_percent = function()
+        if vim.fn.line('w0') == 1 and vim.fn.line('w$') == vim.fn.line('$') then
+          return vim.fn.line('$') .. 'L'
+        end
+        local percent = math.floor(vim.fn.line('.') * 100 / vim.fn.line('$'))
+        if vim.fn.line('w0') == 1 then
+          return 'Top'
+        elseif vim.fn.line('w$') == vim.fn.line('$') then
+          return 'Bot'
+        end
+        return percent .. '%'
+      end
+
       _G.mode_icon = mode_icon
       _G.git_branch = git_branch
       _G.file_type = file_type
@@ -906,7 +919,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
               " \u{e0b3}", -- right divider
               " %{&filetype}",
               " %#StatusLineIcon#\u{e0b2}", -- right divider
-              "%#StatusLinePerc# %P",       -- percentage through file
+              "%#StatusLinePerc# %{v:lua.statusline_percent()}", -- percentage through file
               " \u{e0b2}", -- right divider
               "%#StatusLinePos# %l:%c ",   -- line:col
             })
