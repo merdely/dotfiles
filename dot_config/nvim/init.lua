@@ -111,6 +111,7 @@ vim.opt.timeoutlen = 500                           -- Key timeout duration
 vim.opt.ttimeoutlen = 50                           -- Key code timeout
 vim.opt.autoread = true                            -- Auto reload files changed outside vim
 vim.opt.autowrite = false                          -- Don't auto save
+vim.g.netrw_banner = 1                             -- Handle showing netrw banner
 
 -- Behavior settings
 vim.opt.hidden = true                              -- Allow hidden buffers
@@ -503,6 +504,56 @@ if package.loaded["oil"] then
     end,
   })
 end
+
+-- Netrw Key Bindings
+local function netrw_open_if_exists(path)
+  local expanded = vim.fn.expand(path)
+  if vim.fn.isdirectory(expanded) == 1 or vim.fn.filereadable(expanded) == 1 then
+    vim.cmd('e ' .. expanded)
+    vim.notify("Working directory: " .. expanded)
+  else
+    vim.notify(expanded .. " does not exist")
+  end
+end
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "netrw",
+  callback = function()
+    local map = function(key, path)
+      vim.keymap.set('n', key, function() netrw_open_if_exists(path) end, { buffer = true })
+    end
+
+    vim.keymap.set('n', '<Esc>', ':bd<CR>',  { buffer = true })
+    vim.keymap.set('n', 'GD', function()
+      local input = vim.fn.input("cd: ", vim.fn.expand("%:p:h"), "dir")
+      if input ~= '' then vim.cmd('e ' .. input) end
+    end, { buffer = true })
+
+    map('GA', '$HOME/src/ansible')
+    map('GB', '$HOME/.local/bin')
+    map('Gb', '$HOME/src/scripts/bin')
+    map('GC', '$HOME/.config')
+    map('Gd', '$HOME/Downloads')
+    map('GE', '/etc')
+    map('GF', '%:p:h')
+    map('GG', '$HOME/git')
+    map('GH', '$HOME')
+    map('GL', '$HOME/.local')
+    map('Gl', '$HOME/.local/share/Syncthing/Logseq/Mike\'s Notes')
+    map('GM', '$HOME/.config/nvim')
+    map('Gm', '$HOME/.config/DankMaterialShell')
+    map('GN', '$HOME/.config/niri')
+    map('GP', '$HOME/.config/nvim/lua/plugins')
+    map('GR', '/srv/scripts')
+    map('Gr', '/srv/docker')
+    map('GS', '$HOME/src')
+    map('Gs', '$HOME/src/scripts')
+    map('GT', '/run/user/' .. os.getenv('EUID') .. '/tmp')
+    map('GV', '$HOME/.config/vim')
+    map('GW', '$HOME/Work')
+    map('GX', '$HOME/.local/share/Syncthing')
+    map('GY', '$HOME/.config/yazi')
+  end
+})
 
 -- ============================================================================
 -- FLOATING TERMINAL
