@@ -155,8 +155,6 @@ set -o vi
 
 [[ -e "$HOME"/.profile.local ]] && . "$HOME"/.profile.local
 
-echo hi
-
 # Enable BLE
 [ -z "${BLE_VERSION-}" ] || ble-attach
 true
