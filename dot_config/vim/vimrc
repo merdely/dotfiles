@@ -514,7 +514,7 @@ augroup netrw_mappings
   autocmd FileType netrw nnoremap <buffer> GS    :execute 'e ' . expand("$HOME/src")<CR>
   autocmd FileType netrw nnoremap <buffer> Gs    :execute 'e ' . expand("$HOME/src/scripts")<CR>
   autocmd FileType netrw nnoremap <buffer> GT    :execute 'e ' . expand("/run/user/$EUID/tmp")<CR>
-  autocmd FileType netrw nnoremap <buffer> GV    :execute 'e ' . expand("$HOME/.config/vim/")<CR>
+  autocmd FileType netrw nnoremap <buffer> GV    :execute 'e ' . expand("$HOME/.config/vim")<CR>
   autocmd FileType netrw nnoremap <buffer> GW    :execute 'e ' . expand("$HOME/Work")<CR>
   autocmd FileType netrw nnoremap <buffer> GX    :execute 'e ' . expand("$HOME/.local/share/Syncthing")<CR>
   autocmd FileType netrw nnoremap <buffer> GY    :execute 'e ' . expand("$HOME/.config/yazi")<CR>
