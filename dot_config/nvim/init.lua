@@ -886,7 +886,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
       _G.file_type = file_type
       -- _G.file_size = file_size
       _G.has_git_branch = function()
-        return vim.g.cached_branch ~= '' and '\ue0b0' or ''
+        return vim.g.cached_branch ~= '' and '\u{e0b0}' or ''
       end
 
       -- Function to change statusline based on window focus
