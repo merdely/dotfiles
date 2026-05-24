@@ -16,33 +16,39 @@ if [[ -n "$SUDO_USER" ]] && [[ "$(ps -o comm= -p $PPID)" == "sudo" ]]; then
   echo "Use sudoedit" >&2
   exit 1
 else
-  args=("$@")
+  flags=()
+  editor_files=()
+  chezmoi_files=()
+  past_flags=false
   if command -v chezmoi > /dev/null 2>&1 && [[ -d "$HOME"/.local/share/chezmoi ]]; then
-    args=()
-    chezmoi=()
-    editor=()
     mapfile -t chezmoi_managed < <(chezmoi managed -p absolute)
 
     # Look for chezmoi managed files and edit them with chezmoi edit instead of vi
     for arg in "$@"; do
-      if [[ " ${chezmoi_managed[*]} " == *" $(realpath "$arg" 2> /dev/null) "* ]]; then
-        chezmoi+=("$arg")
-      elif echo "$arg" | grep -qEw -- "^-(o|O)"; then
-        args+=("$arg")
+      if [[ "$arg" == "--" ]]; then
+        past_flags=true; flags+=("$arg")
+      elif ! $past_flags && [[ "$arg" =~ ^[+\-] ]]; then
+        flags+=("$arg")
+      elif [[ " ${chezmoi_managed[*]} " == *" $(realpath "$arg" 2> /dev/null) "* ]]; then
+        chezmoi_files+=("$arg")
       else
-        editor+=("$arg")
+        editor_files+=("$arg")
       fi
     done
+  else
+    exec "$EDITOR" "$@"
+  fi
 
-    if (( ${#chezmoi[@]} > 0 )); then
-      echo "Using 'chezmoi edit' for: ${chezmoi[@]}"
-      chezmoi_editor=("$EDITOR" "${args[@]}")
-      EDITOR="${chezmoi_editor[@]}" chezmoi edit "${chezmoi[@]}"
-    fi
+  if (( ${#chezmoi_files[@]} > 0 )); then
+    echo "Using 'chezmoi edit' for: ${chezmoi_files[@]}"
+    chezmoi_editor=("$EDITOR" "${flags[@]}")
+    EDITOR="${chezmoi_editor[@]}" chezmoi edit "${chezmoi_files[@]}"
   fi
 
   # Edit any other files with nvim or vim
-  if (( ${#editor[@]} > 0 )); then
-    exec "$EDITOR" "${args[@]}" "${editor[@]}"
+  if (( ${#editor_files[@]} > 0 )); then
+    exec "$EDITOR" "${flags[@]}" "${editor_files[@]}"
+  elif (( ${#chezmoi_files[@]} == 0 )); then
+    exec "$EDITOR" "${flags[@]}"
   fi
 fi
