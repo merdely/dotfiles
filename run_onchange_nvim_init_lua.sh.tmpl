@@ -18,5 +18,9 @@ sudo mkdir -p /etc/xdg/nvim
 if [ ! -e /etc/xdg/nvim/init.lua ] || \
      ! cmp -s "$HOME"/.config/nvim/init.lua /etc/xdg/nvim/init.lua; then
   echo "Installing nvim init.lua to /etc/xdg/nvim"
-  sudo install -m 644 -o root -g "$(id -gn root)" "$HOME"/.config/nvim/init.lua /etc/xdg/nvim
+  if command -v sudo > /dev/null 2>&1; then
+    sudo install -m 644 -o root -g "$(id -gn root)" "$HOME"/.config/nvim/init.lua /etc/xdg/nvim
+  else
+    doas install -m 644 -o root -g "$(id -gn root)" "$HOME"/.config/nvim/init.lua /etc/xdg/nvim
+  fi
 fi

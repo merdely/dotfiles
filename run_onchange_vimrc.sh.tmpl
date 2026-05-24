@@ -32,6 +32,10 @@ fi
 if [ ! -e "$vimrc".local ] || \
      ! cmp -s "$HOME"/.config/vim/vimrc "$vimrc".local; then
   echo "Installing vimrc to $vimrc.local"
-  sudo install -m 644 -o root -g "$(id -gn root)" "$HOME"/.config/vim/vimrc "$vimrc".local
+  if command -v sudo > /dev/null 2>&1; then
+    sudo install -m 644 -o root -g "$(id -gn root)" "$HOME"/.config/vim/vimrc "$vimrc".local
+  else
+    doas install -m 644 -o root -g "$(id -gn root)" "$HOME"/.config/vim/vimrc "$vimrc".local
+  fi
 fi
 
