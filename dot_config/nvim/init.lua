@@ -1,7 +1,7 @@
 -- ================================================================================================
 -- title : Basic Neovim config
 -- author: Michael Erdely
--- inpsiration: https://github.com/radleylewis/nvim-lite
+-- inspiration: https://github.com/radleylewis/nvim-lite
 -- ================================================================================================
 
 -- ============================================================================
@@ -33,7 +33,7 @@ vim.opt.breakindent = true                         -- Show wrapped lines indente
 vim.opt.ignorecase = true                          -- Case insensitive search
 vim.opt.smartcase = true                           -- Case sensitive if uppercase in search
 vim.opt.hlsearch = true                            -- Search results highlighting
-vim.opt.incsearch = true                           -- Show matches as you type
+vim.opt.incsearch = true                           -- Show matches while typing
 
 -- Theme (Can be overridden by plugins)
 vim.opt.termguicolors = true                       -- Enable 24-bit colors
@@ -98,8 +98,8 @@ vim.opt.errorbells = false                         -- No error bells
 vim.opt.backspace = "indent,eol,start"             -- Better backspace behavior
 vim.opt.autochdir = false                          -- Don't auto change directory
 -- vim.opt.iskeyword:append("-")                      -- Treat dash as part of word
-vim.opt.path:append("**")                          -- include subdirectories in search
-vim.opt.selection = "inclusive"                    -- include last char in selection
+vim.opt.path:append("**")                          -- Include subdirectories in search
+vim.opt.selection = "inclusive"                    -- Include last char in selection
 vim.opt.mouse = "a"                                -- Enable mouse support
 vim.opt.clipboard:append("unnamedplus")            -- Use system clipboard
 vim.opt.modifiable = true                          -- Allow buffer modifications
@@ -114,20 +114,20 @@ vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"  -- Use treesitter for fold
 vim.opt.foldlevel = 99                                -- Start with all folds open
 
 -- Split behavior
-vim.opt.splitbelow = true                          -- Horizontal splits go below
-vim.opt.splitright = true                          -- Vertical splits go right
+vim.opt.splitbelow = true                          -- Horizontal split creation position
+vim.opt.splitright = true                          -- Vertical split creation position
 
 -- Command-line completion
-vim.opt.wildmenu = true
-vim.opt.wildmode = "longest:full,full"
-vim.opt.wildignore:append({ "*.o", "*.obj", "*.pyc", "*.class", "*.jar" })
+vim.opt.wildmenu = true                            -- Enhanced command-line completion
+vim.opt.wildmode = "longest:full,full"             -- Completion mode for wildchar
+vim.opt.wildignore:append({ "*.o", "*.obj", "*.pyc", "*.class", "*.jar" }) -- Ignore patterns when expanding wildcards
 
 -- Better diff options
 vim.opt.diffopt:append("linematch:60")
 
 -- Performance improvements
-vim.opt.redrawtime = 10000
-vim.opt.maxmempattern = 20000
+vim.opt.redrawtime = 10000                         -- Time (ms) for redrawing display
+vim.opt.maxmempattern = 20000                      -- Max memory (Kb) for pattern matching
 
 -- Create undo directory if it doesn't exist
 if vim.fn.isdirectory(undodir) == 0 then
@@ -135,11 +135,12 @@ if vim.fn.isdirectory(undodir) == 0 then
 end
 
 -- ============================================================================
--- SETUP lazy.nvim
+-- Load Plugins
 -- ============================================================================
 -- Leader must be set here for plugins to be able to use it
-vim.g.mapleader      = " "                         -- Set leader key to space
+vim.g.mapleader      = " "                         -- Set leader key
 vim.g.maplocalleader = ","                         -- Set local leader key
+-- Load plugins (fail silently)
 pcall(require, "lazy_setup")
 
 -- ============================================================================
@@ -152,7 +153,6 @@ vim.api.nvim_set_hl(0, "EndOfBuffer", { bg = "none" })
 -- ============================================================================
 -- KEY MAPPINGS
 -- ============================================================================
-
 -- better movement in wrapped text
 vim.keymap.set("n", "j", function()
   return vim.v.count == 0 and "gj" or "j"
@@ -161,7 +161,7 @@ vim.keymap.set("n", "k", function()
   return vim.v.count == 0 and "gk" or "k"
 end, { expr = true, silent = true, desc = "Up (wrap-aware)" })
 
--- Normal mode mappings
+-- Clear highlighted search terms
 vim.keymap.set("n", "<leader>c", ":nohlsearch<CR>", { desc = "Clear search highlights" })
 
 -- Only show one buffer
@@ -179,28 +179,6 @@ vim.keymap.set('n', '<leader>z', function()
     zoomed = true
   end
 end)
-
--- Writing and quitting
-vim.keymap.set('n', '<leader>w', '<Cmd>update<CR>', { desc = 'Write the current buffer' })
-vim.keymap.set('n', '<leader>q', '<Cmd>:quit<CR>', { desc = 'Quit the current buffer' })
-vim.keymap.set('n', '<leader>Q', '<Cmd>:wqa<CR>', { desc = 'Quit all buffers and write' })
-
--- Open netrw
--- vim.g.netrw_banner = 0 -- Hide the Netrw banner on top
--- vim.g.netrw_altv = 1 -- Create the split of the Netrw window to the left
--- vim.g.netrw_browse_split = 4 -- Open files in previous window. This emulates the typical "drawer" behavior
--- vim.g.netrw_liststyle = 4 -- Set the styling of the file list to be one column with files inside
--- vim.g.netrw_winsize = 14 -- Set the width of the "drawer"
-if vim.fn.maparg('-', 'n') == '' then
-  vim.keymap.set('n', '<leader>e', vim.cmd.Explore, { desc = 'Open netrw Explorer' })
-  vim.keymap.set('n', '-',         vim.cmd.Explore, { desc = 'Open netrw Explorer' })
-  vim.api.nvim_create_autocmd('FileType', {
-    pattern = 'netrw',
-    callback = function(ev)
-      vim.keymap.set('n', '<Escape>', '<C-^>', { buffer = ev.buf })
-    end,
-  })
-end
 
 -- Yank to EOL
 vim.keymap.set("n", "Y", "y$", { desc = "Yank to end of line" })
@@ -234,6 +212,28 @@ vim.keymap.set('n', '<leader>sn', function()
   if vim.fn.col('.') == vim.fn.col('$') - 1 then return end
   vim.cmd('normal! "zx"zph')
 end, { desc = 'Swap char with next char' })
+
+-- Open netrw
+-- vim.g.netrw_banner = 0 -- Hide the Netrw banner on top
+-- vim.g.netrw_altv = 1 -- Create the split of the Netrw window to the left
+-- vim.g.netrw_browse_split = 4 -- Open files in previous window. This emulates the typical "drawer" behavior
+-- vim.g.netrw_liststyle = 4 -- Set the styling of the file list to be one column with files inside
+-- vim.g.netrw_winsize = 14 -- Set the width of the "drawer"
+if vim.fn.maparg('-', 'n') == '' then
+  vim.keymap.set('n', '<leader>e', vim.cmd.Explore, { desc = 'Open netrw Explorer' })
+  vim.keymap.set('n', '-',         vim.cmd.Explore, { desc = 'Open netrw Explorer' })
+  vim.api.nvim_create_autocmd('FileType', {
+    pattern = 'netrw',
+    callback = function(ev)
+      vim.keymap.set('n', '<Escape>', '<C-^>', { buffer = ev.buf })
+    end,
+  })
+end
+
+-- Writing and quitting
+vim.keymap.set('n', '<leader>w', '<Cmd>update<CR>', { desc = 'Write the current buffer' })
+vim.keymap.set('n', '<leader>q', '<Cmd>:quit<CR>', { desc = 'Quit the current buffer' })
+vim.keymap.set('n', '<leader>Q', '<Cmd>:wqa<CR>', { desc = 'Quit all buffers and write' })
 
 -- Navigate buffers
 vim.keymap.set('n', '<leader>;', "<Cmd>e #<CR>", { desc = 'Switch to previous buffer' })
@@ -431,7 +431,7 @@ vim.api.nvim_create_autocmd("BufReadPost", {
       pcall(vim.api.nvim_win_set_cursor, 0, mark)
     end
   end,
-})
+}
 
 -- Set filetype-specific settings
 vim.api.nvim_create_autocmd("FileType", {
@@ -599,7 +599,7 @@ end, { noremap = true, silent = true, desc = "Close floating terminal from termi
 -- ============================================================================
 -- TABS
 -- ============================================================================
-vim.opt.showtabline = 1  -- Always show tabline (0=never, 1=when multiple tabs, 2=always)
+vim.opt.showtabline = 1  -- Show tabline (0=never, 1=multiple tabs, 2=always)
 vim.opt.tabline = ''     -- Use default tabline (empty string uses built-in)
 
 -- Transparent tabline appearance
