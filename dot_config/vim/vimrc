@@ -503,7 +503,7 @@ augroup netrw_mappings
   autocmd FileType netrw nnoremap <buffer> GG    :execute 'e ' . expand("$HOME/git")<CR>
   autocmd FileType netrw nnoremap <buffer> GH    :execute 'e ' . expand("$HOME")<CR>
   autocmd FileType netrw nnoremap <buffer> GL    :execute 'e ' . expand("$HOME/.local")<CR>
-  autocmd FileType netrw nnoremap <buffer> Gl    :execute 'e ' . expand("$HOME/.local/share/Syncthing/Mike\\'s\\ Notes")<CR>
+  autocmd FileType netrw nnoremap <buffer> Gl    :execute 'e ' . expand("$HOME/.local/share/Syncthing/Logseq/Mike\\'s\\ Notes")<CR>
   autocmd FileType netrw nnoremap <buffer> GM    :execute 'e ' . expand("$HOME/.config/nvim")<CR>
   autocmd FileType netrw nnoremap <buffer> Gm    :execute 'e ' . expand("$HOME/.config/DankMaterialShell")<CR>
   autocmd FileType netrw nnoremap <buffer> GN    :execute 'e ' . expand("$HOME/.config/niri")<CR>
