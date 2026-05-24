@@ -882,16 +882,15 @@ vim.api.nvim_create_autocmd("VimEnter", {
       end
 
       _G.statusline_percent = function()
-        if vim.fn.line('w0') == 1 and vim.fn.line('w$') == vim.fn.line('$') then
-          return vim.fn.line('$') .. 'L'
-        end
-        local percent = math.floor(vim.fn.line('.') * 100 / vim.fn.line('$'))
-        if vim.fn.line('w0') == 1 then
+        local current = vim.fn.line('.')
+        local total   = vim.fn.line('$')
+        if current == 1 then
           return 'Top'
-        elseif vim.fn.line('w$') == vim.fn.line('$') then
+        elseif current == total then
           return 'Bot'
+        else
+          return math.floor(current * 100 / total) .. '%'
         end
-        return percent .. '%'
       end
 
       _G.mode_icon = mode_icon

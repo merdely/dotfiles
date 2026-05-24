@@ -706,10 +706,13 @@ if !s:has_statusline_plugin
   endfunction
 
   function! StatuslinePercent() abort
-    if line('w0') == 1 && line('w$') == line('$')
-      return line('$') . 'L'
+    if line('.') == 1
+      return 'Top'
+    elseif line('.') == line('$')
+      return 'Bot'
+    else
+      return (line('.') * 100 / line('$')) . '%'
     endif
-    return '%P'
   endfunction
 
   " Mode indicator
