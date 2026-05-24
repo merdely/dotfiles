@@ -494,6 +494,9 @@ function! NetrwOpenIfExists(path) abort
   let l:path = expand(a:path)
   if isdirectory(l:path) || filereadable(l:path)
     execute 'e ' . l:path
+    echo "Working directory: " . l:path
+  else
+    echo l:path . " does not exist"
   endif
 endfunction
 augroup netrw_mappings
