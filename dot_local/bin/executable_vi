@@ -35,14 +35,52 @@ else
         editor_files+=("$arg")
       fi
     done
+    find_exec_dir() {
+      local candidates=(
+        "${XDG_RUNTIME_DIR:-}"
+        "${XDG_CACHE_HOME:-$HOME/.cache}"
+        "$HOME/.local/run"
+        /tmp
+        /var/tmp
+        /dev/shm
+      )
+
+      for dir in "${candidates[@]}"; do
+        [[ -z "$dir" ]] && continue
+        mkdir -p "$dir" 2>/dev/null || continue
+
+        # Actually try to execute a file - the only reliable noexec test
+        local probe
+        probe=$(mktemp "$dir/probe.XXXXXX") || continue
+        printf '#!/bin/sh\n' > "$probe"
+        chmod +x "$probe"
+        if "$probe" 2>/dev/null; then
+          rm -f "$probe"
+          printf '%s' "$dir"
+          return 0
+        fi
+        rm -f "$probe"
+      done
+
+      return 1
+    }
+    exec_dir=$(find_exec_dir)
+    if [[ -n "$exec_dir" ]]; then
+      chezmoi_editor=$(mktemp "$exec_dir/editor.XXXXXXXXX.sh")
+    else
+      chezmoi_editor=("$EDITOR" "${flags[@]}")
+    fi
   else
     exec "$EDITOR" "$@"
   fi
 
   if (( ${#chezmoi_files[@]} > 0 )); then
     echo "Using 'chezmoi edit' for: ${chezmoi_files[@]}"
-    chezmoi_editor=("$EDITOR" "${flags[@]}")
-    EDITOR="${chezmoi_editor[@]}" chezmoi edit "${chezmoi_files[@]}"
+    script_dir==${XDG_CACHE_HOME:-$HOME/.cache}
+    mkdir -p "$script_dir" > /dev/null 2>&1
+    while [ ! -d "$script_dir" ]; do
+
+    EDITOR="$chezmoi_editor" chezmoi edit "${chezmoi_files[@]}"
   fi
 
   # Edit any other files with nvim or vim
