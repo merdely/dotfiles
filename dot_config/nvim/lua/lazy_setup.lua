@@ -5,8 +5,8 @@ require("lazy").setup({
   },
   install = { colorscheme = { "nightfly" } },
   change_detection = {
-    enabled = false,
-    notify = false, -- get a notification when changes are found
+    enabled = true,
+    notify  = true, -- get a notification when changes are found
   },
 })
 
