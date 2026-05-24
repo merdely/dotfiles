@@ -33,14 +33,20 @@ local function apply_highlights()
   vim.api.nvim_set_hl(0, "CursorLineSign", hl)                                -- Match CursorLine
   vim.api.nvim_set_hl(0, "CursorLineNr", hl)                                  -- Match CursorLine
   vim.api.nvim_set_hl(0, "StatusLine",     { fg = "#c0c0d0", ctermbg = "NONE", bg = "#081e2f" })
-  vim.api.nvim_set_hl(0, "StatusLineBold", { bold = true })
 
-  -- Transparency
+  -- Status Line styles
+  vim.api.nvim_set_hl(0, "StatusLineMode", { bold = true,  fg = "#2c3043", bg = "#82aaff" })
+  vim.api.nvim_set_hl(0, "StatusLineGit",  { bold = false, fg = "#82aaff", bg = "#2c3043" })
+  vim.api.nvim_set_hl(0, "StatusLineIcon", { bold = false, fg = "#2c3043", bg = "#081e2f" })
+  vim.api.nvim_set_hl(0, "StatusLinePerc", { bold = false, fg = "#82aaff", bg = "#2c3043" })
+  vim.api.nvim_set_hl(0, "StatusLinePos",  { bold = false, fg = "#2c3043", bg = "#82aaff" })
+
+  -- Never have a background color
   vim.api.nvim_set_hl(0, "Normal",      { bg = "none" })
   vim.api.nvim_set_hl(0, "NormalNC",    { bg = "none" })
   vim.api.nvim_set_hl(0, "EndOfBuffer", { bg = "none" })
   --
-  -- Define highlight groups for transparency
+  -- Setup transparency for floating terminal
   vim.api.nvim_set_hl(0, "FloatingTermNormal", { bg = "none" })
   vim.api.nvim_set_hl(0, "FloatingTermBorder", { bg = "none" })
 end
@@ -768,19 +774,25 @@ vim.api.nvim_create_autocmd("VimEnter", {
     if not has_statusline_plugin then
       -- Git branch function with caching and Nerd Font icon
       -- [FIXED]: vim.loop is deprecated since Neovim 0.10; use vim.uv
-      local cached_branch = ""
-      local last_check = 0
+      vim.g.cached_branch = ""
+      local branch_cache = {}
+      local last_check = {}
+
       local function git_branch()
-        local now = vim.uv.now()
-        if now - last_check > 5000 then -- Check every 5 seconds
-          cached_branch = vim.fn.system("git branch --show-current 2>/dev/null | tr -d '\n'")
-          last_check = now
+        local dir = vim.fn.expand('%:p:h')
+        local now = os.time()
+        if not last_check[dir] or now - last_check[dir] > 5 then
+          local result = vim.fn.system('git -C ' .. vim.fn.shellescape(dir) .. " branch --show-current 2>/dev/null | tr -d '\n'")
+          branch_cache[dir] = result
+          last_check[dir]   = now
         end
-        if cached_branch ~= "" then
-          return " \u{e725} " .. cached_branch .. " \u{e0b1}" -- nf-dev-git_branch
+        vim.g.cached_branch = branch_cache[dir]
+        if vim.g.cached_branch ~= '' then
+          return ' \u{e725} ' .. vim.g.cached_branch .. ' '
         end
-        return ""
+        return ''
       end
+      _G.git_branch = git_branch
 
       -- File type with Nerd Font icon
       local function file_type()
