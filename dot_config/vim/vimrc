@@ -196,10 +196,10 @@ set maxmempattern=20000                            " Max memory (Kb) for pattern
 " Leader must be set here for plugins to be able to use it
 let mapleader      = " "                           " Set leader key
 let maplocalleader = ","                           " Set local leader key
+
 " Load plugins if g:vim_config_dir is defined
-if g:vim_config_dir != ''
-  " silent! execute 'source ' . g:vim_config_dir . '/plugins.vim'
-  execute 'source ' . g:vim_config_dir . '/plugins.vim'
+if filereadable(g:vim_config_dir . '/plugins.vim')
+  silent! execute 'source ' . g:vim_config_dir . '/plugins.vim'
 endif
 
 " ===============================
