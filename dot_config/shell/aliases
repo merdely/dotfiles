@@ -23,6 +23,9 @@ fi
 [ -d /opt/splunk -o -d /opt/splunkforwarder ] && alias susplunk='sudo su -l splunk'
 [ -d /etc/acme ]  && alias suacme='sudo su /bin/bash -l acme'
 cmdcheck chezmoi    && alias cm=chezmoi
+cmdcheck chezmoi    && alias cA='chezmoi apply'
+cmdcheck chezmoi    && alias cI='chezmoi init'
+cmdcheck chezmoi    && alias cU='chezmoi init'
 cmdcheck python2    && alias python=python2
 cmdcheck python3    && alias python=python3
 cmdcheck rsync      && alias dos_rsync='rsync -rtcvP'
