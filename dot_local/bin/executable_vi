@@ -61,7 +61,7 @@ else
         "$(printf '%q ' "$EDITOR" "${flags[@]}")" > "$chezmoi_editor"
       chmod +x "$chezmoi_editor"
     else
-      chezmoi_editor=("$EDITOR" "${flags[@]}")
+      chezmoi_editor="$EDITOR ${flags[*]}"
     fi
   else
     exec "$EDITOR" "$@"
