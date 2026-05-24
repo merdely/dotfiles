@@ -5,7 +5,7 @@
 " ================================================================================================
 
 " ===============================
-" Paths
+" PATHS
 " ===============================
 if isdirectory(expand('~/.config/vim'))
   let g:vim_config_dir = expand('~/.config/vim')
@@ -51,8 +51,11 @@ let &runtimepath = g:vim_config_dir
       \ . ',' . g:vim_config_dir . '/spell'
 
 " ===============================
-" Colorscheme defaults
+" COLORSCHEME DEFAULTS
 " ===============================
+" Highlight customizations moved into a ColorScheme autocmd so they persist
+" when a plugin colorscheme (e.g. catppuccin) loads and re-fires the event,
+" instead of being silently clobbered at startup.
 function! s:ApplyHighlights() abort
   highlight CursorLine     cterm=NONE term=NONE gui=NONE ctermbg=1  guibg=#081e2f
   highlight ColorColumn    ctermbg=1  guibg=#182e3f
@@ -63,6 +66,10 @@ function! s:ApplyHighlights() abort
   highlight StatusLineBold gui=bold   cterm=bold guifg=#c0c0d0 ctermfg=250 guibg=#081e2f ctermbg=17
   highlight StatusLineNC   gui=NONE   cterm=NONE guifg=#606070 ctermfg=242 guibg=#081e2f ctermbg=17
   highlight HighlightedyankRegion guifg=#011627 guibg=#ffcb8b
+
+  highlight Normal         ctermbg=NONE
+  highlight NormalNC       ctermbg=NONE
+  highlight EndOfBuffer    ctermbg=NONE
 endfunction
 
 call s:ApplyHighlights()
@@ -88,21 +95,23 @@ set smartindent                                    " Smart auto-indenting
 set autoindent                                     " Copy indent from current line
 set breakindent                                    " Show wrapped lines indented
 
-" Search
+" Search settings
 set ignorecase                                     " Case insensitive search
 set smartcase                                      " Case sensitive if uppercase in search
 set hlsearch                                       " Search results highlighting
 set incsearch                                      " Show matches while typing
 
-" Visuals
-syntax enable
+" Theme (Can be overridden by plugins)
 if exists('+termguicolors')
   let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"           " Set terminal escape sequences for showing true color
   let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"           " Set terminal escape sequences for showing true color
   set termguicolors                                " Enable 24-bit colors
 endif
 set background=dark                                " Change colorscheme to handle dark background
+colorscheme vim                                    " Load colorscheme: good ones are torte, elflord, wildcharm, vim, catppuccin
 
+" Visual settings
+syntax enable
 set signcolumn=yes                                 " Always show sign column
 set colorcolumn=80                                 " Column number where to show color column
 set list                                           " Show list characters
@@ -160,8 +169,7 @@ else
 endif
 
 " Folding settings
-set foldmethod=expr                                " Use expression for folding
-" set foldexpr=nvim_treesitter#foldexpr()            " Use treesitter for folding
+set foldmethod=syntax                              " Fold method
 set foldlevel=99                                   " Start with all folds open
 
 " Split behavior

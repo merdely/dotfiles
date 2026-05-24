@@ -10,6 +10,44 @@
 pcall(require, "lazy_bootstrap")
 
 -- ============================================================================
+-- PATHS
+-- ============================================================================
+local undodir = vim.fn.expand("~/.local/state/nvim/undodir")  -- define undodir
+vim.opt.undodir = undodir                          -- Undo directory
+-- Create undo directory if it doesn't exist
+if vim.fn.isdirectory(undodir) == 0 then
+  vim.fn.mkdir(undodir, "p")
+end
+
+-- ============================================================================
+-- COLORSCHEME DEFAULTS
+-- ============================================================================
+-- Highlight customizations moved into a ColorScheme autocmd so they persist
+-- when a plugin colorscheme (e.g. catppuccin) loads and re-fires the event,
+-- instead of being silently clobbered at startup.
+local function apply_highlights()
+  vim.api.nvim_set_hl(0, "SignColumn",  { bg = "NONE", ctermbg = "NONE" })    -- Adjust the background to be transparent
+  vim.api.nvim_set_hl(0, "ColorColumn", { ctermbg = "NONE", bg = "#182e3f" }) -- Adjust the color column to be blue
+  vim.api.nvim_set_hl(0, "CursorLine", { ctermbg = "NONE", bg = "#081e2f" })  -- Adjust the cursor line to be a slightly lighter blue
+  local hl = vim.api.nvim_get_hl(0, { name = "CursorLine", link = false })    -- Copy CursorLine settings
+  vim.api.nvim_set_hl(0, "CursorLineSign", hl)                                -- Match CursorLine
+  vim.api.nvim_set_hl(0, "CursorLineNr", hl)                                  -- Match CursorLine
+  vim.api.nvim_set_hl(0, "StatusLine", { fg = "#c0c0d0", ctermbg = "NONE", bg = "#081e2f" })
+  vim.api.nvim_set_hl(0, "StatusLineBold", { bold = true })
+
+  -- Transparency
+  vim.api.nvim_set_hl(0, "Normal",      { bg = "none" })
+  vim.api.nvim_set_hl(0, "NormalNC",    { bg = "none" })
+  vim.api.nvim_set_hl(0, "EndOfBuffer", { bg = "none" })
+  --
+  -- Define highlight groups for transparency
+  vim.api.nvim_set_hl(0, "FloatingTermNormal", { bg = "none" })
+  vim.api.nvim_set_hl(0, "FloatingTermBorder", { bg = "none" })
+end
+apply_highlights()
+vim.api.nvim_create_autocmd("ColorScheme", { callback = apply_highlights, })
+
+-- ============================================================================
 -- OPTIONS
 -- ============================================================================
 -- Basic settings
@@ -40,22 +78,6 @@ vim.opt.termguicolors = true                       -- Enable 24-bit colors
 vim.opt.background = "dark"                        -- Change colorscheme to handle dark background
 vim.cmd.colorscheme('vim')                         -- Load colorscheme: good ones are torte, elflord, wildcharm, vim, catppuccin
 
--- Highlight customizations moved into a ColorScheme autocmd so they persist
--- when a plugin colorscheme (e.g. catppuccin) loads and re-fires the event,
--- instead of being silently clobbered at startup.
-local function apply_highlights()
-  vim.api.nvim_set_hl(0, "SignColumn",  { bg = "NONE", ctermbg = "NONE" })    -- Adjust the background to be transparent
-  vim.api.nvim_set_hl(0, "ColorColumn", { ctermbg = "NONE", bg = "#182e3f" }) -- Adjust the color column to be blue
-  vim.api.nvim_set_hl(0, "CursorLine", { ctermbg = "NONE", bg = "#081e2f" })  -- Adjust the cursor line to be a slightly lighter blue
-  local hl = vim.api.nvim_get_hl(0, { name = "CursorLine", link = false })    -- Copy CursorLine settings
-  vim.api.nvim_set_hl(0, "CursorLineSign", hl)                                -- Match CursorLine
-  vim.api.nvim_set_hl(0, "CursorLineNr", hl)                                  -- Match CursorLine
-  vim.api.nvim_set_hl(0, "StatusLine", { fg = "#c0c0d0", ctermbg = "NONE", bg = "#081e2f" })
-  vim.api.nvim_set_hl(0, "StatusLineBold", { bold = true })
-end
-apply_highlights()
-vim.api.nvim_create_autocmd("ColorScheme", { callback = apply_highlights, })
-
 -- Visual settings
 vim.opt.signcolumn = "yes"                         -- Always show sign column
 vim.opt.colorcolumn = "80"                         -- Column number where to show color column
@@ -80,8 +102,6 @@ vim.opt.concealcursor = ""                         -- Don't hide cursor line mar
 vim.opt.synmaxcol = 300                            -- Syntax highlighting limit
 
 -- File handling
-local undodir = vim.fn.expand("~/.local/state/nvim/undodir")  -- define undodir
-vim.opt.undodir = undodir                          -- Undo directory
 vim.opt.backup = false                             -- Don't create backup files
 vim.opt.writebackup = false                        -- Don't create backup before writing
 vim.opt.swapfile = false                           -- Don't create swap files
@@ -109,9 +129,9 @@ vim.opt.encoding = "utf-8"                         -- Set encoding
 vim.opt.guicursor = "n-v-c:block,i-ci-ve:block,r-cr:hor20,o:hor50,a:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor,sm:block-blinkwait175-blinkoff150-blinkon175"
 
 -- Folding settings
-vim.opt.foldmethod = "expr"                           -- Use expression for folding
-vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"  -- Use treesitter for folding
-vim.opt.foldlevel = 99                                -- Start with all folds open
+vim.opt.foldmethod = "expr"                        -- Fold method (syntax, expr, ...)
+vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()" -- Use treesitter for folding
+vim.opt.foldlevel = 99                             -- Start with all folds open
 
 -- Split behavior
 vim.opt.splitbelow = true                          -- Horizontal split creation position
@@ -129,11 +149,6 @@ vim.opt.diffopt:append("linematch:60")
 vim.opt.redrawtime = 10000                         -- Time (ms) for redrawing display
 vim.opt.maxmempattern = 20000                      -- Max memory (Kb) for pattern matching
 
--- Create undo directory if it doesn't exist
-if vim.fn.isdirectory(undodir) == 0 then
-  vim.fn.mkdir(undodir, "p")
-end
-
 -- ============================================================================
 -- Load Plugins
 -- ============================================================================
@@ -142,13 +157,6 @@ vim.g.mapleader      = " "                         -- Set leader key
 vim.g.maplocalleader = ","                         -- Set local leader key
 -- Load plugins (fail silently)
 pcall(require, "lazy_setup")
-
--- ============================================================================
--- THEME & TRANSPARENCY
--- ============================================================================
-vim.api.nvim_set_hl(0, "Normal",      { bg = "none" })
-vim.api.nvim_set_hl(0, "NormalNC",    { bg = "none" })
-vim.api.nvim_set_hl(0, "EndOfBuffer", { bg = "none" })
 
 -- ============================================================================
 -- KEY MAPPINGS
@@ -544,10 +552,6 @@ local function FloatingTerminal()
   vim.api.nvim_set_option_value('winhighlight',
     'Normal:FloatingTermNormal,FloatBorder:FloatingTermBorder',
     { win = terminal_state.win })
-
-  -- Define highlight groups for transparency
-  vim.api.nvim_set_hl(0, "FloatingTermNormal", { bg = "none" })
-  vim.api.nvim_set_hl(0, "FloatingTermBorder", { bg = "none" })
 
   -- Start terminal if not already running
   local has_terminal = false
