@@ -492,19 +492,31 @@ augroup END
 augroup netrw_mappings
   autocmd!
   autocmd FileType netrw nnoremap <buffer> <Esc> :bd<CR>
-  autocmd FileType netrw nnoremap <buffer> gA    :execute 'e ' . expand("$HOME/src/ansible")<CR>
-  autocmd FileType netrw nnoremap <buffer> gB    :execute 'e ' . expand("$HOME/.local/bin")<CR>
-  autocmd FileType netrw nnoremap <buffer> gC    :execute 'e ' . expand("$HOME/.config")<CR>
-  autocmd FileType netrw nnoremap <buffer> gD    :e <C-r>=input("cd: ", expand("%:p:h"), "dir")<CR><CR>
-  autocmd FileType netrw nnoremap <buffer> gE    :e /etc<CR>
-  autocmd FileType netrw nnoremap <buffer> gF    :execute 'e ' . expand("%:p:h")<CR>
-  autocmd FileType netrw nnoremap <buffer> gG    :execute 'e ' . expand("$HOME/git")<CR>
-  autocmd FileType netrw nnoremap <buffer> gH    :execute 'e ' . expand("$HOME")<CR>
-  autocmd FileType netrw nnoremap <buffer> gL    :execute 'e ' . expand("$HOME/.local")<CR>
-  autocmd FileType netrw nnoremap <buffer> gN    :execute 'e ' . expand("$HOME/.config/nvim")<CR>
-  autocmd FileType netrw nnoremap <buffer> gS    :execute 'e ' . expand("$HOME/src")<CR>
-  autocmd FileType netrw nnoremap <buffer> gT    :execute 'e ' . expand("/run/user/$EUID/tmp")<CR>
-  autocmd FileType netrw nnoremap <buffer> gT    :execute 'e ' . expand("$HOME/.config/yazi")<CR>
+  autocmd FileType netrw nnoremap <buffer> GA    :execute 'e ' . expand("$HOME/src/ansible")<CR>
+  autocmd FileType netrw nnoremap <buffer> GB    :execute 'e ' . expand("$HOME/.local/bin")<CR>
+  autocmd FileType netrw nnoremap <buffer> Gb    :execute 'e ' . expand("$HOME/src/scripts/bin")<CR>
+  autocmd FileType netrw nnoremap <buffer> GC    :execute 'e ' . expand("$HOME/.config")<CR>
+  autocmd FileType netrw nnoremap <buffer> GD    :e <C-r>=input("cd: ", expand("%:p:h"), "dir")<CR><CR>
+  autocmd FileType netrw nnoremap <buffer> Gd    :execute 'e ' . expand("$HOME/Downloads")<CR>
+  autocmd FileType netrw nnoremap <buffer> GE    :e /etc<CR>
+  autocmd FileType netrw nnoremap <buffer> GF    :execute 'e ' . expand("%:p:h")<CR>
+  autocmd FileType netrw nnoremap <buffer> GG    :execute 'e ' . expand("$HOME/git")<CR>
+  autocmd FileType netrw nnoremap <buffer> GH    :execute 'e ' . expand("$HOME")<CR>
+  autocmd FileType netrw nnoremap <buffer> GL    :execute 'e ' . expand("$HOME/.local")<CR>
+  autocmd FileType netrw nnoremap <buffer> Gl    :execute 'e ' . expand("$HOME/.local/share/Syncthing/Mike\\'s\\ Notes")<CR>
+  autocmd FileType netrw nnoremap <buffer> GM    :execute 'e ' . expand("$HOME/.config/nvim")<CR>
+  autocmd FileType netrw nnoremap <buffer> Gm    :execute 'e ' . expand("$HOME/.config/DankMaterialShell")<CR>
+  autocmd FileType netrw nnoremap <buffer> GN    :execute 'e ' . expand("$HOME/.config/niri")<CR>
+  autocmd FileType netrw nnoremap <buffer> GP    :execute 'e ' . expand("$HOME/.config/nvim/lua/plugins")<CR>
+  autocmd FileType netrw nnoremap <buffer> GR    :execute 'e ' . expand("/srv/scripts")<CR>
+  autocmd FileType netrw nnoremap <buffer> Gr    :execute 'e ' . expand("/srv/docker")<CR>
+  autocmd FileType netrw nnoremap <buffer> GS    :execute 'e ' . expand("$HOME/src")<CR>
+  autocmd FileType netrw nnoremap <buffer> Gs    :execute 'e ' . expand("$HOME/src/scripts")<CR>
+  autocmd FileType netrw nnoremap <buffer> GT    :execute 'e ' . expand("/run/user/$EUID/tmp")<CR>
+  autocmd FileType netrw nnoremap <buffer> GV    :execute 'e ' . expand("$HOME/.config/vim")<CR>
+  autocmd FileType netrw nnoremap <buffer> GW    :execute 'e ' . expand("$HOME/Work")<CR>
+  autocmd FileType netrw nnoremap <buffer> GX    :execute 'e ' . expand("$HOME/.local/share/Syncthing")<CR>
+  autocmd FileType netrw nnoremap <buffer> GY    :execute 'e ' . expand("$HOME/.config/yazi")<CR>
 augroup END
 
 " ===============================
