@@ -1,6 +1,9 @@
 ## Shell Variables
 # vim: set filetype=sh :
 
+# Load helper functions
+[ -r "$HOME"/.config/shell/helpers ] && . "$HOME"/.config/shell/helpers
+
 # Determine system type
 [ -r /etc/os-release ] && . /etc/os-release
 OPSYS=linux
