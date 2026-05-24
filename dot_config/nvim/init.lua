@@ -792,7 +792,6 @@ vim.api.nvim_create_autocmd("VimEnter", {
         end
         return ''
       end
-      _G.git_branch = git_branch
 
       -- File type with Nerd Font icon
       local function file_type()
@@ -886,6 +885,9 @@ vim.api.nvim_create_autocmd("VimEnter", {
       _G.git_branch = git_branch
       _G.file_type = file_type
       -- _G.file_size = file_size
+      _G.has_git_branch = function()
+        return vim.g.cached_branch ~= '' and '\ue0b0' or '' -- ' (for fixing editor formatting)
+      end
 
       -- Function to change statusline based on window focus
       local function setup_dynamic_statusline()
@@ -895,6 +897,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
               "%#StatusLineMode# %{v:lua.mode_icon()} ",
               "%#StatusLineGit#\u{e0b0}",   -- left divider
               "%{v:lua.git_branch()}%#StatusLineIcon#",
+              "%{v:lua.has_git_branch()}",
               "%#StatusLine# %f %h%m%r", -- filename + flags
               "%=",         -- Right-align everything after this
               "%{&fenc!=''?&fenc:&enc}", -- encoding
