@@ -431,7 +431,7 @@ vim.api.nvim_create_autocmd("BufReadPost", {
       pcall(vim.api.nvim_win_set_cursor, 0, mark)
     end
   end,
-}
+})
 
 -- Set filetype-specific settings
 vim.api.nvim_create_autocmd("FileType", {
