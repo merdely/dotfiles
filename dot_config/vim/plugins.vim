@@ -16,7 +16,7 @@ if executable('git')
   call plug#begin(g:vim_data_dir . '/plugged')
     Plug 'bluz71/vim-nightfly-colors', { 'as': 'nightfly' }
     Plug 'liuchengxu/vim-which-key'
-    Plug 'itchyny/lightline.vim'
+    " Plug 'itchyny/lightline.vim'
     Plug 'lambdalisue/vim-suda'
     Plug 'machakann/vim-highlightedyank'
     Plug 'tpope/vim-vinegar'
