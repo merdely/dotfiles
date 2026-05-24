@@ -4,6 +4,8 @@
 # When this script or any of the hashes below change, update files
 # .config/vim/vimrc: {{ include "dot_config/vim/vimrc" | sha256sum }}
 
+command -v vim > /dev/null 2>&1 || exit 0
+
 echo "Processing Run OnChange for vimrc"
 
 vimrc=$(vim --version | awk -F'"' '/system vimrc file:/{print $2}')
