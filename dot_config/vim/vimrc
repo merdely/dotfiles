@@ -67,9 +67,9 @@ function! s:ApplyHighlights() abort
   highlight StatusLineNC   gui=NONE   cterm=NONE guifg=#606070 ctermfg=242 guibg=#081e2f ctermbg=17
   highlight HighlightedyankRegion guifg=#011627 guibg=#ffcb8b
 
-  highlight Normal         ctermbg=NONE
-  highlight NormalNC       ctermbg=NONE
-  highlight EndOfBuffer    ctermbg=NONE
+  highlight Normal         ctermbg=NONE guibg=NONE
+  highlight NormalNC       ctermbg=NONE guibg=NONE
+  highlight EndOfBuffer    ctermbg=NONE guibg=NONE
 endfunction
 
 call s:ApplyHighlights()
