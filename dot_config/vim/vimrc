@@ -492,19 +492,19 @@ augroup END
 augroup netrw_mappings
   autocmd!
   autocmd FileType netrw nnoremap <buffer> <Esc> :bd<CR>
-  autocmd FileType netrw nnoremap <buffer> gA    :e expand("$HOME/src/ansible")<CR>
-  autocmd FileType netrw nnoremap <buffer> gB    :e expand("$HOME/.local/bin")<CR>
-  autocmd FileType netrw nnoremap <buffer> gC    :e expand("$HOME/.config")<CR>
+  autocmd FileType netrw nnoremap <buffer> gA    :execute 'e ' . expand("$HOME/src/ansible")<CR>
+  autocmd FileType netrw nnoremap <buffer> gB    :execute 'e ' . expand("$HOME/.local/bin")<CR>
+  autocmd FileType netrw nnoremap <buffer> gC    :execute 'e ' . expand("$HOME/.config")<CR>
   autocmd FileType netrw nnoremap <buffer> gD    :e <C-r>=input("cd: ", expand("%:p:h"), "dir")<CR><CR>
   autocmd FileType netrw nnoremap <buffer> gE    :e /etc<CR>
-  autocmd FileType netrw nnoremap <buffer> gF    :e expand("%:p:h")<CR>
-  autocmd FileType netrw nnoremap <buffer> gG    :e expand("$HOME/git")<CR>
-  autocmd FileType netrw nnoremap <buffer> gH    :e expand("$HOME")<CR>
-  autocmd FileType netrw nnoremap <buffer> gL    :e expand("$HOME/.local")<CR>
-  autocmd FileType netrw nnoremap <buffer> gN    :e expand("$HOME/.config/nvim")<CR>
-  autocmd FileType netrw nnoremap <buffer> gS    :e expand("$HOME/src")<CR>
-  autocmd FileType netrw nnoremap <buffer> gT    :e expand("/run/user/$EUID/tmp")<CR>
-  autocmd FileType netrw nnoremap <buffer> gT    :e expand("$HOME/.config/yazi")<CR>
+  autocmd FileType netrw nnoremap <buffer> gF    :execute 'e ' . expand("%:p:h")<CR>
+  autocmd FileType netrw nnoremap <buffer> gG    :execute 'e ' . expand("$HOME/git")<CR>
+  autocmd FileType netrw nnoremap <buffer> gH    :execute 'e ' . expand("$HOME")<CR>
+  autocmd FileType netrw nnoremap <buffer> gL    :execute 'e ' . expand("$HOME/.local")<CR>
+  autocmd FileType netrw nnoremap <buffer> gN    :execute 'e ' . expand("$HOME/.config/nvim")<CR>
+  autocmd FileType netrw nnoremap <buffer> gS    :execute 'e ' . expand("$HOME/src")<CR>
+  autocmd FileType netrw nnoremap <buffer> gT    :execute 'e ' . expand("/run/user/$EUID/tmp")<CR>
+  autocmd FileType netrw nnoremap <buffer> gT    :execute 'e ' . expand("$HOME/.config/yazi")<CR>
 augroup END
 
 " ===============================
