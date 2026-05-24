@@ -108,7 +108,7 @@ if exists('+termguicolors')
   set termguicolors                                " Enable 24-bit colors
 endif
 set background=dark                                " Change colorscheme to handle dark background
-colorscheme vim                                    " Load colorscheme: good ones are torte, elflord, wildcharm, vim, catppuccin
+colorscheme "vim"                                  " Load colorscheme: good ones are torte, elflord, wildcharm, vim, catppuccin
 
 " Visual settings
 syntax enable
