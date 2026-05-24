@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # vim: set filetype=sh :
 
 {{- $trusted_hosts := .trusted_hosts | default list -}}
@@ -10,59 +10,51 @@
 
 echo "Processing Run Once Before Package Install"
 
-TMPFILES=()
-trap 'rm -Rf -- "${TMPFILES[@]}"' EXIT
-trap 'exit 0' INT TERM
-
 [ -r /etc/os-release ] && source /etc/os-release
 
-if [[ "$ID" =~ ^(arch|artix|cachyos|garuda|endeavouros|manjaro)$ || " $ID_LIKE " == *" arch "* ]]; then
-  # Go through the package list and find packages that are not installed
-  need=()
-  packages=(
-    base-devel git openssh neovim vim man-db apparmor firejail rsync inetutils
-    networkmanager openresolv htop btop jq 7zip bat ripgrep fd cronie bash-completion
-  )
-  {{- if $is_desktop }}
-  packages+=(
-    niri alacritty fuzzel xdg-desktop-portal-gnome pipewire-jack
-    dms-shell-niri greetd-dms-greeter-git accountsservice cava cups-pk-helper dgop
-    khal kimageformats matugen power-profiles-daemon qt6-imageformats
-    kitty rofi rofi-rbw gcr ydotool wl-clipboard wl-clip-persist
-    noto-fonts noto-fonts-emoji ttf-liberation ttf-dejavu-nerd
-    ttf-jetbrains-mono ttf-roboto ttf-roboto-mono woff2-font-awesome otf-font-awesome
-    ttf-nerd-fonts-symbols ttf-nerd-fonts-symbols-common ttf-nerd-fonts-symbols-mono
-    imv imagemagick python-pillow python-cairocffi
-    nwg-look adw-gtk-theme breeze-gtk breeze-icons
-    zathura zathura-pdf-mupdf geany mpv celluloid galculator 
-    nm-connection-editor yad nautilus gvfs-dnssd librewolf-bin
-  )
-  {{- end }}
+case "$ID" in
+  arch|artix|cachyos|garuda|endeavouros|manjaro|parabola|hyperbola|blackarch)
+    # Go through the package list and find packages that are not installed
+    need=""
+    packages="base-devel git openssh neovim vim man-db apparmor firejail rsync inetutils \
+      networkmanager openresolv htop btop jq 7zip bat ripgrep fd cronie bash-completion"
+    {{- if $is_desktop }}
+    packages="$packages niri alacritty fuzzel xdg-desktop-portal-gnome pipewire-jack \
+      dms-shell-niri greetd-dms-greeter-git accountsservice cava cups-pk-helper dgop \
+      khal kimageformats matugen power-profiles-daemon qt6-imageformats \
+      kitty rofi rofi-rbw gcr ydotool wl-clipboard wl-clip-persist \
+      noto-fonts noto-fonts-emoji ttf-liberation ttf-dejavu-nerd \
+      ttf-jetbrains-mono ttf-roboto ttf-roboto-mono woff2-font-awesome otf-font-awesome \
+      ttf-nerd-fonts-symbols ttf-nerd-fonts-symbols-common ttf-nerd-fonts-symbols-mono \
+      imv imagemagick python-pillow python-cairocffi \
+      nwg-look adw-gtk-theme breeze-gtk breeze-icons \
+      zathura zathura-pdf-mupdf geany mpv celluloid galculator  \
+      nm-connection-editor yad nautilus gvfs-dnssd librewolf-bin"
+    {{- end }}
 
-  for pkg in "${packages[@]}"; do
-    pacman -Qqs ^"$pkg"$ &> /dev/null || need+=("$pkg")
-  done
+    for pkg in $packages; do
+      pacman -Qqs ^"$pkg"$ &> /dev/null || need="$need $pkg"
+    done
 
-  # Add home repo to pacman.conf
-  if ! pacman -Sl home &> /dev/null; then
-    echo "Adding home repo to pacman.conf"
-    echo "" | sudo tee -a /etc/pacman.conf
-    echo "[home]" | sudo tee -a /etc/pacman.conf
-    echo "SigLevel = Optional TrustAll" | sudo tee -a /etc/pacman.conf
-    echo "Server = https://repo.erdely.in/Systems/Arch/aur/" | sudo tee -a /etc/pacman.conf
-  fi
-
-  # Install missing packages
-  if [ ${#need[@]} -gt 0 ]; then
-    echo "Installing packages: ${need[@]}"
-    sudo pacman -Syu --disable-download-timeout --needed --noconfirm "${need[@]}"
-    ret=$?
-    if [ $ret -ne 0 ]; then
-      echo "Error: pacman exited with error code $ret" >&2
-      exit 0
+    # Add home repo to pacman.conf
+    if ! pacman -Sl home &> /dev/null; then
+      echo "Adding home repo to pacman.conf"
+      echo "" | sudo tee -a /etc/pacman.conf
+      echo "[home]" | sudo tee -a /etc/pacman.conf
+      echo "SigLevel = Optional TrustAll" | sudo tee -a /etc/pacman.conf
+      echo "Server = https://repo.erdely.in/Systems/Arch/aur/" | sudo tee -a /etc/pacman.conf
     fi
-  fi
-else
-  echo "Error: Unsupported OS (${ID:-Could not determine OS})" >&2
-fi
+
+    # Install missing packages
+    if [ -n "$need" ]; then
+      echo "Installing packages: $need"
+      sudo pacman -Syu --disable-download-timeout --needed --noconfirm ${need# }
+      ret=$?
+      if [ $ret -ne 0 ]; then
+        echo "Error: pacman exited with error code $ret" >&2
+        exit 0
+      fi
+    fi
+    ;;
+esac
 

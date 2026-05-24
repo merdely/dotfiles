@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # vim: set filetype=sh :
 
 {{- $trusted_hosts := .trusted_hosts | default list -}}
@@ -18,8 +18,8 @@ command -v sudo > /dev/null 2>&1 && sudo=sudo
 
 echo "Processing Run Once After System Setup"
 
-TMPFILES=()
-trap 'rm -Rf -- "${TMPFILES[@]}"' EXIT
+TMPFILES=""
+trap 'rm -Rf -- "${TMPFILES# }"' EXIT
 trap 'exit 0' INT TERM
 
 groups=$(groups $LOGNAME)
@@ -36,7 +36,7 @@ if [ "$(uname -s)" = "Linux" ]; then
   # Add user to needed groups
   for group in video render input wheel; do
     # Skip groups from the list that do not exist
-    getent group "$group" &> /dev/null || continue
+    getent group "$group" > /dev/null 2>&1 || continue
     # Skip groups already a member of
     echo "$groups" | grep -qw "$group" && continue
     # Add user to group (ok if already a member)
@@ -51,7 +51,7 @@ if [ "$(uname -s)" = "Linux" ]; then
   # Setup vi command
   if { [ ! -e /usr/bin/vi ] || [ -L /usr/bin/vi ]; } && [ -e $HOME/.local/bin/vi ]; then
     echo "Installing vi script that encourages use of sudoedit"
-    rm -f /usr/bin/vi &> /dev/null
+    rm -f /usr/bin/vi > /dev/null 2>&1
     $sudo install -o root -g root -m 755 "$HOME"/.local/bin/vi /usr/bin/vi
     if [ $? -ne 0 ]; then
       echo "Error: Could not install vi script to /usr/bin/vi" >&2
@@ -76,35 +76,36 @@ if [ "$(uname -s)" = "Linux" ]; then
 
   # Set up $LOGNAME crontab
   if command -v crontab > /dev/null 2>&1; then
-    crontab_vars=(PATH MAILFROM COMPOSE_FILE XDG_CACHE_HOME XDG_CONFIG_HOME)
-    crontab_vars+=(XDG_DATA_HOME XDG_RUNTIME_DIR XDG_STATE_HOME WAYLAND_DISPLAY)
-    crontab_vars+=(DBUS_SESSION_BUS_ADDRESS DOCKER_CONFIG MACHINE_STORAGE_PATH)
+    crontab_vars="PATH MAILFROM COMPOSE_FILE XDG_CACHE_HOME XDG_CONFIG_HOME \
+        XDG_DATA_HOME XDG_RUNTIME_DIR XDG_STATE_HOME WAYLAND_DISPLAY \
+        DBUS_SESSION_BUS_ADDRESS DOCKER_CONFIG MACHINE_STORAGE_PATH"
     crontab_PATH="$HOME/.local/bin:/srv/scripts/bin:/srv/scripts/sbin:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin"
     crontab_MAILFROM=mike@erdelynet.com
     crontab_COMPOSE_FILE=/srv/docker/compose.yaml
     crontab_XDG_CACHE_HOME=$HOME/.cache
     crontab_XDG_CONFIG_HOME=$HOME/.config
     crontab_XDG_DATA_HOME=$HOME/.local/share
-    crontab_XDG_RUNTIME_DIR=/run/user/$EUID
+    crontab_XDG_RUNTIME_DIR=/run/user/$(id -u)
     crontab_XDG_STATE_HOME=$HOME/.local/state
     crontab_WAYLAND_DISPLAY=wayland-1
-    crontab_DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$EUID/bus
+    crontab_DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$(id -u)/bus
     crontab_DOCKER_CONFIG=$HOME/.config/docker
     crontab_MACHINE_STORAGE_PATH=$HOME/.local/share/docker-machine
 
     existing_crontab=$(crontab -l 2> /dev/null)
-    new_cron_lines=()
-    for var in "${crontab_vars[@]}"; do
-      ref="crontab_$var"
-      { [ -z "$var" ] || [ -z "${!ref}" ]; } && continue
+    new_cron_lines=""
+    for var in $crontab_vars; do
+      eval "val=\${crontab_$var}"
+      { [ -z "$var" ] || [ -z "$val" ]; } && continue
 
-      echo "$existing_crontab" | grep -qE "^$var *=" && continue
-      echo "Adding $var variable to crontab"
-      new_cron_lines+=("$var = ${!ref}")
+      printf '%s\n' "$existing_crontab" | grep -qE "^$var *=" && continue
+      printf 'Adding %s variable to crontab\n' "$var"
+      new_cron_lines="${new_cron_lines}${var} = ${val}
+"
     done
-    if [ ${#new_cron_lines[@]} -gt 0 ]; then
+    if [ -n "$new_cron_lines" ]; then
       {
-        printf '%s\n' "${new_cron_lines[@]}"
+        printf '%s\n' "$new_cron_lines"
         crontab -l 2> /dev/null
       } | crontab -
     fi
@@ -125,7 +126,7 @@ if [ "$(uname -s)" = "Linux" ]; then
     echo "Adding DMS Idle Inhibitor Handler to $LOGNAME crontab"
     {
       crontab -l 2> /dev/null
-      echo '*/15 * * * * [[ -d $XDG_RUNTIME_DIR && -S $XDG_RUNTIME_DIR/wayland-1 ]] && flock -n $XDG_CACHE_HOME/.dms_idle.lock handle_dms_idle_inhibitor.sh -h 4'
+      echo '*/15 * * * * [ -d $XDG_RUNTIME_DIR ] && [ -S $XDG_RUNTIME_DIR/wayland-1 ] && flock -n $XDG_CACHE_HOME/.dms_idle.lock handle_dms_idle_inhibitor.sh -h 4'
     } | crontab -
   fi
 
@@ -151,7 +152,7 @@ if [ "$(uname -s)" = "Linux" ]; then
         $sudo usermod -aG greeter "$LOGNAME"
       fi
 
-      if [[ -n "$(find /var/cache/dms-greeter -maxdepth 0 -mindepth 0 -not -group greeter -type d)" ]]; then
+      if [ -n "$(find /var/cache/dms-greeter -maxdepth 0 -mindepth 0 -not -group greeter -type d)" ]; then
         echo "Fixing permissions on /var/cache/dms-greeter"
         $sudo chgrp greeter /var/cache/dms-greeter
       fi
