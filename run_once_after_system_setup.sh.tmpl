@@ -8,6 +8,14 @@
 {{- $is_server  := stat (joinPath $profiles "server") -}}
 {{- $is_trusted := has .chezmoi.hostname $trusted_hosts -}}
 
+if ! command -v sudo > /dev/null 2>&1 && ! command -v doas > /dev/null 2>&1; then
+  echo "Error: Cannot find sudo or doas" >&2
+  exit 0
+fi
+
+sudo=doas
+command -v sudo > /dev/null 2>&1 && sudo=sudo
+
 echo "Processing Run Once After System Setup"
 
 TMPFILES=()
@@ -24,155 +32,156 @@ makeflag() {
   touch "$HOME"/.local/state/chezmoi/done/"$1"
 }
 
-# Add user to needed groups
-for group in video render input wheel; do
-  # Skip groups from the list that do not exist
-  getent group "$group" &> /dev/null || continue
-  # Skip groups already a member of
-  echo "$groups" | grep -qw "$group" && continue
-  # Add user to group (ok if already a member)
-  echo "Adding $LOGNAME to $group"
-  sudo usermod -aG "$group" "$LOGNAME"
-  if [ $? -ne 0 ]; then
-    echo "Error: Could not add $LOGNAME to $group" >&2
-    exit 0
-  fi
-done
-
-# Setup vi command
-if { [ ! -e /usr/bin/vi ] || [ -L /usr/bin/vi ]; } && [ -e $HOME/.local/bin/vi ]; then
-  echo "Installing vi script that encourages use of sudoedit"
-  rm -f /usr/bin/vi &> /dev/null
-  sudo install -o root -g root -m 755 "$HOME"/.local/bin/vi /usr/bin/vi
-  if [ $? -ne 0 ]; then
-    echo "Error: Could not install vi script to /usr/bin/vi" >&2
-    exit 0
-  fi
-fi
-
-# Fix $LOGNAME $HOME permissions
-if [ ! -r "$HOME"/.local/state/chezmoi/done/home_permissions ]; then
-  sudo chown -R "$LOGNAME":"$(id -gn)" "$HOME"
-fi
-# Unconditionally mark that this was done so it does not break permissions later
-makeflag home_permissions
-
-# Enable services: ssh-agent
-if command -v systemctl > /dev/null 2>&1; then
-  if [ ! -r "$HOME"/.local/state/chezmoi/done/enable_sshd ]; then
-    command -v ssh-agent > /dev/null 2>&1 && systemctl --user enable ssh-agent.service
-    [ $? -eq 0 ] && makeflag enable_sshd
-  fi
-fi
-
-# Set up $LOGNAME crontab
-if command -v crontab > /dev/null 2>&1; then
-  crontab_vars=(PATH MAILFROM COMPOSE_FILE XDG_CACHE_HOME XDG_CONFIG_HOME)
-  crontab_vars+=(XDG_DATA_HOME XDG_RUNTIME_DIR XDG_STATE_HOME WAYLAND_DISPLAY)
-  crontab_vars+=(DBUS_SESSION_BUS_ADDRESS DOCKER_CONFIG MACHINE_STORAGE_PATH)
-  crontab_PATH="$HOME/.local/bin:/srv/scripts/bin:/srv/scripts/sbin:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin"
-  crontab_MAILFROM=mike@erdelynet.com
-  crontab_COMPOSE_FILE=/srv/docker/compose.yaml
-  crontab_XDG_CACHE_HOME=$HOME/.cache
-  crontab_XDG_CONFIG_HOME=$HOME/.config
-  crontab_XDG_DATA_HOME=$HOME/.local/share
-  crontab_XDG_RUNTIME_DIR=/run/user/$EUID
-  crontab_XDG_STATE_HOME=$HOME/.local/state
-  crontab_WAYLAND_DISPLAY=wayland-1
-  crontab_DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$EUID/bus
-  crontab_DOCKER_CONFIG=$HOME/.config/docker
-  crontab_MACHINE_STORAGE_PATH=$HOME/.local/share/docker-machine
-
-  existing_crontab=$(crontab -l 2> /dev/null)
-  new_cron_lines=()
-  for var in "${crontab_vars[@]}"; do
-    ref="crontab_$var"
-    { [ -z "$var" ] || [ -z "${!ref}" ]; } && continue
-
-    echo "$existing_crontab" | grep -qE "^$var *=" && continue
-    echo "Adding $var variable to crontab"
-    new_cron_lines+=("$var = ${!ref}")
+if [ "$(uname -s)" = "Linux" ]; then
+  # Add user to needed groups
+  for group in video render input wheel; do
+    # Skip groups from the list that do not exist
+    getent group "$group" &> /dev/null || continue
+    # Skip groups already a member of
+    echo "$groups" | grep -qw "$group" && continue
+    # Add user to group (ok if already a member)
+    echo "Adding $LOGNAME to $group"
+    $sudo usermod -aG "$group" "$LOGNAME"
+    if [ $? -ne 0 ]; then
+      echo "Error: Could not add $LOGNAME to $group" >&2
+      exit 0
+    fi
   done
-  if [ ${#new_cron_lines[@]} -gt 0 ]; then
+
+  # Setup vi command
+  if { [ ! -e /usr/bin/vi ] || [ -L /usr/bin/vi ]; } && [ -e $HOME/.local/bin/vi ]; then
+    echo "Installing vi script that encourages use of sudoedit"
+    rm -f /usr/bin/vi &> /dev/null
+    $sudo install -o root -g root -m 755 "$HOME"/.local/bin/vi /usr/bin/vi
+    if [ $? -ne 0 ]; then
+      echo "Error: Could not install vi script to /usr/bin/vi" >&2
+      exit 0
+    fi
+  fi
+
+  # Fix $LOGNAME $HOME permissions
+  if [ ! -r "$HOME"/.local/state/chezmoi/done/home_permissions ]; then
+    $sudo chown -R "$LOGNAME":"$(id -gn)" "$HOME"
+  fi
+  # Unconditionally mark that this was done so it does not break permissions later
+  makeflag home_permissions
+
+  # Enable services: ssh-agent
+  if command -v systemctl > /dev/null 2>&1; then
+    if [ ! -r "$HOME"/.local/state/chezmoi/done/enable_sshd ]; then
+      command -v ssh-agent > /dev/null 2>&1 && systemctl --user enable ssh-agent.service
+      [ $? -eq 0 ] && makeflag enable_sshd
+    fi
+  fi
+
+  # Set up $LOGNAME crontab
+  if command -v crontab > /dev/null 2>&1; then
+    crontab_vars=(PATH MAILFROM COMPOSE_FILE XDG_CACHE_HOME XDG_CONFIG_HOME)
+    crontab_vars+=(XDG_DATA_HOME XDG_RUNTIME_DIR XDG_STATE_HOME WAYLAND_DISPLAY)
+    crontab_vars+=(DBUS_SESSION_BUS_ADDRESS DOCKER_CONFIG MACHINE_STORAGE_PATH)
+    crontab_PATH="$HOME/.local/bin:/srv/scripts/bin:/srv/scripts/sbin:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin"
+    crontab_MAILFROM=mike@erdelynet.com
+    crontab_COMPOSE_FILE=/srv/docker/compose.yaml
+    crontab_XDG_CACHE_HOME=$HOME/.cache
+    crontab_XDG_CONFIG_HOME=$HOME/.config
+    crontab_XDG_DATA_HOME=$HOME/.local/share
+    crontab_XDG_RUNTIME_DIR=/run/user/$EUID
+    crontab_XDG_STATE_HOME=$HOME/.local/state
+    crontab_WAYLAND_DISPLAY=wayland-1
+    crontab_DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$EUID/bus
+    crontab_DOCKER_CONFIG=$HOME/.config/docker
+    crontab_MACHINE_STORAGE_PATH=$HOME/.local/share/docker-machine
+
+    existing_crontab=$(crontab -l 2> /dev/null)
+    new_cron_lines=()
+    for var in "${crontab_vars[@]}"; do
+      ref="crontab_$var"
+      { [ -z "$var" ] || [ -z "${!ref}" ]; } && continue
+
+      echo "$existing_crontab" | grep -qE "^$var *=" && continue
+      echo "Adding $var variable to crontab"
+      new_cron_lines+=("$var = ${!ref}")
+    done
+    if [ ${#new_cron_lines[@]} -gt 0 ]; then
+      {
+        printf '%s\n' "${new_cron_lines[@]}"
+        crontab -l 2> /dev/null
+      } | crontab -
+    fi
+  fi
+
+  # Enable and start cronie.service
+  if [ ! -r "$HOME"/.local/state/chezmoi/done/enable_cronie ]; then
+    if ! systemctl is-enabled -q cronie.service; then
+      $sudo systemctl enable --now cronie.service
+      [ $? -eq 0 ] && makeflag enable_cronie
+    fi
+  fi
+
+  {{- if $is_desktop }}
+  # Set up DMS Idle Inhibitor Handler in cron
+  if command -v crontab > /dev/null 2>&1 && [ -e "$HOME"/.local/bin/handle_dms_idle_inhibitor.sh ] && \
+     ! crontab -l 2> /dev/null | grep -qF 'handle_dms_idle_inhibitor.sh'; then
+    echo "Adding DMS Idle Inhibitor Handler to $LOGNAME crontab"
     {
-      printf '%s\n' "${new_cron_lines[@]}"
       crontab -l 2> /dev/null
+      echo '*/15 * * * * [[ -d $XDG_RUNTIME_DIR && -S $XDG_RUNTIME_DIR/wayland-1 ]] && flock -n $XDG_CACHE_HOME/.dms_idle.lock handle_dms_idle_inhibitor.sh -h 4'
     } | crontab -
   fi
-fi
 
-# Enable and start cronie.service
-if [ ! -r "$HOME"/.local/state/chezmoi/done/enable_cronie ]; then
-  if ! systemctl is-enabled -q cronie.service; then
-    sudo systemctl enable --now cronie.service
-    [ $? -eq 0 ] && makeflag enable_cronie
-  fi
-fi
-
-{{- if $is_desktop }}
-# Set up DMS Idle Inhibitor Handler in cron
-if command -v crontab > /dev/null 2>&1 && [ -e "$HOME"/.local/bin/handle_dms_idle_inhibitor.sh ] && \
-   ! crontab -l 2> /dev/null | grep -qF 'handle_dms_idle_inhibitor.sh'; then
-  echo "Adding DMS Idle Inhibitor Handler to $LOGNAME crontab"
-  {
-    crontab -l 2> /dev/null
-    echo '*/15 * * * * [[ -d $XDG_RUNTIME_DIR && -S $XDG_RUNTIME_DIR/wayland-1 ]] && flock -n $XDG_CACHE_HOME/.dms_idle.lock handle_dms_idle_inhibitor.sh -h 4'
-  } | crontab -
-fi
-
-# Setup dms-greeter
-if [ ! -r "$HOME"/.local/state/chezmoi/done/configure_greetd ]; then
-  if [ -e /etc/greetd/config.toml ]; then
-    if ! grep -qE "^\s*command\s*=.*dms-greeter" /etc/greetd/config.toml; then
-      if ! grep -q "^\[default_session\]" /etc/greetd/config.toml; then
-        echo "Error: greetd config missing default_session section" >&2
-      else
-        echo "Setting up greetd to use dms-greeter with niri"
-        # Comment out any lines with command = 
-        sudo sed -ri 's/^(\s*)(command.*)$/\1# \2/' /etc/greetd/config.toml
-        # Under the default_session section heading, add a dms-greeter line
-        sudo sed -ri 's#^(\[default_session].*)$#\1\r\ncommand = "/usr/bin/dms-greeter --no-save-username --command niri"#' /etc/greetd/config.toml
-        # Enable the service
-        sudo systemctl enable greetd
-      fi
-    fi
-
-    if getent group greeter > /dev/null 2>&1 && ! groups | sed "s/^$LOGNAME : //" | grep -qw greeter; then
-      echo "Adding $LOGNAME to $group"
-      sudo usermod -aG greeter "$LOGNAME"
-    fi
-
-    if [[ -n "$(find /var/cache/dms-greeter -maxdepth 0 -mindepth 0 -not -group greeter -type d)" ]]; then
-      echo "Fixing permissions on /var/cache/dms-greeter"
-      sudo chgrp greeter /var/cache/dms-greeter
-    fi
-
-    # Install dms-greeter settings/colors
-    for file in settings colors; do
-      if [ -r "$HOME"/.config/niri/greeter/"$file".json ]; then
-        if [ -r /var/cache/dms-greeter/"$file".json ]; then
-          : # do nothing
-        elif [ ! -x /var/cache/dms-greeter ] || ! sudo test -r /var/cache/dms-greeter/"$file".json; then
-          echo "Configuring dms-greeter $file"
-          sudo install -m 644 -o root -g "$(id -gn root)" \
-            "$HOME"/.config/niri/greeter/"$file".json /var/cache/dms-greeter
+  # Setup dms-greeter
+  if [ ! -r "$HOME"/.local/state/chezmoi/done/configure_greetd ]; then
+    if [ -e /etc/greetd/config.toml ]; then
+      if ! grep -qE "^\s*command\s*=.*dms-greeter" /etc/greetd/config.toml; then
+        if ! grep -q "^\[default_session\]" /etc/greetd/config.toml; then
+          echo "Error: greetd config missing default_session section" >&2
+        else
+          echo "Setting up greetd to use dms-greeter with niri"
+          # Comment out any lines with command = 
+          $sudo sed -ri 's/^(\s*)(command.*)$/\1# \2/' /etc/greetd/config.toml
+          # Under the default_session section heading, add a dms-greeter line
+          $sudo sed -ri 's#^(\[default_session].*)$#\1\r\ncommand = "/usr/bin/dms-greeter --no-save-username --command niri"#' /etc/greetd/config.toml
+          # Enable the service
+          $sudo systemctl enable greetd
         fi
       fi
-    done
-  fi
-  makeflag configure_greetd
-fi
 
-# Enable services: DMS and ydotool
-if command -v systemctl > /dev/null 2>&1; then
-  if [ ! -r "$HOME"/.local/state/chezmoi/done/enable_dms ]; then
-    command -v dms > /dev/null 2>&1 && systemctl --user enable dms.service
-    [ $? -eq 0 ] && makeflag enable_dms
-  fi
-  if [ ! -r "$HOME"/.local/state/chezmoi/done/enable_ydotool ]; then
-    command -v ydotool > /dev/null 2>&1 && systemctl --user enable ydotool.service
-    [ $? -eq 0 ] && makeflag enable_ydotool
-  fi
-fi
-{{- end }}
+      if getent group greeter > /dev/null 2>&1 && ! groups | sed "s/^$LOGNAME : //" | grep -qw greeter; then
+        echo "Adding $LOGNAME to $group"
+        $sudo usermod -aG greeter "$LOGNAME"
+      fi
 
+      if [[ -n "$(find /var/cache/dms-greeter -maxdepth 0 -mindepth 0 -not -group greeter -type d)" ]]; then
+        echo "Fixing permissions on /var/cache/dms-greeter"
+        $sudo chgrp greeter /var/cache/dms-greeter
+      fi
+
+      # Install dms-greeter settings/colors
+      for file in settings colors; do
+        if [ -r "$HOME"/.config/niri/greeter/"$file".json ]; then
+          if [ -r /var/cache/dms-greeter/"$file".json ]; then
+            : # do nothing
+          elif [ ! -x /var/cache/dms-greeter ] || ! $sudo test -r /var/cache/dms-greeter/"$file".json; then
+            echo "Configuring dms-greeter $file"
+            $sudo install -m 644 -o root -g "$(id -gn root)" \
+              "$HOME"/.config/niri/greeter/"$file".json /var/cache/dms-greeter
+          fi
+        fi
+      done
+    fi
+    makeflag configure_greetd
+  fi
+
+  # Enable services: DMS and ydotool
+  if command -v systemctl > /dev/null 2>&1; then
+    if [ ! -r "$HOME"/.local/state/chezmoi/done/enable_dms ]; then
+      command -v dms > /dev/null 2>&1 && systemctl --user enable dms.service
+      [ $? -eq 0 ] && makeflag enable_dms
+    fi
+    if [ ! -r "$HOME"/.local/state/chezmoi/done/enable_ydotool ]; then
+      command -v ydotool > /dev/null 2>&1 && systemctl --user enable ydotool.service
+      [ $? -eq 0 ] && makeflag enable_ydotool
+    fi
+  fi
+  {{- end }}
+fi
