@@ -70,7 +70,7 @@ autocmd ColorScheme * call s:ApplyHighlights()
 " ===============================
 " Basic Settings
 " ===============================
-if s:data_dir != ''
+if s:config_dir != ''
   silent! execute 'source ' . s:config_dir . '/plugins.vim'
 endif
 
