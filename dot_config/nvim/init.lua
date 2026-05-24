@@ -706,7 +706,8 @@ vim.api.nvim_create_autocmd("VimEnter", {
         package.loaded["heirline"]     or
         package.loaded["feline"]       or
         package.loaded["galaxyline"]   or
-        package.loaded["express_line"]
+        package.loaded["express_line"] or
+        package.loaded["mini.statusline"]
     )
 
     if not has_statusline_plugin then
