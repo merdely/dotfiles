@@ -244,10 +244,10 @@ nnoremap <leader>xx "_d
 vnoremap <leader>xx "_d
 
 " Change without replacing clipboard — uncomment if desired:
-" nnoremap c "_c
-" vnoremap c "_c
-" nnoremap C "_C
-" vnoremap C "_C
+nnoremap c "_c
+vnoremap c "_c
+nnoremap C "_C
+vnoremap C "_C
 
 " Change without replacing clipboard content
 " nnoremap cw "_cw
