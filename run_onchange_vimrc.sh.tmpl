@@ -10,13 +10,16 @@ if ! command -v sudo > /dev/null 2>&1 && ! command -v doas > /dev/null 2>&1; the
   exit 1
 fi
 
+sudo=doas
+command -v sudo > /dev/null 2>&1 && sudo=sudo
+
 echo "Processing Run OnChange for vimrc"
 
 vimrc=$(vim --version | awk -F'"' '/system vimrc file:/{print $2}')
 
 # Have vimrc.local added to system vimrc if needed
 if ! grep -q "source $vimrc.local" "$vimrc"; then
-  cat << EOF | sudo tee -a "$vimrc" > /dev/null
+  cat << EOF | $sudo tee -a "$vimrc" > /dev/null
 
 " load /etc/vimrc.local
 if !filereadable(expand('~/.config/vim/vimrc')) &&
@@ -32,10 +35,6 @@ fi
 if [ ! -e "$vimrc".local ] || \
      ! cmp -s "$HOME"/.config/vim/vimrc "$vimrc".local; then
   echo "Installing vimrc to $vimrc.local"
-  if command -v sudo > /dev/null 2>&1; then
-    sudo install -m 644 -o root -g "$(id -gn root)" "$HOME"/.config/vim/vimrc "$vimrc".local
-  else
-    doas install -m 644 -o root -g "$(id -gn root)" "$HOME"/.config/vim/vimrc "$vimrc".local
-  fi
+  $sudo install -m 644 -o root -g "$(id -gn root)" "$HOME"/.config/vim/vimrc "$vimrc".local
 fi
 

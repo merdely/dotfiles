@@ -4,6 +4,14 @@
 # When this script or any of the hashes below change, update files
 # .ssh/home_known_hosts: {{ include "private_dot_ssh/home_known_hosts" | sha256sum }}
 
+if ! command -v sudo > /dev/null 2>&1 && ! command -v doas > /dev/null 2>&1; then
+  echo "Error: Cannot find sudo or doas" >&2
+  exit 1
+fi
+
+sudo=doas
+command -v sudo > /dev/null 2>&1 && sudo=sudo
+
 echo "Processing Run OnChange for SSH Host Keys"
 
 hostname=$(hostname 2> /dev/null || hostnamectl hostname 2> /dev/null)
@@ -13,7 +21,7 @@ hostname=${hostname%%.*}
 # Copy home_known_hosts to /etc/ssh/ssh_known_hosts if they differ
 if ! cmp -s "$HOME"/.ssh/home_known_hosts /etc/ssh/ssh_known_hosts; then
   echo "Installing home_known_hosts to /etc/ssh/ssh_known_hosts"
-  sudo install -m 644 -o root -g "$(id -gn root)" "$HOME"/.ssh/home_known_hosts /etc/ssh/ssh_known_hosts
+  $sudo install -m 644 -o root -g "$(id -gn root)" "$HOME"/.ssh/home_known_hosts /etc/ssh/ssh_known_hosts
 fi
 
 # Ensure /etc/ssh/ssh_host_ed25519_key matches public key in home_known_hosts
@@ -32,8 +40,8 @@ if [ "$defined_pub_key" != "$system_key" ]; then
   pass git pull
 
   echo "Updating system ssh_host_ed25519_key"
-  pass show systems/"$hostname"/ssh_host_ed25519_key | sudo tee /etc/ssh/ssh_host_ed25519_key > /dev/null
-  sudo chmod 600 /etc/ssh/ssh_host_ed25519_key
-  sudo systemctl restart sshd
+  pass show systems/"$hostname"/ssh_host_ed25519_key | $sudo tee /etc/ssh/ssh_host_ed25519_key > /dev/null
+  $sudo chmod 600 /etc/ssh/ssh_host_ed25519_key
+  $sudo systemctl restart sshd
 fi
 

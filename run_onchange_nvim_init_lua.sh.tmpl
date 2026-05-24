@@ -10,17 +10,17 @@ if ! command -v sudo > /dev/null 2>&1 && ! command -v doas > /dev/null 2>&1; the
   exit 1
 fi
 
+sudo=doas
+command -v sudo > /dev/null 2>&1 && sudo=sudo
+
 echo "Processing Run OnChange for nvim init.lua"
 
-sudo mkdir -p /etc/xdg/nvim
+$sudo mkdir -p /etc/xdg/nvim
+
 
 # Copy nvim init.lua to /etc/xdg/nvim
 if [ ! -e /etc/xdg/nvim/init.lua ] || \
      ! cmp -s "$HOME"/.config/nvim/init.lua /etc/xdg/nvim/init.lua; then
   echo "Installing nvim init.lua to /etc/xdg/nvim"
-  if command -v sudo > /dev/null 2>&1; then
-    sudo install -m 644 -o root -g "$(id -gn root)" "$HOME"/.config/nvim/init.lua /etc/xdg/nvim
-  else
-    doas install -m 644 -o root -g "$(id -gn root)" "$HOME"/.config/nvim/init.lua /etc/xdg/nvim
-  fi
+  $sudo install -m 644 -o root -g "$(id -gn root)" "$HOME"/.config/nvim/init.lua /etc/xdg/nvim
 fi
