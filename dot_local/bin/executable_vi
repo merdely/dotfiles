@@ -54,7 +54,10 @@ else
     exec_dir=$(find_exec_dir)
     if [[ -n "$exec_dir" ]]; then
       chezmoi_editor=$(mktemp "$exec_dir/editor.XXXXXXXXX.sh")
-      TMPFILES=$("$chezmoi_editor")
+      TMPFILES+=("$chezmoi_editor")
+      printf '#!/bin/sh\nexec %s "$@"\n' \
+        "$(printf '%q ' "$EDITOR" "${flags[@]}")" > "$chezmoi_editor"
+      chmod +x "$chezmoi_editor"
     else
       chezmoi_editor=("$EDITOR" "${flags[@]}")
     fi
