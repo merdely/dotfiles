@@ -541,7 +541,7 @@ vim.api.nvim_create_autocmd("FileType", {
     map('gr', '/srv/docker')
     map('gS', '$HOME/src/scripts')
     map('gs', '$HOME/src')
-    map('GT', '/run/user/' .. vim.fn.system('id -u'):gsub('\n', '') .. '/tmp')
+    map('gT', '/run/user/' .. vim.fn.system('id -u'):gsub('\n', '') .. '/tmp')
     map('gv', '$HOME/.config/vim')
     map('gw', '$HOME/Work')
     map('gX', '$HOME/.local/share/Syncthing')
