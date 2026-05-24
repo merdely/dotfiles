@@ -8,12 +8,10 @@
 {{- $is_server  := stat (joinPath $profiles "server") -}}
 {{- $is_trusted := has .chezmoi.hostname $trusted_hosts -}}
 
-set -x
 if ! command -v sudo > /dev/null 2>&1 && ! command -v doas > /dev/null 2>&1; then
   echo "Warning: Cannot find sudo or doas" >&2
   exit 0
 fi
-set +x
 
 sudo=doas
 command -v sudo > /dev/null 2>&1 && sudo=sudo
