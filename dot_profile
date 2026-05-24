@@ -1,2 +1,14 @@
-# Set up PATH for systemd environments
-export PATH=$HOME/.local/bin:/srv/scripts/bin:/srv/scripts/sbin:$PATH:/usr/sbin
+# ~/.profile
+
+# Read in environment variables
+[ -r "$HOME"/.config/shell/helpers ] && . "$HOME"/.config/shell/helpers
+
+# Read in ~/.bashrc
+[ -n "$BASH_VERSION" ] && [ -r "$HOME"/.bashrc ] && . "$HOME"/.bashrc
+
+# Read in ~/.kshrc
+[ -n "$KSH_VERSION" ] && [ -r "$HOME"/.kshrc ] && . "$HOME"/.kshrc
+
+# Read in ~/.zshrc
+[ -n "$ZSH_VERSION" ] && [ -r "$HOME"/.zshrc ] && . "$HOME"/.zshrc
+
