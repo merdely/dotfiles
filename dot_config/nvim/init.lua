@@ -532,6 +532,7 @@ vim.api.nvim_create_autocmd("FileType", {
     -- Can't use gb gd gf gF gg gh gn gp
     map('ga', '$HOME/src/ansible')
     map('gB', '$HOME/.local/bin')
+    map('gC', '$HOME/src/scripts/bin')
     map('gc', '$HOME/.config')
     map('gd', '$HOME/Downloads')
     map('ge', '/etc')
@@ -551,7 +552,6 @@ vim.api.nvim_create_autocmd("FileType", {
     map('gv', '$HOME/.config/vim')
     map('gw', '$HOME/Work')
     map('gX', '$HOME/.local/share/Syncthing')
-    map('gx', '$HOME/src/scripts/bin')
     map('gy', '$HOME/.config/yazi')
     map('gZ', '%:p:h')
     vim.keymap.set('n', 'gz', function()
