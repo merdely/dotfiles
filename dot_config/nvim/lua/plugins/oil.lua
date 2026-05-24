@@ -21,7 +21,7 @@ return {
       ["g."] = { "actions.toggle_hidden", mode = "n" },
       ["g\\"] = { "actions.toggle_trash", mode = "n" },
       -- My keybinds
-      ["gA"] = { function() require("oil").open(vim.fn.expand("$HOME/src/ansible")) end, desc = "Change to ansible directory" },
+      ["GA"] = { function() require("oil").open(vim.fn.expand("$HOME/src/ansible")) end, desc = "Change to ansible directory" },
       ["gB"] = { function() require("oil").open(vim.fn.expand("$HOME/.local/bin")) end, desc = "Change to ~/.local/bin" },
       ["gb"] = { function() require("oil").open(vim.fn.expand("$HOME/src/scripts/bin")) end, desc = "Change to ~/src/scripts/bin" },
       ["gC"] = { function() require("oil").open(vim.fn.expand("$HOME/.config")) end, desc = "Change to HOME .config directory" },
