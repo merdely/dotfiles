@@ -17,6 +17,7 @@ else
   exit 1
 fi
 
+# Find "tmp" directory that supports running scripts
 find_exec_dir() {
   local candidates=("${XDG_RUNTIME_DIR:-}" "${XDG_CACHE_HOME:-$HOME/.cache}" "$HOME/.local/run" /tmp /var/tmp /dev/shm)
   for dir in "${candidates[@]}"; do
@@ -28,6 +29,7 @@ find_exec_dir() {
   done;return 1
 }
 
+# Warn if running with sudo -- use sudoedit
 if [[ -n "$SUDO_USER" ]] && [[ "$(ps -o comm= -p $PPID)" == "sudo" ]]; then
   echo "Use sudoedit" >&2
   exit 1
