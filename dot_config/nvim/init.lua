@@ -191,9 +191,7 @@ vim.opt.maxmempattern = 20000                      -- Max memory (Kb) for patter
 vim.g.mapleader      = " "                         -- Set leader key
 vim.g.maplocalleader = ","                         -- Set local leader key
 -- Load plugins when not in console (fail silently)
-if not is_console() then
-  pcall(require, "lazy_setup")
-endif
+pcall(require, "lazy_setup")
 
 -- ============================================================================
 -- KEY MAPPINGS
