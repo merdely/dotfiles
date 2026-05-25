@@ -20,6 +20,32 @@ if vim.fn.isdirectory(undodir) == 0 then
 end
 
 -- ============================================================================
+-- CONSOLE DETECTION
+-- ============================================================================
+local function is_console()
+  if vim.fn.has('gui_running') == 1 then return false end
+  local term = vim.env.TERM or ''
+  if term == 'linux' or term == 'vt100' then return true end
+  local has_display = vim.env.DISPLAY or vim.env.WAYLAND_DISPLAY
+  local fancy = term:match('xterm') or term:match('tmux') or term:match('kitty')
+    or term:match('alacritty') or term:match('wezterm') or term:match('foot')
+    or term:match('screen')
+  if not has_display and not fancy then return true end
+  return false
+end
+
+local use_glyphs = not is_console()
+vim.g.use_glyphs = use_glyphs and 1 or 0
+
+-- Statusline separators — empty/ASCII on console, Powerline glyphs elsewhere
+local sl = {
+  sep_r  = use_glyphs and '\u{e0b0}' or '',   -- solid right
+  sep_rv = use_glyphs and '\u{e0b2}' or '',   -- solid left
+  div    = use_glyphs and '\u{e0b3}' or '|',  -- thin bar
+  div_l  = use_glyphs and '\u{e0b1}' or '|',  -- thin right arrow (inactive)
+}
+
+-- ============================================================================
 -- COLORSCHEME DEFAULTS
 -- ============================================================================
 -- Highlight customizations moved into a ColorScheme autocmd so they persist
@@ -80,7 +106,9 @@ vim.opt.hlsearch = true                            -- Search results highlightin
 vim.opt.incsearch = true                           -- Show matches while typing
 
 -- Theme (Can be overridden by plugins)
-vim.opt.termguicolors = true                       -- Enable 24-bit colors
+if not is_console() then
+  vim.opt.termguicolors = true                     -- Enable 24-bit colors
+end
 vim.opt.background = "dark"                        -- Change colorscheme to handle dark background
 vim.cmd.colorscheme('vim')                         -- Load colorscheme: good ones are torte, elflord, wildcharm, vim, catppuccin
 
@@ -788,7 +816,8 @@ vim.api.nvim_create_autocmd("VimEnter", {
         end
         vim.g.cached_branch = branch_cache[dir]
         if vim.g.cached_branch ~= '' then
-          return ' \u{e725} ' .. vim.g.cached_branch .. ' '
+          local icon = use_glyphs and ' \u{e725} ' or ' '
+          return icon .. vim.g.cached_branch .. ' '
         end
         return ''
       end
@@ -836,10 +865,10 @@ vim.api.nvim_create_autocmd("VimEnter", {
           astro = "\u{e628} ",
         }
 
+        if not use_glyphs then return ft end
         if ft == "" then
-          return " \u{f15b} " -- nf-fa-file_o
+          return " \u{f15b} "
         end
-
         return ((icons[ft] or " \u{f15b} ") .. ft)
       end
 
@@ -857,7 +886,8 @@ vim.api.nvim_create_autocmd("VimEnter", {
         else
           size_str = string.format("%.1fM", size / 1024 / 1024)
         end
-        return " \u{f016} " .. size_str .. " " -- nf-fa-file_o
+        local icon = use_glyphs and " \u{f016} " or " "
+        return icon .. size_str .. " "
       end
 
       -- Mode indicators with Nerd Font icons
@@ -878,7 +908,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
           ["!"]   = "SHELL",
           t       = "TERMINAL",
         }
-        return modes[mode] or (" \u{f059} " .. mode)
+        return modes[mode] or (use_glyphs and (" \u{f059} " .. mode) or mode)
       end
 
       _G.statusline_percent = function()
@@ -898,7 +928,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
       _G.file_type = file_type
       -- _G.file_size = file_size
       _G.has_git_branch = function()
-        return vim.g.cached_branch ~= '' and '\u{e0b0}' or ''
+        return vim.g.cached_branch ~= '' and sl.sep_r or ''
       end
 
       -- Function to change statusline based on window focus
@@ -907,27 +937,27 @@ vim.api.nvim_create_autocmd("VimEnter", {
           callback = function()
             vim.opt_local.statusline = table.concat({
               "%#StatusLineMode# %{v:lua.mode_icon()} ",
-              "%#StatusLineGit#\u{e0b0}",   -- left divider
+              "%#StatusLineGit#" .. sl.sep_r,
               "%{v:lua.git_branch()}%#StatusLineIcon#",
               "%{v:lua.has_git_branch()}",
-              "%#StatusLine# %f %h%m%r", -- filename + flags
-              "%=",         -- Right-align everything after this
-              "%{&fenc!=''?&fenc:&enc}", -- encoding
-              " \u{e0b3}",  -- right divider
+              "%#StatusLine# %f %h%m%r",
+              "%=",
+              "%{&fenc!=''?&fenc:&enc}",
+              " " .. sl.div,
               " %{&fileformat}",
-              " \u{e0b3}", -- right divider
+              " " .. sl.div,
               " %{&filetype}",
-              " %#StatusLineIcon#\u{e0b2}", -- right divider
-              "%#StatusLinePerc# %{v:lua.statusline_percent()}", -- percentage through file
-              " \u{e0b2}", -- right divider
-              "%#StatusLinePos# %l:%c ",   -- line:col
+              " %#StatusLineIcon#" .. sl.sep_rv,
+              "%#StatusLinePerc# %{v:lua.statusline_percent()}",
+              " " .. sl.sep_rv,
+              "%#StatusLinePos# %l:%c ",
             })
           end,
         })
 
         vim.api.nvim_create_autocmd({ "WinLeave", "BufLeave" }, {
           callback = function()
-            vim.opt_local.statusline = " %f %h%m%r \u{e0b1} %= %{v:lua.file_type()} \u{e0b3} %P \u{e0b3} %l:%c "
+            vim.opt_local.statusline = " %f %h%m%r " .. sl.div_l .. " %= %{v:lua.file_type()} " .. sl.div .. " %P " .. sl.div .. " %l:%c "
           end,
         })
       end
