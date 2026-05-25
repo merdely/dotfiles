@@ -70,12 +70,27 @@ stty stop undef                                         # disable accidental ctr
 
 setopt PROMPT_SUBST
 __set_prompt() {
+  # Set up a good looking orange (choose simpler orange for OpenBSD and Linux console
+  __orange='0;33'
+  [[ "$TERM" != "linux" && "$TERM" != "vt220" ]] && __orange='38;5;208'
+
   # Color codes: black:0, red:1, green:2, yellow:3, blue:4, magenta:5, cyan:6, white:7
   # Bright versions:   8,     9,      10,       11,     12,        13,     14,      15
   [[ "$KEYMAP" == vicmd ]] && __prompt_mode='%b' || __prompt_mode='%B'
+
   # Subshell indicator (zsh uses %{...%} instead of \[...\])
   [[ "$CHEZMOI_SUBSHELL" == 1 ]] && __subshell=" %B%F{13}{C}%f%b" || unset __subshell
-  PROMPT='${__prompt_mode}[%F{14}%n%f@%F{10}%m%f %F{12}%2~%f]%b${__subshell}$(__git_ps1 " (\1\e[1;38;5;208m\2${__gitglyph}\1\e[1;39m\2%s)" 2>/dev/null) %(?.%F{10}.%F{9})%B%(!.󰄾.❱)%b%f '
+
+  # If OpenBSD console or small terminal, use a newline
+  __nl='\n'
+  [[ "$TERM" != "vt220" && ${COLUMNS:-80} -ge 75 ]] && unset __nl
+
+  # Use a nice prompt character unless OpenBSD or Linux console
+  __promptchar="❱"
+  __promptroot="󰄾"
+  [[ "$TERM" == "vt220" || "$TERM" == "linux" ]] && {  __promptchar='>' ; __promptroot='#' ; }
+
+  PROMPT="\${__prompt_mode}[%F{14}%n%f@%F{10}%m%f %F{12}%2~%f]%b\${__subshell}\$(__git_ps1 \" (\1\e[1;${__orange}m\2${__gitglyph}\1\e[1;39m\2%s)\" 2>/dev/null) %(?.%F{10}.%F{9})%B%(!.${__promptroot}.${__promptchar})%b%f "
 }
 __set_prompt
 
