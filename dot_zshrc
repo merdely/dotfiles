@@ -1,0 +1,160 @@
+## Mike's Master shell profile
+# vim: set filetype=sh :
+
+# Set umask early
+umask 0022 > /dev/null 2>&1
+
+# Stop if non-interactive
+[[ $- != *i* ]] && return
+
+# Load aliases and functions
+[ -r "$XDG_CONFIG_HOME"/shell/helpers ]        && . "$XDG_CONFIG_HOME"/shell/helpers
+[ -r "$XDG_CONFIG_HOME"/shell/aliases ]        && . "$XDG_CONFIG_HOME"/shell/aliases
+[ -r "$XDG_CONFIG_HOME"/shell/functions ]      && . "$XDG_CONFIG_HOME"/shell/functions
+[ -r "$XDG_CONFIG_HOME"/shell/ssh-settings ]   && . "$XDG_CONFIG_HOME"/shell/ssh-settings
+[ -r "$XDG_CONFIG_HOME"/shell/os-specifics ]   && . "$XDG_CONFIG_HOME"/shell/os-specifics
+[ -r "$XDG_CONFIG_HOME"/shell/host-specifics ] && . "$XDG_CONFIG_HOME"/shell/host-specifics
+
+# Set up BLE
+if [ -z "$BLE_VERSION" ]; then
+  if [ ! -r "$XDG_DATA_HOME"/blesh/ble.sh ]; then
+    work=$(mktemp -d)
+    curl -sLo "$work"/ble.tar.xz https://github.com/akinomyoga/ble.sh/releases/download/nightly/ble-nightly.tar.xz
+    if [ -s "$work"/ble.tar.xz ]; then
+      unxz --stdout "$work"/ble.tar.xz | tar -C "$work" -xf -
+    fi
+    if [ -r "$work"/ble-nightly/ble.sh ]; then
+      bash "$work"/ble-nightly/ble.sh --install "$XDG_DATA_HOME"
+    fi
+    rm -Rf "$work"
+  fi
+
+  # If BLE is installed, set it up
+  if [ -r "$XDG_DATA_HOME"/blesh/ble.sh ]; then
+    source "$XDG_DATA_HOME"/blesh/ble.sh --attach=none
+  fi
+fi
+
+# For use in PS1, better PROMPT_DIRTRIM/\w
+__prompt_trim_pwd() {
+    local default=${1:-\\w}
+    [[ -z "$BASH_VERSION" ]] && { echo "$default" ; return 0 ; }
+    local ellipsis="…" pwd=${PWD/#$HOME/\~} parts trimmed
+    [[ -z "$PROMPT_DIRTRIM" || "$PROMPT_DIRTRIM" -lt 1 ]] && { echo "$default" ; return 1 ; }
+    eval 'IFS=/ read -ra parts <<< "$pwd"'
+    if (( ${#parts[@]} == 0 )); then
+      echo "$default" ; return 1
+    elif [[ "${parts[0]}" == "~" && "${#parts[@]}" -gt $(( PROMPT_DIRTRIM + 2 )) ]]; then
+        trimmed=${parts[*]: -$PROMPT_DIRTRIM}
+        echo "~/${ellipsis}/${trimmed// //}"
+    elif [[ "${parts[0]}" != "~" && "${#parts[@]}" -gt $(( PROMPT_DIRTRIM + 1 )) ]]; then
+        trimmed=${parts[*]: -$PROMPT_DIRTRIM}
+        echo "${ellipsis}/${trimmed// //}"
+    else
+        echo "$pwd"
+    fi
+}
+
+# Load git prompt
+[ -r "$XDG_CONFIG_HOME"/shell/git-prompt ] && . "$XDG_CONFIG_HOME"/shell/git-prompt
+
+## Get current namespace name for prompt
+#if cmdcheck ip; then
+#  # Save current network namespace
+#  current_netns=$(ip netns identify $$)
+#  unset netnsp
+#  [ -n "$current_netns" ] && netnsp="-[$current_netns]"
+#fi
+
+# Set the prompt for bash
+if [[ -n "$BASH_VERSION" ]]; then
+  # \1 & \2 are good for the vi-ins-mode-string but \[ and \] are good for PS1
+  # Colors: black:30, red:31, green:32, yellow:33, blue:34, magenta:35, cyan:36, white:37
+  # foreground:38, background:48, reset_foreground:39, reset_background:49
+  # bright_foreground:+60, bright_background:+70
+  # bold:1, unbold:22, underline:4, un-underline:24, reverse:7, unreverse:27
+  # orange:38;2;255;165;0 (a little darker: 38;5;208
+
+  # Set up a good looking orange
+  __orange='0;33'
+  [[ "$TERM" != linux && "$TERM" != vt220 ]] && __orange='38;5;208'
+
+  PROMPT_DIRTRIM=2
+  shopt -s autocd cdspell extglob histappend
+
+  # Show the mode in the prompt
+  bind 'set show-mode-in-prompt on'
+
+  # Lower the timeout for pressing escape
+  bind 'set keyseq-timeout 100'
+
+  # Set emacs-mode and vi-ins-mode to reset codes
+  bind "set emacs-mode-string \"\1\e[1m\2\""
+  bind "set vi-ins-mode-string \"\1\e[1m\2\""
+
+  # Set vi-cmd-mode string to reverse mode
+  bind "set vi-cmd-mode-string \"\1\e[0m\2\""
+
+  # Rebuild prompt command with exit status and history commands
+  eval 'IFS=";" read -ra parts <<< "$PROMPT_COMMAND"'
+  PROMPT_COMMAND=""
+  for part in "${parts[@]}"; do
+    [[ -z "$part" || "$part" == "history "* || "$part" == "(( \$? )) && "* || "$part" == ":" ]] && continue
+    PROMPT_COMMAND="$PROMPT_COMMAND;$part"
+  done
+
+  # Do not do history-related things if using BLE
+  if [ -z "${BLE_VERSION-}" ]; then
+    # Append commands to history file
+    PROMPT_COMMAND="$PROMPT_COMMAND;history -a"
+
+    # Clear in-memory history
+    # PROMPT_COMMAND="$PROMPT_COMMAND;history -c"
+    # Load history file into memory
+    # PROMPT_COMMAND="$PROMPT_COMMAND;history -r"
+  fi
+
+  # Set the exit status of the previous command for the prompt
+  PROMPT_COMMAND="(( \$? )) && __prompt_color=$'\e[91m' || __prompt_color=$'\e[92m'$PROMPT_COMMAND"
+
+  unset parts part
+
+  # Set the prompt
+  [[ "$CHEZMOI_SUBSHELL" == 1 ]] && __subshell=$' \1\e[1;95m\2{C}\1\e[22;39m\2'
+  PS1="[\[\e[96m\]\u\[\e[39m\]@\[\e[92m\]\h\[\e[39m\] \[\e[94m\]\$(__prompt_trim_pwd "\W")\[\e[39m\]]\[\e[22;24;27;49m\]\${__subshell}\$(__git_ps1 ' (\[\e[1;${__orange}m\]${__gitglyph}\[\e[1;39m\]%s\[\e[22m\])' 2>/dev/null) \[\${__prompt_color}\]\\$\[\e[39m\] \[\e[0m\]"
+  unset __gitglyph
+
+  # Set readline options
+  bind 'set completion-ignore-case on'     # ignore case
+  bind 'set completion-map-case on'        # treat hyphens and underscores the same
+  #bind 'set show-all-if-ambiguous on'      # show all completions on first tab
+  bind 'set show-all-if-unmodified on'     # show all completions on first tab with no partial match
+  bind 'set colored-stats on'              # types in ls-style colors
+  bind 'set colored-completion-prefix on'  # display common prefix in ls-style colors
+  bind 'set mark-symlinked-directories on' # show directory symlinks with trailing slash
+  bind 'set visible-stats on'              # append character indicating type
+else
+  # Set up a basic prompt
+  unset __subshell
+  [[ "$CHEZMOI_SUBSHELL" == 1 ]] && __subshell=" {C}"
+  [[ "$TERM" == vt220 ]] && { unset __gitglyph ; }
+  PS1="[\u@\h \$(__prompt_trim_pwd '\W')]\${__subshell}\$(__git_ps1 ' (${__gitglyph}%s)' 2>/dev/null) \\$ "
+fi
+
+# Load fzf for command history for bash and zsh
+if cmdcheck fzf; then
+  if [[ -n "$BASH_VERSION" ]]; then
+    type __fzf_history__ > /dev/null 2>&1 || eval "$(fzf --bash)"
+  elif [[ -n "$ZSH_VERSION" ]]; then
+    type fzf-history-widget > /dev/null 2>&1 || eval 'source <(fzf --zsh)'
+  fi
+fi
+
+# Use vi-mode
+set -o vi
+
+[[ -e "$HOME"/.profile.local ]] && . "$HOME"/.profile.local
+
+# Enable BLE
+[ -z "${BLE_VERSION-}" ] || ble-attach
+true
