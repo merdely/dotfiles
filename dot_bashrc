@@ -105,7 +105,7 @@ PROMPT_COMMAND="(( \$? )) && __prompt_color=$'\e[91m' || __prompt_color=$'\e[92m
 unset parts part
 
 # If in a Chezmoi subshell, mark it with a {C}
-[[ "$CHEZMOI_SUBSHELL" == 1 ]] && __subshell=" \[\e[1;95m\]{C}\[\e[22;39m\]"
+[[ "$CHEZMOI_SUBSHELL" == 1 ]] && __subshell=" \[\e[1;95m\]{C}\[\e[22;39m\]" || unset __subshell
 
 # If OpenBSD console or small terminal, use a newline
 __nl='\n'
