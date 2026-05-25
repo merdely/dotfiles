@@ -4,13 +4,14 @@
 # When this script or any of the hashes below change, update files
 # .ssh/home_known_hosts: {{ include "private_dot_ssh/home_known_hosts" | sha256sum }}
 
-if ! command -v sudo > /dev/null 2>&1 && ! command -v doas > /dev/null 2>&1; then
+command -v ssh-keyscan > /dev/null 2>&1 || exit 0
+
+sudo=sudo
+! command -v sudo > /dev/null 2>&1 && sudo=doas
+if [ "$sudo" = "doas" ] && ! command -v doas > /dev/null 2>&1; then
   echo "Error: Cannot find sudo or doas" >&2
   exit 0
 fi
-
-sudo=doas
-command -v sudo > /dev/null 2>&1 && sudo=sudo
 
 echo "Processing Run OnChange for SSH Host Keys"
 

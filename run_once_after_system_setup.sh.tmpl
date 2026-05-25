@@ -8,13 +8,12 @@
 {{- $is_server  := stat (joinPath $profiles "server") -}}
 {{- $is_trusted := has .chezmoi.hostname $trusted_hosts -}}
 
-if ! command -v sudo > /dev/null 2>&1 && ! command -v doas > /dev/null 2>&1; then
-  echo "Warning: Cannot find sudo or doas" >&2
+sudo=sudo
+! command -v sudo > /dev/null 2>&1 && sudo=doas
+if [ "$sudo" = "doas" ] && ! command -v doas > /dev/null 2>&1; then
+  echo "Error: Cannot find sudo or doas" >&2
   exit 0
 fi
-
-sudo=doas
-command -v sudo > /dev/null 2>&1 && sudo=sudo
 
 echo "Processing Run Once After System Setup"
 

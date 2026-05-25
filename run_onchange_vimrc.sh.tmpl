@@ -5,17 +5,29 @@
 # .config/vim/vimrc: {{ include "dot_config/vim/vimrc" | sha256sum }}
 
 command -v vim > /dev/null 2>&1 || exit 0
-if ! command -v sudo > /dev/null 2>&1 && ! command -v doas > /dev/null 2>&1; then
+
+sudo=sudo
+! command -v sudo > /dev/null 2>&1 && sudo=doas
+if [ "$sudo" = "doas" ] && ! command -v doas > /dev/null 2>&1; then
   echo "Error: Cannot find sudo or doas" >&2
   exit 0
 fi
 
-sudo=doas
-command -v sudo > /dev/null 2>&1 && sudo=sudo
-
 echo "Processing Run OnChange for vimrc"
 
-vimrc=$(vim --version | awk -F'"' '/system vimrc file:/{print $2}')
+[ -r /etc/os-release ] && source /etc/os-release
+[ "$uname -s" = "OpenBSD" ] && ID=OpenBSD
+case "$ID" in
+  arch|artix|cachyos|garuda|endeavouros|manjaro|parabola|hyperbola|blackarch)
+    vimrc=/etc/vimrc
+    ;;
+  debian|ubuntu|linuxmint|pop|elementary|kali|parrot|mx|raspbian|tails|zorin)
+    vimrc=/etc/vim/vimrc
+    ;;
+  OpenBSD|openbsd)
+    vimrc=/usr/local/share/vim/vimrc
+    ;;
+esac
 
 # Have vimrc.local added to system vimrc if needed
 if ! grep -q "source $vimrc.local" "$vimrc"; then
