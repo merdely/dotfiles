@@ -30,6 +30,7 @@ if command -v git > /dev/null 2>&1; then
     [ -n "$KSH_VERSION" ] && GIT_PS1_COLOR_POST="\]"
     __gitglyph="§ "  # unicode section sign
     [ "$TERM" != "linux" ] && __gitglyph=" "  # git branch symbol from nerd fonts
+    [ "$TERM" = "vt220" ] && unset __gitglyph
   fi
 fi
 typeset -f __git_ps1 > /dev/null 2>&1 || alias __git_ps1=true

@@ -175,6 +175,9 @@ export LESS=REX
 cmdcheck virsh && export VIRSH_DEFAULT_CONNECT_URI=qemu:///system LIBVIRT_DEFAULT_URI=qemu:///system
 cmdcheck ansible && ANSIBLE_NOCOWS=1
 
+# If gpg agent is not running, tell it to use the tty
+pgrep -x gpg-agent > /dev/null 2>&1 || export GPG_TTY=$(tty)
+
 # Set some variables
 if cmdcheck docker; then
   [ -r /srv/docker/docker-compose.yaml ] && export COMPOSE_FILE=/srv/docker/docker-compose.yaml
