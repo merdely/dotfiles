@@ -143,7 +143,11 @@ syntax enable
 set signcolumn=yes                                 " Always show sign column
 set colorcolumn=80                                 " Column number where to show color column
 set list                                           " Show list characters
-set listchars=tab:▸\ ,trail:·,nbsp:␣               " Show symbols for tabs and trailing spaces
+if g:use_glyphs
+  set listchars=tab:▸\ ,trail:·,nbsp:␣             " Show symbols for tabs and trailing spaces
+else
+  set listchars=tab:>\ ,trail:.,nbsp:~             " Show symbols for tabs and trailing spaces
+endif
 set showmatch                                      " Highlight matching brackets
 set matchtime=2                                    " How long to show matching bracket
 set cmdheight=1                                    " Command line hight
