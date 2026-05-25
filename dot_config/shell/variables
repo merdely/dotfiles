@@ -163,10 +163,11 @@ fi
 export HOSTNAME=${HOSTNAME%%.*}
 
 # History stuff
-HISTFILE=$XDG_CACHE_HOME/shell_history
+HISTFILE=$XDG_CACHE_HOME/${SHELL##*/}_history
 HISTFILESIZE=100000
 HISTCONTROL=ignoreboth:erasedups
 HISTSIZE=$HISTFILESIZE
+[ "$ZSH_VERSION" ] && SAVEHIST=$HISTFILESIZE
 
 # Variables
 export LESS=REX

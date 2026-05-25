@@ -1,5 +1,5 @@
-## Mike's Master shell profile
-# vim: set filetype=sh :
+## Mike's Master zsh profile
+# vim: set filetype=zsh :
 
 # Set umask early
 umask 0022 > /dev/null 2>&1
@@ -7,7 +7,7 @@ umask 0022 > /dev/null 2>&1
 # Stop if non-interactive
 [[ $- != *i* ]] && return
 
-# Load aliases and functions
+# Load aliases & functions
 [ -r "$XDG_CONFIG_HOME"/shell/helpers ]        && . "$XDG_CONFIG_HOME"/shell/helpers
 [ -r "$XDG_CONFIG_HOME"/shell/aliases ]        && . "$XDG_CONFIG_HOME"/shell/aliases
 [ -r "$XDG_CONFIG_HOME"/shell/functions ]      && . "$XDG_CONFIG_HOME"/shell/functions
@@ -15,146 +15,108 @@ umask 0022 > /dev/null 2>&1
 [ -r "$XDG_CONFIG_HOME"/shell/os-specifics ]   && . "$XDG_CONFIG_HOME"/shell/os-specifics
 [ -r "$XDG_CONFIG_HOME"/shell/host-specifics ] && . "$XDG_CONFIG_HOME"/shell/host-specifics
 
-# Set up BLE
-if [ -z "$BLE_VERSION" ]; then
-  if [ ! -r "$XDG_DATA_HOME"/blesh/ble.sh ]; then
-    work=$(mktemp -d)
-    curl -sLo "$work"/ble.tar.xz https://github.com/akinomyoga/ble.sh/releases/download/nightly/ble-nightly.tar.xz
-    if [ -s "$work"/ble.tar.xz ]; then
-      unxz --stdout "$work"/ble.tar.xz | tar -C "$work" -xf -
-    fi
-    if [ -r "$work"/ble-nightly/ble.sh ]; then
-      bash "$work"/ble-nightly/ble.sh --install "$XDG_DATA_HOME"
-    fi
-    rm -Rf "$work"
-  fi
-
-  # If BLE is installed, set it up
-  if [ -r "$XDG_DATA_HOME"/blesh/ble.sh ]; then
-    source "$XDG_DATA_HOME"/blesh/ble.sh --attach=none
-  fi
-fi
-
-# For use in PS1, better PROMPT_DIRTRIM/\w
-__prompt_trim_pwd() {
-    local default=${1:-\\w}
-    [[ -z "$BASH_VERSION" ]] && { echo "$default" ; return 0 ; }
-    local ellipsis="…" pwd=${PWD/#$HOME/\~} parts trimmed
-    [[ -z "$PROMPT_DIRTRIM" || "$PROMPT_DIRTRIM" -lt 1 ]] && { echo "$default" ; return 1 ; }
-    eval 'IFS=/ read -ra parts <<< "$pwd"'
-    if (( ${#parts[@]} == 0 )); then
-      echo "$default" ; return 1
-    elif [[ "${parts[0]}" == "~" && "${#parts[@]}" -gt $(( PROMPT_DIRTRIM + 2 )) ]]; then
-        trimmed=${parts[*]: -$PROMPT_DIRTRIM}
-        echo "~/${ellipsis}/${trimmed// //}"
-    elif [[ "${parts[0]}" != "~" && "${#parts[@]}" -gt $(( PROMPT_DIRTRIM + 1 )) ]]; then
-        trimmed=${parts[*]: -$PROMPT_DIRTRIM}
-        echo "${ellipsis}/${trimmed// //}"
-    else
-        echo "$pwd"
-    fi
+# Zsh Settings
+zmodload zsh/complist
+autoload -U compinit && compinit -i
+autoload -U colors && colors
+autoload -U edit-command-line && zle -N edit-command-line
+autoload zmv
+autoload -Uz add-zsh-hook
+edit-and-execute() {
+  zle edit-command-line
+  zle accept-line
 }
+zle -N edit-and-execute
+bindkey -M vicmd '^v' edit-and-execute
+
+# Completion settings
+if [ -r ~/.config/zsh/plugins/fzf-tab/fzf-tab.plugin.zsh ]; then
+  source ~/.config/zsh/plugins/fzf-tab/fzf-tab.plugin.zsh
+  zstyle ":fzf-tab:*" use-fzf-default-opts yes
+  zstyle ":fzf-tab:complete:cd:*" fzf-preview "ls --color=always \${realpath}"
+  zstyle ':fzf-tab:*' query-string input
+else
+  #zstyle ':completion:*' menu select # tab opens cmp menu
+  zstyle ':completion:*' special-dirs true # force . and .. to show in cmp menu
+  zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS} ma=0\;33 # colorize cmp menu
+  # zstyle ':completion:*' file-list true # more detailed list
+  zstyle ':completion:*' squeeze-slashes false # explicit disable to allow /*/ expansion
+fi
+zstyle ':completion:*' matcher-list ''  # clear completing matching
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}' 'm:{a-z}={A-Z} r:|[._-]=* r:|=*'  # smart case matching
+
+# main opts
+setopt append_history inc_append_history share_history  # better history
+# on exit, history appends rather than overwrites; history is appended as soon as cmds executed; history shared across sessions
+#setopt auto_menu menu_complete                          # autocmp first menu match
+setopt autocd                                           # type a dir to cd
+setopt auto_pushd                                       # push the old directory into the directory stack
+setopt cd_silent                                        # don't print dir
+setopt pushd_silent                                     # don't print dir
+setopt rmstarsilent                                     # don't prompt to delete
+setopt auto_param_slash                                 # when a dir is completed, add a / instead of a trailing space
+setopt no_case_glob no_case_match                       # make cmp case insensitive
+#setopt globdots                                         # include dotfiles
+#setopt extended_glob                                    # match ~ # ^
+setopt interactive_comments                             # allow comments in shell
+setopt prompt_sp                                        # don't autoclean blanklines
+setopt no_hup                                           # don't prevent exiting shell with background jobs
+setopt no_check_jobs                                    # don't warn of background jobs
+setopt no_nomatch                                       # don't complain when there is no glob match
+stty stop undef                                         # disable accidental ctrl s
 
 # Load git prompt
-[ -r "$XDG_CONFIG_HOME"/shell/git-prompt ] && . "$XDG_CONFIG_HOME"/shell/git-prompt
+[ -r "$HOME"/.config/shell/git-prompt ] && . "$HOME"/.config/shell/git-prompt
 
-## Get current namespace name for prompt
-#if cmdcheck ip; then
-#  # Save current network namespace
-#  current_netns=$(ip netns identify $$)
-#  unset netnsp
-#  [ -n "$current_netns" ] && netnsp="-[$current_netns]"
-#fi
+setopt PROMPT_SUBST
+__set_prompt() {
+  # Color codes: black:0, red:1, green:2, yellow:3, blue:4, magenta:5, cyan:6, white:7
+  # Bright versions:   8,     9,      10,       11,     12,        13,     14,      15
+  [[ "$KEYMAP" == vicmd ]] && __prompt_mode='%b' || __prompt_mode='%B'
+  # Subshell indicator (zsh uses %{...%} instead of \[...\])
+  [[ "$CHEZMOI_SUBSHELL" == 1 ]] && __subshell=" %B%F{13}{C}%f%b" || unset __subshell
+  PROMPT='${__prompt_mode}[%F{14}%n%f@%F{10}%m%f %F{12}%2~%f]%b${__subshell}$(__git_ps1 " (\1\e[1;38;5;208m\2${__gitglyph}\1\e[1;39m\2%s)" 2>/dev/null) %(?.%F{10}.%F{9})%B%(!.#.$)%b%f '
+}
+__set_prompt
 
-# Set the prompt for bash
-if [[ -n "$BASH_VERSION" ]]; then
-  # \1 & \2 are good for the vi-ins-mode-string but \[ and \] are good for PS1
-  # Colors: black:30, red:31, green:32, yellow:33, blue:34, magenta:35, cyan:36, white:37
-  # foreground:38, background:48, reset_foreground:39, reset_background:49
-  # bright_foreground:+60, bright_background:+70
-  # bold:1, unbold:22, underline:4, un-underline:24, reverse:7, unreverse:27
-  # orange:38;2;255;165;0 (a little darker: 38;5;208
+# Set vi mode key timeout
+KEYTIMEOUT=10
 
-  # Set up a good looking orange
-  __orange='0;33'
-  [[ "$TERM" != linux && "$TERM" != vt220 ]] && __orange='38;5;208'
+# When sharing this config with bash, it does not like the "function name1 name2 ()" definition
+# Set the prompt automatically
+function zle-line-init zle-keymap-select () { __set_prompt; zle reset-prompt; }
+zle -N zle-line-init
+zle -N zle-keymap-select
 
-  PROMPT_DIRTRIM=2
-  shopt -s autocd cdspell extglob histappend
+# Enable vi-mode (like set -o vi)
+bindkey -v
+bindkey -M vicmd j vi-down-line-or-history
+bindkey -M vicmd k vi-up-line-or-history
+bindkey -v '^?' backward-delete-char       # Allow backspace character to work
 
-  # Show the mode in the prompt
-  bind 'set show-mode-in-prompt on'
-
-  # Lower the timeout for pressing escape
-  bind 'set keyseq-timeout 100'
-
-  # Set emacs-mode and vi-ins-mode to reset codes
-  bind "set emacs-mode-string \"\1\e[1m\2\""
-  bind "set vi-ins-mode-string \"\1\e[1m\2\""
-
-  # Set vi-cmd-mode string to reverse mode
-  bind "set vi-cmd-mode-string \"\1\e[0m\2\""
-
-  # Rebuild prompt command with exit status and history commands
-  eval 'IFS=";" read -ra parts <<< "$PROMPT_COMMAND"'
-  PROMPT_COMMAND=""
-  for part in "${parts[@]}"; do
-    [[ -z "$part" || "$part" == "history "* || "$part" == "(( \$? )) && "* || "$part" == ":" ]] && continue
-    PROMPT_COMMAND="$PROMPT_COMMAND;$part"
-  done
-
-  # Do not do history-related things if using BLE
-  if [ -z "${BLE_VERSION-}" ]; then
-    # Append commands to history file
-    PROMPT_COMMAND="$PROMPT_COMMAND;history -a"
-
-    # Clear in-memory history
-    # PROMPT_COMMAND="$PROMPT_COMMAND;history -c"
-    # Load history file into memory
-    # PROMPT_COMMAND="$PROMPT_COMMAND;history -r"
-  fi
-
-  # Set the exit status of the previous command for the prompt
-  PROMPT_COMMAND="(( \$? )) && __prompt_color=$'\e[91m' || __prompt_color=$'\e[92m'$PROMPT_COMMAND"
-
-  unset parts part
-
-  # Set the prompt
-  [[ "$CHEZMOI_SUBSHELL" == 1 ]] && __subshell=$' \1\e[1;95m\2{C}\1\e[22;39m\2'
-  PS1="[\[\e[96m\]\u\[\e[39m\]@\[\e[92m\]\h\[\e[39m\] \[\e[94m\]\$(__prompt_trim_pwd "\W")\[\e[39m\]]\[\e[22;24;27;49m\]\${__subshell}\$(__git_ps1 ' (\[\e[1;${__orange}m\]${__gitglyph}\[\e[1;39m\]%s\[\e[22m\])' 2>/dev/null) \[\${__prompt_color}\]\\$\[\e[39m\] \[\e[0m\]"
-  unset __gitglyph
-
-  # Set readline options
-  bind 'set completion-ignore-case on'     # ignore case
-  bind 'set completion-map-case on'        # treat hyphens and underscores the same
-  #bind 'set show-all-if-ambiguous on'      # show all completions on first tab
-  bind 'set show-all-if-unmodified on'     # show all completions on first tab with no partial match
-  bind 'set colored-stats on'              # types in ls-style colors
-  bind 'set colored-completion-prefix on'  # display common prefix in ls-style colors
-  bind 'set mark-symlinked-directories on' # show directory symlinks with trailing slash
-  bind 'set visible-stats on'              # append character indicating type
-else
-  # Set up a basic prompt
-  unset __subshell
-  [[ "$CHEZMOI_SUBSHELL" == 1 ]] && __subshell=" {C}"
-  [[ "$TERM" == vt220 ]] && { unset __gitglyph ; }
-  PS1="[\u@\h \$(__prompt_trim_pwd '\W')]\${__subshell}\$(__git_ps1 ' (${__gitglyph}%s)' 2>/dev/null) \\$ "
-fi
-
-# Load fzf for command history for bash and zsh
 if cmdcheck fzf; then
-  if [[ -n "$BASH_VERSION" ]]; then
-    type __fzf_history__ > /dev/null 2>&1 || eval "$(fzf --bash)"
-  elif [[ -n "$ZSH_VERSION" ]]; then
-    type fzf-history-widget > /dev/null 2>&1 || eval 'source <(fzf --zsh)'
-  fi
+  source <(fzf --zsh)
+  # export FZF_DEFAULT_OPTS="--highlight-line --info=inline-right --ansi --border=none"
+  bindkey -M viins '^p' history-search-backward
+  bindkey -M viins '^n' history-search-forward
 fi
 
-# Use vi-mode
-set -o vi
+# Use XDG dirs for completion and history files
+[ -d "$XDG_CACHE_HOME"/zsh/zcompcache ] || mkdir -p "$XDG_CACHE_HOME"/zsh/zcompcache
+zstyle ':completion:*' cache-path "$XDG_CACHE_HOME"/zsh/zcompcache
+compinit -d "$XDG_CACHE_HOME"/zsh/zcompdump-$ZSH_VERSION
+
+# ZSH Syntax Highlighting
+[ -r /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ] && \
+  source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+# ZSH Auto Suggestions
+[ -r /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh ] && \
+  source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
+bindkey -M viins '^y' autosuggest-execute
+bindkey -M viins "^Xy" autosuggest-accept
+bindkey ' ' magic-space
 
 [[ -e "$HOME"/.profile.local ]] && . "$HOME"/.profile.local
 
-# Enable BLE
-[ -z "${BLE_VERSION-}" ] || ble-attach
 true

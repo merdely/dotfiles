@@ -1,4 +1,4 @@
-## Mike's Master shell profile
+## Mike's Master bash profile
 # vim: set filetype=sh :
 
 # Set umask early
@@ -57,14 +57,6 @@ __prompt_trim_pwd() {
 
 # Load git prompt
 [ -r "$XDG_CONFIG_HOME"/shell/git-prompt ] && . "$XDG_CONFIG_HOME"/shell/git-prompt
-
-## Get current namespace name for prompt
-#if cmdcheck ip; then
-#  # Save current network namespace
-#  current_netns=$(ip netns identify $$)
-#  unset netnsp
-#  [ -n "$current_netns" ] && netnsp="-[$current_netns]"
-#fi
 
 # Set the prompt for bash
 if [[ -n "$BASH_VERSION" ]]; then
