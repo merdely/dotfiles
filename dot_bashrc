@@ -110,7 +110,7 @@ unset parts part
 [[ "$CHEZMOI_SUBSHELL" == 1 ]] && __subshell=" \[\e[1;95m\]{C}\[\e[22;39m\]"
 __promptchar="❱"
 __nl='\n'
-[[ "$TERM" != "vt220" && "$TERM" != "linux" && ${COLUMNS:-80} -ge 75 ]] && unset __nl
+[[ "$TERM" != "vt220" && ${COLUMNS:-80} -ge 75 ]] && unset __nl
 (( "$EUID" == 0 )) && __promptchar="󰄾"
 [[ "$TERM" == "vt220" || "$TERM" == "linux" ]] && { unset __gitglyph ; __promptchar='>' ; (( $EUID == 0 )) && __promptchar='#' ; }
 PS1="[\[\e[96m\]\u\[\e[39m\]@\[\e[92m\]\h\[\e[39m\] \[\e[94m\]\$(__prompt_trim_pwd "\W")\[\e[39m\]]\[\e[22;24;27;49m\]${__subshell}\$(__git_ps1 ' (\[\e[1;${__orange}m\]${__gitglyph}\[\e[1;39m\]%s\[\e[22m\])' 2>/dev/null) ${__nl}\[\${__prompt_color}\]${__promptchar}\[\e[39m\] \[\e[0m\]"
