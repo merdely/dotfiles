@@ -16,21 +16,21 @@ umask 0022 > /dev/null 2>&1
 [ -r "$XDG_CONFIG_HOME"/shell/host-specifics ] && . "$XDG_CONFIG_HOME"/shell/host-specifics
 
 # Set up BLE
-if [ -z "$BLE_VERSION" ]; then
-  if [ -z "$SUDO_USER" ] && [ ! -r "$XDG_DATA_HOME"/blesh/ble.sh ]; then
+if [[ -z "$BLE_VERSION" ]]; then
+  if [[ -z "$SUDO_USER" && ! -r "$XDG_DATA_HOME"/blesh/ble.sh ]]; then
     work=$(mktemp -d)
     curl -sLo "$work"/ble.tar.xz https://github.com/akinomyoga/ble.sh/releases/download/nightly/ble-nightly.tar.xz
-    if [ -s "$work"/ble.tar.xz ]; then
+    if [[ -s "$work"/ble.tar.xz ]]; then
       unxz --stdout "$work"/ble.tar.xz | tar -C "$work" -xf -
     fi
-    if [ -r "$work"/ble-nightly/ble.sh ]; then
+    if [[ -r "$work"/ble-nightly/ble.sh ]]; then
       bash "$work"/ble-nightly/ble.sh --install "$XDG_DATA_HOME"
     fi
     rm -Rf "$work"
   fi
 
   # If BLE is installed, set it up
-  if [ -r "$XDG_DATA_HOME"/blesh/ble.sh ]; then
+  if [[ -r "$XDG_DATA_HOME"/blesh/ble.sh ]]; then
     source "$XDG_DATA_HOME"/blesh/ble.sh --attach=none
   fi
 fi
@@ -39,7 +39,7 @@ fi
 __prompt_trim_pwd() {
     local default=${1:-\\w}
     local ellipsis="…" pwd=${PWD/#$HOME/\~} parts trimmed
-    [ "$TERM" = "vt220" || "$TERM" = "linux" ] && ellipsis="..."
+    [[ "$TERM" = "vt220" || "$TERM" = "linux" ]] && ellipsis="..."
     [[ -z "$PROMPT_DIRTRIM" || "$PROMPT_DIRTRIM" -lt 1 ]] && { echo "$default" ; return 1 ; }
     eval 'IFS=/ read -ra parts <<< "$pwd"'
     if (( ${#parts[@]} == 0 )); then
