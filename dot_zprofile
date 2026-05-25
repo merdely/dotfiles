@@ -1,0 +1,4 @@
+# ~/.zprofile
+
+# Use ~/.profile
+[ -r "$HOME"/.profile ] && . "$HOME"/.profile
