@@ -1,0 +1,26 @@
+## Mike's Master ksh profile
+# vim: set filetype=sh :
+
+# Set umask early
+umask 0022 > /dev/null 2>&1
+
+# Stop if non-interactive
+case "$-" in *i*) ;; *) return ;; esac
+
+# Load aliases and functions
+[ -r "$XDG_CONFIG_HOME"/shell/helpers ]        && . "$XDG_CONFIG_HOME"/shell/helpers
+[ -r "$XDG_CONFIG_HOME"/shell/aliases ]        && . "$XDG_CONFIG_HOME"/shell/aliases
+[ -r "$XDG_CONFIG_HOME"/shell/functions ]      && . "$XDG_CONFIG_HOME"/shell/functions
+[ -r "$XDG_CONFIG_HOME"/shell/ssh-settings ]   && . "$XDG_CONFIG_HOME"/shell/ssh-settings
+[ -r "$XDG_CONFIG_HOME"/shell/os-specifics ]   && . "$XDG_CONFIG_HOME"/shell/os-specifics
+[ -r "$XDG_CONFIG_HOME"/shell/host-specifics ] && . "$XDG_CONFIG_HOME"/shell/host-specifics
+
+# Set up a basic prompt
+PS1="[\u@\h \W] \\$ "
+
+# Use vi-mode
+set -o vi
+
+[[ -e "$HOME"/.profile.local ]] && . "$HOME"/.profile.local
+
+true
