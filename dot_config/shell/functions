@@ -52,7 +52,7 @@ fileage() {
 cmdcheck firejail && fj() {
   [ -z "$1" ] && { echo "usage: fj FIREJAILED_APP" >&2 ; return 1 ; }
   [ "$1" = "-l" ] && { firejail --list | awk -F: '! /(\/usr\/bin\/)?firejail --join/{sub(/^(\/usr\/bin\/)?firejail /,"",$NF);print $NF}' ; return ; }
-  echo "$1" | grep -q firejail && { echo "Error: 'firejail' cannot be used in app string" >&2 ; return 1 ; }
+  echo "$1" | command grep -q firejail && { echo "Error: 'firejail' cannot be used in app string" >&2 ; return 1 ; }
   app_pid=$(firejail --list | awk -F: "/$1/ { print \$1 }")
   count=$(echo "$app_pid" | wc -w)
   if [ $count -eq 0 ]; then
@@ -62,7 +62,7 @@ cmdcheck firejail && fj() {
     echo "Error: More than one match found for '$1'" >&2
     return 1
   fi
-  echo "$app_pid"|grep -Eq "^[0-9]+$" || { echo "Error: Invalid FIREJAILED_APP (pid: $app_pid)" >&2 ;return 1; }
+  echo "$app_pid" | command grep -Eq "^[0-9]+$" || { echo "Error: Invalid FIREJAILED_APP (pid: $app_pid)" >&2 ;return 1; }
   firejail --join="$app_pid" bash
 }
 
@@ -73,7 +73,7 @@ getsslexpire() {
   [ $port = $1 ] && port=443
   local date=$(echo | openssl s_client -servername ${1%:*} -connect ${1%:*}:$port 2>/dev/null | openssl x509 -noout -enddate)
   if printf '%s\n' "$date" | \
-      grep -qE '^notAfter=[A-Z][a-z][a-z] [0-9 ][0-9] [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [0-9]{4} [A-Z]{3}'; then
+      command grep -qE '^notAfter=[A-Z][a-z][a-z] [0-9 ][0-9] [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [0-9]{4} [A-Z]{3}'; then
     echo "$1 expires ${date#notAfter=}"
   else
     echo "Error: Could not determine expiration date ($date)"
