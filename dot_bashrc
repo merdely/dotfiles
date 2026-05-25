@@ -35,6 +35,9 @@ if [[ -z "$BLE_VERSION" ]]; then
   fi
 fi
 
+# Configure bash
+shopt -s autocd cdspell extglob histappend
+
 # For use in PS1, better PROMPT_DIRTRIM/\w
 __prompt_trim_pwd() {
     local default=${1:-\\w}
@@ -66,12 +69,12 @@ __prompt_trim_pwd() {
 # bold:1, unbold:22, underline:4, un-underline:24, reverse:7, unreverse:27
 # orange:38;2;255;165;0 (a little darker: 38;5;208
 
-# Set up a good looking orange
+# Set up a good looking orange (choose simpler orange for OpenBSD and Linux console
 __orange='0;33'
-[[ "$TERM" != linux && "$TERM" != vt220 ]] && __orange='38;5;208'
+[[ "$TERM" != "linux" && "$TERM" != "vt220" ]] && __orange='38;5;208'
 
+# Trim all but last two elements of path in prompt
 PROMPT_DIRTRIM=2
-shopt -s autocd cdspell extglob histappend
 
 # Show the mode in the prompt
 bind 'set show-mode-in-prompt on'
@@ -79,14 +82,13 @@ bind 'set show-mode-in-prompt on'
 # Lower the timeout for pressing escape
 bind 'set keyseq-timeout 100'
 
-# Set emacs-mode and vi-ins-mode to reset codes
-bind "set emacs-mode-string \"\1\e[1m\2\""
-bind "set vi-ins-mode-string \"\1\e[1m\2\""
-
-# Set vi-cmd-mode string to reverse mode
+# Set vi-cmd-mode string to bold; clear for emacs/vi-ins-mode
 bind "set vi-cmd-mode-string \"\1\e[0m\2\""
+bind "set vi-ins-mode-string \"\1\e[1m\2\""
+bind "set emacs-mode-string \"\1\e[1m\2\""
 
-# Rebuild prompt command with exit status and history commands
+# Strip out history and return code elements of PROMPT_COMMAND to add them in the right place
+# This prevents duplication
 eval 'IFS=";" read -ra parts <<< "$PROMPT_COMMAND"'
 PROMPT_COMMAND=""
 for part in "${parts[@]}"; do
@@ -99,23 +101,26 @@ done
 
 # Set the exit status of the previous command for the prompt
 PROMPT_COMMAND="(( \$? )) && __prompt_color=$'\e[91m' || __prompt_color=$'\e[92m'$PROMPT_COMMAND"
-
 unset parts part
 
-# May be needed for OpenBSD
-# GIT_PS1_COLOR_PRE="\["
-# GIT_PS1_COLOR_POST="\]"
-
-# Set the prompt
+## Set the prompt
+# If in a Chezmoi subshell, mark it with a {C}
 [[ "$CHEZMOI_SUBSHELL" == 1 ]] && __subshell=" \[\e[1;95m\]{C}\[\e[22;39m\]"
-__promptchar="❱"
+
+# If OpenBSD console or small terminal, use a newline
 __nl='\n'
 [[ "$TERM" != "vt220" && ${COLUMNS:-80} -ge 75 ]] && unset __nl
-(( "$EUID" == 0 )) && __promptchar="󰄾"
+
+# If OpenBSD console, do not show a git glyph
 [[ "$TERM" == "vt220" ]] && { unset __gitglyph ; }
+
+# Use a nice prompt character unless OpenBSD or Linux console
+__promptchar="❱"
+(( "$EUID" == 0 )) && __promptchar="󰄾"
 [[ "$TERM" == "vt220" || "$TERM" == "linux" ]] && {  __promptchar='>' ; (( $EUID == 0 )) && __promptchar='#' ; }
+
+# Prompt variable: '[\u@\h \W] \$' with formatting
 PS1="[\[\e[96m\]\u\[\e[39m\]@\[\e[92m\]\h\[\e[39m\] \[\e[94m\]\$(__prompt_trim_pwd "\W")\[\e[39m\]]\[\e[22;24;27;49m\]${__subshell}\$(__git_ps1 ' (\[\e[1;${__orange}m\]${__gitglyph}\[\e[1;39m\]%s\[\e[22m\])' 2>/dev/null) ${__nl}\[\${__prompt_color}\]${__promptchar}\[\e[39m\] \[\e[0m\]"
-unset __gitglyph
 
 # Set readline options
 bind 'set completion-ignore-case on'     # ignore case
@@ -127,16 +132,17 @@ bind 'set colored-completion-prefix on'  # display common prefix in ls-style col
 bind 'set mark-symlinked-directories on' # show directory symlinks with trailing slash
 bind 'set visible-stats on'              # append character indicating type
 
-# Load fzf for command history for bash and zsh
-if cmdcheck fzf; then
-  type __fzf_history__ > /dev/null 2>&1 || eval "$(fzf --bash)"
-fi
+# Load fzf for command history
+cmdcheck fzf && { type __fzf_history__ > /dev/null 2>&1 || eval "$(fzf --bash)"; }
 
 # Use vi-mode
 set -o vi
 
+# Load any local overrides
 [[ -e "$HOME"/.profile.local ]] && . "$HOME"/.profile.local
 
-# Enable BLE
+# Enable BLE when not sudo or using OpenBSD terminal
 [[ -z "$SUDO_USER" && "$TERM" != "vt220" && -n "${BLE_VERSION-}" ]] && ble-attach
+
+# Always exit with non-error code
 true
