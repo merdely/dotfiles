@@ -2,6 +2,9 @@ return {
   'stevearc/oil.nvim',
   ---@module 'oil'
   ---@type oil.SetupOpts
+  columns = vim.g.use_glyphs == 1
+    and { "icon", "size", "mtime" }
+    or  {         "size", "mtime" },
   opts = {
     skip_confirm_for_simple_edits = true,
     view_options = {
