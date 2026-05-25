@@ -91,7 +91,7 @@ __set_prompt() {
   [[ "$CHEZMOI_SUBSHELL" == 1 ]] && __subshell=" \[\e[1;95m\]{C}\[\e[22;39m\]" || unset __subshell
 
   # If OpenBSD console or small terminal, use a newline
-  __nl='\n'
+  __nl=$'\n'
   [[ "$TERM" != "vt220" && ${COLUMNS:-80} -ge 75 ]] && unset __nl
 
   # Use a nice prompt character unless OpenBSD or Linux console
@@ -99,14 +99,12 @@ __set_prompt() {
   __promptroot="󰄾"
   [[ "$TERM" == "vt220" || "$TERM" == "linux" ]] && {  __promptchar='>' ; __promptroot='#' ; }
 
-  # PROMPT="\${__prompt_mode}[%F{14}%n%f@%F{10}%m%f %F{12}%2~%f]%b\${__subshell}\$(__git_ps1 \" (\1\e[1;${__orange}m\2${__gitglyph}\1\e[1;39m\2%s)\" 2>/dev/null) %(?.%F{10}.%F{9})%B%(!.${__promptroot}.${__promptchar})%b%f "
-  #PROMPT="\${__prompt_mode}[%{\e[96m%}%n%{\e[39m%}@%{\e[92m%}%m%{\e[39m%} %{\e[94m%}%2~%{\e[39m%}]%b\${__subshell}\$(__git_ps1 \" (\1\e[1;${__orange}m\2${__gitglyph}\1\e[1;39m\2%s)\" 2>/dev/null) %{%(?.\e[92m.\e[91m)%}%B%(!.${__promptroot}.${__promptchar})%b%{\e39m%} "
   local c_red=$'\e[91m'
   local c_green=$'\e[92m'
   local c_blue=$'\e[94m'
   local c_cyan=$'\e[96m'
   local c_reset=$'\e[39m'
-  PROMPT="\${__prompt_mode}[%{${c_cyan}%}%n%{${c_reset}%}@%{${c_green}%}%m%{${c_reset}%} %{${c_blue}%}%2~%{${c_reset}%}]%b\${__subshell}\$(__git_ps1 \" (\1\e[1;${__orange}m\2${__gitglyph}\1\e[1;39m\2%s)\" 2>/dev/null) %{%(?.${c_green}.${c_red})%}%B%(!.${__promptroot}.${__promptchar})%b%{${c_reset}%} "
+  PROMPT="\${__prompt_mode}[%{${c_cyan}%}%n%{${c_reset}%}@%{${c_green}%}%m%{${c_reset}%} %{${c_blue}%}%2~%{${c_reset}%}]%b\${__subshell}\$(__git_ps1 \" (\1\e[1;${__orange}m\2${__gitglyph}\1\e[1;39m\2%s)\" 2>/dev/null) ${__nl}%{%(?.${c_green}.${c_red})%}%B%(!.${__promptroot}.${__promptchar})%b%{${c_reset}%} "
 }
 __set_prompt
 
