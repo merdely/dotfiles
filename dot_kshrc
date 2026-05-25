@@ -15,12 +15,63 @@ case "$-" in *i*) ;; *) return ;; esac
 [ -r "$XDG_CONFIG_HOME"/shell/os-specifics ]   && . "$XDG_CONFIG_HOME"/shell/os-specifics
 [ -r "$XDG_CONFIG_HOME"/shell/host-specifics ] && . "$XDG_CONFIG_HOME"/shell/host-specifics
 
+# For use in PS1, better PROMPT_DIRTRIM/\w
+__prompt_trim_pwd() {
+  local default=${1:-\\w}
+  [[ -z "$PROMPT_DIRTRIM" || "$PROMPT_DIRTRIM" -lt 1 ]] && { echo "$default" ; return 1 ; }
+  local pwd=${PWD#$HOME}
+  local p
+  local parts
+  [ "$pwd" != "$PWD" ] && pwd="~$pwd"
+  [ "$pwd" != "/" ] && pwd=${pwd%/}
+
+  IFS=/
+  for p in $pwd; do parts[${#parts[@]}]=$p; done
+  IFS=$(printf ' \t\n')
+  local elipsis='…'
+  [ "$TERM" = "vt220" ] && elipsis="..."
+
+  PROMPT_DIRTRIM=2
+
+  if { [ "${parts[0]}" != "~" ] && [ ${#parts[@]} -lt $(( PROMPT_DIRTRIM + 2 )) ]; } || \
+     { [ "${parts[0]}" = "~" ] && [ ${#parts[@]} -lt $(( PROMPT_DIRTRIM + 3 )) ]; }; then
+    echo "$pwd"
+    exit
+  fi
+  local len=${#parts[@]}
+  local i=$len
+  local limit=$PROMPT_DIRTRIM
+  while [ $i -gt 0 ]; do
+    i=$(( i - 1 ))
+    [ $limit -gt 0 ] && limit=$(( limit - 1 )) && continue
+    if [ $i -eq 0 ] && [ "${parts[$i]}" = "~" ]; then
+      parts[$i]="~/$elipsis"
+    elif [ $i -eq 0 ]; then
+      parts[$i]="$elipsis"
+    else
+      unset parts[$i]
+    fi
+  done
+
+  local out
+  for f in ${parts[*]}; do out="$out/$f"; done
+  echo "${out#/}"
+}
+
+[ -r "$XDG_CONFIG_HOME"/shell/git-prompt ] && . "$XDG_CONFIG_HOME"/shell/git-prompt
+GIT_PS1_SHOWCOLORHINTS=true
+GIT_PS1_COLOR_PRE='\['
+GIT_PS1_COLOR_POST='\]'
+
 # Set up a basic prompt
-PS1="[\u@\h \W] \\$ "
+PROMPT_DIRTRIM=2
+__gitglyph=" "
+__orange='38;5;208'
+ PS1='\[\e[1m\][\[\e[96m\]\u\[\e[39m\]@\[\e[92m\]\h\[\e[39m\] \[\e[94m\]$(__prompt_trim_pwd "\W")\[\e[39m\]]\[\e[22;24;27;49m\]$(__git_ps1 " (\[\e[1;${__orange}m\]${__gitglyph}\[\e[1;39m\]%s\[\e[22m\])") \[\e[92m\]\[❱\]\[\e[0m\] '
 
 # Use vi-mode
 set -o vi
 
-[[ -e "$HOME"/.profile.local ]] && . "$HOME"/.profile.local
+[ -e "$HOME"/.profile.local ] && . "$HOME"/.profile.local
 
 true
