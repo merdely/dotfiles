@@ -101,7 +101,7 @@ case "$(uname -s)" in
         printf '%s\n' "$existing_crontab" | grep -qE "^$var *=" && continue
         printf 'Adding %s variable to crontab\n' "$var"
         new_cron_lines="${new_cron_lines}${var} = ${val}
-  "
+"
       done
       if [ -n "$new_cron_lines" ]; then
         {
