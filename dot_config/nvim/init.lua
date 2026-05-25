@@ -116,11 +116,12 @@ vim.cmd.colorscheme('vim')                         -- Load colorscheme: good one
 vim.opt.signcolumn = "yes"                         -- Always show sign column
 vim.opt.colorcolumn = "80"                         -- Column number where to show color column
 vim.opt.list = true                                -- Show list characters
-vim.opt.listchars:append {                         -- Show symbols for tabs and trailing spaces
-  tab   = "▸ ",
-  trail = "·",
-  nbsp  = "␣"
-}
+-- Show symbols for tabs and trailing spaces
+if use_glyphs then
+  vim.opt.listchars:append { tab = "▸ ", trail = "·", nbsp  = "␣" }
+else
+  vim.opt.listchars:append { tab = "> ", trail = ".", nbsp  = "~" }
+end
 vim.opt.showmatch = true                           -- Highlight matching brackets
 vim.opt.matchtime = 2                              -- How long to show matching bracket
 vim.opt.cmdheight = 1                              -- Command line height
@@ -191,7 +192,9 @@ vim.opt.maxmempattern = 20000                      -- Max memory (Kb) for patter
 vim.g.mapleader      = " "                         -- Set leader key
 vim.g.maplocalleader = ","                         -- Set local leader key
 -- Load plugins when not in console (fail silently)
-pcall(require, "lazy_setup")
+if use_glyphs then
+  pcall(require, "lazy_setup")
+endif
 
 -- ============================================================================
 -- KEY MAPPINGS
