@@ -186,7 +186,7 @@ case "$(uname -s)" in
     fi
     {{- end }}
     ;;
-  OpenBSD) ;;
+  OpenBSD)
     # Add user to needed groups
     for group in wheel _vmd _shutdown; do
       # Skip groups from the list that do not exist
