@@ -16,10 +16,10 @@ if [ "$HOSTNAME" = "mercury" ]; then
       echo "$f"
       out=$(rsync -a -4 --info=NAME --relative --recursive \
         .config/shell/merdely.profile "$f": 2>&1 | tee /dev/stderr)
-      [ -n "$out" ] && echo "$roh" | grep -qw "$f" && ros="$ros $f"
+      [ -n "$out" ] && echo "$roh" | command grep -qw "$f" && ros="$ros $f"
     done
     for f in $ros; do
-      echo "$list" | grep -qw "$f" || continue
+      echo "$list" | command grep -qw "$f" || continue
       echo "$f: sync_home"
       ssh -4 -o ClearAllForwardings=yes root@"$f" /home/mike/.local/bin/sync_home > /dev/null
     done
@@ -30,13 +30,13 @@ if [ "$HOSTNAME" = "mercury" ]; then
     list="mercury jupiter earth carme metis tarvos"
     [ -n "$1" ] && list="$*"
     for f in $list; do
-      echo "carme metis tarvos" | grep -qw "$f" && continue
+      echo "carme metis tarvos" | command grep -qw "$f" && continue
       echo "$f"
       scp "$HOME"/src/ansible/system-setup/roles/sshclient/files/ssh_known_hosts \
         root@"$f":/etc/ssh/ssh_known_hosts
     done
     for f in carme metis tarvos; do
-      echo "$list" | grep -qw "$f" || continue
+      echo "$list" | command grep -qw "$f" || continue
       echo "$f"
       ssh -o ClearAllForwardings=yes root@"$f" /usr/local/bin/rw
       scp "$HOME"/src/ansible/system-setup/roles/sshclient/files/ssh_known_hosts \
@@ -55,10 +55,10 @@ if [ "$HOSTNAME" = "mercury" ]; then
       echo "$f"
       out=$(rsync -a --info=NAME --relative --recursive \
         .config/vim/vimrc "$f": 2>&1 | tee /dev/stderr)
-      [ -n "$out" ] && echo "$roh" | grep -qw "$f" && ros="$ros $f"
+      [ -n "$out" ] && echo "$roh" | command grep -qw "$f" && ros="$ros $f"
     done
     for f in $ros; do
-      echo "$list" | grep -qw "$f" || continue
+      echo "$list" | command grep -qw "$f" || continue
       echo "$f: sync_home"
       ssh -o ClearAllForwardings=yes root@"$f" /home/mike/.local/bin/sync_home > /dev/null
     done
