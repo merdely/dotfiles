@@ -28,8 +28,8 @@ __prompt_trim_pwd() {
   IFS=/
   for p in $pwd; do parts[${#parts[@]}]=$p; done
   IFS=$(printf ' \t\n')
-  local elipsis='…'
-  [ "$TERM" = "vt220" ] && elipsis="..."
+  local ellipsis='…'
+  [ "$TERM" = "vt220" ] && ellipsis="..."
 
   PROMPT_DIRTRIM=2
 
@@ -45,9 +45,9 @@ __prompt_trim_pwd() {
     i=$(( i - 1 ))
     [ $limit -gt 0 ] && limit=$(( limit - 1 )) && continue
     if [ $i -eq 0 ] && [ "${parts[$i]}" = "~" ]; then
-      parts[$i]="~/$elipsis"
+      parts[$i]="~/$ellipsis"
     elif [ $i -eq 0 ]; then
-      parts[$i]="$elipsis"
+      parts[$i]="$ellipsis"
     else
       unset parts[$i]
     fi
