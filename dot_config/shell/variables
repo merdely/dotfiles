@@ -193,7 +193,7 @@ fi
 
 # Wayland stuff over SSH
 if [ -z "$SUDO_USER" -a -z "$DOAS_USER" -a -n "$SSH_CONNECTION" ]; then
-  WAYLAND_DISPLAY_FILE=$(find "$XDG_RUNTIME_DIR" -maxdepth 1 -regex ".*/wayland-[0-9]+")
+  WAYLAND_DISPLAY_FILE=$(find "$XDG_RUNTIME_DIR" -maxdepth 1 -type s -name "wayland-[0-9]*")
   if [ -n "$WAYLAND_DISPLAY_FILE" ]; then
     export XDG_SESSION_TYPE=wayland
     export WAYLAND_DISPLAY=${WAYLAND_DISPLAY_FILE##*/}
