@@ -11,7 +11,7 @@
 echo "Processing Run Once Before Package Install"
 
 [ -r /etc/os-release ] && source /etc/os-release
-
+[ "$uname -s" = "OpenBSD" ] && ID=OpenBSD
 case "$ID" in
   arch|artix|cachyos|garuda|endeavouros|manjaro|parabola|hyperbola|blackarch)
     # Go through the package list and find packages that are not installed

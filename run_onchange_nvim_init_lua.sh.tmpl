@@ -17,7 +17,6 @@ echo "Processing Run OnChange for nvim init.lua"
 
 $sudo mkdir -p /etc/xdg/nvim
 
-
 # Copy nvim init.lua to /etc/xdg/nvim
 if [ ! -e /etc/xdg/nvim/init.lua ] || \
      ! cmp -s "$HOME"/.config/nvim/init.lua /etc/xdg/nvim/init.lua; then
