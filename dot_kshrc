@@ -60,8 +60,8 @@ __prompt_trim_pwd() {
 
 [ -r "$XDG_CONFIG_HOME"/shell/git-prompt ] && . "$XDG_CONFIG_HOME"/shell/git-prompt
 GIT_PS1_SHOWCOLORHINTS=true
-GIT_PS1_COLOR_PRE='\['
-GIT_PS1_COLOR_POST='\]'
+GIT_PS1_COLOR_PRE="\["
+GIT_PS1_COLOR_POST="\]"
 
 # Set up a basic prompt
 PROMPT_DIRTRIM=2
