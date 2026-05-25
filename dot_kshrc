@@ -70,7 +70,7 @@ __orange='38;5;208'
 __promptchar="❱"
 [ ${EUID:-$(id -u)} -eq 0 ] && __promptchar="󰄾"
 [ "$TERM" = "vt220" ] && { unset __gitglyph ; __promptchar='>' ; [ "$(id -u)" -eq 0 ] && _promptchar='#' ; }
- PS1="\[\e[1m\][\[\e[96m\]\u\[\e[39m\]@\[\e[92m\]\h\[\e[39m\] \[\e[94m\]\$(__prompt_trim_pwd '\W')\[\e[39m\]]\[\e[22;24;27;49m\]\[\e[1m\]\$(__git_ps1 \" (${__gitglyph}%s)\")\[\e[22m\] \[\e[92m\]\[\${__promptchar}\]\[\e[0m\] "
+ PS1="\[\e[1m\][\[\e[96m\]\u\[\e[39m\]@\[\e[92m\]\h\[\e[39m\] \[\e[94m\]\$(__prompt_trim_pwd '\W')\[\e[39m\]]\[\e[22;24;27;49m\]\[\e[1m\]\$(__git_ps1 \" (${__gitglyph}%s)\")\[\e[22m\] \[\e[94m\]\[\${__promptchar}\]\[\e[0m\] "
 
 # Use vi-mode
 set -o vi
