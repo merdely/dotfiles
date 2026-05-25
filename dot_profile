@@ -12,3 +12,5 @@
 # Read in ~/.zshrc
 [ -n "$ZSH_VERSION" ] && [ -r "$HOME"/.zshrc ] && . "$HOME"/.zshrc
 
+true
+
