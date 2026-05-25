@@ -22,7 +22,7 @@ case "$DISTRO" in
     }
 
     # Shortcuts for using halt and reboot with shutdown group membership
-    if groups | grep -qw _shutdown; then
+    if groups | command grep -qw _shutdown; then
       halt_func() { shutdown -h "$@" now; } ; alias halt=halt_func
       reboot_func() { shutdown -r "$@" now; } ; alias reboot=reboot_func
     fi
