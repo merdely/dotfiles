@@ -104,10 +104,10 @@ export XDG_DATA_DIRS=$XDG_DATA_HOME:${XDG_DATA_DIRS:-/usr/local/share:/usr/share
 # Work around missing XDG_RUNTIME_DIR
 if [ ! -d "$XDG_RUNTIME_DIR" ]; then
   if [ -w /dev/shm ]; then
-    XDG_RUNTIME_DIR=$(mktemp -d /dev/shm/.$EUID.XXXX)
+    XDG_RUNTIME_DIR=$(mktemp -d /dev/shm/.$EUID.XXXXXX)
     export XDG_RUNTIME_DIR
   elif [ -w /tmp ]; then
-    XDG_RUNTIME_DIR=$(mktemp -d /tmp/.$EUID.XXXX)
+    XDG_RUNTIME_DIR=$(mktemp -d /tmp/.$EUID.XXXXXX)
     export XDG_RUNTIME_DIR
   fi
 fi
