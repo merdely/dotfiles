@@ -74,10 +74,10 @@ __prompt_trim_pwd() {
     parts=("${(s:/:)pwd}")
     if (( ${#parts[@]} == 0 )); then
       echo "$default" ; return 1
-    elif [[ "${parts[0]}" == "~" && "${#parts[@]}" -gt $(( PROMPT_DIRTRIM + 2 )) ]]; then
+    elif [[ "${parts[1]}" == "~" && "${#parts[@]}" -gt $(( PROMPT_DIRTRIM + 2 )) ]]; then
         trimmed=${parts[*]: -$PROMPT_DIRTRIM}
         echo "~/${ellipsis}/${trimmed// //}"
-    elif [[ "${parts[0]}" != "~" && "${#parts[@]}" -gt $(( PROMPT_DIRTRIM + 1 )) ]]; then
+    elif [[ "${parts[1]}" != "~" && "${#parts[@]}" -gt $(( PROMPT_DIRTRIM + 1 )) ]]; then
         trimmed=${parts[*]: -$PROMPT_DIRTRIM}
         echo "${ellipsis}/${trimmed// //}"
     else
