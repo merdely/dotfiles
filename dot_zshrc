@@ -71,7 +71,7 @@ __prompt_trim_pwd() {
     local ellipsis="…" pwd=${PWD/#$HOME/\~} parts trimmed
     [[ "$TERM" = "vt220" || "$TERM" = "linux" ]] && ellipsis="..."
     [[ -z "$PROMPT_DIRTRIM" || "$PROMPT_DIRTRIM" -lt 1 ]] && { echo "$default" ; return 1 ; }
-    eval 'IFS=/ read -ra parts <<< "$pwd"'
+    parts=("${(s:/:)pwd}")
     if (( ${#parts[@]} == 0 )); then
       echo "$default" ; return 1
     elif [[ "${parts[0]}" == "~" && "${#parts[@]}" -gt $(( PROMPT_DIRTRIM + 2 )) ]]; then
