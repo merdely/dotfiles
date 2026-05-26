@@ -12,7 +12,7 @@ Type=Application
 Categories=Network;WebBrowser;WebDevelopment;Viewer;
 Keywords=chrome;internet;browser;chromium;google;ungoogled;
 MimeType=application/pdf;application/rdf+xml;application/rss+xml;application/xhtml+xml;application/xhtml_xml;application/xml;image/gif;image/jpeg;image/png;image/webp;text/html;text/xml;x-scheme-handler/http;x-scheme-handler/https;
-Actions=noprofile;noprofile-private-window;noprofile-private-window-proxy;noprofile-window-proxy;mike-profile;mike-private-window;mike-private-window-proxy;mike-proxy;mike-nogpu;doh-profile;doh-private-window;doh-private-window-proxy;doh-window-proxy;temp-non-firejail;
+Actions=noprofile;noprofile-private-window;noprofile-private-window-proxy;noprofile-window-proxy;mike-profile;mike-private-window;mike-private-window-proxy;mike-proxy;mike-nogpu;doh-profile;doh-private-window;doh-private-window-proxy;doh-window-proxy;temp-non-firejail;copperriver
 X-Flatpak=io.github.ungoogled_software.ungoogled_chromium
 X-Flatpak-RenamedFrom=com.github.Eloston.UngoogledChromium.desktop;
 
@@ -67,4 +67,8 @@ Exec=chromium --ozone-platform=wayland --user-data-dir=/home/mike/.config/ungoog
 [Desktop Action doh-window-proxy]
 Name=DoH Proxy
 Exec=chromium --ozone-platform=wayland --user-data-dir=/home/mike/.config/ungoogled-chromium-doh --proxy-server="socks5://127.0.0.1:1080" %U
+
+[Desktop Action copperriver]
+Name=CopperRiver
+Exec=chromium --ozone-platform=wayland --user-data-dir=/home/mike/.config/ungoogled-chromium-cr %U
 
