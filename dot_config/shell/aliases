@@ -17,8 +17,8 @@ alias ls='ls -F'
 [ -e /srv/scripts/bin/nohist ] && alias nohist='. /srv/scripts/bin/nohist'
 ! cmdcheck mail && cmdcheck s-nail && alias mail=s-nail
 if [ -r /srv/scripts/sbin/daily_report_linux ]; then
-  alias check_reboot='sudo /srv/scripts/sbin/daily_report_linux reboot'
-  alias check_restart='sudo /srv/scripts/sbin/daily_report_linux restart'
+  alias check_reboot='sudo /srv/scripts/sbin/check_reboot'
+  alias check_restart='sudo /srv/scripts/sbin/check_reboot'
 fi
 [ -d /opt/splunk -o -d /opt/splunkforwarder ] && alias susplunk='sudo su -l splunk'
 [ -d /etc/acme ]  && alias suacme='sudo su /bin/bash -l acme'
