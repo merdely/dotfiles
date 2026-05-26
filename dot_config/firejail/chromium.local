@@ -1,6 +1,7 @@
 noblacklist ${HOME}/.config/ungoogled-chromium
 whitelist ${HOME}/.config/ungoogled-chromium
 
+# Directory must already exist
 noblacklist ${HOME}/.config/ungoogled-chromium-*
 whitelist ${HOME}/.config/ungoogled-chromium-*
 
