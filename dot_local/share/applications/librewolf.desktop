@@ -21,11 +21,6 @@ Name=_ProfileMgr
 Exec=librewolf --ProfileManager %u
 Icon=librewolf-blue
 
-[Desktop Action mike-private-window]
-Name=Mike Private
-Exec=librewolf -P Mike --private-window %u
-Icon=librewolf-gray
-
 [Desktop Action MikeNoGPU]
 Name=MikeNoGPU
 Exec=/usr/bin/env __NV_PRIME_RENDER_OFFLOAD= librewolf -P MikeNoGPU %u
