@@ -133,7 +133,7 @@ __set_prompt() {
   [[ "$TERM" == "vt220" || "$TERM" == "linux" ]] && {  __promptchar='>' ; __promptroot='#' ; }
 
   # PROMPT="\${__prompt_mode}[%{${c_cyan}%}%n%{${c_reset}%}@%{${c_green}%}%m%{${c_reset}%} %{${c_blue}%}%2~%{${c_reset}%}]%b\${__subshell}\$(__git_ps1 \" (\1\e[1;${__orange}m\2${__gitglyph}\1\e[1;39m\2%s)\" 2>/dev/null) ${__nl}%{%(?.${c_green}.${c_red})%}%B%(!.${__promptroot}.${__promptchar})%b%{${c_reset}%} "
-  PROMPT="\${__prompt_mode}[%{${c_cyan}%}%n%{${c_reset}%}@%{${c_green}%}%m%{${c_reset}%} %{${c_blue}%}\$(__prompt_trim_pwd '%2~')%{${c_reset}%}]%b\${__subshell}\$(__git_ps1 \" (\1\e[1;${c_orange}m\2${__gitglyph}\1\e[1;39m\2%s)\" 2>/dev/null) ${__nl}%{%(?.${c_green}.${c_red})%}%B%(!.${__promptroot}.${__promptchar})%b%{${c_reset}%} "
+  PROMPT="\${__prompt_mode}[%{${c_cyan}%}%n%{${c_reset}%}@%{${c_green}%}%m%{${c_reset}%} %{${c_blue}%}\$(__prompt_trim_pwd '%2~')%{${c_reset}%}]%b\${__subshell}\$(__git_ps1 \" (\1${c_orange}\2${__gitglyph}\1\e[1;39m\2%s)\" 2>/dev/null) ${__nl}%{%(?.${c_green}.${c_red})%}%B%(!.${__promptroot}.${__promptchar})%b%{${c_reset}%} "
 }
 __set_prompt
 
