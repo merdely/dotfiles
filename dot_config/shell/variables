@@ -1,6 +1,7 @@
 ## Shell Variables
 # vim: set filetype=sh :
 
+echo hi
 SHELL_FILES="${SHELL_FILES# } variables"
 export SHELL_FILES=${SHELL_FILES# }
 
