@@ -1,6 +1,9 @@
 #SSH Settings
 # vim: set filetype=sh :
 
+SHELL_FILES="${SHELL_FILES# } ssh-settings"
+SHELL_FILES=${SHELL_FILES# }
+
 [ ! -d "$HOME"/.ssh ] && mkdir -pm 700 "$HOME"/.ssh
 
 # Create SSH ctl directory

@@ -1,6 +1,9 @@
 # Host Specific Settings
 # vim: filetype=sh :
 
+SHELL_FILES="${SHELL_FILES# } host-specifics"
+SHELL_FILES=${SHELL_FILES# }
+
 # Some host-specific settings
 if [ "$HOSTNAME" = "mercury" ]; then
   # Arch only settings

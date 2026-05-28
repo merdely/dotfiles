@@ -1,6 +1,9 @@
 # Code to import git prompt
 # vim: set filetype=sh :
 
+SHELL_FILES="${SHELL_FILES# } git-prompt"
+SHELL_FILES=${SHELL_FILES# }
+
 if command -v git > /dev/null 2>&1; then
   # Unset any __git_ps1 override
   unalias __git_ps1 > /dev/null 2>&1
@@ -35,3 +38,4 @@ if command -v git > /dev/null 2>&1; then
 fi
 typeset -f __git_ps1 > /dev/null 2>&1 || alias __git_ps1=true
 
+true

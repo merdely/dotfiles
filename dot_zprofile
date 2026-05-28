@@ -1,4 +1,7 @@
 # ~/.zprofile
 
+SHELL_FILES="${SHELL_FILES# } .zprofile"
+SHELL_FILES=${SHELL_FILES# }
+
 # Use ~/.profile
 [ -r "$HOME"/.profile ] && . "$HOME"/.profile

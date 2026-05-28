@@ -2,6 +2,7 @@
 # vim: set filetype=sh :
 
 SHELL_FILES="${SHELL_FILES# } variables"
+SHELL_FILES=${SHELL_FILES# }
 
 # Load helper functions
 [ -r "$HOME"/.config/shell/helpers ] && . "$HOME"/.config/shell/helpers

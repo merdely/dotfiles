@@ -1,6 +1,9 @@
 # Shell functions
 # vim: set filetype=sh :
 
+SHELL_FILES="${SHELL_FILES# } functions"
+SHELL_FILES=${SHELL_FILES# }
+
 cmdcheck docker && dr() {
   [ $# -lt 1 ] && return 1
   local name_base=dr_"${1%%:*}" name=dr_"${1%%:*}" ok=false existing tag
@@ -97,3 +100,4 @@ cmdcheck telnet || telnet() {
   curl telnet://$host:$port
 }
 
+true

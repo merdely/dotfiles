@@ -1,4 +1,7 @@
 # ~/.bash_profile
 
+SHELL_FILES="${SHELL_FILES# } .bash_profile"
+SHELL_FILES=${SHELL_FILES# }
+
 # Use ~/.profile
 [ -r "$HOME"/.profile ] && . "$HOME"/.profile

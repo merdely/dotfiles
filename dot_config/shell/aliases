@@ -1,6 +1,9 @@
 ## Shell Aliases
 # vim: set filetype=sh :
 
+SHELL_FILES="$SHELL_FILES aliases"
+SHELL_FILES=${SHELL_FILES# }
+
 # If not running interactively, don't do anything
 case "$-" in *i*) ;; *) return ;; esac
 

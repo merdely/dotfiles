@@ -1,6 +1,9 @@
 ## Shell Config Helpers
 # vim: set filetype=sh :
 
+SHELL_FILES="${SHELL_FILES# } helpers"
+SHELL_FILES=${SHELL_FILES# }
+
 # Remove a directory from PATH
 path_prune() {
   [ -z "$1" ] && return 1
@@ -37,3 +40,5 @@ path_add() {
 
 # Quietly check if a command exists
 cmdcheck() { command -v "$@" > /dev/null 2>&1 ; }
+
+true

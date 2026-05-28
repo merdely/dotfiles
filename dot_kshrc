@@ -1,6 +1,9 @@
 ## Mike's ksh profile
 # vim: set filetype=sh :
 
+SHELL_FILES="${SHELL_FILES# } .kshrc"
+SHELL_FILES=${SHELL_FILES# }
+
 # Set umask early
 umask 0022 > /dev/null 2>&1
 
