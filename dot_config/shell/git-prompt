@@ -2,7 +2,7 @@
 # vim: set filetype=sh :
 
 SHELL_FILES="${SHELL_FILES# } git-prompt"
-SHELL_FILES=${SHELL_FILES# }
+export SHELL_FILES=${SHELL_FILES# }
 
 if command -v git > /dev/null 2>&1; then
   # Unset any __git_ps1 override

@@ -2,7 +2,7 @@
 
 unset SHELL_FILES
 SHELL_FILES="${SHELL_FILES# } .profile"
-SHELL_FILES=${SHELL_FILES# }
+export SHELL_FILES=${SHELL_FILES# }
 
 # Read in environment variables
 [ -r "$HOME"/.config/shell/variables ] && . "$HOME"/.config/shell/variables

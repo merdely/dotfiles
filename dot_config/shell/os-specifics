@@ -2,7 +2,7 @@
 # vim: filetype=sh :
 
 SHELL_FILES="${SHELL_FILES# } os-specifics"
-SHELL_FILES=${SHELL_FILES# }
+export SHELL_FILES=${SHELL_FILES# }
 
 # OS Specific Commands
 case "$DISTRO" in

@@ -2,7 +2,7 @@
 # vim: set filetype=sh :
 
 SHELL_FILES="${SHELL_FILES# } functions"
-SHELL_FILES=${SHELL_FILES# }
+export SHELL_FILES=${SHELL_FILES# }
 
 cmdcheck docker && dr() {
   [ $# -lt 1 ] && return 1
