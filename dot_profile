@@ -1,5 +1,6 @@
 # ~/.profile
 
+unset SHELL_FILES
 # Read in environment variables
 [ -r "$HOME"/.config/shell/variables ] && . "$HOME"/.config/shell/variables
 
