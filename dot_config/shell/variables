@@ -1,6 +1,8 @@
 ## Shell Variables
 # vim: set filetype=sh :
 
+SHELL_FILES="${SHELL_FILES# } variables"
+
 # Load helper functions
 [ -r "$HOME"/.config/shell/helpers ] && . "$HOME"/.config/shell/helpers
 
