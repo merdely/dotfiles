@@ -9,7 +9,6 @@ umask 0022 > /dev/null 2>&1
 
 # Stop if non-interactive
 [[ $- != *i* ]] && return
-echo hi
 
 # Load aliases & functions
 [ -r "$XDG_CONFIG_HOME"/shell/helpers ]        && . "$XDG_CONFIG_HOME"/shell/helpers
