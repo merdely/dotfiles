@@ -1,6 +1,5 @@
 # ~/.profile
 
-echo ~/.profile
 unset SHELL_FILES
 SHELL_FILES="${SHELL_FILES# } .profile"
 export SHELL_FILES=${SHELL_FILES# }
