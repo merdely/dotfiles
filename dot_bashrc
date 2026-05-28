@@ -4,6 +4,8 @@
 SHELL_FILES="${SHELL_FILES# } .bashrc"
 SHELL_FILES=${SHELL_FILES# }
 
+echo $SHELL_FILES
+
 # Set umask early
 umask 0022 > /dev/null 2>&1
 
