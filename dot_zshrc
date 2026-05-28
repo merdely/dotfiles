@@ -109,7 +109,7 @@ __set_prompt() {
   local c_blue=$'\e[94m'
   local c_magenta=$'\e[95m'
   local c_cyan=$'\e[96m'
-  local c_orange=$'\e[0;33m'
+  local c_orange=$'\e[38;5;208m'
   local c_reset=$'\e[39m'
 
   # Color codes: black:0, red:1, green:2, yellow:3, blue:4, magenta:5, cyan:6, white:7
