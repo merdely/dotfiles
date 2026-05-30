@@ -79,7 +79,7 @@ case "$(uname -s)" in
     fi
 
     # Enable services: ssh-agent
-    if command -v systemctl > /dev/null 2>&1; then
+    if [ -n "$DBUS_SESSION_BUS_ADDRESS" ] && [ -n "$XDG_RUNTIME_DIR" ] && command -v systemctl > /dev/null 2>&1; then
       if [ ! -r "$HOME"/.local/state/chezmoi/done/enable_sshd ]; then
         command -v ssh-agent > /dev/null 2>&1 && systemctl --user enable ssh-agent.service
         [ $? -eq 0 ] && makeflag enable_sshd
@@ -178,7 +178,7 @@ case "$(uname -s)" in
     fi
 
     # Enable services: DMS and ydotool
-    if command -v systemctl > /dev/null 2>&1; then
+    if [ -n "$DBUS_SESSION_BUS_ADDRESS" ] && [ -n "$XDG_RUNTIME_DIR" ] && command -v systemctl > /dev/null 2>&1; then
       if [ ! -r "$HOME"/.local/state/chezmoi/done/enable_dms ]; then
         command -v dms > /dev/null 2>&1 && systemctl --user enable dms.service
         [ $? -eq 0 ] && makeflag enable_dms
