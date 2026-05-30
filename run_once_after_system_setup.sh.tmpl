@@ -193,7 +193,7 @@ case "$(uname -s)" in
   OpenBSD)
     # Add user to needed groups
     if [ "$LOGNAME" = "mike" ]; then
-      for group in wheel _vmd _shutdown; do
+      for group in wheel _vmd _shutdown _seatd; do
         # Skip groups from the list that do not exist
         getent group "$group" > /dev/null 2>&1 || continue
         # Skip groups already a member of
