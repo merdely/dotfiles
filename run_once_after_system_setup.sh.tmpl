@@ -1,12 +1,12 @@
 #!/bin/sh
 # vim: set filetype=sh :
 
-{{- $trusted_hosts := .trusted_hosts | default list -}}
+{{- $trusted_hosts := .trusted_hosts | default list }}
 
-{{- $profiles := joinPath .chezmoi.homeDir ".config" "chezmoi" "profiles" -}}
-{{- $is_desktop := stat (joinPath $profiles "desktop") -}}
-{{- $is_server  := stat (joinPath $profiles "server") -}}
-{{- $is_trusted := has .chezmoi.hostname $trusted_hosts -}}
+{{- $profiles := joinPath .chezmoi.homeDir ".config" "chezmoi" "profiles" }}
+{{- $is_desktop := stat (joinPath $profiles "desktop") }}
+{{- $is_server  := stat (joinPath $profiles "server") }}
+{{- $is_trusted := has .chezmoi.hostname $trusted_hosts }}
 
 if [ "$LOGNAME" = "mike" ]; then
   sudo=sudo
