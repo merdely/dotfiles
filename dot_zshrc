@@ -132,8 +132,44 @@ __set_prompt() {
   __promptroot="󰄾"
   [[ "$TERM" == "vt220" || "$TERM" == "linux" ]] && {  __promptchar='>' ; __promptroot='#' ; }
 
-  # PROMPT="\${__prompt_mode}[%{${c_cyan}%}%n%{${c_reset}%}@%{${c_green}%}%m%{${c_reset}%} %{${c_blue}%}%2~%{${c_reset}%}]%b\${__subshell}\$(__git_ps1 \" (\1\e[1;${__orange}m\2${__gitglyph}\1\e[1;39m\2%s)\" 2>/dev/null) ${__nl}%{%(?.${c_green}.${c_red})%}%B%(!.${__promptroot}.${__promptchar})%b%{${c_reset}%} "
-  PROMPT="\${__prompt_mode}[%{${c_cyan}%}%n%{${c_reset}%}@%{${c_green}%}%m%{${c_reset}%} %{${c_blue}%}\$(__prompt_trim_pwd '%2~')%{${c_reset}%}]%b\${__subshell}\$(__git_ps1 \" (\1${c_orange}\2${__gitglyph}\1\e[1;39m\2%s)\" 2>/dev/null) ${__nl}%{%(?.${c_green}.${c_red})%}%B%(!.${__promptroot}.${__promptchar})%b%{${c_reset}%} "
+  PROMPT=""
+  # Bold in vi-insert/emacs, non-bold in vi-command
+  PROMPT="${PROMPT}\${__prompt_mode}"
+  # Open bracket for user info
+  PROMPT="${PROMPT}["
+  # Username
+  PROMPT="${PROMPT}%{${c_cyan}%}%n%{${c_reset}%}"
+  # @
+  PROMPT="${PROMPT}@"
+  # hostname
+  PROMPT="${PROMPT}%{${c_green}%}%m%{${c_reset}%}"
+  # space
+  PROMPT="${PROMPT} "
+
+  # Directory info
+  # Zsh directory info
+  # PROMPT="${PROMPT}%{${c_blue}%}%2~%{${c_reset}%}"
+  # Use __prompt_trim_pwd for directory info
+  PROMPT="${PROMPT}%{${c_blue}%}\$(__prompt_trim_pwd '%2~')%{${c_reset}%}"
+
+  # Closing bracket and unbold
+  PROMPT="${PROMPT}]%b"
+
+  # Show if running a 'chezmoi cd'
+  PROMPT="${PROMPT}\${__subshell}"
+
+  # Git prompt
+  # Old way of doing escape codes - broke w/ putting weird spacing in commands
+  # PROMPT="${PROMPT}\$(__git_ps1 \" (\1${c_orange}\2${__gitglyph}\1\e[1;39m\2%s)\" 2>/dev/null)"
+  # New way of doing %%{ and %%} for escape codes
+  PROMPT="${PROMPT}\$(__git_ps1 \" (%%{${c_orange}%%}${__gitglyph}%s)\" 2>/dev/null)"
+
+  # Space and optional newline if terminal is small
+  PROMPT="${PROMPT} ${__nl}"
+  # Show green on success and red on previous command failure for root or user prompt character
+  PROMPT="${PROMPT}%{%(?.${c_green}.${c_red})%}%B%(!.${__promptroot}.${__promptchar})%b%{${c_reset}%}"
+  # End prompt with a space
+  PROMPT="${PROMPT} "
 }
 __set_prompt
 
