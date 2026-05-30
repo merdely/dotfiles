@@ -13,4 +13,6 @@
  :plugin.logseq-randomutils-plugin/get_dictionary_meaning ["alt+ctrl+m"]
  :editor/move-block-down ["alt+shift+down" "shift+ctrl+down"]
  :editor/move-block-up ["alt+shift+up" "shift+ctrl+up"]
- :plugin.logseq-markdown-table/$shortcut$mod_shift_t ["shift+ctrl+e"]}}
+ :plugin.logseq-markdown-table/$shortcut$mod_shift_t ["shift+ctrl+e"]
+ :plugin.logseq-journals-calendar/$shortcut$mod_shift_left ["alt+ctrl+left"]
+ :plugin.logseq-journals-calendar/$shortcut$mod_shift_right ["alt+ctrl+right"]}}
