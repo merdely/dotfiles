@@ -19,9 +19,10 @@ umask 0022 > /dev/null 2>&1
 [ -r "$XDG_CONFIG_HOME"/shell/host-specifics ] && . "$XDG_CONFIG_HOME"/shell/host-specifics
 
 # Set up BLE
-if [[ -z "$BLE_VERSION" ]]; then
+if [[ ! -e "$HOME"/.noblesh && -z "$BLE_VERSION" ]]; then
   if [[ -z "$SUDO_USER" && ! -r "$XDG_DATA_HOME"/blesh/ble.sh ]]; then
     work=$(mktemp -d)
+    echo Downloading ble.sh
     curl -sLo "$work"/ble.tar.xz https://github.com/akinomyoga/ble.sh/releases/download/nightly/ble-nightly.tar.xz
     if [[ -s "$work"/ble.tar.xz ]]; then
       unxz --stdout "$work"/ble.tar.xz | tar -C "$work" -xf -
