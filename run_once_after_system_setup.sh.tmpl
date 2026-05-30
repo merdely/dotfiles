@@ -200,7 +200,7 @@ case "$(uname -s)" in
         echo "$groups" | grep -qw "$group" && continue
         # Add user to group (ok if already a member)
         echo "Adding $LOGNAME to $group"
-        $sudo usermod -aG "$group" "$LOGNAME"
+        $sudo usermod -G "$group" "$LOGNAME"
         if [ $? -ne 0 ]; then
           echo "Error: Could not add $LOGNAME to $group" >&2
           exit 0
