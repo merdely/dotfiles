@@ -161,9 +161,12 @@ if [ -r "$XDG_CONFIG_HOME"/environment.d/"$LOGNAME".conf ]; then
   set +a
 fi
 
-# Used in aliases below
+# Used in aliases
 [ -z "$HOSTNAME" ] && HOSTNAME=$(hostname 2> /dev/null)
 export HOSTNAME=${HOSTNAME%%.*}
+
+# Load LS_COLORS
+cmdcheck dircolors && eval $(dircolors -b)
 
 # History stuff
 HISTFILE=$XDG_CACHE_HOME/${SHELL##*/}_history
