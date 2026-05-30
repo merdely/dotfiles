@@ -60,7 +60,7 @@ function my/complete-load-hook {
 
   # Zsh-like completion colors
   ble-face -s auto_complete                fg=240
-  ble-face -s command_builtin              fg=240
+  ble-face -s command_builtin              fg=gray
   ble-face -s filename_directory           fg=blue,bold
   ble-face -s filename_executable          fg=green,bold
   ble-face -s filename_link                fg=cyan,bold
