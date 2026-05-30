@@ -162,7 +162,7 @@ __set_prompt() {
   # Old way of doing escape codes - broke w/ putting weird spacing in commands
   # PROMPT="${PROMPT}\$(__git_ps1 \" (\1${c_orange}\2${__gitglyph}\1\e[1;39m\2%s)\" 2>/dev/null)"
   # New way of doing %%{ and %%} for escape codes
-  PROMPT="${PROMPT}\$(__git_ps1 \" (%%{${c_orange}%%}${__gitglyph}%s)\" 2>/dev/null)"
+  PROMPT="${PROMPT}\$(__git_ps1 \" (%%{${c_orange}%%}${__gitglyph}%%{${c_reset}%%}%s)\" 2>/dev/null)"
 
   # Space and optional newline if terminal is small
   PROMPT="${PROMPT} ${__nl}"
