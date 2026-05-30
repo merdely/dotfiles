@@ -40,7 +40,7 @@ system_key=$(ssh-keyscan -t ed25519 localhost 2> /dev/null | awk '$2=="ssh-ed255
 
 if [ "$defined_pub_key" != "$system_key" ]; then
   # Download updated pass database
-  pass git pull
+  # pass git pull
 
   updated_key=$(pass show systems/"$hostname"/ssh_host_ed25519_key 2> /dev/null)
   if [ -z "$update_key" ]; then
