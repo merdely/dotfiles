@@ -11,7 +11,7 @@ progress = true
     autoCommit = true
     autoPush = true
 
-{{- if eq .chezmoi.hostname "mercury" }}
+{{- if and (eq .chezmoi.hostname "mercury") (eq .chezmoi.username "mike") }}
 
 [hooks.apply.pre]
 command = "chezmoi"
