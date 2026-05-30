@@ -1,6 +1,8 @@
 #!/bin/sh
 # vim: set filetype=sh :
 
+[ "$LOGNAME" != "mike" ] && exit 0
+
 {{- $trusted_hosts := .trusted_hosts | default list -}}
 
 {{- $profiles := joinPath .chezmoi.homeDir ".config" "chezmoi" "profiles" -}}

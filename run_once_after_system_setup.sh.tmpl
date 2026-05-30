@@ -8,11 +8,13 @@
 {{- $is_server  := stat (joinPath $profiles "server") -}}
 {{- $is_trusted := has .chezmoi.hostname $trusted_hosts -}}
 
-sudo=sudo
-! command -v sudo > /dev/null 2>&1 && sudo=doas
-if [ "$sudo" = "doas" ] && ! command -v doas > /dev/null 2>&1; then
-  echo "Error: Cannot find sudo or doas" >&2
-  exit 0
+if [ "$LOGNAME" = "mike" ]; then
+  sudo=sudo
+  ! command -v sudo > /dev/null 2>&1 && sudo=doas
+  if [ "$sudo" = "doas" ] && ! command -v doas > /dev/null 2>&1; then
+    echo "Error: Cannot find sudo or doas" >&2
+    exit 0
+  fi
 fi
 
 echo "Processing Run Once After System Setup"
@@ -34,37 +36,47 @@ makeflag() {
 case "$(uname -s)" in
   Linux)
     # Add user to needed groups
-    for group in video render input wheel; do
-      # Skip groups from the list that do not exist
-      getent group "$group" > /dev/null 2>&1 || continue
-      # Skip groups already a member of
-      echo "$groups" | grep -qw "$group" && continue
-      # Add user to group (ok if already a member)
-      echo "Adding $LOGNAME to $group"
-      $sudo usermod -aG "$group" "$LOGNAME"
-      if [ $? -ne 0 ]; then
-        echo "Error: Could not add $LOGNAME to $group" >&2
-        exit 0
-      fi
-    done
+    if [ "$LOGNAME" = "mike" ]; then
+      for group in video render input wheel; do
+        # Skip groups from the list that do not exist
+        getent group "$group" > /dev/null 2>&1 || continue
+        # Skip groups already a member of
+        echo "$groups" | grep -qw "$group" && continue
+        # Add user to group (ok if already a member)
+        echo "Adding $LOGNAME to $group"
+        $sudo usermod -aG "$group" "$LOGNAME"
+        if [ $? -ne 0 ]; then
+          echo "Error: Could not add $LOGNAME to $group" >&2
+          exit 0
+        fi
+      done
 
-    # Setup vi command
-    if { [ ! -e /usr/bin/vi ] || [ -L /usr/bin/vi ]; } && [ -e $HOME/.local/bin/vi ]; then
-      echo "Installing vi script that encourages use of sudoedit"
-      rm -f /usr/bin/vi > /dev/null 2>&1
-      $sudo install -o root -g root -m 755 "$HOME"/.local/bin/vi /usr/bin/vi
-      if [ $? -ne 0 ]; then
-        echo "Error: Could not install vi script to /usr/bin/vi" >&2
-        exit 0
+      # Setup vi command
+      if { [ ! -e /usr/bin/vi ] || [ -L /usr/bin/vi ]; } && [ -e $HOME/.local/bin/vi ]; then
+        echo "Installing vi script that encourages use of sudoedit"
+        rm -f /usr/bin/vi > /dev/null 2>&1
+        $sudo install -o root -g root -m 755 "$HOME"/.local/bin/vi /usr/bin/vi
+        if [ $? -ne 0 ]; then
+          echo "Error: Could not install vi script to /usr/bin/vi" >&2
+          exit 0
+        fi
+      fi
+
+      # Fix $LOGNAME $HOME permissions
+      if [ ! -r "$HOME"/.local/state/chezmoi/done/home_permissions ]; then
+        $sudo chown -R "$LOGNAME":"$(id -gn)" "$HOME"
+      fi
+      # Unconditionally mark that this was done so it does not break permissions later
+      makeflag home_permissions
+
+      # Enable and start cronie.service
+      if [ ! -r "$HOME"/.local/state/chezmoi/done/enable_cronie ]; then
+        if ! systemctl is-enabled -q cronie.service; then
+          $sudo systemctl enable --now cronie.service
+          [ $? -eq 0 ] && makeflag enable_cronie
+        fi
       fi
     fi
-
-    # Fix $LOGNAME $HOME permissions
-    if [ ! -r "$HOME"/.local/state/chezmoi/done/home_permissions ]; then
-      $sudo chown -R "$LOGNAME":"$(id -gn)" "$HOME"
-    fi
-    # Unconditionally mark that this was done so it does not break permissions later
-    makeflag home_permissions
 
     # Enable services: ssh-agent
     if command -v systemctl > /dev/null 2>&1; then
@@ -111,14 +123,6 @@ case "$(uname -s)" in
       fi
     fi
 
-    # Enable and start cronie.service
-    if [ ! -r "$HOME"/.local/state/chezmoi/done/enable_cronie ]; then
-      if ! systemctl is-enabled -q cronie.service; then
-        $sudo systemctl enable --now cronie.service
-        [ $? -eq 0 ] && makeflag enable_cronie
-      fi
-    fi
-
     {{- if $is_desktop }}
     # Set up DMS Idle Inhibitor Handler in cron
     if command -v crontab > /dev/null 2>&1 && [ -e "$HOME"/.local/bin/handle_dms_idle_inhibitor.sh ] && \
@@ -131,7 +135,7 @@ case "$(uname -s)" in
     fi
 
     # Setup dms-greeter
-    if [ ! -r "$HOME"/.local/state/chezmoi/done/configure_greetd ]; then
+    if [ "$LOGNAME" = "mike" ] && [ ! -r "$HOME"/.local/state/chezmoi/done/configure_greetd ]; then
       if [ -e /etc/greetd/config.toml ]; then
         if ! grep -qE "^\s*command\s*=.*dms-greeter" /etc/greetd/config.toml; then
           if ! grep -q "^\[default_session\]" /etc/greetd/config.toml; then
@@ -188,18 +192,20 @@ case "$(uname -s)" in
     ;;
   OpenBSD)
     # Add user to needed groups
-    for group in wheel _vmd _shutdown; do
-      # Skip groups from the list that do not exist
-      getent group "$group" > /dev/null 2>&1 || continue
-      # Skip groups already a member of
-      echo "$groups" | grep -qw "$group" && continue
-      # Add user to group (ok if already a member)
-      echo "Adding $LOGNAME to $group"
-      $sudo usermod -aG "$group" "$LOGNAME"
-      if [ $? -ne 0 ]; then
-        echo "Error: Could not add $LOGNAME to $group" >&2
-        exit 0
-      fi
-    done
+    if [ "$LOGNAME" = "mike" ]; then
+      for group in wheel _vmd _shutdown; do
+        # Skip groups from the list that do not exist
+        getent group "$group" > /dev/null 2>&1 || continue
+        # Skip groups already a member of
+        echo "$groups" | grep -qw "$group" && continue
+        # Add user to group (ok if already a member)
+        echo "Adding $LOGNAME to $group"
+        $sudo usermod -aG "$group" "$LOGNAME"
+        if [ $? -ne 0 ]; then
+          echo "Error: Could not add $LOGNAME to $group" >&2
+          exit 0
+        fi
+      done
+    fi
     ;;
 esac

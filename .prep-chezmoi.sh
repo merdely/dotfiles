@@ -11,9 +11,11 @@ case "$ID_LIKE" in
 esac
 
 if [ "$sys" = "arch" ]; then
-  if ! pacman -Q git gnupg pass > /dev/null 2>&1; then
-    echo "Installing git, gnupg, pass"
-    sudo pacman -Syu --needed --noconfirm pass git gnupg
+  if [ "$LOGNAME" = "mike" ]; then
+    if ! pacman -Q git gnupg pass > /dev/null 2>&1; then
+      echo "Installing git, gnupg, pass"
+      sudo pacman -Syu --needed --noconfirm pass git gnupg
+    fi
   fi
 fi
 
