@@ -44,11 +44,19 @@ blehook/eval-after-load keymap_vi my/vim-load-hook
 # Turn on vi-mode (overrides any previous 'set -o vi/emacs'
 bleopt default_keymap=vi
 
+# Skip unnecessary redraws
+bleopt exec_elapsed_mark=      # disable elapsed time display
+
+bleopt highlight_timeout_sync=20    # time (ms) for synchronous highlight before deferring
+bleopt highlight_timeout_async=200  # time (ms) for async highlight completion
+
 # Configure completion
 function my/complete-load-hook {
-  bleopt complete_auto_delay=300
-  bleopt complete_limit=100
-  bleopt complete_limit_auto=1500
+  bleopt complete_auto_delay=500
+  bleopt complete_limit=50
+  bleopt complete_limit_auto=500
+  bleopt complete_polling_cycle=50  # how often async jobs are polled (ms)
+  bleopt complete_ambiguous=1       # enable async worker
 
   # Zsh-like completion colors
   ble-face -s auto_complete                fg=240
@@ -64,4 +72,3 @@ function my/complete-load-hook {
 }
 blehook/eval-after-load complete my/complete-load-hook
 
-bleopt debug_xtrace=1
