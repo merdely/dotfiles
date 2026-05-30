@@ -44,14 +44,22 @@ blehook/eval-after-load keymap_vi my/vim-load-hook
 # Turn on vi-mode (overrides any previous 'set -o vi/emacs'
 bleopt default_keymap=vi
 
-# Set auto complete to be gray instead of reversed
-ble-face -s auto_complete fg=240
-
 # Configure completion
 function my/complete-load-hook {
   bleopt complete_auto_delay=300
   bleopt complete_limit=100
   bleopt complete_limit_auto=1500
+
+  # Zsh-like completion colors
+  ble-face -s auto_complete                fg=240
+  ble-face -s menu_complete                fg=white
+  ble-face -s menu_complete_selected       reverse
+  ble-face -s menu_desc_type               fg=240
+  ble-face -s menu_desc_default            fg=240
+  ble-face -s filename_directory           fg=blue,bold
+  ble-face -s filename_executable          fg=green,bold
+  ble-face -s filename_symlink             fg=cyan,bold
+  ble-face -s filename_warning             fg=red,bold
 }
 blehook/eval-after-load complete my/complete-load-hook
 
