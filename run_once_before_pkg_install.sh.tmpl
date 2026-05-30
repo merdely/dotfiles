@@ -12,7 +12,7 @@
 
 echo "Processing Run Once Before Package Install"
 
-[ -r /etc/os-release ] && source /etc/os-release
+[ -r /etc/os-release ] && . /etc/os-release
 [ "$uname -s" = "OpenBSD" ] && ID=OpenBSD
 case "$ID" in
   arch|artix|cachyos|garuda|endeavouros|manjaro|parabola|hyperbola|blackarch)

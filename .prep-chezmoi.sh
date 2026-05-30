@@ -1,6 +1,6 @@
 #!/bin/sh
 
-[ -r /etc/os-release ] && source /etc/os-release
+[ -r /etc/os-release ] && . /etc/os-release
 
 unset sys
 case "$ID" in
