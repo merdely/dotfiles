@@ -5,7 +5,7 @@
 {{- $is_server  := stat (joinPath $profiles "server") -}}
 {{- $is_trusted := has .chezmoi.hostname $trusted_hosts -}}
 
-{{- if not $is_desktop }}
+{{- if and (not $is_desktop) (ne .chezmoi.username "mike") }}
 .config/electron-flags.conf
 .config/environment.d
 .config/firejail
@@ -46,16 +46,16 @@
 .local/share/applications
 {{- end }}
 
-#{{- if not $is_server }}
+#{{- if and (not $is_server) (ne .chezmoi.username "mike") }}
 #{{- end }}
 
-{{- if not (and $is_desktop $is_trusted) }}
+{{- if not (and $is_desktop $is_trusted (eq .chezmoi.username "mike")) }}
 .cache/rofi-rbw.runcache
 .config/cam-chooser.conf
 .logseq
 {{- end }}
 
-{{- if not $is_trusted }}
+{{- if and (not $is_trusted) (ne .chezmoi.username "mike") }}
 .config/hassrc
 .config/luadnsrc
 .config/opnsenserc
