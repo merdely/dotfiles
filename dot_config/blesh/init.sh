@@ -52,13 +52,14 @@ function my/complete-load-hook {
 
   # Zsh-like completion colors
   ble-face -s auto_complete                fg=240
-  ble-face -s menu_complete                fg=white
+  ble-face -s menu_filter_input            fg=white,bold
+  ble-face -s menu_complete_match          fg=white,bold
   ble-face -s menu_complete_selected       reverse
   ble-face -s menu_desc_type               fg=240
   ble-face -s menu_desc_default            fg=240
   ble-face -s filename_directory           fg=blue,bold
   ble-face -s filename_executable          fg=green,bold
-  ble-face -s filename_symlink             fg=cyan,bold
+  ble-face -s filename_link                fg=cyan,bold
   ble-face -s filename_warning             fg=red,bold
 }
 blehook/eval-after-load complete my/complete-load-hook
