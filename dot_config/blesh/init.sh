@@ -54,3 +54,5 @@ function my/complete-load-hook {
   bleopt complete_limit_auto=1500
 }
 blehook/eval-after-load complete my/complete-load-hook
+
+bleopt debug_xtrace=1
