@@ -401,6 +401,9 @@ vim.keymap.set("n", "<leader>M", "@m", { desc = "Run macro m" })
 vim.keymap.set("n", "<leader>n", "@n", { desc = "Run macro n" })
 vim.keymap.set("n", "<leader>N", "@n", { desc = "Run macro n" })
 
+-- Reload syntax highlighting
+vim.keymap.set("n", "<leader>ss", ":syntax sync fromstart<CR>", { desc = "Syntax sync from start" })
+
 -- Redraw screen
 vim.keymap.set("n", "<leader>l", ":redraw!<CR>", { desc = "Redraw Screen" })
 
