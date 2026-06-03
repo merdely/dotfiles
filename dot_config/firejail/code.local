@@ -1,3 +1,9 @@
 noblacklist ${HOME}/.config/electron-flags.conf
 whitelist ${HOME}/.config/electron-flags.conf
 read-only ${HOME}/.config/electron-flags.conf
+
+noblacklist ${HOME}/src
+#whitelist ${HOME}/src
+
+noblacklist ${HOME}/git
+#whitelist ${HOME}/git
