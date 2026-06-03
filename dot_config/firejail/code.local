@@ -7,4 +7,6 @@ whitelist ${HOME}/src
 whitelist ${HOME}/git
 
 noblacklist ${HOME}/.vscode-shared
+whitelist ${HOME}/.vscode-shared
 noblacklist ${HOME}/.vscode-oss-shared
+whitelist ${HOME}/.vscode-oss-shared
