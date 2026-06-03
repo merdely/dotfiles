@@ -5,3 +5,6 @@ read-only ${HOME}/.config/electron-flags.conf
 # Directories that Code can access
 whitelist ${HOME}/src
 whitelist ${HOME}/git
+
+noblacklist ${HOME}/.vscode-shared
+noblacklist ${HOME}/.vscode-oss-shared
