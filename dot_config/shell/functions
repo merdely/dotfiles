@@ -7,7 +7,7 @@ export SHELL_FILES=${SHELL_FILES# }
 cmdcheck docker && dr() {
   local opt OPTIND=1 OPTARG
   while getopts ":h" opt; do
-    case "$opt" in *) echo "usage: $0 container_image" ; return 0 ;; esac
+    case "$opt" in *) echo "usage: dr container_image" ; return 0 ;; esac
   done
   shift $(( OPTIND - 1 ))
   [ $# -lt 1 ] && return 1
@@ -62,7 +62,7 @@ cmdcheck firejail && fj() {
   while getopts ":hl" opt; do
     case "$opt" in
       l) firejail --list ; return 0 ;;
-      *) echo "usage: $0 [-h] [-l] FIREJAILED_APP" ; return 0 ;;
+      *) echo "usage: fj [-h] [-l] FIREJAILED_APP" ; return 0 ;;
     esac
   done
   shift $(( OPTIND - 1 ))
@@ -87,7 +87,7 @@ cmdcheck firejail && fj() {
 getsslexpire() {
   local opt OPTIND=1 OPTARG
   while getopts ":h" opt; do
-    case "$opt" in *) echo "usage: $0 webserver.domain.tld[:port]" ; return 0 ;; esac
+    case "$opt" in *) echo "usage: getsslexpire webserver.domain.tld[:port]" ; return 0 ;; esac
   done
   shift $(( OPTIND - 1 ))
 
@@ -106,7 +106,7 @@ getsslexpire() {
 cmdcheck telnet || telnet() {
   local opt OPTIND=1 OPTARG
   while getopts ":h" opt; do
-    case $opt in *) echo "usage $0 [-h] HOST[:PORT]" ; return 1 ;; esac
+    case $opt in *) echo "usage: telnet [-h] HOST[:PORT]" ; return 1 ;; esac
   done
   shift $((OPTIND -1))
   local host=${1%:*}
