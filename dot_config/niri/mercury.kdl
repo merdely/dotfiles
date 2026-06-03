@@ -41,6 +41,7 @@ binds {
   Mod+KP_LEFT       hotkey-overlay-title="Focus Grayjay"  { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app app.grayjay.Grayjay cef"; }
   Mod+Ctrl+Shift+N  hotkey-overlay-title="Nvtop on Earth" { spawn-sh "$HOME/.config/niri/scripts/minimize nvtop-earth"; }
   Mod+Ctrl+Shift+I  hotkey-overlay-title="Htop on Earth"  { spawn-sh "$HOME/.config/niri/scripts/minimize htop-earth"; }
+  Mod+Shift+A       hotkey-overlay-title="Signal Flatpak" { spawn-sh "$HOME/.config/niri/scripts/minimize org.signal.Signal"; }
   // Mod+Ctrl+Shift+A  hotkey-overlay-title="Signal Flatpak" { spawn-sh "$HOME/.config/niri/scripts/minimize org.signal.Signal"; }
   Mod+Ctrl+Shift+A  hotkey-overlay-title="Signal Flatpak" { spawn-sh "$HOME/.config/niri/scripts/minimize signal"; }
 }
