@@ -60,10 +60,9 @@ fileage() {
 cmdcheck firejail && fj() {
   local opt OPTIND=1 OPTARG
   while getopts ":hl" opt; do
-    echo $opt
     case "$opt" in
       l) firejail --list ; return 0 ;;
-      h) echo "usage: $0 [-h] [-l] FIREJAILED_APP" ; return 0 ;;
+      *) echo "usage: $0 [-h] [-l] FIREJAILED_APP" ; return 0 ;;
     esac
   done
   shift $(( OPTIND - 1 ))
