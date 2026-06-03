@@ -19,6 +19,8 @@ if executable('git')
     " Plug 'itchyny/lightline.vim'
     Plug 'lambdalisue/vim-suda'
     Plug 'machakann/vim-highlightedyank'
+    Plug 'tpope/vim-repeat'
+    Plug 'tpope/vim-surround'
     Plug 'tpope/vim-vinegar'
     Plug 'junegunn/fzf', executable('fzf') ? {} : { 'do': { -> fzf#install() } }
     Plug 'junegunn/fzf.vim'
