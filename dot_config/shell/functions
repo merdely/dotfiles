@@ -5,6 +5,13 @@ SHELL_FILES="${SHELL_FILES# } functions"
 export SHELL_FILES=${SHELL_FILES# }
 
 cmdcheck docker && dr() {
+  local opt OPTIND=1 OPTARG
+  while getopts ":h" opt; do
+    case "$opt" in
+      *) echo "usage: dr container_image" ; return 0 ;;
+    esac
+  done
+  shift $(( OPTIND - 1 ))
   [ $# -lt 1 ] && return 1
   local name_base=dr_"${1%%:*}" name=dr_"${1%%:*}" ok=false existing tag
   while ! $ok; do
