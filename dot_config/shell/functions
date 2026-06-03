@@ -7,9 +7,7 @@ export SHELL_FILES=${SHELL_FILES# }
 cmdcheck docker && dr() {
   local opt OPTIND=1 OPTARG
   while getopts ":h" opt; do
-    case "$opt" in
-      *) echo "usage: dr container_image" ; return 0 ;;
-    esac
+    case "$opt" in *) echo "usage: $0 container_image" ; return 0 ;; esac
   done
   shift $(( OPTIND - 1 ))
   [ $# -lt 1 ] && return 1
@@ -60,6 +58,16 @@ fileage() {
 }
 
 cmdcheck firejail && fj() {
+  local opt OPTIND=1 OPTARG
+  while getopts ":hl" opt; do
+    echo $opt
+    case "$opt" in
+      l) firejail --list ; return 0 ;;
+      h) echo "usage: $0 [-h] [-l] FIREJAILED_APP" ; return 0 ;;
+    esac
+  done
+  shift $(( OPTIND - 1 ))
+
   [ -z "$1" ] && { echo "usage: fj FIREJAILED_APP" >&2 ; return 1 ; }
   [ "$1" = "-l" ] && { firejail --list | awk -F: '! /(\/usr\/bin\/)?firejail --join/{sub(/^(\/usr\/bin\/)?firejail /,"",$NF);print $NF}' ; return ; }
   echo "$1" | command grep -q firejail && { echo "Error: 'firejail' cannot be used in app string" >&2 ; return 1 ; }
@@ -78,7 +86,12 @@ cmdcheck firejail && fj() {
 
 # Get Server Expiration
 getsslexpire() {
-  [ -z "$1" ] && echo "usage: getsslexpire webserver.domain.tld[:port]" && return
+  local opt OPTIND=1 OPTARG
+  while getopts ":h" opt; do
+    case "$opt" in *) echo "usage: $0 webserver.domain.tld[:port]" ; return 0 ;; esac
+  done
+  shift $(( OPTIND - 1 ))
+
   local port=${1#*:}
   [ $port = $1 ] && port=443
   local date=$(echo | openssl s_client -servername ${1%:*} -connect ${1%:*}:$port 2>/dev/null | openssl x509 -noout -enddate)
@@ -92,14 +105,11 @@ getsslexpire() {
 
 # Telnet replacement
 cmdcheck telnet || telnet() {
-  local usage="usage: telnet [-h] HOST[:PORT}"
+  local opt OPTIND=1 OPTARG
   while getopts ":h" opt; do
-    case $opt in
-      *) printf "%b" "$usage" && return 1 ;;
-    esac
+    case $opt in *) echo "usage $0 [-h] HOST[:PORT]" ; return 1 ;; esac
   done
   shift $((OPTIND -1))
-  [ -z "$1" ] && printf "%b" "$usage" && return 1
   local host=${1%:*}
   local port=${1#*:}
   [ $host = $port ] && unset port && [ -n "$2" ] && port=$2
