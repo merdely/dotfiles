@@ -26,7 +26,8 @@ output "HDMI-A-1" {
     scale 1
 }
 
-spawn-sh-at-startup "[[ ! -r $HOME/quickstart ]] && sleep 1 && $HOME/.config/niri/scripts/minimize signal"
+// spawn-sh-at-startup "[[ ! -r $HOME/quickstart ]] && sleep 1 && $HOME/.config/niri/scripts/minimize signal"
+spawn-sh-at-startup "[[ ! -r $HOME/quickstart ]] && sleep 1 && $HOME/.config/niri/scripts/minimize org.signal.Signal"
 spawn-sh-at-startup "[[ ! -r $HOME/quickstart ]] && $HOME/.config/niri/scripts/minimize logseq-desktop Logseq"
 spawn-sh-at-startup "[[ ! -r $HOME/quickstart ]] && sleep 2 && $HOME/.config/niri/scripts/minimize bitwarden"
 spawn-sh-at-startup "[[ ! -r $HOME/quickstart ]] && sleep 2 && $HOME/.config/niri/scripts/minimize -m org.kde.kdeconnect.sms"
@@ -40,7 +41,8 @@ binds {
   Mod+KP_LEFT       hotkey-overlay-title="Focus Grayjay"  { spawn-sh "$HOME/.config/niri/scripts/focus-window-or-app app.grayjay.Grayjay cef"; }
   Mod+Ctrl+Shift+N  hotkey-overlay-title="Nvtop on Earth" { spawn-sh "$HOME/.config/niri/scripts/minimize nvtop-earth"; }
   Mod+Ctrl+Shift+I  hotkey-overlay-title="Htop on Earth"  { spawn-sh "$HOME/.config/niri/scripts/minimize htop-earth"; }
-  Mod+Ctrl+Shift+A  hotkey-overlay-title="Signal Flatpak" { spawn-sh "$HOME/.config/niri/scripts/minimize org.signal.Signal"; }
+  // Mod+Ctrl+Shift+A  hotkey-overlay-title="Signal Flatpak" { spawn-sh "$HOME/.config/niri/scripts/minimize org.signal.Signal"; }
+  Mod+Ctrl+Shift+A  hotkey-overlay-title="Signal Flatpak" { spawn-sh "$HOME/.config/niri/scripts/minimize signal"; }
 }
 
 window-rule {
