@@ -18,6 +18,9 @@ umask 0022 > /dev/null 2>&1
 [ -r "$XDG_CONFIG_HOME"/shell/os-specifics ]   && . "$XDG_CONFIG_HOME"/shell/os-specifics
 [ -r "$XDG_CONFIG_HOME"/shell/host-specifics ] && . "$XDG_CONFIG_HOME"/shell/host-specifics
 
+# Use vi-mode
+set -o vi
+
 # Set up BLE
 if [[ ! -e "$HOME"/.noblesh && -z "$BLE_VERSION" ]]; then
   if [[ -z "$SUDO_USER" && ! -r "$XDG_DATA_HOME"/blesh/ble.sh ]]; then
@@ -135,9 +138,6 @@ bind 'set visible-stats on'              # append character indicating type
 
 # Load fzf for command history
 cmdcheck fzf && { type __fzf_history__ > /dev/null 2>&1 || eval "$(fzf --bash)"; }
-
-# Use vi-mode
-set -o vi
 
 # Load any local overrides
 [[ -e "$HOME"/.profile.local ]] && . "$HOME"/.profile.local
