@@ -499,18 +499,18 @@ video/x-theora=io.github.celluloid_player.Celluloid.desktop;mpv.desktop;vlc.desk
 video/x-theora+ogg=io.github.celluloid_player.Celluloid.desktop;mpv.desktop;vlc.desktop
 
 # Handlers
-x-scheme-handler/about=librewolf-mike.desktop
-x-scheme-handler/chrome=librewolf-mike.desktop
-x-scheme-handler/ftp=librewolf-mike.desktop
+x-scheme-handler/about=librewolf.desktop
+x-scheme-handler/chrome=librewolf.desktop
+x-scheme-handler/ftp=librewolf.desktop
 x-scheme-handler/http=librewolf.desktop;firefox.desktop;chromium.desktop;org.qutebrowser.qutebrowser.desktop;luakit.desktop
-x-scheme-handler/http=librewolf-mike.desktop
+x-scheme-handler/http=librewolf.desktop
 x-scheme-handler/https=librewolf.desktop;firefox.desktop;chromium.desktop;org.qutebrowser.qutebrowser.desktop;luakit.desktop
-x-scheme-handler/https=librewolf-mike.desktop
+x-scheme-handler/https=librewolf.desktop
 x-scheme-handler/mailto=librewolf.desktop;firefox.desktop;thunderbird.desktop;chromium.desktop;org.qutebrowser.qutebrowser.desktop;luakit.desktop
 x-scheme-handler/msteams=teams-for-linux.desktop
 x-scheme-handler/postman=Postman.desktop
 x-scheme-handler/sgnl=signal.desktop
 x-scheme-handler/signalcaptcha=signal.desktop
 x-scheme-handler/trash=thunar.desktop
-x-scheme-handler/unknown=librewolf-mike.desktop
+x-scheme-handler/unknown=librewolf.desktop
 
