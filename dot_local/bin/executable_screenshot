@@ -1,0 +1,111 @@
+#!/usr/bin/env bash
+
+progname=${0##*/}
+progname=${progname%.sh}
+dest=$HOME/Pictures/Screenshots
+notification_timeout=20
+
+[ -r $HOME/.config/screenshotrc ] && source $HOME/.config/screenshotrc
+
+! which jq &> /dev/null && echo "Error: jq package required" && exit 1
+! which notify-send &> /dev/null && echo "Error: libnotify package required" && exit 1
+! which grim &> /dev/null && echo "Error: grim package required" && exit 1
+! which slurp &> /dev/null && echo "Error: slurp package required" && exit 1
+! which wl-copy &> /dev/null && echo "Error: wl-clipboard package required" && exit 1
+
+usage() {
+  echo "usage: $progname [-h] [-w|-a|-s]"
+  echo "  -w : Screenshot the current window"
+  echo "  -s : Screenshot the current screen"
+  echo "  -a : Screenshot the all screens"
+  echo "  Without options, a selection is used"
+  exit $1
+}
+
+switch_count=0
+all_screens=false
+current_screen=false
+current_window=false
+while getopts ":hasw" opt; do
+  case $opt in
+    a) all_screens=true ; switch_count=$((switch_count+1));;
+    s) current_screen=true ; switch_count=$((switch_count+1));;
+    w) current_window=true ; switch_count=$((switch_count+1));;
+    *) usage ;;
+  esac
+done
+shift $((OPTIND -1))
+
+[ $switch_count -gt 1 ] && echo "Error: Only one of -a, -s, and -w can be used" && exit 1
+
+outfile=$dest/Screenshot-$(date +"%Y-%m-%d_%H-%M-%S").png
+
+niri_screenshot=false
+if $all_screens; then
+  grim $outfile
+elif $current_screen; then
+  if [[ $XDG_CURRENT_DESKTOP =~ ^niri ]]; then
+    output=$(niri msg -j focused-output | jq -r .name)
+  elif [[ $XDG_CURRENT_DESKTOP =~ ^sway ]]; then
+    output=$(swaymsg -r -t get_outputs | jq '.[] | select(.active==true) | .name')
+  elif [[ $XDG_CURRENT_DESKTOP =~ ^Hyprland ]]; then
+    output=$(hyprctl -j monitors | jq '.[] | select(.focused==true) | .name')
+  fi
+  [ -z "$output" ] && echo "Error: Could not determine current screen name" && exit 1
+  grim -o $output $outfile
+elif $current_window; then
+  if [[ $XDG_CURRENT_DESKTOP =~ ^niri ]]; then
+    niri msg action screenshot-window --write-to-disk true
+    # exit 1
+    sleep 0.5
+    niri_screenshot=true
+  elif [[ $XDG_CURRENT_DESKTOP =~ ^sway ]]; then
+    geometry=$(swaymsg -r -t get_tree | jq -r 'recurse(.nodes[]?, .floating_nodes[]?) | select(.focused) | "\(.rect.x),\(.rect.y) \(.rect.width)x\(.rect.height)"')
+  elif [[ $XDG_CURRENT_DESKTOP =~ ^Hyprland ]]; then
+    geometry=$(hyprctl -j activewindow | jq -r '"\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"')
+  fi
+  if ! $niri_screenshot; then
+    [ -z "$geometry" ] && echo "Error: Could not determine current window geometry" && exit 1
+    grim -g $geometry $outfile
+  fi
+else
+  geom=$(slurp -d)
+  [ $? != 0 ] && exit 1
+  grim -g "$geom" $outfile
+fi
+
+! $niri_screenshot && cat $outfile | wl-copy --type image/png
+which satty &> /dev/null && actions="-A satty=Mark_Up"
+out=$(timeout ${notification_timeout:-20} notify-send -a $progname $actions "Screenshot" "Screenshot saved as ${outfile##*/} and copied to clipboard")
+while [[ $out ]]; do
+  case "$out" in
+    satty)
+      unset out actions
+      cd $dest
+      satty_outfile=$dest/Screenshot-$(date +"%Y-%m-%d_%H-%M-%S").png
+      satty_output=$(wl-paste | satty \
+        --early-exit \
+        --no-window-decoration \
+        --disable-notifications \
+        --actions-on-enter save-to-clipboard \
+        --actions-on-escape exit \
+        --copy-command wl-copy \
+        --output-filename $satty_outfile \
+        --filename -)
+      case "$satty_output" in
+        "Copied to clipboard."*)
+          actions="-A satty=Mark_Up"
+          out=$(timeout ${notification_timeout:-20} notify-send -a satty -i /usr/share/icons/hicolor/scalable/apps/satty.svg $actions "Screenshot Markup" "Marked up image copied to clipboard")
+          ;;
+        "File saved to '"*)
+          notify-send -a satty -i /usr/share/icons/hicolor/scalable/apps/satty.svg "Screenshot Saved" "Marked up image saved to ${satty_outfile##*/}"
+          ;;
+        *)
+          # echo "$satty_output"
+          true
+          ;;
+      esac
+      ;;
+  esac
+done
+
