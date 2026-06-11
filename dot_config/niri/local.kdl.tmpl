@@ -88,8 +88,10 @@ binds {
     Mod+Ctrl+Alt+Shift+Slash hotkey-overlay-title="Generate Niri Help"   { spawn-sh "notify-send -a niri 'Niri Help Images' 'Generating help images' ; $HOME/.config/niri/scripts/gen-help"; }
 
     // Screenshots
-    Mod+Shift+S            hotkey-overlay-title="Screenshot Selection"   { spawn-sh "niri msg action screenshot"; }
-    Shift+Print            hotkey-overlay-title="Screenshot Screen"      { spawn-sh "niri msg action screenshot-screen"; }
+    Mod+Shift+S      hotkey-overlay-title="Screenshot Selection"         { spawn-sh "screenshot"; }
+    Print            hotkey-overlay-title="Screenshot Selection"         { spawn-sh "screenshot"; }
+    Ctrl+Print       hotkey-overlay-title="Screenshot Screen"            { spawn-sh "screenshot -a"; }
+    Alt+Print        hotkey-overlay-title="Screenshot Window"            { spawn-sh "screenshot -w"; }
 
     // Color picker
     Mod+Ctrl+Shift+C       hotkey-overlay-title="Color picker"           { spawn-sh "niri msg pick-color | awk '/^Hex:/ {printf \"%s\",$2}' | wl-copy"; }
