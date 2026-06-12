@@ -159,6 +159,8 @@ case "$DISTRO" in
     alias ls_orphans='pacman -Qdtq'
     alias rm_orphans='o=$(pacman -Qdtq); [ -n "$o" ] && echo Removing "$o" && sudo pacman -Rcns "$o"; unset o'
     alias updates='echo Using pacman; sudo pacman -S --needed archlinux-keyring ; sudo pacman -Syu --noconfirm'
+    cmdcheck figlet && [[ -d "$HOME"/.config/figlet ]] && \
+      alias banner='figlet -d $HOME/.config/figlet -f banner'
     ;;
   debian)
     alias updates='echo Using apt dist-upgrade; sudo apt update && sudo apt dist-upgrade -y'
