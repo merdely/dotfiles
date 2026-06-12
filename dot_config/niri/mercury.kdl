@@ -205,4 +205,5 @@ window-rule {
     default-floating-position x=0 y=0 relative-to="top-right"
 }
 
+// Fix for nvidia card
 debug { wait-for-frame-completion-before-queueing; }
