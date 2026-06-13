@@ -1,8 +1,7 @@
 # vim: set filetype=toml :
 progress = true
 
-# $use_pass := not (not (and (lookPath "pass") (lookPath "gpg") (exec "gpg" "--list-secret-keys" "801D19B7706D19AE4663426338D39B589EE2D1DD")))
-{{ $use_pass := and (lookPath "pass") (lookPath "gpg") (exec "gpg" "--list-secret-keys" "801D19B7706D19AE4663426338D39B589EE2D1DD") }}
+{{ $use_pass := not (not (and (lookPath "pass") (lookPath "gpg") (exec "gpg" "--list-secret-keys" "801D19B7706D19AE4663426338D39B589EE2D1DD"))) }}
 [data]
     use_pass = {{ $use_pass }}
 
