@@ -35,3 +35,6 @@ defaultPref("identity.fxaccounts.enabled", true);
 defaultPref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
 defaultPref("browser.compactmode.show", true);
 defaultPref("browser.uidensity", 1);
+
+// Disable showing glyphs as fonts (fixes showing "th" as "þ")
+defaultPref("gfx.font_rendering.opentype_svg.enabled", false);
