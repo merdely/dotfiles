@@ -1,8 +1,9 @@
 # vim: set filetype=toml :
 progress = true
 
+{{- $use_pass := and (lookPath "pass") (lookPath "gpg") (exec "gpg" "--list-secret-keys" "801D19B7706D19AE4663426338D39B589EE2D1DD") }}
 [data]
-    trusted_hosts = ["earth", "carme", "mercury", "neptune", "uranus"]
+    use_pass = {{ $use_pass }}
 
 [edit]
     apply = true

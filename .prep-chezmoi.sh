@@ -12,9 +12,9 @@ esac
 
 if [ "$sys" = "arch" ]; then
   if [ "$LOGNAME" = "mike" ]; then
-    if ! pacman -Q git gnupg pass > /dev/null 2>&1; then
-      echo "Installing git, gnupg, pass"
-      sudo pacman -Syu --needed --noconfirm pass git gnupg
+    if ! pacman -Q git > /dev/null 2>&1; then
+      echo "Installing git"
+      sudo pacman -Syu --needed --noconfirm git
     fi
   fi
 fi
