@@ -21,25 +21,23 @@ umask 0022 > /dev/null 2>&1
 # Use vi-mode
 set -o vi
 
-# Set up BLE
-if [[ ! -e "$HOME"/.noblesh && -z "$BLE_VERSION" ]]; then
-  if [[ -z "$SUDO_USER" && ! -r "$XDG_DATA_HOME"/blesh/ble.sh ]]; then
-    work=$(mktemp -d)
-    echo Downloading ble.sh
-    curl -sLo "$work"/ble.tar.xz https://github.com/akinomyoga/ble.sh/releases/download/nightly/ble-nightly.tar.xz
-    if [[ -s "$work"/ble.tar.xz ]]; then
-      unxz --stdout "$work"/ble.tar.xz | tar -C "$work" -xf -
-    fi
-    if [[ -r "$work"/ble-nightly/ble.sh ]]; then
-      bash "$work"/ble-nightly/ble.sh --install "$XDG_DATA_HOME"
-    fi
-    rm -Rf "$work"
+# Install Bash Line Editor (ble.sh)
+install_ble() {
+  work=$(mktemp -d)
+  echo Downloading ble.sh
+  curl -sLo "$work"/ble.tar.xz https://github.com/akinomyoga/ble.sh/releases/download/nightly/ble-nightly.tar.xz
+  if [[ -s "$work"/ble.tar.xz ]]; then
+    unxz --stdout "$work"/ble.tar.xz | tar -C "$work" -xf -
   fi
+  if [[ -r "$work"/ble-nightly/ble.sh ]]; then
+    bash "$work"/ble-nightly/ble.sh --install "$XDG_DATA_HOME"
+  fi
+  rm -Rf "$work"
+}
 
-  # If BLE is installed, set it up
-  if [[ -r "$XDG_DATA_HOME"/blesh/ble.sh ]]; then
-    source "$XDG_DATA_HOME"/blesh/ble.sh --attach=none
-  fi
+# If BLE is installed, .noblesh does not exist and BLE_VERSION is not set, set it up
+if [[ ! -e "$HOME"/.noblesh && -r "$XDG_DATA_HOME"/blesh/ble.sh && -z "$BLE_VERSION" ]]; then
+  source "$XDG_DATA_HOME"/blesh/ble.sh --attach=none
 fi
 
 # Configure bash
