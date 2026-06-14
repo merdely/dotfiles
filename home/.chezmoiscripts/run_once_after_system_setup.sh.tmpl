@@ -63,7 +63,8 @@ case "$(uname -s)" in
       makeflag home_permissions
 
       # Enable and start cronie.service
-      if [ ! -r "$HOME"/.local/state/chezmoi/done/enable_cronie ]; then
+      if systemctl list-unit-files cronie.service > /dev/null 2>&1 && \
+           [ ! -r "$HOME"/.local/state/chezmoi/done/enable_cronie ]; then
         if ! systemctl is-enabled -q cronie.service; then
           $sudo systemctl enable --now cronie.service
           [ $? -eq 0 ] && makeflag enable_cronie

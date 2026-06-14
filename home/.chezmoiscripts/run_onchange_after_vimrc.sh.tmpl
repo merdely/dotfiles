@@ -31,6 +31,8 @@ case "$ID" in
     ;;
 esac
 
+[ ! -e "$vimrc" ] && exit 0
+
 # Have vimrc.local added to system vimrc if needed
 if ! grep -q "source $vimrc.local" "$vimrc"; then
   cat << EOF | $sudo tee -a "$vimrc" > /dev/null

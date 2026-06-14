@@ -12,7 +12,12 @@
 {{- end }}
 
 {{- $use_pass := false -}}
-{{- if and (lookPath "pass") (lookPath "gpg") (exec "gpg" "--list-secret-keys" $gpgkey) -}}
+{{- if and
+        (lookPath "gpg")
+        (exec "gpg" "--list-secret-keys" $gpgkey)
+        (lookPath "pass")
+        (exec "pass" "ls")
+-}}
 {{-   $use_pass = true -}}
 {{- end -}}
 {{- "" }}
