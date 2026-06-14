@@ -1,11 +1,7 @@
 #!/bin/sh
 # vim: set filetype=sh :
 
-{{- $profiles := joinPath .chezmoi.homeDir ".config" "chezmoi" "profiles" }}
-{{- $is_desktop := stat (joinPath $profiles "desktop") }}
-{{- $is_server  := stat (joinPath $profiles "server") }}
-
-if [ "$LOGNAME" = "mike" ]; then
+if [ "$LOGNAME" = {{ .username }} ]; then
   sudo=sudo
   ! command -v sudo > /dev/null 2>&1 && sudo=doas
   if [ "$sudo" = "doas" ] && ! command -v doas > /dev/null 2>&1; then
@@ -33,7 +29,7 @@ makeflag() {
 case "$(uname -s)" in
   Linux)
     # Add user to needed groups
-    if [ "$LOGNAME" = "mike" ]; then
+    if [ "$LOGNAME" = {{ .username }} ]; then
       for group in video render input wheel; do
         # Skip groups from the list that do not exist
         getent group "$group" > /dev/null 2>&1 || continue
@@ -120,7 +116,7 @@ case "$(uname -s)" in
       fi
     fi
 
-    {{- if $is_desktop }}
+    {{- if .is_desktop }}
     # Set up DMS Idle Inhibitor Handler in cron
     if command -v crontab > /dev/null 2>&1 && [ -e "$HOME"/.local/bin/handle_dms_idle_inhibitor.sh ] && \
        ! crontab -l 2> /dev/null | grep -qF 'handle_dms_idle_inhibitor.sh'; then
@@ -129,49 +125,6 @@ case "$(uname -s)" in
         crontab -l 2> /dev/null
         echo '*/15 * * * * [ -d $XDG_RUNTIME_DIR ] && [ -S $XDG_RUNTIME_DIR/wayland-1 ] && flock -n $XDG_CACHE_HOME/.dms_idle.lock handle_dms_idle_inhibitor.sh -h 4'
       } | crontab -
-    fi
-
-    # Setup dms-greeter
-    if [ "$LOGNAME" = "mike" ] && [ ! -r "$HOME"/.local/state/chezmoi/done/configure_greetd ]; then
-      if [ -e /etc/greetd/config.toml ]; then
-        if ! grep -qE "^\s*command\s*=.*dms-greeter" /etc/greetd/config.toml; then
-          if ! grep -q "^\[default_session\]" /etc/greetd/config.toml; then
-            echo "Error: greetd config missing default_session section" >&2
-          else
-            echo "Setting up greetd to use dms-greeter with niri"
-            # Comment out any lines with command = 
-            $sudo sed -ri 's/^(\s*)(command.*)$/\1# \2/' /etc/greetd/config.toml
-            # Under the default_session section heading, add a dms-greeter line
-            $sudo sed -ri 's#^(\[default_session].*)$#\1\r\ncommand = "/usr/bin/dms-greeter --no-save-username --command niri"#' /etc/greetd/config.toml
-            # Enable the service
-            $sudo systemctl enable greetd
-          fi
-        fi
-
-        if getent group greeter > /dev/null 2>&1 && ! groups | sed "s/^$LOGNAME : //" | grep -qw greeter; then
-          echo "Adding $LOGNAME to $group"
-          $sudo usermod -aG greeter "$LOGNAME"
-        fi
-
-        if [ -n "$(find /var/cache/dms-greeter -maxdepth 0 -mindepth 0 -not -group greeter -type d)" ]; then
-          echo "Fixing permissions on /var/cache/dms-greeter"
-          $sudo chgrp greeter /var/cache/dms-greeter
-        fi
-
-        # Install dms-greeter settings/colors
-        for file in settings colors; do
-          if [ -r "$HOME"/.config/niri/greeter/"$file".json ]; then
-            if [ -r /var/cache/dms-greeter/"$file".json ]; then
-              : # do nothing
-            elif [ ! -x /var/cache/dms-greeter ] || ! $sudo test -r /var/cache/dms-greeter/"$file".json; then
-              echo "Configuring dms-greeter $file"
-              $sudo install -m 644 -o root -g "$(id -gn root)" \
-                "$HOME"/.config/niri/greeter/"$file".json /var/cache/dms-greeter
-            fi
-          fi
-        done
-      fi
-      makeflag configure_greetd
     fi
 
     # Enable services: DMS and ydotool
@@ -189,7 +142,7 @@ case "$(uname -s)" in
     ;;
   OpenBSD)
     # Add user to needed groups
-    if [ "$LOGNAME" = "mike" ]; then
+    if [ "$LOGNAME" = {{ .username }} ]; then
       for group in wheel _vmd _shutdown _seatd; do
         # Skip groups from the list that do not exist
         getent group "$group" > /dev/null 2>&1 || continue

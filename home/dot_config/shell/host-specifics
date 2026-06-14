@@ -24,7 +24,7 @@ if [ "$HOSTNAME" = "mercury" ]; then
     for f in $ros; do
       echo "$list" | command grep -qw "$f" || continue
       echo "$f: sync_home"
-      ssh -4 -o ClearAllForwardings=yes root@"$f" /home/mike/.local/bin/sync_home > /dev/null
+      ssh -4 -o ClearAllForwardings=yes root@"$f" "$HOME"/.local/bin/sync_home > /dev/null
     done
   }
 
@@ -63,7 +63,7 @@ if [ "$HOSTNAME" = "mercury" ]; then
     for f in $ros; do
       echo "$list" | command grep -qw "$f" || continue
       echo "$f: sync_home"
-      ssh -o ClearAllForwardings=yes root@"$f" /home/mike/.local/bin/sync_home > /dev/null
+      ssh -o ClearAllForwardings=yes root@"$f" "$HOME"/.local/bin/sync_home > /dev/null
     done
   }
 fi

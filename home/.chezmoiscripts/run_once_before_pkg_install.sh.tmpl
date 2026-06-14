@@ -1,11 +1,8 @@
 #!/bin/sh
 # vim: set filetype=sh :
 
-[ "$LOGNAME" != "mike" ] && exit 0
-
-{{- $profiles := joinPath .chezmoi.homeDir ".config" "chezmoi" "profiles" }}
-{{- $is_desktop := stat (joinPath $profiles "desktop") }}
-{{- $is_server  := stat (joinPath $profiles "server") }}
+# Do not install packages if .install_pkgs is not true
+[[ "{{ .install_pkgs }}" != "true" ]] && exit 0
 
 echo "Processing Run Once Before Package Install"
 
@@ -17,7 +14,7 @@ case "$ID" in
     need=""
     packages="base-devel git openssh neovim vim man-db apparmor firejail rsync inetutils \
       networkmanager openresolv htop btop jq 7zip bat ripgrep fd cronie bash-completion"
-    {{- if $is_desktop }}
+    {{- if .is_desktop }}
     packages="$packages niri alacritty fuzzel xdg-desktop-portal-gnome pipewire-jack \
       dms-shell-niri greetd-dms-greeter-git accountsservice cava cups-pk-helper dgop \
       khal kimageformats matugen power-profiles-daemon qt6-imageformats \
@@ -47,13 +44,12 @@ case "$ID" in
     # Install missing packages
     if [ -n "$need" ]; then
       echo "Installing packages: $need"
-      sudo pacman -Syu --disable-download-timeout --needed --noconfirm ${need# }
-      ret=$?
-      if [ $ret -ne 0 ]; then
+      if ! sudo pacman -Syu --disable-download-timeout --needed --noconfirm ${need# }; then
         echo "Error: pacman exited with error code $ret" >&2
         exit 0
       fi
     fi
     ;;
+  *) ;;
 esac
 

@@ -1,8 +1,18 @@
 # vim: set filetype=toml :
 
+{{- $username := "mike" -}}
+{{- $main_system := "mercury" -}}
+{{- $gpgkey := "801D19B7706D19AE4663426338D39B589EE2D1DD" -}}
+
+{{- $install_pkgs := false -}}
+{{- $is_desktop   := false -}}
+{{- $install_pkgs = promptBool "Install missing packages" false -}}
+{{- if $install_pkgs -}}
+{{-   $is_desktop   = promptBool "Is this system a desktop" false -}}
+{{- end }}
+
 {{- $use_pass := false -}}
-{{- $is_desktop := promptBoolOnce . "is_desktop" "Is this system a desktop?" false -}}
-{{- if and (lookPath "pass") (lookPath "gpg") (exec "gpg" "--list-secret-keys" "801D19B7706D19AE4663426338D39B589EE2D1DD") -}}
+{{- if and (lookPath "pass") (lookPath "gpg") (exec "gpg" "--list-secret-keys" $gpgkey) -}}
 {{-   $use_pass = true -}}
 {{- end -}}
 {{- "" }}
@@ -10,8 +20,11 @@
 progress = true
 
 [data]
-    use_pass = {{ $use_pass }}
+    username = {{ $username }}
+    main_system = {{ $main_system }}
+    install_pkgs = {{ $install_pkgs }}
     is_desktop = {{ $is_desktop }}
+    use_pass = {{ $use_pass }}
 
 [edit]
     apply = true
@@ -20,7 +33,7 @@ progress = true
     autoCommit = true
     autoPush = true
 
-{{- if and (eq .chezmoi.hostname "mercury") (eq .chezmoi.username "mike") }}
+{{- if and (eq .chezmoi.hostname $main_system) (eq .chezmoi.username $username) }}
 
 [hooks.apply.pre]
 command = "chezmoi"

@@ -1,8 +1,4 @@
-{{- $profiles := joinPath .chezmoi.homeDir ".config" "chezmoi" "profiles" -}}
-{{- $is_desktop := stat (joinPath $profiles "desktop") -}}
-{{- $is_server  := stat (joinPath $profiles "server") -}}
-
-{{- if or (not $is_desktop) (ne .chezmoi.username "mike") }}
+{{- if not .is_desktop }}
 .config/electron-flags.conf
 .config/environment.d
 .config/firejail
@@ -43,10 +39,7 @@
 .local/share/applications
 {{- end }}
 
-#{{- if or (not $is_server) (ne .chezmoi.username "mike") }}
-#{{- end }}
-
-{{- if not (and $is_desktop .use_pass (eq .chezmoi.username "mike")) }}
+{{- if not (and .is_desktop .use_pass) }}
 .cache/rofi-rbw.runcache
 .config/cam-chooser.conf
 .logseq
