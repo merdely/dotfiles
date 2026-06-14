@@ -20,8 +20,8 @@
 progress = true
 
 [data]
-    username = {{ $username }}
-    main_system = {{ $main_system }}
+    username = {{ $username | quote }}
+    main_system = {{ $main_system | quote }}
     install_pkgs = {{ $install_pkgs }}
     is_desktop = {{ $is_desktop }}
     use_pass = {{ $use_pass }}
