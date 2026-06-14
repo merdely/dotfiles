@@ -203,10 +203,14 @@ compinit -d "$XDG_CACHE_HOME"/zsh/zcompdump-$ZSH_VERSION
 # ZSH Syntax Highlighting
 [ -r /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ] && \
   source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+[ -r /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ] && \
+  source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
 # ZSH Auto Suggestions
 [ -r /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh ] && \
   source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
+[ -r /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ] && \
+  source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 bindkey -M viins '^y' autosuggest-execute
 bindkey -M viins "^Xy" autosuggest-accept
 bindkey ' ' magic-space
