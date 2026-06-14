@@ -17,11 +17,11 @@ trap 'exit 1' INT TERM
 
 TMPDIR=$(mktemp -d)
 
-curl -sLo "$TMPFILE"/chezmoi.deb "$url"
-if [[ ! -s "$TMPFILE"/chezmoi.deb ]]; then
+curl -sLo "$TMPDIR"/chezmoi.deb "$url"
+if [[ ! -s "$TMPDIR"/chezmoi.deb ]]; then
   echo "Error: Could not download chezmoi.deb for $ARCH" >&2
   exit 1
 fi
 
-sudo dpkg -i "$TMPFILE"/chezmoi.deb
+sudo dpkg -i "$TMPDIR"/chezmoi.deb
 
