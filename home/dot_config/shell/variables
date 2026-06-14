@@ -9,7 +9,7 @@ export SHELL_FILES=${SHELL_FILES# }
 
 # Determine system type
 [ -r /etc/os-release ] && . /etc/os-release
-OPSYS=linux
+OPSYS=${OPSYS:-linux}
 case "$ID" in
   arch|artix|cachyos|garuda|endeavouros|manjaro|parabola|hyperbola|blackarch)  DISTRO=arch ;;
   debian|ubuntu|linuxmint|pop|elementary|kali|parrot|mx|raspbian|tails|zorin)  DISTRO=debian ;;
@@ -39,6 +39,7 @@ esac
   CYGWIN*|MINGW*|MSYS*) DISTRO=windows   ; OPSYS=$DISTRO ;;
 esac
 [ -z "$DISTRO" ] && DISTRO=unknown && OPSYS=$DISTRO
+export DISTRO OPSYS
 
 # Remove a directory from PATH
 path_prune() {
