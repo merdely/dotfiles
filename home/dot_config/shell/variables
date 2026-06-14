@@ -39,7 +39,6 @@ esac
   CYGWIN*|MINGW*|MSYS*) DISTRO=windows   ; OPSYS=$DISTRO ;;
 esac
 [ -z "$DISTRO" ] && DISTRO=unknown && OPSYS=$DISTRO
-export DISTRO OPSYS
 
 # Remove a directory from PATH
 path_prune() {
