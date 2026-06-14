@@ -202,7 +202,7 @@ compinit -d "$XDG_CACHE_HOME"/zsh/zcompdump-$ZSH_VERSION
 
 # ZSH Syntax Highlighting
 if [ -r "$XDG_CONFIG_HOME"/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
-  source "$XDG_CONFIG_HOME"/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
+  source "$XDG_CONFIG_HOME"/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 elif [ -r /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
   source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 elif [ -r /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
@@ -213,7 +213,7 @@ fi
 
 # ZSH Auto Suggestions
 if [ -r "$XDG_CONFIG_HOME"/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
-  source "$XDG_CONFIG_HOME"/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
+  source "$XDG_CONFIG_HOME"/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 elif [ -r /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
   source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 elif [ -r /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
