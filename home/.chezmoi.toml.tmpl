@@ -1,11 +1,10 @@
 # vim: set filetype=toml :
 
-{{- $is_desktop := promptBoolOnce . "is_desktop" "Is this system a desktop?" false }}
-{{- if and (lookPath "pass") (lookPath "gpg") (exec "gpg" "--list-secret-keys" "801D19B7706D19AE4663426338D39B589EE2D1DD") }}
-{{-   $use_pass = true }}
-{{- else }}
-{{-   $use_pass = false }}
-{{- end }}
+{{- $use_pass := false -}}
+{{- $is_desktop := promptBoolOnce . "is_desktop" "Is this system a desktop?" false -}}
+{{- if and (lookPath "pass") (lookPath "gpg") (exec "gpg" "--list-secret-keys" "801D19B7706D19AE4663426338D39B589EE2D1DD") -}}
+{{-   $use_pass = true -}}
+{{- end -}}
 
 progress = true
 
