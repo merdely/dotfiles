@@ -38,7 +38,7 @@ else
   editor_files=()
   chezmoi_files=()
   past_flags=false
-  if command -v chezmoi > /dev/null 2>&1 && [[ -d "$HOME"/.local/share/chezmoi ]]; then
+  if [[ "$(hostname -s)" == "mercury" && "$LOGNAME" == "mike" ]] && command -v chezmoi > /dev/null 2>&1 && [[ -d "$HOME"/.local/share/chezmoi ]]; then
     mapfile -t chezmoi_managed < <(chezmoi managed -p absolute)
 
     # Look for chezmoi managed files and edit them with chezmoi edit instead of vi
