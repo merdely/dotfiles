@@ -1,6 +1,8 @@
 #!/bin/sh
 # vim: set filetype=sh :
 
+[ "$(hostname -s)" = "venus" ] && exit 0
+
 if [ "$LOGNAME" = {{ .username }} ]; then
   sudo=sudo
   ! command -v sudo > /dev/null 2>&1 && sudo=doas

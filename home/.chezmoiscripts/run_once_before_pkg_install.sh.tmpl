@@ -1,6 +1,8 @@
 #!/bin/sh
 # vim: set filetype=sh :
 
+[ "$(hostname -s)" = "venus" ] && exit 0
+
 # Do not install packages if .install_pkgs is not true
 [ "{{ .install_pkgs }}" != "true" ] && exit 0
 
