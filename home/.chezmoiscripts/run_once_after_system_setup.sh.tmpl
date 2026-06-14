@@ -73,7 +73,7 @@ case "$(uname -s)" in
     fi
 
     # Enable services: ssh-agent
-    if [ -n "$DBUS_SESSION_BUS_ADDRESS" ] && [ -n "$XDG_RUNTIME_DIR" ] && command -v systemctl > /dev/null 2>&1; then
+    if systemctl list-unit-files ssh-agent.service > /dev/null 2>&1 && [ -n "$DBUS_SESSION_BUS_ADDRESS" ] && [ -n "$XDG_RUNTIME_DIR" ] && command -v systemctl > /dev/null 2>&1; then
       if [ ! -r "$HOME"/.local/state/chezmoi/done/enable_sshd ]; then
         command -v ssh-agent > /dev/null 2>&1 && systemctl --user enable ssh-agent.service
         [ $? -eq 0 ] && makeflag enable_sshd
