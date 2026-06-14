@@ -75,7 +75,7 @@ case "$(uname -s)" in
     # Enable services: ssh-agent
     if systemctl list-unit-files ssh-agent.service > /dev/null 2>&1 && [ -n "$DBUS_SESSION_BUS_ADDRESS" ] && [ -n "$XDG_RUNTIME_DIR" ] && command -v systemctl > /dev/null 2>&1; then
       if [ ! -r "$HOME"/.local/state/chezmoi/done/enable_sshd ]; then
-        command -v ssh-agent > /dev/null 2>&1 && systemctl --user enable ssh-agent.service
+        command -v ssh-agent > /dev/null 2>&1 && systemctl --user enable ssh-agent.service 2> /dev/null
         [ $? -eq 0 ] && makeflag enable_sshd
       fi
     fi
