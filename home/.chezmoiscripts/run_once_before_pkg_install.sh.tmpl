@@ -2,7 +2,7 @@
 # vim: set filetype=sh :
 
 # Do not install packages if .install_pkgs is not true
-[[ "{{ .install_pkgs }}" != "true" ]] && exit 0
+[ "{{ .install_pkgs }}" != "true" ] && exit 0
 
 echo "Processing Run Once Before Package Install"
 
