@@ -1,1 +1,49 @@
-/usr/bin/kitty
+{{- if lookPath "kitty" }}
+{{- lookPath "kitty" }}
+{{- else if lookPath "alacritty" }}
+{{- lookPath "alacritty" }}
+{{- else if lookPath "foot" }}
+{{- lookPath "foot" }}
+{{- else if lookPath "wezterm" }}
+{{- lookPath "wezterm" }}
+{{- else if lookPath "ghostty" }}
+{{- lookPath "ghostty" }}
+{{- else if lookPath "konsole" }}
+{{- lookPath "konsole" }}
+{{- else if lookPath "gnome-terminal" }}
+{{- lookPath "gnome-terminal" }}
+{{- else if lookPath "lxterminal" }}
+{{- lookPath "lxterminal" }}
+{{- else if lookPath "mate-terminal" }}
+{{- lookPath "mate-terminal" }}
+{{- else if lookPath "xfce4-terminal" }}
+{{- lookPath "xfce4-terminal" }}
+{{- else if lookPath "st" }}
+{{- lookPath "st" }}
+{{- else if lookPath "sakura" }}
+{{- lookPath "sakura" }}
+{{- else if lookPath "guake" }}
+{{- lookPath "guake" }}
+{{- else if lookPath "nxterm" }}
+{{- lookPath "nxterm" }}
+{{- else if lookPath "terminator" }}
+{{- lookPath "terminator" }}
+{{- else if lookPath "terminology" }}
+{{- lookPath "terminology" }}
+{{- else if lookPath "roxterm" }}
+{{- lookPath "roxterm" }}
+{{- else if lookPath "uxterm" }}
+{{- lookPath "uxterm" }}
+{{- else if lookPath "aterm" }}
+{{- lookPath "aterm" }}
+{{- else if lookPath "Eterm" }}
+{{- lookPath "Eterm" }}
+{{- else if lookPath "qterminal" }}
+{{- lookPath "qterminal" }}
+{{- else if lookPath "urxvt" }}
+{{- lookPath "urxvt" }}
+{{- else if lookPath "rxvt" }}
+{{- lookPath "rxvt" }}
+{{- else }}
+{{ lookPath "xterm" }}
+{{- end }}
