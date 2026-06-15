@@ -4,4 +4,4 @@
 # When this script or any of the hashes below change, update files
 # .config/foot/foot.ini: {{ include "dot_config/foot/foot.ini" | sha256sum }}
 
-[ -d "$HOME"/.config/foot ] && touch "$HOME"/.config/foot/local.ini
+[ -d "$HOME"/.config/foot ] && [ ! -e "$HOME"/.config/foot/local.ini ] && touch "$HOME"/.config/foot/local.ini
