@@ -109,7 +109,7 @@ __set_prompt() {
   local c_cyan=$'\e[96m'
   local c_orange=$'\e[38;5;208m'
   local c_reset=$'\e[39m'
-  if [[ "$TERM" != "linux" && "$TERM" != "vt220" ]]; then
+  if [[ "$TERM" == "linux" || "$TERM" == "vt220" ]]; then
     c_red=$'\e[31m'
     c_green=$'\e[32m'
     c_blue=$'\e[34m'
