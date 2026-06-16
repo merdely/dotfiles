@@ -69,15 +69,30 @@ __prompt_trim_pwd() {
 
 # Set up and document colors
 # \1 & \2 are good for the vi-ins-mode-string but \[ and \] are good for PS1
-# Colors: black:30, red:31, green:32, yellow:33, blue:34, magenta:35, cyan:36, white:37
+# ANSI Colors: black:30, red:31, green:32, yellow:33, blue:34, magenta:35, cyan:36, white:37
 # foreground:38, background:48, reset_foreground:39, reset_background:49
 # bright_foreground:+60, bright_background:+70
 # bold:1, unbold:22, underline:4, un-underline:24, reverse:7, unreverse:27
 # orange:38;2;255;165;0 (a little darker: 38;5;208
 
 # Set up a good looking orange (choose simpler orange for OpenBSD and Linux console
-__orange='0;33'
-[[ "$TERM" != "linux" && "$TERM" != "vt220" ]] && __orange='38;5;208'
+__orange='38;5;208'
+c_red=$'\e[91m'
+c_green=$'\e[92m'
+c_blue=$'\e[94m'
+c_magenta=$'\e[95m'
+c_cyan=$'\e[96m'
+c_orange=$'\e[38;5;208m'
+c_reset=$'\e[39m'
+if [[ "$TERM" == "linux" || "$TERM" == "vt220" ]]; then
+  __orange='0;33'
+  c_red=$'\e[31m'
+  c_green=$'\e[32m'
+  c_blue=$'\e[34m'
+  c_magenta=$'\e[35m'
+  c_cyan=$'\e[36m'
+  c_orange=$'\e[33m'
+fi
 
 # Trim all but last two elements of path in prompt
 PROMPT_DIRTRIM=2
@@ -122,7 +137,7 @@ __promptchar="❱"
 [[ "$TERM" == "vt220" || "$TERM" == "linux" ]] && {  __promptchar='>' ; (( $EUID == 0 )) && __promptchar='#' ; }
 
 # Prompt variable: '[\u@\h \W] \$' with formatting
-PS1="[\[\e[36m\]\u\[\e[39m\]@\[\e[32m\]\h\[\e[39m\] \[\e[34m\]\$(__prompt_trim_pwd "\W")\[\e[39m\]]\[\e[22;24;27;49m\]${__shellind}${__subshell}\$(__git_ps1 ' (\[\e[1;${__orange}m\]${__gitglyph}\[\e[1;39m\]%s\[\e[22m\])' 2>/dev/null) ${__nl}\[\${__prompt_color}\]${__promptchar}\[\e[39m\] \[\e[0m\]"
+PS1="[\[${c_cyan}\]\u\[${c_reset}\]@\[${c_green}\]\h\[${c_reset}\] \[${c_blue}\]\$(__prompt_trim_pwd "\W")\[${c_reset}\]]\[\e[22;24;27;49m\]${__shellind}${__subshell}\$(__git_ps1 ' (\[\e[1m${c_orange}\]${__gitglyph}\[${c_reset}\]%s\[\e[22m\])' 2>/dev/null) ${__nl}\[\${__prompt_color}\]${__promptchar}\[${c_reset}\] \[\e[0m\]"
 
 # Set readline options
 bind 'set completion-ignore-case on'     # ignore case

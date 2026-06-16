@@ -95,24 +95,31 @@ setopt PROMPT_SUBST
 __set_prompt() {
   # Set up and document colors
   # \1 & \2 are good for the vi-ins-mode-string but \[ and \] are good for PS1
-  # Colors: black:30, red:31, green:32, yellow:33, blue:34, magenta:35, cyan:36, white:37
+  # ANSI Colors: black:30, red:31, green:32, yellow:33, blue:34, magenta:35, cyan:36, white:37
   # foreground:38, background:48, reset_foreground:39, reset_background:49
   # bright_foreground:+60, bright_background:+70
   # bold:1, unbold:22, underline:4, un-underline:24, reverse:7, unreverse:27
   # orange:38;2;255;165;0 (a little darker: 38;5;208
 
   # Set up a good looking orange (choose simpler orange for OpenBSD and Linux console
-  __orange='0;33'
-  [[ "$TERM" != "linux" && "$TERM" != "vt220" ]] && __orange='38;5;208'
-  local c_red=$'\e[31m'
-  local c_green=$'\e[32m'
-  local c_blue=$'\e[34m'
-  local c_magenta=$'\e[35m'
-  local c_cyan=$'\e[36m'
+  local c_red=$'\e[91m'
+  local c_green=$'\e[92m'
+  local c_blue=$'\e[94m'
+  local c_magenta=$'\e[95m'
+  local c_cyan=$'\e[96m'
   local c_orange=$'\e[38;5;208m'
   local c_reset=$'\e[39m'
+  if [[ "$TERM" != "linux" && "$TERM" != "vt220" ]]; then
+    c_red=$'\e[31m'
+    c_green=$'\e[32m'
+    c_blue=$'\e[34m'
+    c_magenta=$'\e[35m'
+    c_cyan=$'\e[36m'
+    c_orange=$'\e[33m'
+    c_reset=$'\e[39m'
+  fi
 
-  # Color codes: black:0, red:1, green:2, yellow:3, blue:4, magenta:5, cyan:6, white:7
+  # ZSH Color codes: black:0, red:1, green:2, yellow:3, blue:4, magenta:5, cyan:6, white:7
   # Bright versions:   8,     9,      10,       11,     12,        13,     14,      15
   [[ "$KEYMAP" == vicmd ]] && __prompt_mode='%b' || __prompt_mode='%B'
 
