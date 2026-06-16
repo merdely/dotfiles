@@ -12,12 +12,13 @@
 {{- end }}
 
 {{- $use_pass := false -}}
-{{- if and
-        (lookPath "gpg")
-        (output "gpg" "--list-secret-keys" $gpgkey)
-        (lookPath "pass")
-        (output "pass" "ls")
--}}
+{{- $gpgout   := "" -}}
+{{- $passout  := "" -}}
+{{- if and (lookPath "gpg") (lookPath "pass") -}}
+{{-   $gpgout = output "sh" "-c" (printf "gpg --list-secret-keys %s 2> /dev/null || true" $gpgkey) | trim -}}
+{{-   $gpgout = output "sh" "-c" "pass ls 2> /dev/null || true" trim -}}
+{{- end -}}
+{{- if and (ne $gpgout "") (ne $passout "") -}}
 {{-   $use_pass = true -}}
 {{- end -}}
 {{- "" }}
