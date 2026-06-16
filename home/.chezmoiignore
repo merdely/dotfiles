@@ -2,6 +2,7 @@
 .config/electron-flags.conf
 .config/environment.d
 .config/firejail
+.config/foot
 .config/fuzzel
 .config/gtk-3.0
 .config/gtk-4.0
