@@ -22,7 +22,7 @@ Host *
   ServerAliveInterval 27
   ServerAliveCountMax 30
   HashKnownHosts no
-  UserKnownHostsFile .ssh/known_hosts .ssh/home_known_hosts
+  UserKnownHostsFile ~/.ssh/known_hosts ~/.ssh/home_known_hosts
   HostKeyAlgorithms ssh-ed25519,ecdsa-sha2-nistp256-cert-v01@openssh.com,ecdsa-sha2-nistp384-cert-v01@openssh.com,ecdsa-sha2-nistp521-cert-v01@openssh.com,ssh-ed25519-cert-v01@openssh.com,rsa-sha2-512-cert-v01@openssh.com,rsa-sha2-256-cert-v01@openssh.com,ssh-rsa-cert-v01@openssh.com,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,rsa-sha2-512,rsa-sha2-256,ssh-rsa
   CanonicalDomains erdely.in erdelynet.com
   CanonicalizeHostname yes
