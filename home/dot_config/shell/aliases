@@ -164,6 +164,7 @@ case "$DISTRO" in
     ;;
   debian)
     alias updates='echo Using apt dist-upgrade; sudo apt update && sudo apt dist-upgrade -y'
+    cmdcheck rw && alias updates='echo Using pacman; rw; sudo pacman -Syu --noconfirm; sleep 2; sync; ro'
     ;;
   openbsd)
     # Print status of command without interrupting it (e.g. ping)
