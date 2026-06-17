@@ -16,7 +16,7 @@ case "$ID" in
     need=""
     packages="base-devel git openssh neovim vim man-db apparmor firejail rsync inetutils \
       pacman-contrib networkmanager openresolv htop btop jq 7zip bat ripgrep fd cronie \
-      bash-completion"
+      bash-completion bind knot"
     {{- if .is_desktop }}
     packages="$packages niri alacritty fuzzel xdg-desktop-portal-gnome pipewire-jack \
       dms-shell-niri nwg-hello accountsservice cava cups-pk-helper dgop \
