@@ -211,6 +211,6 @@ if [ "$HOSTNAME" = "mercury" ]; then
   alias suvcheck='sudo su -s /bin/bash -l vcheck'
 fi
 
-cmdcheck pikvm-update && alias updates='echo Using pikvm-update; sudo pikvm-update --no-reboot'
+cmdcheck pikvm-update && alias updates='echo Using pikvm-update; rw; sudo pikvm-update --no-reboot; sleep 2; sync; ro'
 
 true
