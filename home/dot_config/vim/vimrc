@@ -229,7 +229,7 @@ let mapleader      = " "                           " Set leader key
 let maplocalleader = ","                           " Set local leader key
 
 " Load plugins if g:vim_config_dir is defined
-if filereadable(g:vim_config_dir . '/plugins.vim')
+if filereadable(g:vim_config_dir . '/plugins.vim') && !filereadable(g:vim_config_dir . '/noplugins')
   silent! execute 'source ' . g:vim_config_dir . '/plugins.vim'
 endif
 
