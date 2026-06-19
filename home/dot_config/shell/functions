@@ -11,7 +11,9 @@ cmdcheck docker && dr() {
   done
   shift $(( OPTIND - 1 ))
   [ $# -lt 1 ] && return 1
-  local name_base=dr_"${1%%:*}" name=dr_"${1%%:*}" ok=false existing tag
+  local name_base=${1%:*} name="" ok=false existing tag
+  name_base=dr_"${1##*/}"
+  name=$name_base
   while ! $ok; do
     ok=true
     for existing in $(docker ps -a --format '{{.Names}}'); do
