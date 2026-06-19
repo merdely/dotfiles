@@ -1,3 +1,5 @@
+# vim: set filetype=sshconfig :
+
 Include ~/.ssh/config.top
 
 Host sol mercury venus earth mars jupiter saturn uranus neptune pluto homeassistant carme metis tarvos neso sinope dia e5530
