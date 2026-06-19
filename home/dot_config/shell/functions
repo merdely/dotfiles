@@ -12,7 +12,7 @@ cmdcheck docker && dr() {
   shift $(( OPTIND - 1 ))
   [ $# -lt 1 ] && return 1
   local name_base=${1%:*} name="" ok=false existing tag
-  name_base=dr_"${1##*/}"
+  name_base=dr_"${name_base##*/}"
   name=$name_base
   while ! $ok; do
     ok=true
