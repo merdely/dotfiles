@@ -41,4 +41,7 @@ Host * !*_j
   ControlPath ~/.ssh/ctl/%r-%h-%p
   # VerifyHostKeyDNS yes
 
+Match User root
+  ClearAllForwardings yes
+
 Include ~/.ssh/config.bottom
