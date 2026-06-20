@@ -71,7 +71,8 @@ window-rule {
 
 window-rule {
     match app-id=r#"^cef$"# title=r#"^Grayjay$"# at-startup=true
-    open-on-output "HDMI-A-1"
+    open-on-output "eDP-1"
+    open-on-workspace "🗒️"
     open-focused false
 }
 
