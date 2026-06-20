@@ -20,7 +20,7 @@ workspace "🗒️"      { open-on-output "eDP-1"; }
 spawn-sh-at-startup "systemctl --user import-environment"
 spawn-sh-at-startup "[[ ! -r $HOME/quickstart ]] && gtk-launch solaar-applet"
 spawn-sh-at-startup "[[ ! -r $HOME/quickstart ]] && gtk-launch udiskie-applet"
-spawn-sh-at-startup "[[ ! -r $HOME/quickstart ]] && gtk-launch syncthingtray"
+spawn-sh-at-startup "[[ ! -r $HOME/quickstart ]] && gtk-launch syncthingtray-qt6"
 spawn-sh-at-startup "$TERMINAL || alacritty"
 spawn-sh-at-startup "sleep ; run-ssh-add"
 
