@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+
+ARCH=$(dpkg --print-architecture 2> /dev/null)
+SYSTEM=$(uname -s | tr '[[:upper:]]' '[[:lower:]]')
+repo=grafana/alloy
+search="[.]${ARCH:-amd64}[.]"
+
+test_mode=false
+[[ "$1" == "-t" ]] && test_mode=true
+
+if ! $test_mode; then
+  command -v dpkg > /dev/null 2>&1 || { echo "Error: This program is for Debian/Ubuntu" >&2 ; exit 1 ; }
+fi
+
+# Get download url
+url=$(curl -s https://api.github.com/repos/"$repo"/releases/latest | \
+  awk -F'"' -v search="$search" '
+      $4 ~ search &&
+      /^[[:space:]]*"browser_download_url":/ &&
+      /\.deb"$/ {
+      print $4
+    }
+  ')
+
+if $test_mode; then
+  echo url=$url
+  exit
+fi
+
+if [[ -z "$url" ]]; then
+  echo "Error: Could not determine download url" >&2
+  exit 1
+fi
+
+trap 'rm -Rf -- "$TMPDIR"' EXIT
+trap 'exit 1' INT TERM
+
+TMPDIR=$(mktemp -d)
+
+curl -sLo "$TMPDIR"/"${repo##*/}".deb "$url"
+if [[ ! -s "$TMPDIR"/"${repo##*/}".deb ]]; then
+  echo "Error: Could not download $repo deb for $ARCH" >&2
+  exit 1
+fi
+
+sudo dpkg -i "$TMPDIR"/"${repo##*/}".deb
+
