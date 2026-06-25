@@ -498,16 +498,17 @@ nnoremap <leader>pa :let @+ = expand('%:p') \| echo 'file: ' . expand('%:p')<CR>
 " Basic autocommands
 augroup UserConfig
   autocmd!
+  autocmd FileType caddyfile setlocal noexpandtab tabstop=4 shiftwidth=4 softtabstop=0
+  autocmd FileType lua,javascript,typescript,json,html,css setlocal tabstop=2 shiftwidth=2
+  autocmd FileType python,php,markdown setlocal tabstop=4 shiftwidth=4
   autocmd FileType yaml,yaml.ansible setlocal indentkeys-=0#
+
 
   " Return to last edit position when opening files
   autocmd BufReadPost *
         \ if line("'\"") > 0 && line("'\"") <= line("$") |
         \   exe "normal! g'\"" |
         \ endif
-
-  autocmd FileType python,php,markdown     setlocal tabstop=4 shiftwidth=4
-  autocmd FileType lua,javascript,typescript,json,html,css setlocal tabstop=2 shiftwidth=2
 
   " Auto-resize splits when terminal window is resized
   autocmd VimResized * tabdo wincmd =
