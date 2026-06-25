@@ -453,6 +453,36 @@ end, { desc = "Toggle diagnostics" })
 -- Basic autocommands
 local augroup = vim.api.nvim_create_augroup("UserConfig", {})
 
+-- Set filetype-specific settings
+vim.api.nvim_create_autocmd("FileType", {
+  group = augroup,
+  pattern = { "caddyfile" },
+  callback = function()
+    vim.opt_local.expandtab = false
+    vim.opt_local.tabstop = 4
+    vim.opt_local.shiftwidth = 4
+    vim.opt_local.softtabstop = 0
+  end,
+})
+
+vim.api.nvim_create_autocmd("FileType", {
+  group = augroup,
+  pattern = { "css", "html", "javascript", "json", "lua", "typescript" },
+  callback = function()
+    vim.opt_local.tabstop = 2
+    vim.opt_local.shiftwidth = 2
+  end,
+})
+
+vim.api.nvim_create_autocmd("FileType", {
+  group = augroup,
+  pattern = { "python", "php", "markdown" },
+  callback = function()
+    vim.opt_local.tabstop = 4
+    vim.opt_local.shiftwidth = 4
+  end,
+})
+
 -- Prevent '#' from de-indenting in YAML files
 vim.api.nvim_create_autocmd("FileType", {
   group = augroup,
@@ -479,25 +509,6 @@ vim.api.nvim_create_autocmd("BufReadPost", {
     if mark[1] > 0 and mark[1] <= lcount then
       pcall(vim.api.nvim_win_set_cursor, 0, mark)
     end
-  end,
-})
-
--- Set filetype-specific settings
-vim.api.nvim_create_autocmd("FileType", {
-  group = augroup,
-  pattern = { "python", "php", "markdown" },
-  callback = function()
-    vim.opt_local.tabstop = 4
-    vim.opt_local.shiftwidth = 4
-  end,
-})
-
-vim.api.nvim_create_autocmd("FileType", {
-  group = augroup,
-  pattern = { "css", "html", "javascript", "json", "lua", "typescript" },
-  callback = function()
-    vim.opt_local.tabstop = 2
-    vim.opt_local.shiftwidth = 2
   end,
 })
 
