@@ -149,7 +149,11 @@ __set_prompt() {
   # @
   PROMPT="${PROMPT}@"
   # hostname
-  PROMPT="${PROMPT}%{${c_green}%}%m%{${c_reset}%}"
+  if [[ -n "$__prompt_hostname" ]]; then
+    PROMPT="${PROMPT}%{${c_green}%}${__prompt_hostname}%{${c_reset}%}"
+  else
+    PROMPT="${PROMPT}%{${c_green}%}%m%{${c_reset}%}"
+  fi
   # space
   PROMPT="${PROMPT} "
 
