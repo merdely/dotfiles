@@ -1,0 +1,117 @@
+// vim: set filetype=kdl :
+
+spawn-sh-at-startup "[[ ! -r $HOME/quickstart ]] && sleep 1 && $HOME/.config/niri/scripts/minimize org.signal.Signal"
+spawn-sh-at-startup "[[ ! -r $HOME/quickstart ]] && $HOME/.config/niri/scripts/minimize logseq-desktop Logseq"
+
+binds {
+  Mod+Shift+A       hotkey-overlay-title="Signal Flatpak" { spawn-sh "$HOME/.config/niri/scripts/minimize org.signal.Signal"; }
+}
+
+window-rule {
+    match app-id=r#"^mpvcam"#
+    match title=r#"^mpvcam"#
+    // open-fullscreen true
+    // open-focused false
+    open-maximized true
+    open-on-workspace "Cameras"
+}
+
+/-window-rule {
+    match app-id=r#"^mpvcammulti"#
+    match title=r#"^mpvcammulti"#
+    open-fullscreen false
+    // open-focused false
+    open-maximized false
+    open-on-workspace "Cameras"
+    default-column-width { proportion 0.50; }
+    default-window-height { proportion 0.50; }
+}
+
+window-rule {
+    match app-id=r#"^mpvcammulti garagecam"#
+    match title=r#"^mpvcammulti garagecam"#
+    open-maximized false
+    open-on-workspace "Cameras"
+    open-floating true
+    default-column-width { proportion 0.50; }
+    default-window-height { proportion 0.50; }
+    default-floating-position x=0 y=0 relative-to="top-left"
+}
+
+window-rule {
+    match app-id=r#"^mpvcammulti garagedoorcam"#
+    match title=r#"^mpvcammulti garagedoorcam"#
+    open-maximized false
+    open-on-workspace "Cameras"
+    open-floating true
+    default-column-width { proportion 0.50; }
+    default-window-height { proportion 0.50; }
+    default-floating-position x=0 y=0 relative-to="bottom-left"
+}
+
+window-rule {
+    match app-id=r#"^mpvcammulti frontdoorcam"#
+    match title=r#"^mpvcammulti frontdoorcam"#
+    open-maximized false
+    open-on-workspace "Cameras"
+    open-floating true
+    default-column-width { proportion 0.50; }
+    default-window-height { proportion 0.50; }
+    default-floating-position x=0 y=0 relative-to="bottom-right"
+}
+
+// must go after the rule for frontdoorcam
+window-rule {
+    match app-id=r#"^mpvcammulti frontdoor2cam"#
+    match title=r#"^mpvcammulti frontdoor2cam"#
+    open-maximized false
+    open-on-workspace "Cameras"
+    open-floating true
+    default-column-width { proportion 0.50; }
+    default-window-height { proportion 0.50; }
+    default-floating-position x=0 y=0 relative-to="top-right"
+}
+
+window-rule {
+    match app-id=r#"^mpvcammulti backyardcam"#
+    match title=r#"^mpvcammulti backyardcam"#
+    open-maximized false
+    open-on-workspace "Cameras"
+    open-floating true
+    default-column-width { proportion 0.50; }
+    default-window-height { proportion 0.50; }
+    default-floating-position x=0 y=0 relative-to="bottom-left"
+}
+
+window-rule {
+    match app-id=r#"^mpvcammulti backyard2cam"#
+    match title=r#"^mpvcammulti backyard2cam"#
+    open-maximized false
+    open-on-workspace "Cameras"
+    open-floating true
+    default-column-width { proportion 0.50; }
+    default-window-height { proportion 0.50; }
+    default-floating-position x=0 y=0 relative-to="bottom-right"
+}
+
+window-rule {
+    match app-id=r#"^mpvcammulti chimneycam"#
+    match title=r#"^mpvcammulti chimneycam"#
+    open-maximized false
+    open-on-workspace "Cameras"
+    open-floating true
+    default-column-width { proportion 0.50; }
+    default-window-height { proportion 0.50; }
+    default-floating-position x=0 y=0 relative-to="top-left"
+}
+
+window-rule {
+    match app-id=r#"^mpvcammulti shedcam"#
+    match title=r#"^mpvcammulti shedcam"#
+    open-maximized false
+    open-on-workspace "Cameras"
+    open-floating true
+    default-column-width { proportion 0.50; }
+    default-window-height { proportion 0.50; }
+    default-floating-position x=0 y=0 relative-to="top-right"
+}
