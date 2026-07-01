@@ -13,3 +13,9 @@ whitelist ${HOME}/.config/ungoogled-chromium-*
 
 # noblacklist ${HOME}/.config/ungoogled-chromium-cr
 # whitelist ${HOME}/.config/ungoogled-chromium-cr
+
+
+dbus-user.talk org.freedesktop.portal.Desktop
+whitelist /usr/share/pipewire/client.conf
+read-only /usr/share/pipewire/client.conf
+ignore noroot
