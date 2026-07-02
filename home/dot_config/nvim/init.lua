@@ -2,7 +2,16 @@ vim.opt.number = true -- Line numbers
 vim.opt.cursorline = true -- Highlight current line
 vim.opt.scrolloff = 8 -- Number of lines to keep above/below cursor
 vim.opt.termguicolors = true -- Enable 24-bit colors
-vim.cmd.colorscheme('torte') -- Colorscheme
+vim.cmd.colorscheme('nightfly') -- Colorscheme
+vim.api.nvim_set_hl(0, "Normal",      { bg = "none" })
+vim.api.nvim_set_hl(0, "NormalNC",    { bg = "none" })
+vim.api.nvim_set_hl(0, "EndOfBuffer", { bg = "none" })
+vim.api.nvim_set_hl(0, "StatusLine",     { fg = "#c0c0d0", ctermbg = "NONE", bg = "#081e2f" })
+vim.api.nvim_set_hl(0, "StatusLineMode", { bold = true,  fg = "#2c3043", bg = "#82aaff" })
+vim.api.nvim_set_hl(0, "StatusLineGit",  { bold = false, fg = "#82aaff", bg = "#2c3043" })
+vim.api.nvim_set_hl(0, "StatusLineIcon", { bold = false, fg = "#2c3043", bg = "#081e2f" })
+vim.api.nvim_set_hl(0, "StatusLinePerc", { bold = false, fg = "#82aaff", bg = "#2c3043" })
+vim.api.nvim_set_hl(0, "StatusLinePos",  { bold = false, fg = "#2c3043", bg = "#82aaff" })
 vim.opt.colorcolumn = "80" -- Column number where to show color column
 vim.opt.signcolumn = "yes" -- Avoid text shifting when signs appear
 vim.opt.list = true -- Show list characters
@@ -254,18 +263,20 @@ _G.statusline_percent = function()
 end
 
 vim.opt.statusline =
+    "%#StatusLineMode#" ..
     " " ..
-    "%{v:lua.mode_icon()}" ..
-    " | " ..
-    "%f %h%m%r" ..
+    "%{v:lua.mode_icon()} " ..
+    "%#StatusLinePerc#" ..
+    " %f %h%m%r" ..
+    "%#StatusLine#" ..
     "%=" ..
     "%{&fenc!=''?&fenc:&enc}" ..
     " | " ..
     "%{&fileformat}" ..
     " | " ..
-    "%{&filetype}" ..
-    " | " ..
-    "%{v:lua.statusline_percent()}" ..
-    " | " ..
-    "%l:%c" ..
+    "%{&filetype} " ..
+    "%#StatusLinePerc#" ..
+    " %{v:lua.statusline_percent()} " ..
+    "%#StatusLineMode#" ..
+    " %l:%c" ..
     " "
