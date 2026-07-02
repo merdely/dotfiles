@@ -83,7 +83,7 @@ _G.statusline_percent = function()
   end
 end
 
-vim.opt_local.statusline =
+vim.opt.statusline =
         " " ..
         "%{v:lua.mode_icon()}" ..
         " | " ..
