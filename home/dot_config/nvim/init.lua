@@ -111,6 +111,6 @@ vim.opt.statusline =
         "%{&filetype}" ..
         " | " ..
         "%{v:lua.statusline_percent()}" ..
-        "|" ..
+        " | " ..
         "%l:%c" ..
         " "
