@@ -8,15 +8,19 @@ if has('termguicolors')
 endif
 set background=dark                         " Adjust the default color groups
 colorscheme nightfly                        " Color scheme
-highlight Normal         ctermbg=NONE guibg=NONE
-highlight NormalNC       ctermbg=NONE guibg=NONE
-highlight EndOfBuffer    ctermbg=NONE guibg=NONE
-highlight StatusLine     gui=NONE cterm=NONE guifg=#c0c0d0 ctermfg=250 guibg=#081e2f ctermbg=17
-highlight StatusLineMode gui=bold cterm=bold guifg=#2c3043 ctermfg=250 guibg=#82aaff ctermbg=17
-highlight StatusLineGit  gui=NONE cterm=NONE guifg=#82aaff ctermfg=250 guibg=#2c3043 ctermbg=17
-highlight StatusLineIcon gui=NONE cterm=NONE guifg=#2c3043 ctermfg=250 guibg=#081e2f ctermbg=17
-highlight StatusLinePerc gui=NONE cterm=NONE guifg=#82aaff ctermfg=250 guibg=#2c3043 ctermbg=17
-highlight StatusLinePos  gui=NONE cterm=NONE guifg=#2c3043 ctermfg=250 guibg=#82aaff ctermbg=17
+function! s:ApplyHighlights() abort
+  highlight Normal         ctermbg=NONE guibg=NONE
+  highlight NormalNC       ctermbg=NONE guibg=NONE
+  highlight EndOfBuffer    ctermbg=NONE guibg=NONE
+  highlight StatusLine     gui=NONE cterm=NONE guifg=#c0c0d0 ctermfg=250 guibg=#081e2f ctermbg=17
+  highlight StatusLineMode gui=bold cterm=bold guifg=#2c3043 ctermfg=250 guibg=#82aaff ctermbg=17
+  highlight StatusLineGit  gui=NONE cterm=NONE guifg=#82aaff ctermfg=250 guibg=#2c3043 ctermbg=17
+  highlight StatusLineIcon gui=NONE cterm=NONE guifg=#2c3043 ctermfg=250 guibg=#081e2f ctermbg=17
+  highlight StatusLinePerc gui=NONE cterm=NONE guifg=#82aaff ctermfg=250 guibg=#2c3043 ctermbg=17
+  highlight StatusLinePos  gui=NONE cterm=NONE guifg=#2c3043 ctermfg=250 guibg=#82aaff ctermbg=17
+endfunction
+call s:ApplyHighlights()
+autocmd ColorScheme * call s:ApplyHighlights()
 set colorcolumn=80                          " Column number where to show color column
 set signcolumn=yes                          " Avoid text shifting when signs appear
 set list                                    " Show list characters
