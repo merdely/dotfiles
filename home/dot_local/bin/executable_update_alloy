@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 ARCH=$(dpkg --print-architecture 2> /dev/null)
-SYSTEM=$(uname -s | tr '[[:upper:]]' '[[:lower:]]')
+SYSTEM=$(uname -s | tr '[:upper:]' '[:lower:]')
 repo=grafana/alloy
 search="[.]${ARCH:-amd64}[.]"
 
