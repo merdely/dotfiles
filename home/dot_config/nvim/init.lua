@@ -12,15 +12,27 @@ vim.opt.tabstop = 2                         -- Tab width
 vim.opt.shiftwidth = 2                      -- Indent width
 vim.opt.softtabstop = 2                     -- Soft tab stop
 vim.opt.expandtab = true                    -- Use spaces instead of tabs
--- vim.opt.smartindent = true                  -- Smart auto-indenting
 vim.opt.breakindent = true                  -- Show wrapped lines indented
 vim.opt.ignorecase = true                   -- Case insensitive search
 vim.opt.smartcase = true                    -- Case sensitive if uppercase in search
 vim.opt.writebackup = false                 -- Don't create backup before writing
 vim.opt.swapfile = false                    -- Don't create swap files
 vim.opt.undofile = true                     -- Persistent undo
-vim.opt.updatetime = 250                    -- faster CursorHold / diagnostics
+vim.opt.updatetime = 300                    -- Faster CursorHold / diagnostics
 vim.opt.path:append("**")                   -- Include subdirectories in search
+vim.opt.wildignore:append({
+  "*.o",
+  "*.obj",
+  "*.pyc",
+  "*.class",
+  "*.jar",
+  "*/node_modules/*",
+  "*/.git/*",
+  "*/dist/*",
+  "*/build/*",
+  "*/.venv/*",
+  "*/__pycache__/*",
+})
 vim.opt.mouse = "a"                         -- Enable mouse support
 vim.opt.selection = "inclusive"             -- Include last char in selection
 if vim.fn.has('clipboard') > 0 then
