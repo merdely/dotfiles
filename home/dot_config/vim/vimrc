@@ -85,6 +85,19 @@ if has('terminal')
   tnoremap <C-k> <C-w>k
   tnoremap <C-l> <C-w>l
 endif
+nnoremap <leader>sr <C-w>r
+nnoremap <leader>sR <C-w>R
+nnoremap <leader>sx <C-w>x
+nnoremap <leader>sH <C-w>H
+nnoremap <leader>sJ <C-w>J
+nnoremap <leader>sK <C-w>K
+nnoremap <leader>sL <C-w>L
+
+" Move lines up/down
+nnoremap <leader>j :m .+1<CR>==
+nnoremap <leader>k :m .-2<CR>==
+vnoremap <leader>j :m '>+1<CR>gv=gv
+vnoremap <leader>k :m '<-2<CR>gv=gv
 
 " Reselect visual block after indent
 vnoremap < <gv
