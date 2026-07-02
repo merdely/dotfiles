@@ -1,7 +1,7 @@
 vim.opt.number = true                       -- Line numbers
 vim.opt.cursorline = true                   -- Highlight current line
 vim.opt.termguicolors = true                -- Enable 24-bit colors
-vim.cmd.colorscheme('lunaperche')           -- Colorscheme
+vim.cmd.colorscheme('torte')                -- Colorscheme
 vim.opt.colorcolumn = "80"                  -- Column number where to show color column
 vim.opt.signcolumn = "yes"                  -- avoid text shifting when signs appear
 vim.opt.list = true                         -- Show list characters
