@@ -18,7 +18,7 @@ vim.opt.smartcase = true                    -- Case sensitive if uppercase in se
 vim.opt.writebackup = false                 -- Don't create backup before writing
 vim.opt.swapfile = false                    -- Don't create swap files
 vim.opt.undofile = true                     -- Persistent undo
-vim.opt.updatetime = 300                    -- Faster CursorHold / diagnostics
+vim.opt.updatetime = 250                    -- Faster CursorHold / diagnostics
 vim.opt.path:append("**")                   -- Include subdirectories in search
 vim.opt.wildignore:append({
   "*.o",
