@@ -4,6 +4,7 @@ vim.opt.termguicolors = true               -- Enable 24-bit colors
 vim.cmd.colorscheme('lunaperche')          -- Colorscheme
 vim.opt.colorcolumn = "80"                 -- Column number where to show color column
 vim.opt.list = true                        -- Show list characters
+vim.opt.listchars = { tab = "» ", trail = "·", nbsp = "␣" }  -- Specify list chars
 vim.opt.showmatch = true                   -- Highlight matching brackets
 vim.opt.showmode = false                   -- Don't show mode in command line
 vim.opt.tabstop = 2                        -- Tab width
