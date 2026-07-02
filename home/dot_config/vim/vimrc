@@ -2,11 +2,12 @@ syntax enable                               " Syntax highlighting
 set nocompatible                            " Behave like vim
 set number                                  " Line numbers
 set cursorline                              " Highlight current line
+set scrolloff=8                             " Number of lines to keep above/below cursor
 if has('termguicolors')
   set termguicolors                         " Enable 24-bit colors
 endif
-set background=dark
-silent! colorscheme torte                   " Colorscheme
+set background=dark                         " Adjust the default color groups
+colorscheme torte                           " Color scheme
 set colorcolumn=80                          " Column number where to show color column
 set signcolumn=yes                          " Avoid text shifting when signs appear
 set list                                    " Show list characters
@@ -49,9 +50,73 @@ set splitright                              " Vertical split creation position
 
 filetype plugin indent on                   " Load per file-type indent rules
 
+let mapleader = " "                         " Set leader key
+let maplocalleader = ","                    " Set local leader key
+
+" Change/delete without clobbering the unnamed register
+nnoremap c "_c
+xnoremap c "_c
+nnoremap C "_C
+xnoremap C "_C
+nnoremap x "_x
+xnoremap x "_x
+
+" Window navigation
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
+if has('terminal')
+  tnoremap <C-h> <C-w>h
+  tnoremap <C-j> <C-w>j
+  tnoremap <C-k> <C-w>k
+  tnoremap <C-l> <C-w>l
+endif
+
 " Reselect visual block after indent
 vnoremap < <gv
 vnoremap > >gv
+
+nnoremap <leader>; <Cmd>e #<CR>
+nnoremap <leader>eh :Sexplore<CR>
+nnoremap <leader>ev :Vexplore<CR>
+nnoremap <leader>ss :syntax sync fromstart<CR>
+nnoremap <leader>rc :edit $MYVIMRC<CR>
+nnoremap <leader>rl :source $MYVIMRC<CR>
+
+" Toggle copy-friendly mode
+function! s:ToggleCopyFriendly() abort
+  set cursorline! list! number! breakindent!
+  if &colorcolumn ==# ''
+    set colorcolumn=80
+  else
+    set colorcolumn=
+  endif
+  if &signcolumn ==# 'no'
+    set signcolumn=yes
+  else
+    set signcolumn=no
+  endif
+endfunction
+nnoremap <silent> <leader>cp :call <SID>ToggleCopyFriendly()<CR>
+
+" Make current file executable
+function! s:MakeExecutable() abort
+  let l:file = expand('%:p')
+  if l:file ==# ''
+    echohl ErrorMsg | echom 'No file' | echohl None
+    return
+  endif
+  write
+  let l:result = system('chmod +x ' . shellescape(l:file))
+  if v:shell_error != 0
+    echohl ErrorMsg | echom 'chmod failed: ' . l:result | echohl None
+    return
+  endif
+  edit!
+  echom "Made '" . l:file . "' executable"
+endfunction
+nnoremap <leader>x :call <SID>MakeExecutable()<CR>
 
 " Open netrw Explorer
 nnoremap - :Ex<CR>
@@ -98,8 +163,34 @@ augroup highlightYankedText
     autocmd TextYankPost * call FlashYankedText()
 augroup END
 
-" --- Status Line ---
+" Return to last edit position when opening files
+augroup restore_cursor
+  autocmd!
+  autocmd BufReadPost *
+        \ if line("'\"") > 0 && line("'\"") <= line("$") |
+        \   exe "normal! g`\"" |
+        \ endif
+augroup END
 
+" Resize splits when window is resized
+augroup resize_splits
+  autocmd!
+  autocmd VimResized * tabdo wincmd =
+augroup END
+
+" Use 4 spaces for tabs with some filetypes
+augroup filetype_indent
+  autocmd!
+  autocmd FileType python,php,markdown setlocal tabstop=4 shiftwidth=4
+augroup END
+
+" Prevent '#' from de-indenting in YAML files
+augroup yaml_indentkeys
+  autocmd!
+  autocmd FileType yaml,yaml.ansible setlocal indentkeys-=0#
+augroup END
+
+" --- Status Line ---
 function! ModeIcon() abort
   let l:modes = {
         \ 'n':  'NORMAL',
