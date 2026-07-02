@@ -1,4 +1,5 @@
 syntax enable                               " Syntax highlighting
+set nocompatible                            " Behave like vim
 set number                                  " Line numbers
 set cursorline                              " Highlight current line
 if has('termguicolors')
@@ -10,13 +11,18 @@ set colorcolumn=80                          " Column number where to show color 
 set signcolumn=yes                          " Avoid text shifting when signs appear
 set list                                    " Show list characters
 set listchars=tab:»\ ,trail:·,nbsp:␣        " Specify list chars
+set backspace=indent,eol,start              " Better backspace handling
 set showmatch                               " Highlight matching brackets
 set noshowmode                              " Don't show mode in command line
 set tabstop=2                               " Tab width
 set shiftwidth=2                            " Indent width
 set softtabstop=2                           " Soft tab stop
 set expandtab                               " Use spaces instead of tabs
+set autoindent                              " Copy indent from previous8 line
 set breakindent                             " Show wrapped lines indented
+set incsearch                               " Search as you type
+set hlsearch                                " Highlight matches
+set ruler                                   " Show ruler
 set ignorecase                              " Case insensitive search
 set smartcase                               " Case sensitive if uppercase in search
 set nowritebackup                           " Don't create backup before writing
@@ -24,8 +30,13 @@ set noswapfile                              " Don't create swap files
 if has('persistent_undo')
   set undofile                              " Persistent undo
 endif
+set encoding=utf-8                          " Default encoding
+set history=10000                           " Number of lines of history to remember
+set ttimeoutlen=50                             " Escape key handling
 set updatetime=250                          " Faster CursorHold / diagnostics
+set shortmess=filnxtToOS                    " Avoid hit-enter prompts
 set path+=**                                " Include subdirectories in search
+set wildmenu                                " Command-line completion menu
 set wildignore+=*.o,*.obj,*.pyc,*.class,*.jar
 set wildignore+=*/node_modules/*,*/.git/*,*/dist/*,*/build/*,*/.venv/*,*/__pycache__/*
 set mouse=a                                 " Enable mouse support
@@ -35,6 +46,8 @@ if has('clipboard')
 endif
 set splitbelow                              " Horizontal split creation position
 set splitright                              " Vertical split creation position
+
+filetype plugin indent on                   " Load per file-type indent rules
 
 " Reselect visual block after indent
 vnoremap < <gv
@@ -60,10 +73,29 @@ function! s:NetrwMappings() abort
 endfunction
 
 " Highlight when yanking (copying) text
-augroup highlight_yank
-  autocmd!
-  autocmd TextYankPost * silent! call timer_start(150, {-> execute('call clearmatches()')})
-  autocmd TextYankPost * silent! let g:_yank_hl = matchadd('IncSearch', "\\%'[\\_.*\\%']")
+" From https://www.statox.fr/posts/2020/07/vim_flash_yanked_text/
+function! FlashYankedText()
+    if (!exists('g:yankedTextMatches'))
+        let g:yankedTextMatches = []
+    endif
+    let matchId = matchadd('IncSearch', ".\\%>'\\[\\_.*\\%<']..")
+    let windowId = winnr()
+    call add(g:yankedTextMatches, [windowId, matchId])
+    call timer_start(200, 'DeleteTemporaryMatch')
+endfunction
+function! DeleteTemporaryMatch(timerId)
+    while !empty(g:yankedTextMatches)
+        let match = remove(g:yankedTextMatches, 0)
+        let windowID = match[0]
+        let matchID = match[1]
+        try
+            call matchdelete(matchID, windowID)
+        endtry
+    endwhile
+endfunction
+augroup highlightYankedText
+    autocmd!
+    autocmd TextYankPost * call FlashYankedText()
 augroup END
 
 " --- Status Line ---
