@@ -7,7 +7,16 @@ if has('termguicolors')
   set termguicolors                         " Enable 24-bit colors
 endif
 set background=dark                         " Adjust the default color groups
-colorscheme torte                           " Color scheme
+colorscheme nightfly                        " Color scheme
+highlight Normal         ctermbg=NONE guibg=NONE
+highlight NormalNC       ctermbg=NONE guibg=NONE
+highlight EndOfBuffer    ctermbg=NONE guibg=NONE
+highlight StatusLine     gui=NONE cterm=NONE guifg=#c0c0d0 ctermfg=250 guibg=#081e2f ctermbg=17
+highlight StatusLineMode gui=bold cterm=bold guifg=#2c3043 ctermfg=250 guibg=#82aaff ctermbg=17
+highlight StatusLineGit  gui=NONE cterm=NONE guifg=#82aaff ctermfg=250 guibg=#2c3043 ctermbg=17
+highlight StatusLineIcon gui=NONE cterm=NONE guifg=#2c3043 ctermfg=250 guibg=#081e2f ctermbg=17
+highlight StatusLinePerc gui=NONE cterm=NONE guifg=#82aaff ctermfg=250 guibg=#2c3043 ctermbg=17
+highlight StatusLinePos  gui=NONE cterm=NONE guifg=#2c3043 ctermfg=250 guibg=#82aaff ctermbg=17
 set colorcolumn=80                          " Column number where to show color column
 set signcolumn=yes                          " Avoid text shifting when signs appear
 set list                                    " Show list characters
@@ -223,14 +232,18 @@ function! StatuslinePercent() abort
   endif
 endfunction
 
-set statusline=
-set statusline+=\ %{ModeIcon()}
-set statusline+=\ \|\ %f\ %h%m%r
+set statusline=%#StatusLineMode#
+set statusline+=\ %{ModeIcon()}\ 
+set statusline+=%#StatusLinePerc#
+set statusline+=\ %f\ %h%m%r
+set statusline+=%#StatusLine#
 set statusline+=%=
 set statusline+=%{&fenc!=''?&fenc:&enc}
 set statusline+=\ \|\ %{&fileformat}
-set statusline+=\ \|\ %{&filetype}
-set statusline+=\ \|\ %{StatuslinePercent()}
-set statusline+=\ \|\ %l:%c
-set statusline+=\ 
+set statusline+=\ \|\ %{&filetype}\ 
+set statusline+=%#StatusLinePerc#
+set statusline+=\ %{StatuslinePercent()}\ 
+set statusline+=%#StatusLineMode#
+set statusline+=\ %l:%c\ 
+set statusline+=%#StatusLine#
 set laststatus=2
