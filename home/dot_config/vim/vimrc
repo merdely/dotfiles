@@ -140,6 +140,6 @@ set statusline+=%{&fenc!=''?&fenc:&enc}
 set statusline+=\ \|\ %{&fileformat}
 set statusline+=\ \|\ %{&filetype}
 set statusline+=\ \|\ %{StatuslinePercent()}
-set statusline+=\|%l:%c
+set statusline+=\ \|\ %l:%c
 set statusline+=\ 
 set laststatus=2
