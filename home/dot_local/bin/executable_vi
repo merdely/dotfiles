@@ -6,7 +6,9 @@ trap 'rm -Rf -- "${TMPFILES[@]}"' EXIT
 trap 'exit 1' INT TERM
 
 # Find and set editor
-if vi_cmd=$(command -v nvim 2> /dev/null); then
+if [[ -n "$EDITOR" ]] && vi_cmd=$(command -v $EDITOR 2> /dev/null); then
+  EDITOR=$vi_cmd
+elif vi_cmd=$(command -v nvim 2> /dev/null); then
   EDITOR=$vi_cmd
 elif vi_cmd=$(command -v vim 2> /dev/null); then
   EDITOR=$vi_cmd
