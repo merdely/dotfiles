@@ -1,0 +1,170 @@
+output "eDP-1" {
+    position x=0 y=0
+}
+
+output "DP-1" {
+    focus-at-startup
+    position x=1920 y=0
+}
+
+output "HDMI-A-1" {
+    position x=3840 y=0
+}
+
+workspace "1"       { open-on-output "DP-1";  }
+workspace "Cameras" { open-on-output "eDP-1"; }
+workspace "🗒️"      { open-on-output "eDP-1"; }
+
+input {
+    focus-follows-mouse max-scroll-amount="49%"
+}
+
+layout {
+    gaps 8
+    focus-ring { off; }
+    border {
+        on
+        width 2
+    }
+}
+
+// Code to switch-or-launch:
+// { spawn-sh "a=kitty;b=$a;id=$(niri msg -j windows | jq --arg a \"$a\" '[.[]|select(.app_id==$a).id]|min' 2>/dev/null);{ [[ -n \"$id\" ]] && niri msg action focus-window --id \"$id\"; } || gtk-launch \"$b\""; }
+// a = the app_id (niri msg windows)
+// b = the name of the launcher (ls /usr/share/applications)
+
+binds {
+    Mod+Return hotkey-overlay-title=null { spawn "true"; }
+    Mod+D      hotkey-overlay-title=null { spawn "true"; }
+    Mod+Apostrophe       hotkey-overlay-title="Idle Inhibit"     { spawn-sh "dms ipc call inhibit toggle"; }
+    Mod+Ctrl+Alt+Shift+H hotkey-overlay-title=null               { focus-column-or-monitor-left; }
+    Mod+Ctrl+Alt+Shift+L hotkey-overlay-title=null               { focus-column-or-monitor-right; }
+    Mod+Semicolon        hotkey-overlay-title="Open RBW"         { spawn-sh "pgrep -u $LOGNAME -f '^(/?.*[p]ython .*)?rofi(-rbw| -markup-rows -dmenu)' && pkill -u $LOGNAME -f '^(/?.*[p]ython .*)?rofi(-rbw| -markup-rows -dmenu)' || rofi-rbw"; }
+    // Mod+Semicolon        hotkey-overlay-title="Open RBW"         { spawn "rofi-rbw"; }
+    Mod+Shift+A          hotkey-overlay-title="Open Signal"      { spawn-sh "$HOME/.config/niri/scratchpad org.signal.Signal"; }
+    Mod+Shift+BracketLeft  hotkey-overlay-title="Terminal File Manager"  { spawn-sh "$HOME/.config/niri/scratchpad termfm"; }
+    Mod+Shift+C          hotkey-overlay-title="Open Galculator"  { spawn-sh "pgrep -u $LOGNAME -x galculator && pkill -u $LOGNAME -x galculator || gtk-launch galculator"; }
+    Mod+Shift+Q          hotkey-overlay-title="Open Logseq"      { spawn-sh "$HOME/.config/niri/scratchpad com.logseq.Logseq Logseq"; }
+    // Must create a term-scratchpad.desktop in $HOME/.local/share/applications
+    Mod+Shift+Return     hotkey-overlay-title="Scratch Terminal" { spawn-sh "$HOME/.config/niri/scratchpad term-scratchpad"; }
+    Mod+Shift+Space hotkey-overlay-title="Clear Notifications"   { spawn-sh "dms ipc call notifications clearAll;dms ipc call notifications close"; }
+    Mod+Shift+W          hotkey-overlay-title="Open SMS"         { spawn-sh "$HOME/.config/niri/scratchpad org.kde.kdeconnect.sms"; }
+    Mod+Shift+X          hotkey-overlay-title="Cam Chooser"      { spawn-sh "pgrep -u $LOGNAME -f '[r]ofi -p View Camera' && pkill -u $LOGNAME -f '[r]ofi -p View Camera' || $HOME/.local/bin/cam-chooser"; }
+    Mod+Shift+Z          hotkey-overlay-title="Open Bitwarden"   { spawn-sh "$HOME/.config/niri/scratchpad bitwarden Bitwarden"; }
+    Mod+T                hotkey-overlay-title="Open Terminal"    { spawn "kitty"; }
+    XF86Tools            hotkey-overlay-title="Lock Screen"      { spawn-sh "dms ipc call lock lock && niri msg action power-off-monitors"; }
+}
+
+window-rule {
+    match app-id=r#"^Bitwarden|com\.logseq\.Logseq|Logseq|org\.kde\.kdeconnect\.sms|org\.signal\.Signal|term-scratchpad|termfm$"#
+    open-maximized false
+    open-floating true
+}
+
+window-rule {
+    match app-id=r#"^Bitwarden|com\.logseq\.Logseq|Logseq|org\.kde\.kdeconnect\.sms|org\.signal\.Signal|term-scratchpad|termfm$"# at-startup=true
+    open-on-workspace "🗒️"
+    open-maximized true
+    open-floating false
+    open-focused false
+}
+
+window-rule {
+    match app-id=r#"^mpvcam"#
+    match title=r#"^mpvcam"#
+    // open-fullscreen true
+    // open-focused false
+    open-maximized true
+    open-on-workspace "Cameras"
+}
+
+window-rule {
+    match app-id=r#"^mpvcammulti garagecam"#
+    match title=r#"^mpvcammulti garagecam"#
+    open-maximized false
+    open-on-workspace "Cameras"
+    open-floating true
+    default-column-width { proportion 0.50; }
+    default-window-height { proportion 0.50; }
+    default-floating-position x=0 y=0 relative-to="top-left"
+}
+
+window-rule {
+    match app-id=r#"^mpvcammulti garagedoorcam"#
+    match title=r#"^mpvcammulti garagedoorcam"#
+    open-maximized false
+    open-on-workspace "Cameras"
+    open-floating true
+    default-column-width { proportion 0.50; }
+    default-window-height { proportion 0.50; }
+    default-floating-position x=0 y=0 relative-to="bottom-left"
+}
+
+window-rule {
+    match app-id=r#"^mpvcammulti frontdoorcam"#
+    match title=r#"^mpvcammulti frontdoorcam"#
+    open-maximized false
+    open-on-workspace "Cameras"
+    open-floating true
+    default-column-width { proportion 0.50; }
+    default-window-height { proportion 0.50; }
+    default-floating-position x=0 y=0 relative-to="bottom-right"
+}
+
+// must go after the rule for frontdoorcam
+window-rule {
+    match app-id=r#"^mpvcammulti frontdoor2cam"#
+    match title=r#"^mpvcammulti frontdoor2cam"#
+    open-maximized false
+    open-on-workspace "Cameras"
+    open-floating true
+    default-column-width { proportion 0.50; }
+    default-window-height { proportion 0.50; }
+    default-floating-position x=0 y=0 relative-to="top-right"
+}
+
+window-rule {
+    match app-id=r#"^mpvcammulti backyardcam"#
+    match title=r#"^mpvcammulti backyardcam"#
+    open-maximized false
+    open-on-workspace "Cameras"
+    open-floating true
+    default-column-width { proportion 0.50; }
+    default-window-height { proportion 0.50; }
+    default-floating-position x=0 y=0 relative-to="bottom-left"
+}
+
+window-rule {
+    match app-id=r#"^mpvcammulti backyard2cam"#
+    match title=r#"^mpvcammulti backyard2cam"#
+    open-maximized false
+    open-on-workspace "Cameras"
+    open-floating true
+    default-column-width { proportion 0.50; }
+    default-window-height { proportion 0.50; }
+    default-floating-position x=0 y=0 relative-to="bottom-right"
+}
+
+window-rule {
+    match app-id=r#"^mpvcammulti chimneycam"#
+    match title=r#"^mpvcammulti chimneycam"#
+    open-maximized false
+    open-on-workspace "Cameras"
+    open-floating true
+    default-column-width { proportion 0.50; }
+    default-window-height { proportion 0.50; }
+    default-floating-position x=0 y=0 relative-to="top-left"
+}
+
+window-rule {
+    match app-id=r#"^mpvcammulti shedcam"#
+    match title=r#"^mpvcammulti shedcam"#
+    open-maximized false
+    open-on-workspace "Cameras"
+    open-floating true
+    default-column-width { proportion 0.50; }
+    default-window-height { proportion 0.50; }
+    default-floating-position x=0 y=0 relative-to="top-right"
+}
+
+include optional=true "local.kdl"

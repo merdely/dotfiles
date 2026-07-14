@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Bluetooth Applet
+Comment=Blueman Bluetooth Applet
+Icon=blueman
+Exec=blueman-applet
+Terminal=false
+Type=Application
+StartupNotify=true
+Categories=GTK;GNOME;Settings;HardwareSettings;
