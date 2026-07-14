@@ -120,6 +120,7 @@ if [[ "$OSTYPE" == linux-gnu ]]; then
   alias grep='grep --color=auto'
   alias diff='diff --color=auto'
 fi
+command -v bat &> /dev/null && alias cat='bat --paging=never --plain'
 alias reprofile='source $HOME/.zshrc'
 alias check_reboot='sudo /srv/scripts/sbin/check_reboot'
 [[ -e /dev/pf ]] && alias pflog='doas tcpdump -n -e -ttt -i pflog0'
@@ -127,13 +128,11 @@ alias sshk='ssh -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/nul
 alias scpk='scp -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
 rsynck='rsync -e "ssh -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"'
 alias dos_rsync='rsync -rtcvP'
-command -v bat &> /dev/null && alias cat='bat --paging=never --plain'
 alias which='command -v'
-
 export VIRSH_DEFAULT_CONNECT_URI=qemu:///system
 export COMPOSE_FILE=/srv/docker/compose.yaml
 alias dc='docker compose'
-alias remain='tmux -f "$XDG_CONFIG_HOME"/tmux/tmux.conf.remain new-session -A -s main'
+alias remain='tmux -f "$HOME"/.config/tmux/tmux.conf.remain new-session -A -s main'
 if [ "${SSH_CLIENT%% *}" = "192.168.25.38" -o "${SSH_CLIENT%% *}" = "192.168.25.38" ]; then
   alias remain='echo SSH to carme'
 fi
@@ -145,8 +144,8 @@ if [[ "$ID" == arch || "$ID_LIKE" == *arch* ]]; then
   alias banner='figlet -d $HOME/.config/figlet -f banner'
 elif [[ "$ID" == debian || "$ID_LIKE" == *debian* ]]; then
   alias updates='echo Using apt dist-upgrade; sudo apt update && sudo apt dist-upgrade -y'
-  command -v rw &> /dev/null && alias updates='echo Using apt dist-upgrade; rw; sudo apt update ; sudo apt dist-upgrade -y ; sudo apt autoremove -y ; sleep 2; sync ; ro'
-elif command -v syspatch &> /dev/null; then
+  [[ -x /usr/local/bin/rw ]] && alias updates='echo Using apt dist-upgrade; rw; sudo apt update ; sudo apt dist-upgrade -y ; sudo apt autoremove -y ; sleep 2; sync ; ro'
+elif [[ -x /usr/sbin/syspatch ]]; then
   alias updates="echo running syspatch; doas syspatch; echo running pkg_add -u; doas pkg_add -ui"
   halt_func() { shutdown -h "$@" now; } ; alias halt=halt_func
   reboot_func() { shutdown -r "$@" now; } ; alias reboot=reboot_func
@@ -156,18 +155,18 @@ if [[ "$ID" == archarm ]] && command -v pikvm-update &> /dev/null; then
   alias updates='echo Using pikvm-update; rw; sudo pikvm-update --no-reboot; sleep 2; sync; ro'
 fi
 
-if [ -z "$SUDO_USER" -a -z "$DOAS_USER" -a -n "$SSH_CONNECTION" ]; then
-  WAYLAND_DISPLAY_FILE=$(find "$XDG_RUNTIME_DIR" -maxdepth 1 -type s -name "wayland-[0-9]*")
+if [[ -z "$SUDO_USER" ]] && [[ -z "$DOAS_USER" ]] && [[ -n "$SSH_CONNECTION" ]]; then
+  if [[ "$OSTYPE" == linux* ]]; then
+    WAYLAND_DISPLAY_FILE=$(find "/run/user/$EUID" -maxdepth 1 -type s -name "wayland-[0-9]*")
+  else
+    WAYLAND_DISPLAY_FILE=$(find "/tmp/run/user/$EUID" -maxdepth 1 -type s -name "wayland-[0-9]*")
+  fi
   if [ -n "$WAYLAND_DISPLAY_FILE" ]; then
     export XDG_SESSION_TYPE=wayland
     export WAYLAND_DISPLAY=${WAYLAND_DISPLAY_FILE##*/}
-
-    if command -v niri &> /dev/null; then
-      NIRI_SOCKET=$(find "$XDG_RUNTIME_DIR" -maxdepth 1 -name "niri.wayland-*.sock")
-      [ -n "$NIRI_SOCKET" ] && export NIRI_SOCKET
-      [ -z "$NIRI_SOCKET" ] && unset NIRI_SOCKET
-      export XDG_CURRENT_DESKTOP=niri
-    fi
+    NIRI_SOCKET=$(find "$XDG_RUNTIME_DIR" -maxdepth 1 -name "niri.wayland-*.sock" 2> /dev/null)
+    [ -n "$NIRI_SOCKET" ] && { export NIRI_SOCKET ; export XDG_CURRENT_DESKTOP=niri ; }
+    [ -z "$NIRI_SOCKET" ] && unset NIRI_SOCKET
   else
     unset WAYLAND_DISPLAY_FILE
   fi
