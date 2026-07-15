@@ -1,0 +1,10 @@
+noblacklist /etc/ssh/ssh_known_hosts
+
+noblacklist ${RUNUSER}/ssh-ctl
+whitelist ${RUNUSER}/ssh-ctl
+
+noblacklist ${RUNUSER}/ssh-auth-sock
+whitelist ${RUNUSER}/ssh-auth-sock
+
+noblacklist ${RUNUSER}/ssh-agent.socket
+whitelist ${RUNUSER}/ssh-agent.socket

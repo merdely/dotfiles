@@ -1,0 +1,14 @@
+# For opening links in a browser
+ignore dbus-user filter
+
+noblacklist ${HOME}/.config/librewolf/librewolf
+whitelist ${HOME}/.config/librewolf/librewolf/profiles.ini
+read-only ${HOME}/.config/librewolf/librewolf/profiles.ini
+
+noblacklist ${HOME}/.librewolf
+whitelist ${HOME}/.librewolf/profiles.ini
+read-only ${HOME}/.librewolf/profiles.ini
+
+noblacklist ${HOME}/.config/mozilla/firefox
+whitelist ${HOME}/.config/mozilla/firefox/profiles.ini
+read-only ${HOME}/.config/mozilla/firefox/profiles.ini

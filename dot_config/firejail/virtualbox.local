@@ -1,0 +1,3 @@
+noblacklist ${HOME}/.local/share/VirtualBoxVMs
+mkdir ${HOME}/.local/share/VirtualBoxVMs
+whitelist ${HOME}/.local/share/VirtualBoxVMs

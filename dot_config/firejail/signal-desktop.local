@@ -1,0 +1,32 @@
+# For system tray icon
+dbus-user.talk org.kde.StatusNotifierWatcher
+
+# For screen sharing
+dbus-user.talk org.freedesktop.portal.Desktop
+ignore noroot
+
+# For opening links in a browser
+ignore dbus-user filter
+noblacklist ${HOME}/.config/librewolf/librewolf
+whitelist ${HOME}/.config/librewolf/librewolf/profiles.ini
+read-only ${HOME}/.config/librewolf/librewolf/profiles.ini
+
+noblacklist ${HOME}/.librewolf
+whitelist ${HOME}/.librewolf/profiles.ini
+read-only ${HOME}/.librewolf/profiles.ini
+
+noblacklist ${HOME}/.config/mozilla/firefox
+whitelist ${HOME}/.config/mozilla/firefox/profiles.ini
+read-only ${HOME}/.config/mozilla/firefox/profiles.ini
+
+# Allow reading electron-flags.conf and signal-desktop-flags.conf
+noblacklist ${HOME}/.config/signal-desktop-flags.conf
+whitelist ${HOME}/.config/signal-desktop-flags.conf
+read-only ${HOME}/.config/signal-desktop-flags.conf
+
+noblacklist ${HOME}/.config/electron-flags.conf
+whitelist ${HOME}/.config/electron-flags.conf
+read-only ${HOME}/.config/electron-flags.conf
+
+whitelist ${HOME}/Pictures
+noblacklist ${HOME}/Pictures

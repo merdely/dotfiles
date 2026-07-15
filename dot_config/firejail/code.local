@@ -1,0 +1,21 @@
+noblacklist ${HOME}/.config/electron-flags.conf
+whitelist ${HOME}/.config/electron-flags.conf
+read-only ${HOME}/.config/electron-flags.conf
+
+# Directories that Code can access
+whitelist ${HOME}/src
+whitelist ${HOME}/git
+
+noblacklist ${HOME}/.config/Code
+whitelist   ${HOME}/.config/Code
+noblacklist ${HOME}/.config/Code - OSS
+whitelist   ${HOME}/.config/Code - OSS
+noblacklist ${HOME}/.vscode
+whitelist   ${HOME}/.vscode
+noblacklist ${HOME}/.vscode-oss
+whitelist   ${HOME}/.vscode-oss
+
+noblacklist ${HOME}/.vscode-shared
+whitelist   ${HOME}/.vscode-shared
+noblacklist ${HOME}/.vscode-oss-shared
+whitelist   ${HOME}/.vscode-oss-shared

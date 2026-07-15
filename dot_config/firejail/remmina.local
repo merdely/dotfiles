@@ -1,0 +1,4 @@
+noblacklist ${HOME}/.config/remmina
+noblacklist ${HOME}/.local/share/remmina
+whitelist ${HOME}/.config/remmina
+whitelist ${HOME}/.local/share/remmina

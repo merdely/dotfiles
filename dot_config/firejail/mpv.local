@@ -1,0 +1,5 @@
+whitelist ${HOME}/Jellyfin
+ignore dbus-user none
+dbus-user filter
+dbus-user.own org.mpris.MediaPlayer2.mpv
+dbus-user.talk org.mpris.MediaPlayer2.*

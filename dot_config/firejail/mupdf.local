@@ -1,0 +1,5 @@
+noblacklist ${HOME}/Downloads
+read-only ${HOME}/Downloads
+
+noblacklist ${HOME}/Work
+read-only ${HOME}/Work

@@ -1,0 +1,3 @@
+noblacklist ${HOME}/.config/firefox
+mkdir ${HOME}/.config/firefox
+whitelist ${HOME}/.config/firefox
