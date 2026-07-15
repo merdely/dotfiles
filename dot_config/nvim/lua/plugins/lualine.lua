@@ -77,6 +77,9 @@ return {
             'fileformat',
             'filetype'
           },
+          lualine_z = {
+            { '%l/%L:%c' },
+          },
         },
       }
       return opts
