@@ -51,7 +51,7 @@ binds {
     Mod+Shift+W          hotkey-overlay-title="Open SMS"         { spawn-sh "$HOME/.config/niri/scratchpad org.kde.kdeconnect.sms"; }
     Mod+Shift+X          hotkey-overlay-title="Cam Chooser"      { spawn-sh "pgrep -u $LOGNAME -f '[r]ofi -p View Camera' && pkill -u $LOGNAME -f '[r]ofi -p View Camera' || $HOME/.local/bin/cam-chooser"; }
     Mod+Shift+Z          hotkey-overlay-title="Open Bitwarden"   { spawn-sh "$HOME/.config/niri/scratchpad bitwarden Bitwarden"; }
-    Mod+T                hotkey-overlay-title="Open Terminal"    { spawn "kitty"; }
+    Mod+T                hotkey-overlay-title="Open Terminal"    { spawn-sh "${TERMINAL:-kitty}"; }
     XF86Tools            hotkey-overlay-title="Lock Screen"      { spawn-sh "dms ipc call lock lock && niri msg action power-off-monitors"; }
 }
 
