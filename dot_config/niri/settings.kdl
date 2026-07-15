@@ -53,12 +53,31 @@ binds {
     Mod+Shift+Z          hotkey-overlay-title="Open Bitwarden"   { spawn-sh "$HOME/.config/niri/scratchpad bitwarden Bitwarden"; }
     Mod+T                hotkey-overlay-title="Open Terminal"    { spawn-sh "${TERMINAL:-kitty}"; }
     XF86Tools            hotkey-overlay-title="Lock Screen"      { spawn-sh "dms ipc call lock lock && niri msg action power-off-monitors"; }
+    Mod+Slash            hotkey-overlay-title="Niri Help"        { spawn-sh "pgrep -u $LOGNAME -f '^((/usr(/local)?)?/bin/)?[i]mv(-wayland)? -w niri_help' && pkill -u $LOGNAME -f '^((/usr(/local)?)?/bin/)?[i]mv(-wayland)? -w niri_help' || imv -w niri_help -W '300' -H '300' -r -n keymap_super.svg ~/Pictures/niri_help/*.svg"; }
+    Mod+Ctrl+Slash       hotkey-overlay-title="Gen Niri Help"    { spawn-sh "dms keybinds show niri | env PATH=$PATH:$HOME/.local/bin $HOME/.config/niri/gen_keymaps -d -f -o ~/Pictures/niri_help"; }
 }
 
 window-rule {
     match app-id=r#"^Bitwarden|com\.logseq\.Logseq|Logseq|org\.kde\.kdeconnect\.sms|org\.signal\.Signal|term-scratchpad|termfm$"#
     open-maximized false
     open-floating true
+}
+
+window-rule {
+    match app-id=r#"imv"# title=r#"niri_help"#
+    open-floating true
+    // min-width 1600
+    // min-height 700
+    // default-floating-position x=32 y=32 relative-to="top-left"
+    // default-column-width { fixed 1000; }
+    // default-window-height { fixed 700; }
+    min-width 1700
+    min-height 900
+    max-width 1700
+    max-height 900
+    // default-column-width { proportion 0.90; }
+    // default-window-height { proportion 0.90; }
+    default-floating-position x=110 y=70 relative-to="top-left"
 }
 
 window-rule {

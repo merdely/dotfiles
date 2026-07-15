@@ -17,7 +17,11 @@ git_s=""
 git_c=208
 pchar="❱"
 [[ "$TERM" = "vt220" || "$TERM" = "linux" ]] && { dots="..." ; git_s="§" ; git_c=yellow ; pchar='%%' ; }
-PROMPT='%B[%F{cyan}%n%f@%F{green}%m%f %F{blue}%(3~,${dots}/,)%2~%f]%(2L, %F{magenta}+%f,)'
+# PROMPT='%B[%F{cyan}%n%f@%F{green}%m%f %F{blue}%(3~,${dots}/,)%2~%f]%(2L, %F{magenta}+%f,)'
+if [[ -n "$CHEZMOI_SUBSHELL" ]]; then
+  subshell=" %F{magenta}+%f"
+fi
+PROMPT='%B[%F{cyan}%n%f@%F{green}%m%f %F{blue}%(3~,${dots}/,)%2~%f]${subshell}'
 if [[ -r /usr/share/git/git-prompt.sh ]]; then
   source /usr/share/git/git-prompt.sh
   GIT_PS1_COMPRESSSPARSESTATE=true

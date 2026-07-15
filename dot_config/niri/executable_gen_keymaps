@@ -1,0 +1,444 @@
+#!/usr/bin/env python3
+"""
+gen_keymaps.py - Turn a niri keybinds.json export into a set of QMK-style
+keymap YAML files, one per modifier combination.
+
+Usage:
+    python3 gen_keymaps.py keybinds.json [-m {ctrl,shift,alt,super,win}] [-r] [-o OUTDIR] [-d] [-f]
+    cat keybinds.json | python3 gen_keymaps.py [-m ...] [-r] [-o OUTDIR] [-d] [-f]
+
+    keybinds.json is optional; omit it, or pass '-' explicitly, to read
+    the JSON from stdin instead of a file.
+
+    -m / --mod   Which physical modifier the JSON's "Mod"/"Super" bindings
+                 should be rendered as. Choices: ctrl, shift, alt, super
+                 (win is an alias for super). Default: super.
+    -r / --right Use the right-hand side modifier keys (rctrl/rshift/ralt/
+                 rsuper) instead of the left-hand ones (default).
+    -o / --outdir Directory to write the generated .yaml files to.
+                 Default: ./keymaps
+    -d / --draw  Also render each keymap YAML to an SVG image next to it,
+                 using the 'keymap' CLI from the keymap-drawer package
+                 (pip install keymap-drawer). Skipped with a warning if
+                 that CLI isn't found on PATH.
+    -f / --force Overwrite existing .yaml/.json/.svg output files. Without
+                 this, the script bails with an error before writing
+                 anything if any target file already exists.
+"""
+
+import argparse
+import json
+import re
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+# ---------------------------------------------------------------------------
+# The physical layout being targeted - a Keychron Q3 ANSI TKL layout, with
+# print/scroll/pause, insert/home/pgup, delete/end/pgdn and the arrow cluster
+# relocated to their own row below the spacebar row, grouped with gaps.
+# Because this deviates from the keyboard's real physical layout, keymap-drawer
+# can no longer look it up via qmk_keyboard/layout_name - instead we ship a
+# custom physical layout file (QMK info.json-style) referenced via
+# qmk_info_json, and PHYSICAL_LAYOUT below is what builds it. Order here
+# must exactly match the flattened order of TEMPLATE below.
+# ---------------------------------------------------------------------------
+PHYSICAL_LAYOUT_FILENAME = "tkl_nav_layout.json"
+LAYOUT_HEADER = f"layout: {{qmk_info_json: {PHYSICAL_LAYOUT_FILENAME}}}"
+# Bumping key_h gives every key more room for text (all keys are drawn as a
+# uniform key_h x key_h square in keymap-drawer, regardless of position or
+# any w/h given in the physical layout - see keymap-drawer's CONFIGURATION.md).
+# Default is 60; tune this to taste. svg_extra_style nudges the "tl" corner
+# legend (the physical key name) down a couple pixels, since characters like
+# "l"/"h" sit a bit high/cramped against the key's top edge otherwise.
+DRAW_CONFIG_HEADER = (
+    'draw_config: {key_h: 70, svg_extra_style: "text.tl { transform: translateY(2px); }"}'
+)
+
+TEMPLATE = [
+    ['esc', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8', 'f9', 'f10', 'f11', 'f12'],
+    ['~', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', 'backspace'],
+    ['tab', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\\'],
+    ['capslock', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', "'", 'enter'],
+    ['lshift', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', 'rshift'],
+    ['lctrl', 'lsuper', 'lalt', 'space', 'ralt', 'rsuper', 'fn', 'rctrl'],
+    ['print', 'scroll', 'pause', 'insert', 'home', 'pgup', 'delete', 'end', 'pgdn',
+     'left arrow', 'down arrow', 'up arrow', 'right arrow'],
+]
+
+# (x, y, w, h) per key, in key units, in the SAME flattened order as TEMPLATE.
+# w/h are included for QMK-schema completeness but keymap-drawer only uses
+# x/y/r/rx/ry for a qmk_info_json layout - key box size always comes from
+# draw_config.key_h. y=6.5 (instead of 6.25) reproduces the same small extra
+# gap used between the F-row and number row (y=0 -> y=1.25) for the new nav
+# row below the spacebar row, per your request.
+PHYSICAL_LAYOUT = [
+    # row0: esc / F-row  (y=0)
+    (0, 0, 1, 1), (2, 0, 1, 1), (3, 0, 1, 1), (4, 0, 1, 1), (5, 0, 1, 1),
+    (6.5, 0, 1, 1), (7.5, 0, 1, 1), (8.5, 0, 1, 1), (9.5, 0, 1, 1),
+    (11, 0, 1, 1), (12, 0, 1, 1), (13, 0, 1, 1), (14, 0, 1, 1),
+    # row1: number row  (y=1.25)
+    (0, 1.25, 1, 1), (1, 1.25, 1, 1), (2, 1.25, 1, 1), (3, 1.25, 1, 1), (4, 1.25, 1, 1),
+    (5, 1.25, 1, 1), (6, 1.25, 1, 1), (7, 1.25, 1, 1), (8, 1.25, 1, 1), (9, 1.25, 1, 1),
+    (10, 1.25, 1, 1), (11, 1.25, 1, 1), (12, 1.25, 1, 1), (13, 1.25, 2, 1),
+    # row2: tab row  (y=2.25)
+    (0, 2.25, 1.5, 1), (1.5, 2.25, 1, 1), (2.5, 2.25, 1, 1), (3.5, 2.25, 1, 1),
+    (4.5, 2.25, 1, 1), (5.5, 2.25, 1, 1), (6.5, 2.25, 1, 1), (7.5, 2.25, 1, 1),
+    (8.5, 2.25, 1, 1), (9.5, 2.25, 1, 1), (10.5, 2.25, 1, 1), (11.5, 2.25, 1, 1),
+    (12.5, 2.25, 1, 1), (13.5, 2.25, 1.5, 1),
+    # row3: capslock row  (y=3.25)
+    (0, 3.25, 1.75, 1), (1.75, 3.25, 1, 1), (2.75, 3.25, 1, 1), (3.75, 3.25, 1, 1),
+    (4.75, 3.25, 1, 1), (5.75, 3.25, 1, 1), (6.75, 3.25, 1, 1), (7.75, 3.25, 1, 1),
+    (8.75, 3.25, 1, 1), (9.75, 3.25, 1, 1), (10.75, 3.25, 1, 1), (11.75, 3.25, 1, 1),
+    (12.75, 3.25, 2.25, 1),
+    # row4: shift row  (y=4.25)
+    (0, 4.25, 2.25, 1), (2.25, 4.25, 1, 1), (3.25, 4.25, 1, 1), (4.25, 4.25, 1, 1),
+    (5.25, 4.25, 1, 1), (6.25, 4.25, 1, 1), (7.25, 4.25, 1, 1), (8.25, 4.25, 1, 1),
+    (9.25, 4.25, 1, 1), (10.25, 4.25, 1, 1), (11.25, 4.25, 1, 1), (12.25, 4.25, 2.75, 1),
+    # row5: bottom/mod row  (y=5.25)
+    (0, 5.25, 1.25, 1), (1.25, 5.25, 1.25, 1), (2.5, 5.25, 1.25, 1), (3.75, 5.25, 6.25, 1),
+    (10, 5.25, 1.25, 1), (11.25, 5.25, 1.25, 1), (12.5, 5.25, 1.25, 1), (13.75, 5.25, 1.25, 1),
+    # row6: nav row  (y=6.5, extra 0.25 gap below row5, grouped with 0.5u gaps)
+    (0, 6.5, 1, 1), (1, 6.5, 1, 1), (2, 6.5, 1, 1),           # print, scroll, pause
+    (3.5, 6.5, 1, 1), (4.5, 6.5, 1, 1), (5.5, 6.5, 1, 1),     # insert, home, pgup
+    (7.0, 6.5, 1, 1), (8.0, 6.5, 1, 1), (9.0, 6.5, 1, 1),     # delete, end, pgdn
+    (10.5, 6.5, 1, 1), (11.5, 6.5, 1, 1), (12.5, 6.5, 1, 1), (13.5, 6.5, 1, 1),  # left,down,up,right
+]
+
+
+def write_physical_layout_json(outdir):
+    """Emit the companion QMK-info.json-style physical layout file that the
+    generated keymaps' qmk_info_json field points to."""
+    keys = [{"x": x, "y": y, "w": w, "h": h} for (x, y, w, h) in PHYSICAL_LAYOUT]
+    path = outdir / PHYSICAL_LAYOUT_FILENAME
+    path.write_text(json.dumps(keys, indent=2) + "\n")
+    return path
+
+# Every physical key that is a normal (non-modifier) key we could bind an
+# action to. Modifier keys (lctrl, lsuper, ...) are handled separately.
+MODIFIER_KEY_NAMES = {'lctrl', 'rctrl', 'lshift', 'rshift', 'lalt', 'ralt', 'lsuper', 'rsuper'}
+
+# ---------------------------------------------------------------------------
+# Mapping from niri "key" tokens -> physical layout key names.
+# ---------------------------------------------------------------------------
+MODIFIER_TOKENS = {
+    'Mod': 'mod',
+    'Super': 'mod',
+    'Ctrl': 'ctrl',
+    'Shift': 'shift',
+    'Alt': 'alt',
+}
+
+KEY_MAP = {
+    'Apostrophe': "'",
+    'BracketLeft': '[',
+    'BracketRight': ']',
+    'Comma': ',',
+    'Delete': 'delete',
+    'Down': 'down arrow',
+    'End': 'end',
+    'Equal': '=',
+    'Escape': 'esc',
+    'Home': 'home',
+    'Left': 'left arrow',
+    'Minus': '-',
+    'Page_Down': 'pgdn',
+    'Page_Up': 'pgup',
+    'Period': '.',
+    'Print': 'print',
+    'Return': 'enter',
+    'Right': 'right arrow',
+    'Semicolon': ';',
+    'Slash': '/',
+    'Space': 'space',
+    'Tab': 'tab',
+    'Up': 'up arrow',
+    'grave': '~',
+    'Backslash': '\\',
+    'Insert': 'insert',
+    'Scroll_Lock': 'scroll',
+    'Pause': 'pause',
+    'Caps_Lock': 'capslock',
+}
+
+# Tokens that are known to have no physical key on this layout (mouse wheel
+# scroll "keys", XF86 media keys, etc). Anything not in KEY_MAP and not here
+# (and not a plain letter/digit) is reported as unrecognized rather than
+# silently dropped.
+KNOWN_UNMAPPABLE_PREFIXES = ('WheelScroll', 'XF86')
+
+# Canonical name -> (left physical key, right physical key)
+MOD_POSITIONS = {
+    'ctrl': ('lctrl', 'rctrl'),
+    'shift': ('lshift', 'rshift'),
+    'alt': ('lalt', 'ralt'),
+    'super': ('lsuper', 'rsuper'),
+}
+
+MOD_ALIASES = {
+    'ctrl': 'ctrl',
+    'shift': 'shift',
+    'alt': 'alt',
+    'super': 'super',
+    'win': 'super',
+}
+
+
+def map_base_key(token):
+    """Map a single niri key token (the non-modifier part) to a physical
+    layout key name. Returns None if there's no physical key for it."""
+    if token in KEY_MAP:
+        return KEY_MAP[token]
+    if len(token) == 1 and token.isalnum():
+        return token.lower()
+    if token.startswith(KNOWN_UNMAPPABLE_PREFIXES):
+        return None
+    return None
+
+
+def yaml_squote(s):
+    """Single-quote a string the way the sample file does, escaping any
+    embedded single quotes by doubling them (YAML's own escape rule)."""
+    return "'" + str(s).replace("'", "''") + "'"
+
+
+def parse_key_string(key_string):
+    """Split a niri 'key' field like 'Mod+Shift+N' into (modset, base_token)."""
+    mods = set()
+    base = None
+    for tok in key_string.split('+'):
+        if tok in MODIFIER_TOKENS:
+            mods.add(MODIFIER_TOKENS[tok])
+        else:
+            base = tok  # last non-modifier token wins (there's normally only one)
+    return frozenset(mods), base
+
+
+def load_binds(data):
+    """Flatten data['binds'] into a list of (key_string, desc, action) tuples,
+    preferring the 'conflict' (config-level, effective) entry when present."""
+    entries = []
+    for _category, binds in data.get('binds', {}).items():
+        for b in binds:
+            key_string = b.get('key', '')
+            desc = b.get('desc', '') or ''
+            action = b.get('action', '') or ''
+            if b.get('conflict'):
+                # config overrides dms-default - use the effective bind
+                conflict = b['conflict']
+                desc = conflict.get('desc', '') or desc
+                action = conflict.get('action', '') or action
+            entries.append((key_string, desc, action))
+    return entries
+
+
+def build_combo_bindings(entries, warn):
+    """Group entries by modifier-combo -> {physical_key: label}."""
+    combos = {}
+    for key_string, desc, action in entries:
+        mods, base_token = parse_key_string(key_string)
+        if base_token is None:
+            warn(f"skipping '{key_string}': no base key found")
+            continue
+        phys = map_base_key(base_token)
+        if phys is None:
+            warn(f"skipping '{key_string}': no physical key on this layout for '{base_token}'")
+            continue
+        if desc:
+            label = desc.strip()
+        else:
+            label = action.strip()
+            label = label.replace('expand-column-to-available-width', 'maximize column')
+            label = label.replace('focus-between-floating-and-tiling', 'focus float/tile')
+            label = label.replace('toggle-keyboard-shortcuts-inhibit', 'toggle shortcuts inhibit')
+            label = label.replace('tabbed-display', 'tabbed')
+            label = re.sub(r'set-(column|window)-(height|width) ([+-][0-9]+%)', r'\1 \2 \3', label)
+            label = re.sub(r'(move|switch)-', '', label)
+            label = label.replace('-', ' ')
+            label = re.sub(r' ([0-9]+%)', r'-\1', label)
+            label = label.replace(' to ', '-> ')
+            label = label.replace(' from ', '<- ')
+            label = label.replace(' or ', '/')
+            # label.replace('switch preset win', 'switch win')
+        if label == "spawn true":
+            label = ''
+        if not label:
+            warn(f"skipping '{key_string}': no desc or action to show")
+            continue
+        bucket = combos.setdefault(mods, {})
+        if phys in bucket and bucket[phys] != label:
+            warn(f"'{key_string}' -> '{phys}' overwrites existing binding "
+                 f"'{bucket[phys]}' with '{label}' in combo {sorted(mods) or ['(none)']}")
+        bucket[phys] = label
+    return combos
+
+
+def resolve_modifier_positions(mods, mod_target, right_side, warn, combo_label):
+    """For a modifier combo (set of 'mod'/'ctrl'/'shift'/'alt'), work out
+    which physical keys need the {t: NAME, type: held} treatment.
+    Returns dict physical_key -> label, or None if there's a physical
+    collision (two logical modifiers wanting the same physical key)."""
+    side = 1 if right_side else 0
+    positions = {}
+    for logical in mods:
+        canonical = mod_target if logical == 'mod' else logical
+        phys = MOD_POSITIONS[canonical][side]
+        if phys in positions:
+            warn(f"skipping combo {combo_label}: modifier collision - both "
+                 f"'{positions[phys]}' and '{canonical}' map to physical key '{phys}' "
+                 f"(try a different -m value)")
+            return None
+        positions[phys] = canonical
+    return positions
+
+
+def combo_sort_key(mods):
+    order = {'mod': 0, 'ctrl': 1, 'shift': 2, 'alt': 3}
+    return sorted(mods, key=lambda m: order.get(m, 99))
+
+
+def combo_filename(mods, mod_target):
+    if not mods:
+        return "keymap_base.yaml"
+    parts = []
+    for m in combo_sort_key(mods):
+        parts.append(mod_target if m == 'mod' else m)
+    return "keymap_" + "-".join(parts) + ".yaml"
+
+
+def render_keymap(mod_positions, bindings, fname):
+    lines = [LAYOUT_HEADER, DRAW_CONFIG_HEADER, "layers:", f"  {fname.replace('keymap_','').replace('-', '+').replace('.yaml','').title()}:"]
+    for row in TEMPLATE:
+        cells = []
+        for key_name in row:
+            if key_name in mod_positions:
+                cells.append("{t: %s, type: held}" % mod_positions[key_name])
+            elif key_name in bindings:
+                cells.append("{t: %s, tl: %s}" % (yaml_squote(bindings[key_name]), yaml_squote(key_name)))
+            else:
+                cells.append("''")
+        lines.append("  - [" + ", ".join(cells) + "]")
+    return "\n".join(lines) + "\n"
+
+
+def draw_images(written, outdir):
+    """Render each generated keymap YAML to an SVG file next to it, using
+    the 'keymap' CLI from keymap-drawer (keymap draw <file.yaml>). The
+    physical layout reference (qmk_info_json: tkl_nav_layout.json) is a
+    relative path, so this runs with outdir as the working directory."""
+    keymap_exe = shutil.which("keymap")
+    if not keymap_exe:
+        print("warning: --draw was requested but the 'keymap' CLI wasn't found on PATH. "
+              "Install keymap-drawer with: pip install keymap-drawer", file=sys.stderr)
+        return []
+
+    drawn = []
+    for yaml_path in written:
+        svg_path = yaml_path.with_suffix(".svg")
+        try:
+            result = subprocess.run(
+                [keymap_exe, "draw", yaml_path.name],
+                cwd=outdir, capture_output=True, text=True, check=True,
+            )
+        except subprocess.CalledProcessError as e:
+            print(f"warning: failed to draw {yaml_path.name}: {e.stderr.strip() or e}", file=sys.stderr)
+            continue
+        svg_path.write_text(result.stdout)
+        drawn.append(svg_path)
+    return drawn
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("json_file", nargs="?", default="-",
+                     help="Path to the niri keybinds JSON export. Omit, or pass '-', to read from stdin")
+    ap.add_argument("-m", "--mod", default="super", choices=["ctrl", "shift", "alt", "super", "win"],
+                     help="Physical modifier that 'Mod'/'Super' binds should use (default: super)")
+    ap.add_argument("-r", "--right", action="store_true",
+                     help="Use right-hand modifier keys instead of left-hand (default: left)")
+    ap.add_argument("-o", "--outdir", type=Path, default=Path("keymaps"),
+                     help="Directory to write generated keymap files to (default: ./keymaps)")
+    ap.add_argument("-v", "--verbose", action="store_true",
+                     help="Print warnings")
+    ap.add_argument("-d", "--draw", action="store_true",
+                     help="Also render each keymap YAML to an SVG image next to it, "
+                          "using the 'keymap' CLI from keymap-drawer")
+    ap.add_argument("-f", "--force", action="store_true",
+                     help="Overwrite existing output files instead of erroring out")
+    args = ap.parse_args()
+
+    mod_target = MOD_ALIASES[args.mod]
+
+    def warn(msg):
+        if args.verbose:
+            print(f"warning: {msg}", file=sys.stderr)
+
+    if args.json_file == "-":
+        raw = sys.stdin.read()
+    else:
+        raw = Path(args.json_file).read_text()
+    data = json.loads(raw)
+    entries = load_binds(data)
+    combos = build_combo_bindings(entries, warn)
+
+    # Resolve which combos survive (no modifier collisions/duplicates) and
+    # what each one's output path and content will be, WITHOUT writing
+    # anything yet - so we can check for pre-existing files first.
+    to_write = []  # list of (outpath, content)
+    seen_physical = {}  # physical-position-set -> combo_label that claimed it
+    for mods, bindings in sorted(combos.items(), key=lambda kv: (len(kv[0]), combo_sort_key(kv[0]))):
+        combo_label = "+".join(combo_sort_key(mods)) or "(none)"
+        mod_positions = resolve_modifier_positions(mods, mod_target, args.right, warn, combo_label)
+        if mod_positions is None:
+            continue
+
+        physical_key = frozenset(mod_positions.keys())
+        if physical_key in seen_physical:
+            warn(f"skipping combo {combo_label}: resolves to the same physical modifier "
+                 f"key(s) as combo {seen_physical[physical_key]} once -m={mod_target} is applied "
+                 f"(e.g. 'Mod' and literal '{mod_target.capitalize()}' both land on the same key) "
+                 f"- pick a different -m value to avoid this ambiguity")
+            continue
+        seen_physical[physical_key] = combo_label
+
+        fname = combo_filename(mods, mod_target)
+        outpath = args.outdir / fname
+        content = render_keymap(mod_positions, bindings, fname)
+        to_write.append((outpath, content))
+
+    physical_layout_path = args.outdir / PHYSICAL_LAYOUT_FILENAME
+    target_paths = [physical_layout_path] + [p for p, _ in to_write]
+    if args.draw:
+        target_paths += [p.with_suffix(".svg") for p, _ in to_write]
+
+    if not args.force:
+        existing = [p for p in target_paths if p.exists()]
+        if existing:
+            print("error: refusing to overwrite existing output file(s):", file=sys.stderr)
+            for p in existing:
+                print(f"  {p}", file=sys.stderr)
+            print("Re-run with -f/--force to overwrite them.", file=sys.stderr)
+            sys.exit(1)
+
+    args.outdir.mkdir(parents=True, exist_ok=True)
+    write_physical_layout_json(args.outdir)
+
+    written = []
+    for outpath, content in to_write:
+        outpath.write_text(content)
+        written.append(outpath)
+
+    print(f"Wrote {len(written)} keymap file(s) to {args.outdir}/", file=sys.stderr)
+    for p in written:
+        print(f"  {p}", file=sys.stderr)
+
+    if args.draw:
+        drawn = draw_images(written, args.outdir)
+        print(f"Wrote {len(drawn)} image file(s) to {args.outdir}/", file=sys.stderr)
+        for p in drawn:
+            print(f"  {p}", file=sys.stderr)
+
+
+if __name__ == "__main__":
+    main()
