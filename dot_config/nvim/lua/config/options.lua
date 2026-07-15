@@ -12,6 +12,7 @@ vim.opt.inccommand = "split"
 vim.opt.scrolloff = 3
 vim.opt.sidescrolloff = 0
 vim.opt.wrap = true
+vim.opt.breakindent = true
 vim.opt.listchars = {
     tab = '󰌒 ',
     trail = '·',
