@@ -16,6 +16,13 @@ workspace "Cameras" { open-on-output "eDP-1"; }
 workspace "🗒️"      { open-on-output "eDP-1"; }
 
 input {
+    // keyboard { xkb { options "menu:super" ; }; }
+    touchpad {
+        dwt
+        click-method "clickfinger"
+        scroll-method "two-finger"
+    }
+    workspace-auto-back-and-forth
     focus-follows-mouse max-scroll-amount="49%"
 }
 
@@ -39,9 +46,9 @@ binds {
     Mod+Apostrophe       hotkey-overlay-title="Idle Inhibit"     { spawn-sh "dms ipc call inhibit toggle"; }
     Mod+Ctrl+Alt+Shift+H hotkey-overlay-title=null               { focus-column-or-monitor-left; }
     Mod+Ctrl+Alt+Shift+L hotkey-overlay-title=null               { focus-column-or-monitor-right; }
-    Mod+Semicolon        hotkey-overlay-title="Open RBW"         { spawn-sh "pgrep -u $LOGNAME -f '^(/?.*[p]ython .*)?rofi(-rbw| -markup-rows -dmenu)' && pkill -u $LOGNAME -f '^(/?.*[p]ython .*)?rofi(-rbw| -markup-rows -dmenu)' || rofi-rbw"; }
-    // Mod+Semicolon        hotkey-overlay-title="Open RBW"         { spawn "rofi-rbw"; }
+    Mod+Semicolon        hotkey-overlay-title="Open RBW"         { spawn-sh "pgrep -u $LOGNAME -f '^(/?.*[p]ython .*)?rofi(-rbw| -markup-rows -dmenu)' && pkill -u $LOGNAME -f '^(/?.*[p]ython .*)?rofi(-rbw| -markup-rows -dmenu)' || rofi-rbw --use-notify-send"; }
     Mod+Shift+A          hotkey-overlay-title="Open Signal"      { spawn-sh "$HOME/.config/niri/scratchpad org.signal.Signal"; }
+    // Must create a termfm.desktop in $HOME/.local/share/applications
     Mod+Shift+BracketLeft  hotkey-overlay-title="Terminal File Manager"  { spawn-sh "$HOME/.config/niri/scratchpad termfm"; }
     Mod+Shift+C          hotkey-overlay-title="Open Galculator"  { spawn-sh "pgrep -u $LOGNAME -x galculator && pkill -u $LOGNAME -x galculator || gtk-launch galculator"; }
     Mod+Shift+Q          hotkey-overlay-title="Open Logseq"      { spawn-sh "$HOME/.config/niri/scratchpad com.logseq.Logseq Logseq"; }
@@ -57,29 +64,50 @@ binds {
     Mod+Ctrl+Slash       hotkey-overlay-title="Gen Niri Help"    { spawn-sh "dms keybinds show niri | env PATH=$PATH:$HOME/.local/bin $HOME/.config/niri/gen_keymaps -d -f -o ~/Pictures/niri_help"; }
 }
 
+// Open many apps maximized
+window-rule {
+    match app-id=r#"^(code-oss|chromium|fr\.handbrake\.ghb|FreeTube|io\.github\.celluloid_player\.Celluloid|io\.github\.ungoogled_software\.ungoogled_chromium|gimp|labwc|LM Studio|obsidian|vlc|Tor Browser)$"#
+    match app-id=r#"^(firefox|librewolf)"#
+    open-maximized true
+}
+
+// Open VM windows maxiumized
+window-rule {
+    match app-id="virt-manager"
+    exclude title="^Virtual Machine Manager$"
+    open-maximized true
+}
+
+// Make Niri help look good at 1920x1080
+// May need to override in local.kdl
+window-rule {
+    match app-id=r#"imv"# title=r#"niri_help"#
+    open-floating true
+    min-width 1700
+    min-height 900
+    max-width 1700
+    max-height 900
+    default-floating-position x=110 y=70 relative-to="top-left"
+}
+
+// Highlight casted windows
+window-rule {
+    match is-window-cast-target=true
+    border {
+        width 6
+        active-color "#f38ba8"
+        inactive-color "#7d0d2d"
+    }
+}
+
+// Open scratchpad apps floating
 window-rule {
     match app-id=r#"^Bitwarden|com\.logseq\.Logseq|Logseq|org\.kde\.kdeconnect\.sms|org\.signal\.Signal|term-scratchpad|termfm$"#
     open-maximized false
     open-floating true
 }
 
-window-rule {
-    match app-id=r#"imv"# title=r#"niri_help"#
-    open-floating true
-    // min-width 1600
-    // min-height 700
-    // default-floating-position x=32 y=32 relative-to="top-left"
-    // default-column-width { fixed 1000; }
-    // default-window-height { fixed 700; }
-    min-width 1700
-    min-height 900
-    max-width 1700
-    max-height 900
-    // default-column-width { proportion 0.90; }
-    // default-window-height { proportion 0.90; }
-    default-floating-position x=110 y=70 relative-to="top-left"
-}
-
+// Start scratchpad apps in scratchpad workspace
 window-rule {
     match app-id=r#"^Bitwarden|com\.logseq\.Logseq|Logseq|org\.kde\.kdeconnect\.sms|org\.signal\.Signal|term-scratchpad|termfm$"# at-startup=true
     open-on-workspace "🗒️"
@@ -88,6 +116,7 @@ window-rule {
     open-focused false
 }
 
+// Camera rules
 window-rule {
     match app-id=r#"^mpvcam"#
     match title=r#"^mpvcam"#
