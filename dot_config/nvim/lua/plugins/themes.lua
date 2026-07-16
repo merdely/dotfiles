@@ -1,5 +1,5 @@
 return {
-  { "maxmx03/solarized.nvim", },
+  { "maxmx03/solarized.nvim" },
   -- { "bluz71/vim-nightfly-colors" },
   -- -- {
   -- --   "projekt0n/github-nvim-theme",
