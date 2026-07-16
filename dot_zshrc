@@ -9,7 +9,9 @@ HISTCONTROL=ignoreboth:erasedups
 HISTSIZE=$HISTFILESIZE
 SAVEHIST=$HISTFILESIZE
 
-setopt append_history inc_append_history share_history cd_silent rmstarsilent no_hup no_check_jobs prompt_subst interactive_comments
+setopt append_history inc_append_history share_history hist_ignore_space
+setopt cd_silent rmstarsilent no_hup no_check_jobs prompt_subst
+setopt interactive_comments
 stty stop undef
 
 dots="…"
@@ -135,7 +137,6 @@ alias dos_rsync='rsync -rtcvP'
 alias which='command -v'
 export VIRSH_DEFAULT_CONNECT_URI=qemu:///system
 export COMPOSE_FILE=/srv/docker/compose.yaml
-alias dc='docker compose'
 alias remain='tmux -f "$HOME"/.config/tmux/tmux.conf.remain new-session -A -s main'
 if [ "${SSH_CLIENT%% *}" = "192.168.25.38" -o "${SSH_CLIENT%% *}" = "192.168.25.38" ]; then
   alias remain='echo SSH to carme'
