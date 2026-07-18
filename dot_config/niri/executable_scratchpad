@@ -22,6 +22,7 @@ declare -A resize_app
 resize_height=90%
 resize_width=$resize_height
 resize_app[galculator]="640|480"
+# shellcheck disable=SC1091
 [[ -r "$HOME"/.config/wm-minimize.conf ]] && source "$HOME"/.config/wm-minimize.conf
 
 mode=desktop
@@ -67,10 +68,10 @@ toggle_minimize() {
   fi
 
   # If the app is not focused but in this workspace, bring to front
-  if [[ "${is_focused:-true}" == false && "$app_ws" == "$cur_ws" ]]; then
-    niri msg action focus-window --id "$app_id"
-    return 0
-  fi
+  # if [[ "${is_focused:-true}" == false && "$app_ws" == "$cur_ws" ]]; then
+  #   niri msg action focus-window --id "$app_id"
+  #   return 0
+  # fi
 
   if [[ "${app_ws:-0}" == "${niri_floating_ws:-1}" ]] || \
         [[ "${cur_ws:-0}" != "${niri_floating_ws:-1}" && "${app_ws:-0}" != "${cur_ws:-1}" ]]; then
