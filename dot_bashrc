@@ -1,62 +1,46 @@
 # vim: set filetype=sh :
-umask 0022 > /dev/null 2>&1
+umask 0022 &> /dev/null
 
 [[ $- != *i* ]] && return
 
-export LANG=en_US.UTF-8
-export LC_CTYPE=en_US.UTF-8
-export LC_ALL=en_US.UTF-8
-export GIT_AUTHOR_NAME="Michael Erdely"
-export GIT_AUTHOR_EMAIL="mike@erdelynet.com"
-export GIT_COMMITTER_NAME=$GIT_AUTHOR_NAME
-export GIT_COMMITTER_EMAIL=$GIT_AUTHOR_EMAIL
-export ANSIBLE_NOCOWS=1
-[[ ":$PATH:" != *:$HOME/.local/bin:*  ]] && PATH=$HOME/.local/bin:$PATH
-[[ ":$PATH:" != *:/usr/sbin:*         ]] && PATH=$PATH:/usr/sbin
-[[ ":$PATH:" != *:/srv/scripts/bin:*  ]] && PATH=$PATH:/srv/scripts/bin
-[[ ":$PATH:" != *:/srv/scripts/sbin:* ]] && PATH=$PATH:/srv/scripts/sbin
+dots="…"
+git_s=""
+git_c=208
+pchar="❱"
+GIT_PS1_COMPRESSSPARSESTATE=true
+GIT_PS1_SHOWDIRTYSTATE=true
+GIT_PS1_SHOWUNTRACKEDFILES=true
+GIT_PS1_SHOWSTASHSTATE=true
+GIT_PS1_SHOWCOLORHINTS=true
+GIT_PS1_SHOWUPSTREAM=auto
+[[ "$TERM" = "vt220" || "$TERM" = "linux" ]] && { dots="..." ; git_s="§" ; git_c=yellow ; pchar='%%' ; }
+if [[ -r /usr/share/git/git-prompt.sh ]]; then
+  source /usr/share/git/git-prompt.sh
+fi
+if [[ -n "$CHEZMOI_SUBSHELL" ]]; then
+  subshell=" \[\e[1;95m\]+\[\e[22;39m\]"
+fi
 
-HISTFILE=$HOME/.cache/${SHELL##*/}_history
-HISTFILESIZE=100000
-HISTCONTROL=ignoreboth:erasedups
-HISTSIZE=$HISTFILESIZE
-
-shopt -s autocd cdspell extglob histappend
-
-# For use in PS1, better PROMPT_DIRTRIM/\w
+# Set up Bash Prompt
 __prompt_trim_pwd() {
     local default=${1:-\\w}
-    local ellipsis="…" pwd=${PWD/#$HOME/\~} parts trimmed
-    [[ "$TERM" = "vt220" || "$TERM" = "linux" ]] && ellipsis="..."
+    local pwd=${PWD/#$HOME/\~} parts="" trimmed=""
     [[ -z "$PROMPT_DIRTRIM" || "$PROMPT_DIRTRIM" -lt 1 ]] && { echo "$default" ; return 1 ; }
     IFS=/ read -ra parts <<< "$pwd"
     if (( ${#parts[@]} == 0 )); then
       echo "$default" ; return 1
     elif [[ "${parts[0]}" == "~" && "${#parts[@]}" -gt $(( PROMPT_DIRTRIM + 2 )) ]]; then
-        trimmed=${parts[*]: -$PROMPT_DIRTRIM}
-        echo "~/${ellipsis}/${trimmed// //}"
+        trimmed="${parts[*]: -"$PROMPT_DIRTRIM"}"
+        # shellcheck disable=SC2088
+        echo "~/${dots}/${trimmed// //}"
     elif [[ "${parts[0]}" != "~" && "${#parts[@]}" -gt $(( PROMPT_DIRTRIM + 1 )) ]]; then
         trimmed=${parts[*]: -$PROMPT_DIRTRIM}
-        echo "${ellipsis}/${trimmed// //}"
+        echo "${dots}/${trimmed// //}"
     else
         echo "$pwd"
     fi
 }
 
-## Prompt Configuration
-# Load git prompt
-[ -r "$XDG_CONFIG_HOME"/shell/git-prompt ] && . "$XDG_CONFIG_HOME"/shell/git-prompt
-
-# Set up and document colors
-# \1 & \2 are good for the vi-ins-mode-string but \[ and \] are good for PS1
-# ANSI Colors: black:30, red:31, green:32, yellow:33, blue:34, magenta:35, cyan:36, white:37
-# foreground:38, background:48, reset_foreground:39, reset_background:49
-# bright_foreground:+60, bright_background:+70
-# bold:1, unbold:22, underline:4, un-underline:24, reverse:7, unreverse:27
-# orange:38;2;255;165;0 (a little darker: 38;5;208
-
-# Set up a good looking orange (choose simpler orange for OpenBSD and Linux console
-__orange='38;5;208'
 c_red=$'\e[91m'
 c_green=$'\e[92m'
 c_blue=$'\e[94m'
@@ -65,7 +49,6 @@ c_cyan=$'\e[96m'
 c_orange=$'\e[38;5;208m'
 c_reset=$'\e[39m'
 if [[ "$TERM" == "linux" || "$TERM" == "vt220" ]]; then
-  __orange='0;33'
   c_red=$'\e[31m'
   c_green=$'\e[32m'
   c_blue=$'\e[34m'
@@ -74,14 +57,13 @@ if [[ "$TERM" == "linux" || "$TERM" == "vt220" ]]; then
   c_orange=$'\e[33m'
 fi
 
-# Trim all but last two elements of path in prompt
-PROMPT_DIRTRIM=2
+PROMPT_DIRTRIM=2  # Trim all but last two elements of path in prompt
+__nl='\n'         # If OpenBSD console or small terminal, use a newline
+[[ "$TERM" != "vt220" && ${COLUMNS:-80} -ge 75 ]] && unset __nl
+(( "$EUID" == 0 )) && pchar="#"
 
-# Show the mode in the prompt
-bind 'set show-mode-in-prompt on'
-
-# Lower the timeout for pressing escape
-bind 'set keyseq-timeout 100'
+bind 'set show-mode-in-prompt on' # Show the mode in the prompt
+bind 'set keyseq-timeout 100'     # Lower the timeout for pressing escape
 
 # Set vi-cmd-mode string to bold; clear for emacs/vi-ins-mode
 bind "set vi-cmd-mode-string \"\1\e[0m\2\""
@@ -103,29 +85,12 @@ PROMPT_COMMAND="$PROMPT_COMMAND;history -a"
 PROMPT_COMMAND="(( \$? )) && __prompt_color=$'\e[91m' || __prompt_color=$'\e[92m'$PROMPT_COMMAND"
 unset parts part
 
-# If in a Chezmoi subshell, mark it with a {C}
-if [[ "$CHEZMOI_SUBSHELL" == 1 ]]; then
-  __subshell=" \[\e[1;95m\]+\[\e[22;39m\]"
-else
-  unset __subshell
-fi
-
-# If OpenBSD console or small terminal, use a newline
-__nl='\n'
-[[ "$TERM" != "vt220" && ${COLUMNS:-80} -ge 75 ]] && unset __nl
-
-# Use a nice prompt character unless OpenBSD or Linux console
-__promptchar="❱"
-(( "$EUID" == 0 )) && __promptchar="󰄾"
-[[ "$TERM" == "vt220" || "$TERM" == "linux" ]] && {  __promptchar='>' ; (( EUID == 0 )) && __promptchar='#' ; }
-
 # Prompt variable: '[\u@\h \W] \$' with formatting
-PS1="\${PRE_PROMPT}[\[${c_cyan}\]\u\[${c_reset}\]@\[${c_green}\]\h\[${c_reset}\] \[${c_blue}\]\$(__prompt_trim_pwd "\W")\[${c_reset}\]]\[\e[22;24;27;49m\]${__shellind}${__subshell}\$(__git_ps1 ' (\[\e[1m${c_orange}\]${__gitglyph}\[${c_reset}\]%s\[\e[22m\])' 2>/dev/null) ${__nl}\[\${__prompt_color}\]${__promptchar}\[${c_reset}\] \[\e[0m\]"
+PS1="\${PRE_PROMPT}[\[${c_cyan}\]\u\[${c_reset}\]@\[${c_green}\]\h\[${c_reset}\] \[${c_blue}\]\$(__prompt_trim_pwd "\W")\[${c_reset}\]]\[\e[22;24;27;49m\]${__shellind}${subshell}\$(__git_ps1 ' (\[\e[1m${c_orange}\]${git_s} \[${c_reset}\]%s\[\e[22m\])' 2>/dev/null) ${__nl}\[\${__prompt_color}\]${pchar}\[${c_reset}\] \[\e[0m\]"
 
 command -v fzf &> /dev/null && { type __fzf_history__ > /dev/null 2>&1 || eval "$(fzf --bash)"; }
 
 # Set readline options
-set -o vi
 bind 'set completion-ignore-case on'     # ignore case
 bind 'set completion-map-case on'        # treat hyphens and underscores the same
 #bind 'set show-all-if-ambiguous on'      # show all completions on first tab
@@ -134,6 +99,28 @@ bind 'set colored-stats on'              # types in ls-style colors
 bind 'set colored-completion-prefix on'  # display common prefix in ls-style colors
 bind 'set mark-symlinked-directories on' # show directory symlinks with trailing slash
 bind 'set visible-stats on'              # append character indicating type
+
+set -o vi
+alias reprofile='source $HOME/.bashrc'
+shopt -s autocd cdspell extglob histappend
+
+export LANG=en_US.UTF-8
+export LC_CTYPE=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+export GIT_AUTHOR_NAME="Michael Erdely"
+export GIT_AUTHOR_EMAIL="mike@erdelynet.com"
+export GIT_COMMITTER_NAME=$GIT_AUTHOR_NAME
+export GIT_COMMITTER_EMAIL=$GIT_AUTHOR_EMAIL
+export ANSIBLE_NOCOWS=1
+[[ ":$PATH:" != *:$HOME/.local/bin:*  ]] && PATH=$HOME/.local/bin:$PATH
+[[ ":$PATH:" != *:/usr/sbin:*         ]] && PATH=$PATH:/usr/sbin
+[[ ":$PATH:" != *:/srv/scripts/bin:*  ]] && PATH=$PATH:/srv/scripts/bin
+[[ ":$PATH:" != *:/srv/scripts/sbin:* ]] && PATH=$PATH:/srv/scripts/sbin
+
+HISTFILE=$HOME/.cache/${SHELL##*/}_history
+HISTFILESIZE=100000
+HISTCONTROL=ignoreboth:erasedups
+HISTSIZE=$HISTFILESIZE
 
 command -v dircolors &> /dev/null && eval $(dircolors -b)
 
@@ -160,7 +147,6 @@ if [[ "$OSTYPE" == linux-gnu ]]; then
   alias diff='diff --color=auto'
 fi
 command -v bat &> /dev/null && alias cat='bat --paging=never --plain'
-alias reprofile='source $HOME/.bashrc'
 alias check_reboot='sudo /srv/scripts/sbin/check_reboot'
 [[ -e /dev/pf ]] && alias pflog='doas tcpdump -n -e -ttt -i pflog0'
 alias sshk='ssh -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
