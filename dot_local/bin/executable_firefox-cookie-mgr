@@ -2,14 +2,14 @@
 
 progname=${0##*/}
 progname=${progname%.sh}
-if [ -r $HOME/.config/librewolf/librewolf/profiles.ini ]; then
-  profile_dir=${profile_dir:-$HOME/.config/librewolf/librewolf}
-elif [ -r $HOME/.librewolf/profiles.ini ]; then
-  profile_dir=${profile_dir:-$HOME/.librewolf}
-elif [ -r $HOME/.config/mozilla/firefox/profiles.ini ]; then
-  profile_dir=${profile_dir:-$HOME/.config/mozilla/firefox}
+if [ -r "$HOME"/.config/librewolf/librewolf/profiles.ini ]; then
+  profile_dir=${profile_dir:-"$HOME"/.config/librewolf/librewolf}
+elif [ -r "$HOME"/.librewolf/profiles.ini ]; then
+  profile_dir=${profile_dir:-"$HOME"/.librewolf}
+elif [ -r "$HOME"/.config/mozilla/firefox/profiles.ini ]; then
+  profile_dir=${profile_dir:-"$HOME"/.config/mozilla/firefox}
 else
-  profile_dir=${profile_dir:-$HOME/.mozilla}
+  profile_dir=${profile_dir:-"$HOME"/.mozilla}
 fi
 
 rcfile=${rcfile:-$HOME/.config/firefoxcookiemgrrc}
@@ -37,7 +37,7 @@ usage() {
   echo
   echo "     NOTE: Firefox must not be running for an import"
   echo "     $progname -i out.txt -p ~/.mozilla/firefox/*.NewProfile/permissions.sqlite"
-  exit $1
+  exit "${1:-0}"
 }
 opnsenserc_set=false
 profile_path_set=false
