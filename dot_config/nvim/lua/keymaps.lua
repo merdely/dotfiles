@@ -16,12 +16,6 @@ vim.keymap.set("v", "<A-,>", ":<C-u>execute \"'<,'>move '<-\" . (v:count1 + 1)<c
 vim.keymap.set("n", "<ESC>", ":nohlsearch<CR>", { desc = "Clear search highlights", noremap = true, silent = true })
 
 vim.keymap.set('n', '-', ':Ex<cr>', { desc = 'File Manager', silent = true })
-vim.api.nvim_create_autocmd('FileType', {
-  pattern = 'netrw',
-  callback = function(ev)
-    vim.keymap.set('n', '<Escape>', '<C-^>', { buffer = ev.buf })
-  end,
-})
 
 vim.keymap.set("n", "<leader>x", function()
   local file = vim.fn.expand("%:p")  -- full path, not relative
