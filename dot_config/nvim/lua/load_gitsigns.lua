@@ -13,7 +13,7 @@ require('gitsigns').setup {
       if vim.wo.diff then
         vim.cmd.normal { ']c', bang = true }
       else
-        gitsigns.nav_hunk 'next'
+        gitsigns.nav_hunk('next')
       end
     end, { desc = 'Jump to next git change' })
 
@@ -21,28 +21,17 @@ require('gitsigns').setup {
       if vim.wo.diff then
         vim.cmd.normal { '[c', bang = true }
       else
-        gitsigns.nav_hunk 'prev'
+        gitsigns.nav_hunk('prev')
       end
     end, { desc = 'Jump to previous git change' })
 
+    -- map("n", "[h", function() gitsigns.nav_hunk("prev") end, { desc = "Previous Hunk" })
+    -- map("n", "]h", function() gitsigns.nav_hunk("next") end, { desc = "Next Hunk" })
+    map("n", "[H", function() gitsigns.nav_hunk("first") end, { desc = "First Hunk" })
+    map("n", "]H", function() gitsigns.nav_hunk("last") end, { desc = "Last Hunk" })
+
     -- Actions
     -- visual mode
-    map("n", "]h", function()
-      if vim.wo.diff then
-        vim.cmd.normal({ "]c", bang = true })
-      else
-        gitsigns.nav_hunk("next")
-      end
-    end, { desc = "Next Hunk" })
-    map("n", "[h", function()
-      if vim.wo.diff then
-        vim.cmd.normal({ "[c", bang = true })
-      else
-        gitsigns.nav_hunk("prev")
-      end
-    end, { desc = "Prev Hunk" })
-    map("n", "]H", function() gitsigns.nav_hunk("last") end, { desc = "Last Hunk" })
-    map("n", "[H", function() gitsigns.nav_hunk("first") end, { desc = "First Hunk" })
     map('v', '<leader>ghs', function() gitsigns.stage_hunk { vim.fn.line '.', vim.fn.line 'v' } end, { desc = 'git stage hunk' })
     map('v', '<leader>ghr', function() gitsigns.reset_hunk { vim.fn.line '.', vim.fn.line 'v' } end, { desc = 'git reset hunk' })
     -- normal mode

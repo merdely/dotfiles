@@ -84,6 +84,15 @@ require("noice").setup({
 
 require("flash").setup({})
 require("persistence").setup({})
+-- Terminal Mappings
+local function term_nav(dir)
+  ---@param self snacks.terminal
+  return function(self)
+    return self:is_floating() and "<c-w><c-" .. dir .. ">" or vim.schedule(function()
+      vim.cmd.wincmd(dir)
+    end)
+  end
+end
 require("snacks").setup({
   bufdelete = { enabled = true },
   bigfile = { enabled = true },
@@ -110,7 +119,7 @@ require("snacks").setup({
     },
   },
   debug = { enabled = true },
-  explorer = { enabled = true },
+  -- explorer = { enabled = true },
   git = { enabled = true },
   gitbrowse = { enabled = true },
   indent = { enabled = true },
@@ -128,7 +137,18 @@ require("snacks").setup({
   profiler = { enabled = true },
   quickfile = { enabled = true },
   statuscolumn = { enabled = true },
-  terminal = { enabled = true },
+  terminal = {
+    win = {
+      keys = {
+        nav_h = { "<C-h>", term_nav("h"), desc = "Go to Left Window", expr = true, mode = "t" },
+        nav_j = { "<C-j>", term_nav("j"), desc = "Go to Lower Window", expr = true, mode = "t" },
+        nav_k = { "<C-k>", term_nav("k"), desc = "Go to Upper Window", expr = true, mode = "t" },
+        nav_l = { "<C-l>", term_nav("l"), desc = "Go to Right Window", expr = true, mode = "t" },
+        hide_slash = { "<C-/>", "hide", desc = "Hide Terminal", mode = "t" },
+        hide_underscore = { "<c-_>", "hide", desc = "which_key_ignore", mode = "t" },
+      },
+    },
+  },
   toggle = { enabled = true },
   util = { enabled = true },
   win = { enabled = true },

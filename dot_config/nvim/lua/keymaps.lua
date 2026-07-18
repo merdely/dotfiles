@@ -7,12 +7,18 @@ vim.keymap.set({ 'n', 'v' }, 'c', '"_c', { desc = 'Change without replacing clip
 vim.keymap.set({ 'n', 'v' }, 'C', '"_C', { desc = 'Change without replacing clipboard content', noremap = true, silent = true })
 vim.keymap.set({ 'n', 'v' }, 'x', '"_x', { desc = 'Delete without replacing clipboard content', noremap = true, silent = true })
 
-vim.keymap.set("n", "<A-,>", "<cmd>execute 'move .+' . v:count1<cr>==", { desc = "Move Down" })
-vim.keymap.set("n", "<A-.>", "<cmd>execute 'move .-' . (v:count1 + 1)<cr>==", { desc = "Move Up" })
-vim.keymap.set("i", "<A-,>", "<esc><cmd>m .+1<cr>==gi", { desc = "Move Down" })
-vim.keymap.set("i", "<A-.>", "<esc><cmd>m .-2<cr>==gi", { desc = "Move Up" })
-vim.keymap.set("v", "<A-,>", ":<C-u>execute \"'<,'>move '>+\" . v:count1<cr>gv=gv", { desc = "Move Down" })
-vim.keymap.set("v", "<A-.>", ":<C-u>execute \"'<,'>move '<-\" . (v:count1 + 1)<cr>gv=gv", { desc = "Move Up" })
+vim.keymap.set("n", "<A-.>", "<cmd>execute 'move .+' . v:count1<cr>==", { desc = "Move Down" })
+vim.keymap.set("n", "<A-,>", "<cmd>execute 'move .-' . (v:count1 + 1)<cr>==", { desc = "Move Up" })
+vim.keymap.set("i", "<A-.>", "<esc><cmd>m .+1<cr>==gi", { desc = "Move Down" })
+vim.keymap.set("i", "<A-,>", "<esc><cmd>m .-2<cr>==gi", { desc = "Move Up" })
+vim.keymap.set("v", "<A-.>", ":<C-u>execute \"'<,'>move '>+\" . v:count1<cr>gv=gv", { desc = "Move Down" })
+vim.keymap.set("v", "<A-,>", ":<C-u>execute \"'<,'>move '<-\" . (v:count1 + 1)<cr>gv=gv", { desc = "Move Up" })
+vim.keymap.set("n", "<ESC>", ":nohlsearch<CR>", { desc = "Clear search highlights", noremap = true, silent = true })
+vim.keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
+vim.keymap.set('n', '<C-h>', '<C-w>h', { desc = 'Go to Left Window', remap = true })
+vim.keymap.set('n', '<C-j>', '<C-w>j', { desc = 'Go to Lower Window', remap = true })
+vim.keymap.set('n', '<C-k>', '<C-w>k', { desc = 'Go to Upper Window', remap = true })
+vim.keymap.set('n', '<C-l>', '<C-w>l', { desc = 'Go to Right Window', remap = true })
 
 vim.keymap.set('n', '-', ':Ex<cr>', { desc = 'File Manager', silent = true })
 vim.api.nvim_create_autocmd('FileType', {
@@ -44,6 +50,7 @@ vim.keymap.set("n", "<leader>bD", "<cmd>:bd<cr>", { desc = "Delete Buffer and Wi
 vim.keymap.set('n', '<leader>K', '<cmd>norm! K<cr>', { desc = 'Keywordprg' })
 vim.keymap.set("n", "<leader>cd", vim.diagnostic.open_float, { desc = "Line Diagnostics" })
 
+vim.keymap.set("n", "<leader>bc", "<cmd>let @+=expand('%:p')<cr>", { desc = "Copy Buffer File Path" })
 vim.keymap.set("n", "gK", function() return vim.lsp.buf.signature_help() end, { desc = "Signature Help" })
 vim.keymap.set("i", "<c-k>", function() return vim.lsp.buf.signature_help() end, { desc = "Signature Help" })
 vim.keymap.set({"n","x"}, "<leader>ca", vim.lsp.buf.code_action, { desc = "Code Action" })
@@ -123,6 +130,15 @@ if package.loaded["which-key"] then
   vim.keymap.set('n', '<leader>?', function() require('which-key').show { global = false } end, { desc = 'Buffer Local Keymaps (which-key)' })
   -- vim.keymap.set('n', '<leader>?', function() require('which-key').show { global = true } end, { desc = 'Buffer Local Keymaps (which-key)' })
   vim.keymap.set("n", "<c-w><space>", function() require("which-key").show({ keys = "<c-w>", loop = true }) end, { desc = "Window Hydra Mode (which-key)" })
+  -- if vim.wo.diff then
+    -- require("which-key").add({
+    --   { "]c", desc = "Next diff hunk", buffer = 0 },
+    --   { "[c", desc = "Prev diff hunk", buffer = 0 },
+    --   { "d", desc = "delete/diff"},
+    --   { "do", desc = "Diff obtain", buffer = 0 },
+    --   { "dp", desc = "Diff put", buffer = 0 },
+    -- })
+  -- end
 end
 
 if package.loaded["neogit"] then

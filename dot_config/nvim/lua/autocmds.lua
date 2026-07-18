@@ -29,6 +29,21 @@ vim.api.nvim_create_autocmd("FileType", {
   callback = function() vim.opt_local.indentkeys:remove("0#") end,
 })
 
+vim.api.nvim_create_autocmd({ "WinEnter", "BufWinEnter" }, {
+  callback = function()
+    if package.loaded["which-key"] then
+      if vim.wo.diff then
+        require("which-key").add({
+          { "]c", desc = "Next diff hunk", buffer = 0 },
+          { "[c", desc = "Prev diff hunk", buffer = 0 },
+        })
+      end
+      vim.keymap.set("n", "<leader>co", "do", { desc = "Diff obtain" })
+      vim.keymap.set("n", "<leader>cp", "dp", { desc = "Diff put" })
+    end
+  end,
+})
+
 local function run_build(name, cmd, cwd)
   local result = vim.system(cmd, { cwd = cwd }):wait()
   if result.code ~= 0 then
@@ -39,7 +54,6 @@ local function run_build(name, cmd, cwd)
     vim.notify(('Build failed for %s:\n%s'):format(name, output), vim.log.levels.ERROR)
   end
 end
-
 vim.api.nvim_create_autocmd('PackChanged', {
   callback = function(ev)
     local name = ev.data.spec.name

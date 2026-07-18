@@ -76,8 +76,10 @@ vim.keymap.set({"n","x","o"}, "[]", function() ts_move.goto_previous_start("@cla
 vim.keymap.set({"n","x","o"}, "[o", function() ts_move.goto_previous_start({ "@loop.outer", "@loop.inner" }, "textobjects") end, { desc = "Jump to Previous Loop Start" })
 vim.keymap.set({"n","x","o"}, "[M", function() ts_move.goto_previous_end("@function.outer", "textobjects") end, { desc = "Jump to Previous Function End" })
 vim.keymap.set({"n","x","o"}, "[[", function() ts_move.goto_previous_end("@class.outer", "textobjects") end, { desc = "Jump to Previous Class end" })
-vim.keymap.set({"n","x","o"}, "]c", function() ts_move.goto_next("@conditional.outer", "textobjects") end, { desc = "Jump to Next Conditional" })
-vim.keymap.set({"n","x","o"}, "[c", function() ts_move.goto_previous("@conditional.outer", "textobjects") end, { desc = "Jump to Previous Conditional" })
+if not vim.wo.diff then
+  vim.keymap.set({"n","x","o"}, "]C", function() ts_move.goto_next("@conditional.outer", "textobjects") end, { desc = "Jump to Next Conditional" })
+  vim.keymap.set({"n","x","o"}, "[C", function() ts_move.goto_previous("@conditional.outer", "textobjects") end, { desc = "Jump to Previous Conditional" })
+end
 local ts_repeat_move = require("nvim-treesitter-textobjects.repeatable_move")
 vim.keymap.set({"n","x","o"}, ";", ts_repeat_move.repeat_last_move_next, { desc = "Repeat Last Move Next" })
 vim.keymap.set({"n","x","o"}, ",", ts_repeat_move.repeat_last_move_previous, { desc = "Repeat Last Move Previous" })
