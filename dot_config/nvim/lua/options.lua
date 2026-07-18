@@ -32,6 +32,7 @@ vim.opt.breakindent = true -- wrapped lines with indent (default: false)
 vim.opt.autoindent = true -- copy indent of current line when starting new line (default: true)
 vim.opt.shiftround = true -- round indent to multple of shiftwidth (default: false)
 vim.opt.selection = 'inclusive' -- whether to include last char of selection (default: inclusive)
+vim.schedule(function() vim.opt.clipboard = 'unnamedplus' end)
 vim.opt.list = true -- show special characters (spaces, etc) with other characters (default: false)
 vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' } -- override list chars (default: 'tab:> ,trail:-,nbsp:+')
 

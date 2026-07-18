@@ -3,7 +3,6 @@
 -- ============================================================================
 
 -- Git branch function with caching and Nerd Font icon
-vim.g.use_glyphs = true
 vim.g.cached_branch = ""
 local branch_cache = {}
 local last_check = {}

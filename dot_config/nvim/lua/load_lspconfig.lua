@@ -58,9 +58,9 @@ vim.api.nvim_create_autocmd('LspAttach', {
     -- code, if the language server you are using supports them
     --
     -- This may be unwanted, since they displace some of your code
-    if client and client:supports_method('textDocument/inlayHint', event.buf) then
-      map('<leader>th', function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf }) end, 'Toggle Inlay Hints')
-    end
+    -- if client and client:supports_method('textDocument/inlayHint', event.buf) then
+    --   map('<leader>th', function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf }) end, 'Toggle Inlay Hints')
+    -- end
   end,
 })
 
@@ -77,7 +77,7 @@ local servers = {
   -- But for many setups, the LSP (`ts_ls`) will work just fine
   -- ts_ls = {},
 
-  bashls = {},
+  -- bashls = {},
   ruff = {},
   pylsp = {
     settings = {
@@ -95,9 +95,6 @@ local servers = {
       },
     },
   },
-  stylua = {}, -- Used to format Lua code
-  yamlls = {},
-  qmlls = {},
 
   -- Special Lua Config, as recommended by neovim help docs
   lua_ls = {
@@ -135,6 +132,59 @@ local servers = {
   },
 }
 
+local ensure_installed = vim.tbl_keys(servers or {})
+if vim.fn.executable 'npm' == 1 then
+  servers.bashls = {}
+  servers.yamlls = {}
+  vim.list_extend(ensure_installed, {
+    "bashls",
+    "yamlls",
+  })
+else
+  servers.efm = {
+    filetypes = { 'sh', 'bash', 'yaml' },
+    init_options = { documentFormatting = true, documentRangeFormatting = true },
+    settings = {
+      -- logFile = '/tmp/efm.log',
+      -- logLevel = 5,
+      rootMarkers = { '.git/', '.' },
+      languages = {
+        sh = {
+          {
+            lintCommand = 'shellcheck -f gcc -x -',
+            lintStdin = true,
+            lintIgnoreExitCode = true,
+            lintSource = 'shellcheck',
+            lintFormats = {
+              '%f:%l:%c: %trror: %m',
+              '%f:%l:%c: %tarning: %m',
+              '%f:%l:%c: %tote: %m',
+            },
+          },
+          { formatCommand = 'shfmt -i 2 -ci', formatStdin = true },
+        },
+        yaml = {
+          { lintCommand = 'yamllint -f parsable -', lintStdin = true, lintIgnoreExitCode = true, lintSource = 'yamllint' },
+          { formatCommand = 'yamlfmt -', formatStdin = true },
+        },
+      },
+    },
+  }
+  vim.list_extend(ensure_installed, {
+    'efm',
+    'yamlfmt',
+    'yamllint',
+  })
+end
+if vim.fn.executable 'unzip' == 1 then
+  servers.stylua = {}
+  servers.qmlls = {}
+  vim.list_extend(ensure_installed, {
+    "qmlls",
+    "stylua",
+  })
+end
+
 -- Automatically install LSPs and related tools to stdpath for Neovim
 require('mason').setup {}
 
@@ -145,11 +195,8 @@ require('mason').setup {}
 --    :Mason
 --
 -- You can press `g?` for help in this menu.
-local ensure_installed = vim.tbl_keys(servers or {})
 vim.list_extend(ensure_installed, {
   -- You can add other tools here that you want Mason to install
-  'stylua',
-  'bashls',
   'shellcheck',
   'shfmt',
 })
