@@ -3,6 +3,19 @@ umask 0022 > /dev/null
 
 [[ $- != *i* ]] && return
 
+export LANG=en_US.UTF-8
+export LC_CTYPE=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+export GIT_AUTHOR_NAME="Michael Erdely"
+export GIT_AUTHOR_EMAIL="mike@erdelynet.com"
+export GIT_COMMITTER_NAME=$GIT_AUTHOR_NAME
+export GIT_COMMITTER_EMAIL=$GIT_AUTHOR_EMAIL
+export ANSIBLE_NOCOWS=1
+[[ ":$PATH:" != *:$HOME/.local/bin:*  ]] && PATH=$HOME/.local/bin:$PATH
+[[ ":$PATH:" != *:/usr/sbin:*         ]] && PATH=$PATH:/usr/sbin
+[[ ":$PATH:" != *:/srv/scripts/bin:*  ]] && PATH=$PATH:/srv/scripts/bin
+[[ ":$PATH:" != *:/srv/scripts/sbin:* ]] && PATH=$PATH:/srv/scripts/sbin
+
 HISTFILE=$HOME/.cache/${SHELL##*/}_history
 HISTFILESIZE=100000
 HISTCONTROL=ignoreboth:erasedups
@@ -23,7 +36,7 @@ pchar="❱"
 if [[ -n "$CHEZMOI_SUBSHELL" ]]; then
   subshell=" %F{magenta}+%f"
 fi
-PROMPT='%B[%F{cyan}%n%f@%F{green}%m%f %F{blue}%(3~,${dots}/,)%2~%f]${subshell}'
+PROMPT='${PRE_PROMPT}%B[%F{cyan}%n%f@%F{green}%m%f %F{blue}%(3~,${dots}/,)%2~%f]${subshell}'
 if [[ -r /usr/share/git/git-prompt.sh ]]; then
   source /usr/share/git/git-prompt.sh
   GIT_PS1_COMPRESSSPARSESTATE=true
@@ -89,19 +102,6 @@ zstyle ':completion:*' menu select
 zstyle ':completion:*' matcher-list ''
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}' 'm:{a-z}={A-Z} r:|[._-]=* r:|=*'
 
-export LANG=en_US.UTF-8
-export LC_CTYPE=en_US.UTF-8
-export LC_ALL=en_US.UTF-8
-export GIT_AUTHOR_NAME="Michael Erdely"
-export GIT_AUTHOR_EMAIL="mike@erdelynet.com"
-export GIT_COMMITTER_NAME=$GIT_AUTHOR_NAME
-export GIT_COMMITTER_EMAIL=$GIT_AUTHOR_EMAIL
-export ANSIBLE_NOCOWS=1
-[[ ":$PATH:" != *:$HOME/.local/bin:*  ]] && PATH=$HOME/.local/bin:$PATH
-[[ ":$PATH:" != *:/usr/sbin:*         ]] && PATH=$PATH:/usr/sbin
-[[ ":$PATH:" != *:/srv/scripts/bin:*  ]] && PATH=$PATH:/srv/scripts/bin
-[[ ":$PATH:" != *:/srv/scripts/sbin:* ]] && PATH=$PATH:/srv/scripts/sbin
-
 command -v dircolors &> /dev/null && eval $(dircolors -b)
 
 if command -v nvim &> /dev/null; then
@@ -132,13 +132,15 @@ alias check_reboot='sudo /srv/scripts/sbin/check_reboot'
 [[ -e /dev/pf ]] && alias pflog='doas tcpdump -n -e -ttt -i pflog0'
 alias sshk='ssh -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
 alias scpk='scp -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
-rsynck='rsync -e "ssh -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"'
+alias rsynck='rsync -e "ssh -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"'
 alias dos_rsync='rsync -rtcvP'
 alias which='command -v'
-export VIRSH_DEFAULT_CONNECT_URI=qemu:///system
-export COMPOSE_FILE=/srv/docker/compose.yaml
+GPG_TTY=$(tty)
+VIRSH_DEFAULT_CONNECT_URI=qemu:///system
+COMPOSE_FILE=/srv/docker/compose.yaml
+export GPG_TTY VIRSH_DEFAULT_CONNECT_URI COMPOSE_FILE
 alias remain='tmux -f "$HOME"/.config/tmux/tmux.conf.remain new-session -A -s main'
-if [ "${SSH_CLIENT%% *}" = "192.168.25.38" -o "${SSH_CLIENT%% *}" = "192.168.25.38" ]; then
+if [[ "${SSH_CLIENT%% *}" == "192.168.25.38" || "${SSH_CLIENT%% *}" == "192.168.25.38" ]]; then
   alias remain='echo SSH to carme'
 fi
 
