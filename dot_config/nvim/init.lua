@@ -1,5 +1,15 @@
 -- init.lua
-if vim.fn.filereadable(vim.fn.stdpath("config") .. "/noplugins") ~= 1 then
+
+-- Allow for when user may not be able to write to $HOME
+if vim.env.NVIM_NO_PERSIST then
+  vim.o.shadafile  = "NONE"   -- no shada/viminfo
+  vim.o.swapfile   = false
+  vim.o.undofile   = false
+  vim.o.backup     = false
+  vim.o.writebackup= false
+end
+
+if not vim.env.NVIM_DISABLE_PLUGINS then
   require("plugins")
   require("load_lspconfig")
   require("load_treesitter")
@@ -19,6 +29,9 @@ else
     return false
   end
   vim.g.use_glyphs = not is_console()
+  if vim.env.NVIM_DISABLE_GLYPHS then
+    vim.g.use_glyphs = false
+  end
 
   require('mystatusline')
   vim.cmd("colorscheme lunaperche")
