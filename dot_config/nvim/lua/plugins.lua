@@ -29,6 +29,9 @@ vim.pack.add({
   "https://github.com/stevearc/conform.nvim",
   -- 'https://github.com/stevearc/oil.nvim',
   "https://github.com/windwp/nvim-autopairs",
+  -- "https://github.com/iamcco/markdown-preview.nvim",
+  "https://github.com/brianhuster/live-preview.nvim",
+  "https://github.com/MeanderingProgrammer/render-markdown.nvim",
 })
 
 vim.cmd 'packadd nvim.difftool'

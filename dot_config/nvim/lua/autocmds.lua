@@ -89,6 +89,7 @@ local function run_build(name, cmd, cwd)
 end
 vim.api.nvim_create_autocmd('PackChanged', {
   callback = function(ev)
+    vim.notify("hi, mike: ")
     local name = ev.data.spec.name
     local kind = ev.data.kind
     if kind ~= 'install' and kind ~= 'update' then return end
@@ -105,7 +106,13 @@ vim.api.nvim_create_autocmd('PackChanged', {
 
     if name == 'nvim-treesitter' then
       if not ev.data.active then vim.cmd.packadd 'nvim-treesitter' end
-      vim.cmd 'TSUpdate'
+        vim.cmd 'TSUpdate'
+      return
+    end
+
+    if name == 'markdown-preview.nvim' then
+      if not ev.data.active then vim.cmd.packadd(name) end
+      vim.fn['mkdp#util#install']()
       return
     end
   end,

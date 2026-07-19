@@ -32,9 +32,28 @@ vim.opt.breakindent = true -- wrapped lines with indent (default: false)
 vim.opt.autoindent = true -- copy indent of current line when starting new line (default: true)
 vim.opt.shiftround = true -- round indent to multple of shiftwidth (default: false)
 vim.opt.selection = 'inclusive' -- whether to include last char of selection (default: inclusive)
-vim.schedule(function() vim.opt.clipboard = 'unnamedplus' end)
 vim.opt.list = true -- show special characters (spaces, etc) with other characters (default: false)
 vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' } -- override list chars (default: 'tab:> ,trail:-,nbsp:+')
+
+-- Handle copying to clipboard over ssh
+-- vim.schedule(function()
+--   if vim.env.SSH_TTY then
+--     vim.opt.clipboard = ""
+--     vim.g.clipboard = {
+--       name = 'OSC 52',
+--       copy = {
+--         ['+'] = require('vim.ui.clipboard.osc52').copy('+'),
+--         -- ['*'] = require('vim.ui.clipboard.osc52').copy('*'),
+--       },
+--       paste = {
+--         ['+'] = require('vim.ui.clipboard.osc52').paste('+'),
+--         -- ['*'] = require('vim.ui.clipboard.osc52').paste('*'),
+--       },
+--     }
+--   else
+    vim.opt.clipboard = 'unnamedplus'
+--   end
+-- end)
 
 -- second stage diff to align lines (default: 40)
 -- internal, filler, closeoff, indent-heuristic, inline:char, linematch

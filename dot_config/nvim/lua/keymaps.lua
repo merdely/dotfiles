@@ -58,6 +58,12 @@ vim.keymap.set("n", "<leader><tab>]", "<cmd>tabnext<cr>", { desc = "Next Tab" })
 vim.keymap.set("n", "<leader><tab>d", "<cmd>tabclose<cr>", { desc = "Close Tab" })
 vim.keymap.set("n", "<leader><tab>[", "<cmd>tabprevious<cr>", { desc = "Previous Tab" })
 
+local ok = pcall(require, "livepreview")
+if ok then
+  vim.keymap.set("n", "<leader>uq", "<cmd>LivePreview start<cr>", { desc = "Start LivePreview Server" })
+  vim.keymap.set("n", "<leader>uQ", "<cmd>LivePreview close<cr>", { desc = "Stop LivePreview Server" })
+end
+
 if package.loaded["bufferline"] then
   vim.keymap.set("n", "<leader>bp", "<Cmd>BufferLineTogglePin<CR>", { desc = "Toggle Pin" })
   vim.keymap.set("n", "<leader>bP", "<Cmd>BufferLineGroupClose ungrouped<CR>", { desc = "Delete Non-Pinned Buffers" })
