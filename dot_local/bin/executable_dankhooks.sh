@@ -52,8 +52,14 @@ case "$1" in
   onSessionLocked)
     case "$2" in
       locked)
+        dms ipc call mpris pause
+        if dms ipc call audio status | grep -q "^Output:  (muted) "; then
+          touch "$HOME"/.cache/dms_lock_muted_audio
+          dms ipc call audio mute
+        fi
+        dms ipc call mic status | grep -q "(muted)" ||
+          dms ipc call mic mute
         dms ipc call inhibit disable
-        screen-lock -L > /dev/null 2>&1
         ;;
       *)
         $verbose && echo "Warning: $2 is an unsupported function for $1" >&2
@@ -63,7 +69,10 @@ case "$1" in
   onSessionUnlocked)
     case "$2" in
       unlocked)
-        screen-unlock -L > /dev/null 2>&1
+        dms ipc call audio status | grep "^Output:  (muted) " &&
+          [[ -r "$HOME"/.cache/dms_lock_muted_audio ]] &&
+          dms ipc call audio mute
+        rm -f "$HOME"/.cache/dms_lock_muted_audio
         ;;
       *)
         $verbose && echo "Warning: $2 is an unsupported function for $1" >&2
