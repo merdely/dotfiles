@@ -35,25 +35,12 @@ vim.opt.selection = 'inclusive' -- whether to include last char of selection (de
 vim.opt.list = true -- show special characters (spaces, etc) with other characters (default: false)
 vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' } -- override list chars (default: 'tab:> ,trail:-,nbsp:+')
 
--- Handle copying to clipboard over ssh
--- vim.schedule(function()
---   if vim.env.SSH_TTY then
---     vim.opt.clipboard = ""
---     vim.g.clipboard = {
---       name = 'OSC 52',
---       copy = {
---         ['+'] = require('vim.ui.clipboard.osc52').copy('+'),
---         -- ['*'] = require('vim.ui.clipboard.osc52').copy('*'),
---       },
---       paste = {
---         ['+'] = require('vim.ui.clipboard.osc52').paste('+'),
---         -- ['*'] = require('vim.ui.clipboard.osc52').paste('*'),
---       },
---     }
---   else
-    vim.opt.clipboard = 'unnamedplus'
---   end
--- end)
+vim.schedule(function()
+  vim.opt.clipboard = 'unnamedplus'
+  if vim.env.SSH_TTY then
+    vim.g.clipboard = 'osc52'
+  end
+end)
 
 -- second stage diff to align lines (default: 40)
 -- internal, filler, closeoff, indent-heuristic, inline:char, linematch

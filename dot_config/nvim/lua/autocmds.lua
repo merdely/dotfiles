@@ -64,12 +64,15 @@ vim.api.nvim_create_autocmd("FileType", {
 
 vim.api.nvim_create_autocmd({ "WinEnter", "BufWinEnter" }, {
   callback = function()
-    if package.loaded["which-key"] then
-      if vim.wo.diff then
-        require("which-key").add({
-          { "]c", desc = "Next diff hunk", buffer = 0 },
-          { "[c", desc = "Prev diff hunk", buffer = 0 },
-        })
+    do
+      local ok = pcall(require, 'which-key')
+      if ok then
+        if vim.wo.diff then
+          require("which-key").add({
+            { "]c", desc = "Next diff hunk", buffer = 0 },
+            { "[c", desc = "Prev diff hunk", buffer = 0 },
+          })
+        end
       end
       vim.keymap.set("n", "<leader>co", "do", { desc = "Diff obtain" })
       vim.keymap.set("n", "<leader>cp", "dp", { desc = "Diff put" })
@@ -89,15 +92,9 @@ local function run_build(name, cmd, cwd)
 end
 vim.api.nvim_create_autocmd('PackChanged', {
   callback = function(ev)
-    vim.notify("hi, mike: ")
     local name = ev.data.spec.name
     local kind = ev.data.kind
     if kind ~= 'install' and kind ~= 'update' then return end
-
-    -- if name == 'telescope-fzf-native.nvim' and vim.fn.executable 'make' == 1 then
-    --   run_build(name, { 'make' }, ev.data.path)
-    --   return
-    -- end
 
     if name == 'LuaSnip' then
       if vim.fn.has 'win32' ~= 1 and vim.fn.executable 'make' == 1 then run_build(name, { 'make', 'install_jsregexp' }, ev.data.path) end
@@ -107,12 +104,6 @@ vim.api.nvim_create_autocmd('PackChanged', {
     if name == 'nvim-treesitter' then
       if not ev.data.active then vim.cmd.packadd 'nvim-treesitter' end
         vim.cmd 'TSUpdate'
-      return
-    end
-
-    if name == 'markdown-preview.nvim' then
-      if not ev.data.active then vim.cmd.packadd(name) end
-      vim.fn['mkdp#util#install']()
       return
     end
   end,
