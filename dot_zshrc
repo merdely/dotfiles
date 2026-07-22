@@ -80,8 +80,12 @@ zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}' 'm:{a-z}={A-Z} r:|[._-]=* r:
 bindkey -v
 alias reprofile='source $HOME/.zshrc'
 setopt append_history inc_append_history share_history hist_ignore_space
-setopt auto_cd cd_silent correct_all auto_pushd pushd_silent rmstarsilent
+setopt auto_cd cd_silent auto_pushd pushd_silent rmstarsilent
 setopt no_hup no_check_jobs prompt_subst interactive_comments no_match
+setopt correct
+# CORRECT_IGNORE=
+# setopt correct_all
+# CORRECT_IGNORE_FILE=
 stty stop undef
 
 export LANG=en_US.UTF-8
