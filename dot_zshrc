@@ -3,6 +3,9 @@ umask 0022 &> /dev/null
 
 [[ $- != *i* ]] && return
 
+# shellcheck disable=SC1091
+[[ -e "$HOME"/.pre.profile.local ]] && source "$HOME"/.pre.profile.local
+
 dots="…"
 git_s=""
 git_c=208
@@ -166,10 +169,13 @@ if [[ "$ID" == archarm ]] && command -v pikvm-update &> /dev/null; then
   alias updates='echo Using pikvm-update; rw; sudo pikvm-update --no-reboot; sleep 2; sync; ro'
 fi
 
-if [[ -z "$SUDO_USER" ]] && [[ -z "$DOAS_USER" ]] && [[ -n "$SSH_CONNECTION" ]]; then
-  if [[ "$OSTYPE" == linux* ]]; then
+# Handle common typos
+alias chemzoi=chezmoi
+
+if [[ -z "$NO_WAYLAND" && -z "$SUDO_USER" && -z "$DOAS_USER" && -n "$SSH_CONNECTION" ]]; then
+  if [[ "$OSTYPE" == linux* && -d "/run/user/$EUID" ]]; then
     WAYLAND_DISPLAY_FILE=$(find "/run/user/$EUID" -maxdepth 1 -type s -name "wayland-[0-9]*")
-  elif [[ "$OSTYPE" == openbsd* ]]; then
+  elif [[ "$OSTYPE" == openbsd* && -d "/tmp/run/user/$EUID" ]]; then
     WAYLAND_DISPLAY_FILE=$(find "/tmp/run/user/$EUID" -maxdepth 1 -type s -name "wayland-[0-9]*")
   fi
   if [ -n "$WAYLAND_DISPLAY_FILE" ]; then
@@ -183,6 +189,7 @@ if [[ -z "$SUDO_USER" ]] && [[ -z "$DOAS_USER" ]] && [[ -n "$SSH_CONNECTION" ]];
   fi
 fi
 
+# shellcheck disable=SC1091
 [[ -e "$HOME"/.profile.local ]] && source "$HOME"/.profile.local
 
 true
