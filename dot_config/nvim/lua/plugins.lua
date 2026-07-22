@@ -240,6 +240,7 @@ do
 
   if luasnip_loaded then
     require("luasnip").setup({})
+    require("luasnip.loaders.from_lua").load({ paths = "~/.config/nvim/snippets" })
     require("luasnip.loaders.from_vscode").lazy_load()
   end
 
@@ -254,7 +255,7 @@ do
       completion = {
         -- By default, you may press `<c-space>` to show the documentation.
         -- Optionally, set `auto_show = true` to show the documentation after a delay.
-        documentation = { auto_show = false, auto_show_delay_ms = 500 },
+        documentation = { auto_show = true, auto_show_delay_ms = 500 },
         list = {
           selection = {
             preselect = false,
