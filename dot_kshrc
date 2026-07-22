@@ -1,7 +1,7 @@
 # vim: set filetype=sh :
 umask 0022 >/dev/null 2>&1
 
-[[ $- != *i* ]] && return
+case "$-" in *i*) ;; *) return ;; esac
 
 # shellcheck disable=SC1091
 [[ -e "$HOME"/.pre.profile.local ]] && . "$HOME"/.pre.profile.local
@@ -28,88 +28,48 @@ if [[ -n "$CHEZMOI_SUBSHELL" ]]; then
   subshell=" \[\e[1;95m\]+\[\e[22;39m\]"
 fi
 
-# Set up Bash Prompt
+# Set up Ksh Prompt
 __prompt_trim_pwd() {
-    local default=${1:-\\w}
-    local pwd=${PWD/#$HOME/\~} parts="" trimmed=""
-    [[ -z "$PROMPT_DIRTRIM" || "$PROMPT_DIRTRIM" -lt 1 ]] && { echo "$default" ; return 1 ; }
-    IFS=/ read -ra parts <<< "$pwd"
-    if (( ${#parts[@]} == 0 )); then
-      echo "$default" ; return 1
-    elif [[ "${parts[0]}" == "~" && "${#parts[@]}" -gt $(( PROMPT_DIRTRIM + 2 )) ]]; then
-        trimmed="${parts[*]: -"$PROMPT_DIRTRIM"}"
-        # shellcheck disable=SC2088
-        echo "~/${dots}/${trimmed// //}"
-    elif [[ "${parts[0]}" != "~" && "${#parts[@]}" -gt $(( PROMPT_DIRTRIM + 1 )) ]]; then
-        trimmed=${parts[*]: -$PROMPT_DIRTRIM}
-        echo "${dots}/${trimmed// //}"
+  local default=${1:-\\w}
+  [[ -z "$PROMPT_DIRTRIM" || "$PROMPT_DIRTRIM" -lt 1 ]] && { echo "$default" ; return 1 ; }
+  local pwd=${PWD#"$HOME"} p="" parts="" i=$len limit=$PROMPT_DIRTRIM
+  local len=${#parts[@]} out=""
+  [ "$pwd" != "$PWD" ] && pwd="~$pwd"
+  [ "$pwd" != "/" ] && pwd=${pwd%/}
+  IFS=/
+  for p in $pwd; do parts[${#parts[@]}]=$p; done
+  IFS=$(printf ' \t\n')
+  if { [ "${parts[0]}" != "~" ] && [ ${#parts[@]} -lt $(( PROMPT_DIRTRIM + 2 )) ]; } || \
+     { [ "${parts[0]}" = "~" ] && [ ${#parts[@]} -lt $(( PROMPT_DIRTRIM + 3 )) ]; }; then
+    echo "$pwd"
+    exit
+  fi
+  while [ "$i" -gt 0 ]; do
+    i=$(( i - 1 ))
+    [ "$limit" -gt 0 ] && limit=$(( limit - 1 )) && continue
+    if [ $i -eq 0 ] && [ "${parts[$i]}" = "~" ]; then
+      # shellcheck disable=SC2088
+      parts[i]="~/$dots"
+    elif [ "$i" -eq 0 ]; then
+      parts[i]="$dots"
     else
-        echo "$pwd"
+      unset "parts[$i]"
     fi
+  done
+  # shellcheck disable=SC2048
+  for f in ${parts[*]}; do out="$out/$f"; done
+  echo "${out#/}"
 }
 
-c_red=$'\e[91m'
-c_green=$'\e[92m'
-c_blue=$'\e[94m'
-c_magenta=$'\e[95m'
-c_cyan=$'\e[96m'
-c_orange=$'\e[38;5;208m'
-c_reset=$'\e[39m'
-if [[ "$TERM" == "linux" || "$TERM" == "vt220" ]]; then
-  c_red=$'\e[31m'
-  c_green=$'\e[32m'
-  c_blue=$'\e[34m'
-  c_magenta=$'\e[35m'
-  c_cyan=$'\e[36m'
-  c_orange=$'\e[33m'
-fi
-
-PROMPT_DIRTRIM=2  # Trim all but last two elements of path in prompt
-__nl='\n'         # If OpenBSD console or small terminal, use a newline
-[[ "$TERM" != "vt220" && ${COLUMNS:-80} -ge 75 ]] && unset __nl
-(( "$EUID" == 0 )) && pchar="#"
-
-bind 'set show-mode-in-prompt on' # Show the mode in the prompt
-bind 'set keyseq-timeout 100'     # Lower the timeout for pressing escape
-
-# Set vi-cmd-mode string to bold; clear for emacs/vi-ins-mode
-bind "set vi-cmd-mode-string \"\1\e[0m\2\""
-bind "set vi-ins-mode-string \"\1\e[1m\2\""
-bind "set emacs-mode-string \"\1\e[1m\2\""
-
-# Strip out history and return code elements of PROMPT_COMMAND to add them in the right place
-# This prevents duplication
-eval 'IFS=";" read -ra parts <<< "$PROMPT_COMMAND"'
-PROMPT_COMMAND=""
-for part in "${parts[@]}"; do
-  [[ -z "$part" || "$part" == "history "* || "$part" == "(( \$? )) && "* || "$part" == ":" ]] && continue
-  PROMPT_COMMAND="$PROMPT_COMMAND;$part"
-done
-
-PROMPT_COMMAND="$PROMPT_COMMAND;history -a"
-
-# Set the exit status of the previous command for the prompt
-PROMPT_COMMAND="(( \$? )) && __prompt_color=$'\e[91m' || __prompt_color=$'\e[92m'$PROMPT_COMMAND"
-unset parts part
+PROMPT_DIRTRIM=2
+__nl='\n'
+[[ "$TERM" != "vt220" && ${COLUMNS:-80} -ge 90 ]] && unset __nl
 
 # Prompt variable: '[\u@\h \W] \$' with formatting
-PS1="\${PRE_PROMPT}[\[${c_cyan}\]\u\[${c_reset}\]@\[${c_green}\]\h\[${c_reset}\] \[${c_blue}\]\$(__prompt_trim_pwd "\W")\[${c_reset}\]]\[\e[22;24;27;49m\]${__shellind}${subshell}\$(__git_ps1 ' (\[\e[1m${c_orange}\]${git_s} \[${c_reset}\]%s\[\e[22m\])' 2>/dev/null) ${__nl}\[\${__prompt_color}\]${pchar}\[${c_reset}\] \[\e[0m\]"
-
-command -v fzf >/dev/null 2>&1 && { type __fzf_history__ > /dev/null 2>&1 || eval "$(fzf --bash)"; }
-
-# Set readline options
-bind 'set completion-ignore-case on'     # ignore case
-bind 'set completion-map-case on'        # treat hyphens and underscores the same
-#bind 'set show-all-if-ambiguous on'      # show all completions on first tab
-bind 'set show-all-if-unmodified on'     # show all completions on first tab with no partial match
-bind 'set colored-stats on'              # types in ls-style colors
-bind 'set colored-completion-prefix on'  # display common prefix in ls-style colors
-bind 'set mark-symlinked-directories on' # show directory symlinks with trailing slash
-bind 'set visible-stats on'              # append character indicating type
+ PS1="\[\e[1m\][\[\e[96m\]\u\[\e[39m\]@\[\e[92m\]\h\[\e[39m\] \[\e[94m\]\$(__prompt_trim_pwd '\W')\[\e[39m\]]\[\e[22;24;27;49m\]\[\e[1m\]\$(__git_ps1 \" (${git_s}%s)\")\[\e[22m\] \${__nl}\[\e[94m\]\[\${pchar}\]\[\e[0m\] "
 
 set -o vi
-alias reprofile='. $HOME/.bashrc'
-shopt -s autocd cdspell extglob histappend
+alias reprofile='. $HOME/.kshrc'
 
 export LANG=en_US.UTF-8
 export LC_CTYPE=en_US.UTF-8
