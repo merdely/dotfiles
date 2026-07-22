@@ -169,7 +169,7 @@ fi
 if [[ -z "$SUDO_USER" ]] && [[ -z "$DOAS_USER" ]] && [[ -n "$SSH_CONNECTION" ]]; then
   if [[ "$OSTYPE" == linux* ]]; then
     WAYLAND_DISPLAY_FILE=$(find "/run/user/$EUID" -maxdepth 1 -type s -name "wayland-[0-9]*")
-  else
+  elif [[ "$OSTYPE" == openbsd* ]]; then
     WAYLAND_DISPLAY_FILE=$(find "/tmp/run/user/$EUID" -maxdepth 1 -type s -name "wayland-[0-9]*")
   fi
   if [ -n "$WAYLAND_DISPLAY_FILE" ]; then

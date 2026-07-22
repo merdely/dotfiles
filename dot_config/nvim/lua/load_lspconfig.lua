@@ -180,12 +180,12 @@ do
       })
     end
     if vim.fn.executable 'unzip' == 1 then
+      if vim.uv.os_uname().machine == "x86_64" then
+        servers.qmlls = {}
+        vim.list_extend(ensure_installed, { "qmlls" })
+      end
       servers.stylua = {}
-      servers.qmlls = {}
-      vim.list_extend(ensure_installed, {
-        "qmlls",
-        "stylua",
-      })
+      vim.list_extend(ensure_installed, { "stylua" })
     end
 
     -- Automatically install LSPs and related tools to stdpath for Neovim
