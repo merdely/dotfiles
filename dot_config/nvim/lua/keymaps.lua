@@ -285,7 +285,7 @@ do
     Snacks.toggle.option("background", { off = "light", on = "dark" , name = "Dark Background" }):map("<leader>ub")
     Snacks.toggle.dim():map("<leader>uD")
     Snacks.toggle.animate():map("<leader>ua")
-    Snacks.toggle.indent():map("<leader>ug")
+    Snacks.toggle.indent():map("<leader>uG")
     Snacks.toggle.scroll():map("<leader>uS")
     Snacks.toggle.profiler():map("<leader>dpp")
     Snacks.toggle.profiler_highlights():map("<leader>dph")
@@ -329,7 +329,7 @@ do
         set = function(state)
           require("gitsigns").toggle_signs(state)
         end,
-      }):map("<leader>uG")
+      }):map("<leader>ugg")
     end
 
   -- LazyVim.format.snacks_toggle():map("<leader>uf")

@@ -51,8 +51,8 @@ do
         map('n', '<leader>ghq', gitsigns.setqflist, { desc = 'git hunk quickfix list (all changes in this file)' })
         -- map("n", "<leader>ghu", gitsigns.undo_stage_hunk, { desc = "Undo Stage Hunk" })
         -- Toggles
-        map('n', '<leader>uB', gitsigns.toggle_current_line_blame, { desc = 'Toggle git show blame line' })
-        map('n', '<leader>uW', gitsigns.toggle_word_diff, { desc = 'Toggle git intra-line word diff' })
+        map('n', '<leader>ugB', gitsigns.toggle_current_line_blame, { desc = 'Toggle git show blame line' })
+        map('n', '<leader>ugW', gitsigns.toggle_word_diff, { desc = 'Toggle git intra-line word diff' })
 
         -- Text object
         map({ 'o', 'x' }, 'ih', gitsigns.select_hunk)

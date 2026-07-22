@@ -21,6 +21,7 @@ do
 
     "https://github.com/nvim-treesitter/nvim-treesitter",
     "https://github.com/nvim-treesitter/nvim-treesitter-textobjects",
+    "https://github.com/code-biscuits/nvim-biscuits",
 
     "https://github.com/MunifTanjim/nui.nvim",
     "https://github.com/folke/flash.nvim",
@@ -46,24 +47,25 @@ do
 
   local indentblankline_loaded = pcall(require, 'ibl')
   local guessindent_loaded = pcall(require, 'guess-indent')
-  local autopairs_loaded = pcall(require, 'nvim-autopairs')
-  local todocomments_loaded = pcall(require, 'todo-comments')
-  local minisurround_loaded = pcall(require, 'mini.icons')
-  local miniicons_loaded = pcall(require, 'mini.icons')
-  local trouble_loaded = pcall(require, 'trouble')
-  local nui_installed = pcall(require, 'nui.popup')
-  local noice_installed = pcall(require, 'noice')
-  local flash_loaded = pcall(require, 'flash')
-  local persistence_loaded = pcall(require, 'persistence')
-  local snacks_loaded = pcall(require, 'snacks')
-  local luasnip_loaded = pcall(require, 'luasnip')
-  local blink_loaded = pcall(require, 'blink.cmp')
-  local conform_loaded = pcall(require, 'conform')
   local bufferline_loaded = pcall(require, 'bufferline')
-  local whichkey_loaded = pcall(require, 'which-key')
   local solarized_loaded = pcall(require, 'solarized')
   local moonfly_loaded = pcall(require, 'moonfly')
   local nightfly_loaded = pcall(require, 'nightfly')
+  local biscuits_loaded = pcall(require, 'nvim-biscuits')
+  local nui_installed = pcall(require, 'nui.popup')
+  local flash_loaded = pcall(require, 'flash')
+  local noice_installed = pcall(require, 'noice')
+  local persistence_loaded = pcall(require, 'persistence')
+  local snacks_loaded = pcall(require, 'snacks')
+  local todocomments_loaded = pcall(require, 'todo-comments')
+  local trouble_loaded = pcall(require, 'trouble')
+  local whichkey_loaded = pcall(require, 'which-key')
+  local miniicons_loaded = pcall(require, 'mini.icons')
+  local minisurround_loaded = pcall(require, 'mini.surround')
+  local autopairs_loaded = pcall(require, 'nvim-autopairs')
+  local luasnip_loaded = pcall(require, 'luasnip')
+  local blink_loaded = pcall(require, 'blink.cmp')
+  local conform_loaded = pcall(require, 'conform')
 
   -- indent-blankline
   if indentblankline_loaded then
@@ -76,6 +78,14 @@ do
 
   if autopairs_loaded then
     require("nvim-autopairs").setup({})
+  end
+
+  if biscuits_loaded then
+    require("nvim-biscuits").setup({
+      toggle_keybind = "<leader>uB",
+      show_on_start = false,
+      cursor_line_only = true,
+    })
   end
 
   if todocomments_loaded then
@@ -349,6 +359,7 @@ do
           { "<leader>q", group = "quit/session" },
           { "<leader>s", group = "search" },
           { "<leader>u", group = "ui" },
+          { "<leader>ug", group = "git" },
           { "<leader>x", group = "diagnostics/quickfix" },
           { "[", group = "prev" },
           { "]", group = "next" },
