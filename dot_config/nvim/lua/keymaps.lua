@@ -7,6 +7,10 @@ vim.keymap.set({ 'n', 'v' }, 'c', '"_c', { desc = 'Change without replacing clip
 vim.keymap.set({ 'n', 'v' }, 'C', '"_C', { desc = 'Change without replacing clipboard content', noremap = true, silent = true })
 vim.keymap.set({ 'n', 'v' }, 'x', '"_x', { desc = 'Delete without replacing clipboard content', noremap = true, silent = true })
 
+vim.keymap.set("n", "<C-Up>", "<cmd>resize +2<cr>", { desc = "Increase Window Height" })
+vim.keymap.set("n", "<C-Down>", "<cmd>resize -2<cr>", { desc = "Decrease Window Height" })
+vim.keymap.set("n", "<C-Left>", "<cmd>vertical resize -2<cr>", { desc = "Decrease Window Width" })
+vim.keymap.set("n", "<C-Right>", "<cmd>vertical resize +2<cr>", { desc = "Increase Window Width" })
 vim.keymap.set("n", "<A-.>", "<cmd>execute 'move .+' . v:count1<cr>==", { desc = "Move Down" })
 vim.keymap.set("n", "<A-,>", "<cmd>execute 'move .-' . (v:count1 + 1)<cr>==", { desc = "Move Up" })
 vim.keymap.set("i", "<A-.>", "<esc><cmd>m .+1<cr>==gi", { desc = "Move Down" })
