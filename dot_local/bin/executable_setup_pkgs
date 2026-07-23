@@ -80,7 +80,7 @@ case "$ID" in
     if [ -n "$need" ]; then
       echo "Installing packages: $need"
       # shellcheck disable=SC2086
-      if ! sudo pacman -Syu --disable-download-timeout --needed --noconfirm ${need# }; then
+      if ! $sudo pacman -Syu --disable-download-timeout --needed --noconfirm ${need# }; then
         echo "Error: 'pacman -Syu ...' failed" >&2
         exit 1
       fi
@@ -197,7 +197,7 @@ case "$ID" in
             # Under the default_session section heading, add a dms-greeter line
             if $kvm; then
               $sudo sed -ri 's#^(\[default_session].*)$#\1\r\ncommand = "/usr/bin/dms-greeter --no-save-username --command niri -p /usr/share/quickshell/dms"#' /etc/greetd/config.toml
-              $kvm && sudo sed -ri 's#(/usr/bin/dms-greeter)#env WLR_NO_HARDWARE_CURSORS=1 \1#' /etc/greetd/config.toml
+              $kvm && $sudo sed -ri 's#(/usr/bin/dms-greeter)#env WLR_NO_HARDWARE_CURSORS=1 \1#' /etc/greetd/config.toml
             else
               $sudo sed -ri 's#^(\[default_session].*)$#\1\r\ncommand = "/usr/bin/dms-greeter --no-save-username --command niri -p /usr/share/quickshell/dms"#' /etc/greetd/config.toml
             fi
@@ -226,7 +226,7 @@ case "$ID" in
             echo ''
             echo '// Fix for nvidia card'
             echo '// debug { wait-for-frame-completion-before-queueing; }'
-          } > /etc/greetd/niri_overrides.kdl
+          } | $sudo tee /etc/greetd/niri_overrides.kdl > /dev/null
         fi
 
         if getent group greeter > /dev/null 2>&1 && ! groups | sed "s/^$LOGNAME : //" | grep -qw greeter; then
@@ -235,7 +235,7 @@ case "$ID" in
         fi
 
         if [ ! -d /var/cache/dms-greeter ]; then
-          install -d -m 750 -o greeter -g greeter /var/cache/dms-greeter
+          $sudo install -d -m 750 -o greeter -g greeter /var/cache/dms-greeter
         elif [ -n "$(find /var/cache/dms-greeter -maxdepth 0 -mindepth 0 -not -group greeter -type d)" ]; then
           echo "Fixing permissions on /var/cache/dms-greeter"
           $sudo chgrp greeter /var/cache/dms-greeter
