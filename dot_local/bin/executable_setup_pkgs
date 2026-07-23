@@ -1,0 +1,113 @@
+#!/bin/sh
+# vim: set filetype=sh :
+
+usage() { echo "usage: ${0##*} [-h] [-D]" ; exit "${1:-0}" ; }
+# local OPTIND=1 OPTARG="" opt=""
+desktop=true
+while getopts ":hD" opt; do
+  case $opt in
+    D) desktop=false ;;
+    h) usage ;;
+    :) echo "-$OPTARG requires an argument" ; exit 1 ;;
+    \?) echo "Unknown option: -$OPTARG" ; exit 1 ;;
+  esac
+done
+shift $(( OPTIND - 1 ))
+
+echo "Installing system packages"
+
+sudo=sudo
+! command -v sudo > /dev/null 2>&1 && sudo=doas
+if [ "$sudo" = "doas" ] && ! command -v doas > /dev/null 2>&1; then
+  echo "Error: Cannot find sudo or doas" >&2
+  exit 0
+fi
+
+[ -r /etc/os-release ] && . /etc/os-release
+[ "$(uname -s)" = "OpenBSD" ] && ID=OpenBSD
+case "$ID" in
+  arch|artix|cachyos|garuda|endeavouros|manjaro|parabola|hyperbola|blackarch)
+    SYSTEM=$(uname -s)
+    REMOUNT=false
+    if mount|awk -F'[()]' 'BEGIN{r=1}/ on \/ type /{split($2,a,",");for(o in a)if(a[o]~"^[[:space:]]*(read-only|ro)[[:space:]]*$")r=0}END{exit r}'; then
+      REMOUNT=true
+      echo "Mounting / as read-write"
+      sync
+      case "$SYSTEM" in
+        Linux)
+          $sudo systemctl daemon-reload
+          $sudo mount -o remount,rw /
+          $sudo systemctl daemon-reload
+          ;;
+        OpenBSD)
+          $sudo mount -o update,rw /
+          ;;
+        *) ;;
+      esac
+    fi
+
+    # Go through the package list and find packages that are not installed
+    need=""
+    packages="base-devel git openssh neovim vim ex-vi-compat man-db apparmor \
+      firejail rsync inetutils archlinux-contrib pacman-contrib \
+      networkmanager openresolv htop btop jq 7zip bat ripgrep fd cronie \
+      bash-completion bind fzf"
+
+    if $desktop; then
+      packages="$packages niri alacritty fuzzel xdg-desktop-portal-gnome pipewire-jack \
+        dms-shell-niri nwg-hello accountsservice cava cups-pk-helper dgop \
+        khal kimageformats matugen power-profiles-daemon qt6-imageformats \
+        kitty rofi rofi-rbw gcr ydotool wl-clipboard wl-clip-persist \
+        noto-fonts noto-fonts-emoji ttf-liberation ttf-dejavu-nerd \
+        ttf-jetbrains-mono ttf-roboto ttf-roboto-mono woff2-font-awesome otf-font-awesome \
+        ttf-nerd-fonts-symbols ttf-nerd-fonts-symbols-common ttf-nerd-fonts-symbols-mono \
+        libnotify imv imagemagick python-pillow python-cairocffi satty grim slurp \
+        nwg-look adw-gtk-theme breeze-gtk breeze-icons \
+        zathura zathura-pdf-mupdf geany mpv celluloid galculator  \
+        nm-connection-editor yad nautilus gvfs-dnssd"
+    fi
+
+    for pkg in $packages; do
+      pacman -Qqs ^"$pkg"$ >/dev/null 2>&1 || need="$need $pkg"
+    done
+
+    # # Add home repo to pacman.conf
+    # if ! pacman -Sl home >/dev/null 2>&1; then
+    #   echo "Adding home repo to pacman.conf"
+    #   echo "" | sudo tee -a /etc/pacman.conf
+    #   echo "[home]" | sudo tee -a /etc/pacman.conf
+    #   echo "SigLevel = Optional TrustAll" | sudo tee -a /etc/pacman.conf
+    #   echo "Server = https://repo.erdely.in/Systems/Arch/aur/" | sudo tee -a /etc/pacman.conf
+    # fi
+
+    # Install missing packages
+    if [ -n "$need" ]; then
+      echo "Installing packages: $need"
+      if ! sudo pacman -Syu --disable-download-timeout --needed --noconfirm "${need# }"; then
+        echo "Error: 'pacman -Syu ...' failed" >&2
+        exit 1
+      fi
+    fi
+    ;;
+  *)
+    echo "Error: $ID System not integrated yet"
+    exit 1
+    ;;
+esac
+
+if $REMOUNT; then
+  echo "Re-mounting / as read-only"
+  sync
+  case "$SYSTEM" in
+    Linux)
+      $sudo systemctl daemon-reload
+      $sudo mount -o remount,ro /
+      $sudo systemctl daemon-reload
+      ;;
+    OpenBSD)
+      $sudo mount -o update,ro /
+      ;;
+    *) ;;
+  esac
+fi
+
