@@ -2,6 +2,7 @@
 
 clone_usage() {
   echo "usage: ${0##*} clone [Options] SRC_VM DEST_VM"
+  echo
   echo "Options:"
   echo " -h     : This help text"
   echo " -u     : Connect to hypervisor with libvirt user/session URI (default: system URI)"
@@ -31,6 +32,7 @@ clone() {
 
 create_usage() {
   echo "usage: ${0##*/} create [Options]"
+  echo
   echo "Options:"
   echo " -h                 : This help text"
   echo " -A                 : Arch Linux"
@@ -242,6 +244,7 @@ delete() {
 
 list_usage() {
   echo "usage: ${0##*} list [Options]"
+  echo
   echo "Options:"
   echo " -h: This help text"
   echo " -a: Print all VMs (default action)"
@@ -276,8 +279,55 @@ list() {
   virsh list "${opts[@]}"
 }
 
+reboot_usage() {
+  echo "usage: ${0##*} reboot [Options] VM_NAME"
+  echo
+  echo "Options:"
+  echo " -h          : This help text"
+  exit "${1:-0}"
+}
+
+reboot() {
+  while getopts ":h" opt; do
+    case $opt in
+      h) reboot_usage ;;
+      :) echo "-$OPTARG requires an argument" ; exit 1 ;;
+      \?) echo "Unknown option: -$OPTARG" ; exit 1 ;;
+    esac
+  done
+  shift $(( OPTIND - 1 ))
+
+  (( $# == 0 )) && reboot_usage 1
+
+  virsh reboot "$1"
+}
+
+reset_usage() {
+  echo "usage: ${0##*} reset [Options] VM_NAME"
+  echo
+  echo "Options:"
+  echo " -h          : This help text"
+  exit "${1:-0}"
+}
+
+reset() {
+  while getopts ":h" opt; do
+    case $opt in
+      h) reset_usage ;;
+      :) echo "-$OPTARG requires an argument" ; exit 1 ;;
+      \?) echo "Unknown option: -$OPTARG" ; exit 1 ;;
+    esac
+  done
+  shift $(( OPTIND - 1 ))
+
+  (( $# == 0 )) && reset_usage 1
+
+  virsh reset "$1"
+}
+
 snapshot_usage() {
   echo "usage: ${0##*} snapshot [Options] VM_NAME [SNAPSHOT_NAME]"
+  echo
   echo "Options:"
   echo " -h          : This help text"
   echo " -f          : Force delete with -D"
@@ -288,6 +338,7 @@ snapshot_usage() {
   exit "${1:-0}"
 }
 
+# TODO: Implement restore
 snapshot() {
   local mode=create vm="" snapshot="snapshot1" description="" force=false
   local desc=() disks=() disk_opt=() disk="" mem_opt=()
@@ -361,6 +412,60 @@ snapshot() {
   virsh snapshot-create-as "$vm" --name "$snapshot" "${desc[@]}" --atomic "${disk_opt[@]}" "${mem_opt[@]}"
 }
 
+start_usage() {
+  echo "usage: ${0##*} start [Options] VM_NAME"
+  echo
+  echo "Options:"
+  echo " -h          : This help text"
+  echo " -c          : Start and attach to console"
+  exit "${1:-0}"
+}
+
+start() {
+  opts=()
+  while getopts ":hc" opt; do
+    case $opt in
+      c) opts+=(--console) ;;
+      h) start_usage ;;
+      :) echo "-$OPTARG requires an argument" ; exit 1 ;;
+      \?) echo "Unknown option: -$OPTARG" ; exit 1 ;;
+    esac
+  done
+  shift $(( OPTIND - 1 ))
+  (( $# == 0 )) && start_usage 1
+
+  virsh start "$1" "${opts[@]}"
+}
+
+stop_usage() {
+  echo "usage: ${0##*} stop [Options] VM_NAME"
+  echo
+  echo "Options:"
+  echo " -h          : This help text"
+  echo " -f          : Force shutdown (destroy)"
+  exit "${1:-0}"
+}
+
+stop() {
+  local force=false
+  while getopts ":hf" opt; do
+    case $opt in
+      f) force=true ;;
+      h) stop_usage ;;
+      :) echo "-$OPTARG requires an argument" ; exit 1 ;;
+      \?) echo "Unknown option: -$OPTARG" ; exit 1 ;;
+    esac
+  done
+  shift $(( OPTIND - 1 ))
+
+  (( $# == 0 )) && stop_usage 1
+  if $force; then
+    virsh destroy "$1"
+  else
+    virsh shutdown "$1"
+  fi
+}
+
 get_os_variant() {
   (( $# < 1 )) && { echo "usage: get_os_variant SEARCHSTRING" ; return 1 ; }
   virt-install --osinfo list | \
@@ -383,16 +488,49 @@ get_iso() {
   echo "$vm_iso"
 }
 
-main_usage() { echo "usage: ${0##*} clone|create|delete|list|snapshot|help" ; exit "${1:-0}"; }
+main_usage() {
+  echo "usage: ${0##*} MODE"
+  echo
+  echo "MODE can be:"
+  echo "  clone    : Create clone of VM"
+  echo "  create   : Create a new VM"
+  echo "  delete   : Delete/Destroy VM"
+  echo "  list     : List VMs"
+  echo "  reboot   : Reboot guest"
+  echo "  reset    : Forceably reset VM"
+  echo "  snapshot : Manage VM snapshots"
+  echo "  start    : Start VM"
+  echo "  stop     : Stop VM"
+  echo "  help     : This help"
+  exit "${1:-0}"
+}
 
 main() {
   case "$1" in
     clone|copy|duplicate|dupe) shift ; clone "$@" ;;
     create|new) shift ; create "$@" ;;
-    delete|del) shift ; delete "$@" ;;
+    delete|del|remove|rm) shift ; delete "$@" ;;
     list|ls) shift ; list "$@" ;;
+    reboot) shift ; reboot "$@" ;;
+    reset) shift ; reset "$@" ;;
     snapshot|snap) shift ; snapshot "$@" ;;
-    ''|help|--help|-h) main_usage ;;
+    start) shift ; start "$@" ;;
+    stop|shutdown|destroy) shift ; stop "$@" ;;
+    ''|help|--help|-h)
+      shift
+      case "$1" in
+        clone|copy|duplicate|dupe) clone -h ;;
+        create|new) create -h ;;
+        delete|del|remove|rm) delete -h ;;
+        list|ls) list -h ;;
+        reboot) reboot -h ;;
+        reset) reset -h ;;
+        snapshot|snap) snapshot -h ;;
+        start) start -h ;;
+        stop|shutdown|destroy) stop -h ;;
+        *) main_usage ;;
+      esac
+      ;;
     -*) create "$@" ;;
     *) echo "Error: Invalid command" >&2 ; main_usage 1
   esac
