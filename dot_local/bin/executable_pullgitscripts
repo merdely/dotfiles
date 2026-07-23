@@ -1,0 +1,122 @@
+#!/usr/bin/env bash
+
+progname=${0##*/}
+progname=${progname%.sh}
+default_hosts=(mercury earth jupiter)
+all_hosts=("${default_hosts[@]}" venus saturn uranus carme metis tarvos sinope neptune)
+
+usage() {
+  echo "usage: $progname [-h] [-4] [-6] [-a] [-x HOST] [host1..hostN]"
+  echo "  -h           : Print this help text"
+  echo "  -4           : Connect using ipv4"
+  echo "  -6           : Connect using ipv6"
+  echo "  -a           : Pull scripts for all hosts"
+  echo "  -x HOST      : Exclude host from all"
+  echo "Without any host arguments, it pulls for ${default_hosts[@]}"
+  echo "Available hosts: ${all_hosts[@]}"
+  exit $1
+}
+
+remove_opt() {
+  [ -z "$2" ] && return 1
+  local myarr=($1)
+  for i in ${!myarr[@]}; do
+    [ "${myarr[$i]}" = "$2" ] && unset myarr[$i]
+  done
+  myarr=("${myarr[@]}")
+  echo "${myarr[@]}"
+}
+
+for a in $*; do [ $a = --help -o $a = -h ] && usage; done
+all=false
+exclude=()
+ssh_opts=()
+ping_opts=()
+while getopts ":h46ax:" opt; do
+  case $opt in
+    a) all=true ;;
+    4) ssh_opts+=("-4") ; ssh_opts=("$(remove_opt "${ssh_opts[*]}" "-6")")
+       ping_opts+=("-4") ; ping_opts=("$(remove_opt "${ping_opts[*]}" "-6")") ;;
+    6) ssh_opts+=("-6") ; ssh_opts=("$(remove_opt "${ssh_opts[*]}" "-4")")
+       ping_opts+=("-6") ; ping_opts=("$(remove_opt "${ping_opts[*]}" "-4")") ;;
+    x) exclude+=($OPTARG) ;;
+    *) usage ;;
+  esac
+done
+shift $((OPTIND -1))
+
+hostlist=()
+for arg in $*; do
+  hostlist+=($arg)
+done
+[ -z "$1" ] && hostlist=("${default_hosts[@]}")
+$all && hostlist=("${all_hosts[@]}")
+
+# Exclude hosts from list
+for i in "${!hostlist[@]}"; do
+  [[ " ${exclude[@]} " == *" ${hostlist[$i]} "* ]] && unset hostlist[$i]
+done
+hostlist=("${hostlist[@]}")
+
+ssh() {
+  command ssh -o ClearAllForwardings=yes ${ssh_opts[@]} $*
+}
+
+if which hostname > /dev/null 2>&1; then
+  hostname=$(hostname)
+else
+  hostname=$(hostnamectl hostname)
+fi
+hostname=${hostname%%.*}
+find_scripts() {
+  [ -z "$1" ] && echo "Error: update_host requires a host" && return 1
+  local doit=(ssh $1)
+  [ $1 = $hostname ] && doit=(sh -c)
+  [ $1 = venus ] && doit=(ssh $1 env PATH=/opt/homebrew/bin:\$PATH)
+  local fd
+  ${doit[@]} "command -v fd" &> /dev/null
+  local fd_found=$?
+  ${doit[@]} "command -v fdfind" &> /dev/null
+  local fdfind_found=$?
+  [ $fd_found = 0 ] && fd=fd
+  [ $fdfind_found = 0 ] && fd=fdfind
+  if [ -n "$fd" ]; then
+    set -x
+    ${doit[@]} "$fd -HIg -E .snapshots --type d -x sh -c 'test -d \"{}/.git\" && echo {}' \; \"scripts\" \"\$HOME\""
+    set +x
+  else
+    ${doit[@]} "find \"$HOME\" -not -wholename \"*/.snapshots/*\" -name \"scripts\" -execdir test -d '{}/.git' \; -print"
+  fi
+}
+
+update_host() {
+  [ -z "$1" ] && echo "Error: update_host requires a host" && return 1
+
+  echo "Updating $1${ssh_opts[@]:+ (${ssh_opts[@]})}:"
+  ping ${ping_opts[@]} -c 1 -W 1 $1 &> /dev/null
+  [ $? != 0 ] && echo " » Could not connect to $1" && return 1
+
+  local doit=(ssh $1)
+  [ $1 = $hostname ] && doit=(sh -c)
+
+  if [ $1 = venus ]; then
+    echo " » /opt/scripts:"
+    ssh root@$1 env HOME=/opt/root_git git -C /opt/scripts pull -q
+    ssh root@$1 env HOME=/opt/root_git git -C /opt/scripts diff --name-only ORIG_HEAD HEAD | sed '/^$/d;s/^/   - /'
+  else
+    if ${doit[@]} "test -x /srv/scripts/sbin/daily_report_linux" &> /dev/null; then
+      echo " » /srv/scripts:"
+      ssh root@$1 "/srv/scripts/sbin/daily_report_linux scripts" 2>&1 | sed '/^$/d;s/^/  /'
+    fi
+    for dir in $(find_scripts $1 2> /dev/null); do
+      echo " » $dir:"
+      ${doit[@]} "git -C \"$dir\" pull -q"
+      ${doit[@]} "git -C \"$dir\" diff --name-only ORIG_HEAD HEAD" | sed '/^$/d;s/^/   - /'
+    done
+  fi
+}
+
+for host in ${hostlist[@]}; do
+  update_host $host
+done
+
