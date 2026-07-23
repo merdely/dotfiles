@@ -60,7 +60,7 @@ case "$ID" in
 
     if $desktop; then
       packages="$packages niri alacritty fuzzel xdg-desktop-portal-gnome pipewire-jack \
-        dms-shell-niri nwg-hello accountsservice cava cups-pk-helper dgop \
+        greetd dms-shell-niri nwg-hello accountsservice cava cups-pk-helper dgop \
         khal kimageformats matugen power-profiles-daemon qt6-imageformats \
         kitty rofi rofi-rbw gcr ydotool wl-clipboard wl-clip-persist \
         noto-fonts noto-fonts-emoji ttf-liberation ttf-dejavu-nerd \
