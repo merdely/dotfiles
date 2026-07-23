@@ -1,3 +1,5 @@
+// vim: set filetype=kdl :
+
 output "eDP-1" {
     position x=0 y=0
 }
@@ -217,4 +219,4 @@ window-rule {
     default-floating-position x=0 y=0 relative-to="top-right"
 }
 
-include optional=true "local.kdl"
+include optional=true "{{ .chezmoi.hostname }}.kdl"
