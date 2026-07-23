@@ -14,7 +14,6 @@ usage() {
   echo "Options:"
   echo "  -h          : show this help text"
   echo "  -c RCFILE   : use FILE for $progname settings instead of $rcfile"
-  echo "  -O RCFILE   : use FILE for OpnSense settings instead of $opnsenserc"
   echo "  -a          : use AdGuard Blocklist from Git to download a list of hostnames"
   echo "  -o          : use OpnSense to download a list of hostnames from dnsmasq"
   echo "  -i SITEFILE : import file saved previously to permissions file specified with -p"
@@ -32,72 +31,63 @@ usage() {
   echo "      NOTE: Firefox must not be running for an import"
   exit "${1:-0}"
 }
-opnsenserc_set=false
 adguard_list_set=false
 opnsense_dnsmasq_set=false
-import_file_set=false
-permissions_file_set=false
-while getopts ":hdDc:O:aoi:p:" opt; do
+while getopts ":hdDc:aoi:p:" opt; do
   case "$opt" in
     d) debug=true ;;
     D) debug=true ; debug_exit=true ;;
     c) rcfile=$OPTARG ;;
-    O) opnsenserc=$OPTARG ; opnsenserc_set=true ;;
     a) adguard_list=true ; adguard_list_set=true ;;
     o) opnsense_dnsmasq=true ; opnsense_dnsmasq_set=true ;;
-    i) import_file=$OPTARG ; import_file_set=true ;;
-    p) permissions_file=$OPTARG ; permissions_file_set=true ;;
+    i) import_file=$OPTARG ;;
+    p) permissions_file=$OPTARG ;;
     *) usage ;;
   esac
 done
 shift $(( OPTIND - 1 ))
 
-unset opnsenserc_setting
-if [ -r $rcfile ]; then
-  ! $opnsenserc_set && \
-    opnsenserc_setting=( $(awk -vs="main" -vk="opnsenserc" 'BEGIN{p=0}$0~/^[[:space:]]*\[/{p=0}$0~"^[[:space:]]*\\["s"\\]"{p=1}p==1&&$0~"^[[:space:]]*"k"[[:space:]]*[:=]"{sub(/^[^:=]+[:=][[:space:]]*/,"");sub(/[[:space:]]+$/,"");print}' "$rcfile") )
-  [ -n "$opnsenserc_setting" ] && opnsenserc=$opnsenserc_setting
+if [ -r "$rcfile" ]; then
+  mapfile -t adguard_list < <(awk -vs="main" -vk="adguard_list" 'BEGIN{p=0}$0~/^\\s*\[/{p=0}$0~"^\\s*\\["s"\\]"{p=1}p==1&&$0~"^\\s*"k"\\s*[:=]"{sub(/^[^:=]+[:=]/,"");if(L=="")sub(/^\s+/,"");if(T=="")sub(/\s+$/,"");if(Q==""){gsub(/^"/,"");gsub(/"$/,"")};print}' "$rcfile")
+  mapfile -t opnsense_dnsmasq < <(awk -vs="main" -vk="opnsense_dnsmasq" 'BEGIN{p=0}$0~/^\\s*\[/{p=0}$0~"^\\s*\\["s"\\]"{p=1}p==1&&$0~"^\\s*"k"\\s*[:=]"{sub(/^[^:=]+[:=]/,"");if(L=="")sub(/^\s+/,"");if(T=="")sub(/\s+$/,"");if(Q==""){gsub(/^"/,"");gsub(/"$/,"")};print}' "$rcfile")
 
-  ! $opnsense_dnsmasq_set && \
-    adguard_list_setting=( $(awk -vs="main" -vk="adguard_list" 'BEGIN{p=0}$0~/^[[:space:]]*\[/{p=0}$0~"^[[:space:]]*\\["s"\\]"{p=1}p==1&&$0~"^[[:space:]]*"k"[[:space:]]*[:=]"{sub(/^[^:=]+[:=][[:space:]]*/,"");sub(/[[:space:]]+$/,"");print}' "$rcfile") )
-  [ -n "$adguard_list_setting" ] && adguard_list=$adguard_list_setting
+  if [[ "${adguard_list[0]}" =~ ^(TRUE|True|true|T|t|YES|Yes|yes|Y|y|ON|On|on|1)$ &&
+        "${opnsense_dnsmasq[0]}" =~ ^(TRUE|True|true|T|t|YES|Yes|yes|Y|y|ON|On|on|1)$ ]]; then
+    echo "Error: Only one of Adguard List (-a) and OpnSense dnsmasq (-o) can be set" >&2
+    exit 1
+  fi
 
-  ! $adguard_list_set && \
-    opnsense_dmsmasq_setting=( $(awk -vs="main" -vk="opnsense_dmsmasq" 'BEGIN{p=0}$0~/^[[:space:]]*\[/{p=0}$0~"^[[:space:]]*\\["s"\\]"{p=1}p==1&&$0~"^[[:space:]]*"k"[[:space:]]*[:=]"{sub(/^[^:=]+[:=][[:space:]]*/,"");sub(/[[:space:]]+$/,"");print}' "$rcfile") )
-  [ -n "$opnsense_dnsmasq_setting" ] && opnsense_dnsmasq=$opnsense_dnsmasq_setting
-fi
+  if ! "$adguard_list_set" && [[ "${adguard_list[0]}" =~ ^(TRUE|True|true|T|t|YES|Yes|yes|Y|y|ON|On|on|1)$ ]]; then
+    mapfile -t adguard_bw_entry < <(awk -vs="adguard" -vk="bw_entry" 'BEGIN{p=0}$0~/^\\s*\[/{p=0}$0~"^\\s*\\["s"\\]"{p=1}p==1&&$0~"^\\s*"k"\\s*[:=]"{sub(/^[^:=]+[:=]/,"");if(L=="")sub(/^\s+/,"");if(T=="")sub(/\s+$/,"");if(Q==""){gsub(/^"/,"");gsub(/"$/,"")};print}' "$rcfile")
+    mapfile -t adguard_bw_uri < <(awk -vs="adguard" -vk="bw_uri" 'BEGIN{p=0}$0~/^\\s*\[/{p=0}$0~"^\\s*\\["s"\\]"{p=1}p==1&&$0~"^\\s*"k"\\s*[:=]"{sub(/^[^:=]+[:=]/,"");if(L=="")sub(/^\s+/,"");if(T=="")sub(/\s+$/,"");if(Q==""){gsub(/^"/,"");gsub(/"$/,"")};print}' "$rcfile")
+    adguard_list_url=$(rbw get -f "${adguard_bw_uri[0]}" "${adguard_bw_entry[0]}" 2> /dev/null)
+    if [[ -z "$adguard_list_url" ]]; then
+      echo "Error: Could not read adguard settings ([adguard] bw_entry or bw_uri) from $rcfile" | fold -s >&2
+      exit 1
+    fi
+  fi
 
-if $adguard_list && $opnsense_dnsmasq; then
-  echo "Error: Only one of -a and -o can be used"
+  if ! "$opnsense_dnsmasq_set" && [[ "${opnsense_dnsmasq[0]}" =~ ^(TRUE|True|true|T|t|YES|Yes|yes|Y|y|ON|On|on|1)$ ]]; then
+    mapfile -t opnsense_bw_entry < <(awk -vs="opnsense" -vk="bw_entry" 'BEGIN{p=0}$0~/^\\s*\[/{p=0}$0~"^\\s*\\["s"\\]"{p=1}p==1&&$0~"^\\s*"k"\\s*[:=]"{sub(/^[^:=]+[:=]/,"");if(L=="")sub(/^\s+/,"");if(T=="")sub(/\s+$/,"");if(Q==""){gsub(/^"/,"");gsub(/"$/,"")};print}' "$rcfile")
+    mapfile -t opnsense_bw_api_key < <(awk -vs="opnsense" -vk="bw_api_key" 'BEGIN{p=0}$0~/^\\s*\[/{p=0}$0~"^\\s*\\["s"\\]"{p=1}p==1&&$0~"^\\s*"k"\\s*[:=]"{sub(/^[^:=]+[:=]/,"");if(L=="")sub(/^\s+/,"");if(T=="")sub(/\s+$/,"");if(Q==""){gsub(/^"/,"");gsub(/"$/,"")};print}' "$rcfile")
+    mapfile -t opnsense_bw_api_secret < <(awk -vs="opnsense" -vk="bw_api_secret" 'BEGIN{p=0}$0~/^\\s*\[/{p=0}$0~"^\\s*\\["s"\\]"{p=1}p==1&&$0~"^\\s*"k"\\s*[:=]"{sub(/^[^:=]+[:=]/,"");if(L=="")sub(/^\s+/,"");if(T=="")sub(/\s+$/,"");if(Q==""){gsub(/^"/,"");gsub(/"$/,"")};print}' "$rcfile")
+    mapfile -t opnsense_bw_uri < <(awk -vs="opnsense" -vk="bw_uri" 'BEGIN{p=0}$0~/^\\s*\[/{p=0}$0~"^\\s*\\["s"\\]"{p=1}p==1&&$0~"^\\s*"k"\\s*[:=]"{sub(/^[^:=]+[:=]/,"");if(L=="")sub(/^\s+/,"");if(T=="")sub(/\s+$/,"");if(Q==""){gsub(/^"/,"");gsub(/"$/,"")};print}' "$rcfile")
+    opnsense_server=$(rbw get -f "${opnsense_bw_uri[0]}" "${opnsense_bw_entry[0]}" 2> /dev/null)
+    opnsense_key=$(rbw get -f "${opnsense_bw_api_key[0]}" "${opnsense_bw_entry[0]}" 2> /dev/null)
+    opnsense_secret=$(rbw get -f "${opnsense_bw_api_secret[0]}" "${opnsense_bw_entry[0]}" 2> /dev/null)
+    if [[ -z "$opnsense_server" || -z "$opnsense_key" || -z "$opnsense_secret" ]]; then
+      echo "Error: Could not read opnsense settings ([opnsense] bw_entry, bw_api_key, bw_secret, or bw_uri) from $rcfile" | fold -s >&2
+      exit 1
+    fi
+  fi
+else
+  echo "Error: Cannot read $rcfile" >&2
   exit 1
 fi
 
-if $opnsense_dnsmasq; then
-  if [[ -r $opnsenserc ]]; then
-    opnsense_server=( $(awk -vs="opnsense" -vk="server" 'BEGIN{p=0}$0~/^[[:space:]]*\[/{p=0}$0~"^[[:space:]]*\\["s"\\]"{p=1}p==1&&$0~"^[[:space:]]*"k"[[:space:]]*[:=]"{sub(/^[^:=]+[:=][[:space:]]*/,"");sub(/[[:space:]]+$/,"");print}' "$opnsenserc") )
-    opnsense_key=( $(awk -vs="opnsense" -vk="api_key" 'BEGIN{p=0}$0~/^[[:space:]]*\[/{p=0}$0~"^[[:space:]]*\\["s"\\]"{p=1}p==1&&$0~"^[[:space:]]*"k"[[:space:]]*[:=]"{sub(/^[^:=]+[:=][[:space:]]*/,"");sub(/[[:space:]]+$/,"");print}' "$opnsenserc") )
-    opnsense_secret=( $(awk -vs="opnsense" -vk="api_secret" 'BEGIN{p=0}$0~/^[[:space:]]*\[/{p=0}$0~"^[[:space:]]*\\["s"\\]"{p=1}p==1&&$0~"^[[:space:]]*"k"[[:space:]]*[:=]"{sub(/^[^:=]+[:=][[:space:]]*/,"");sub(/[[:space:]]+$/,"");print}' "$opnsenserc") )
-    [[ -z "$opnsense_server" ]] && echo "Error: Could not read OpnSense Server from $opnsenserc" && exit 1
-    [[ -z "$opnsense_key" ]] && echo "Error: Could not read OpnSense Username from $opnsenserc" && exit 1
-    [[ -z "$opnsense_secret" ]] && echo "Error: Could not read OpnSense Password from $opnsenserc" && exit 1
-  else
-    echo "Error: Cannot read $opnsenserc for OpnSense dnsmasq settings" && exit 1
-  fi
-fi
-
-if $adguard_list; then
-  if [[ -r $opnsenserc ]]; then
-    adguard_list_url=( $(awk -vs="adguard" -vk="dnslist" 'BEGIN{p=0}$0~/^[[:space:]]*\[/{p=0}$0~"^[[:space:]]*\\["s"\\]"{p=1}p==1&&$0~"^[[:space:]]*"k"[[:space:]]*[:=]"{sub(/^[^:=]+[:=][[:space:]]*/,"");sub(/[[:space:]]+$/,"");print}' "$opnsenserc") )
-    [[ -z "$adguard_list_url" ]] && echo "Error: Could not read AdGuard List URL from $opnsenserc" && exit 1
-  else
-    echo "Error: Cannot read $opnsenserc for AdGuard List URL" && exit 1
-  fi
-fi
-
 if $debug; then
-  echo "opnsenserc=$opnsenserc"
-  echo "adguard_list=$adguard_list"
-  echo "opnsense_dnsmasq=$opnsense_dnsmasq"
+  echo "adguard_list=${adguard_list[0]}"
+  echo "opnsense_dnsmasq=${opnsense_dnsmasq[0]}"
   echo "import_file=$import_file"
   echo "permissions_file=$permissions_file"
   [ -n "$opnsense_server" ] && echo "opnsense_server=$opnsense_server"
@@ -126,11 +116,10 @@ elif [[ -n "$import_file" && -n "$permissions_file" ]]; then
   last=$(sqlite3 -readonly "$permissions_file" "select id from moz_perms order by id" | tail -n1)
   [[ ! $last =~ ^[0-9]+$ ]] && last=0
   next=$((last+1))
-  oifs=$IFS
-  IFS=$'\n'
   add=0
   notadd=0
-  for line in $(cat "$import_file"); do
+  line=""
+  while IFS=$'\n' line; do
     out=$(sqlite3 -readonly "$permissions_file" \
       "select id from moz_perms where type='cookie' and origin='$line'")
     [[ -n "$out" ]] && notadd=$((notadd+1))
@@ -140,7 +129,7 @@ elif [[ -n "$import_file" && -n "$permissions_file" ]]; then
       add=$((add+1))
       next=$((next+1))
     fi
-  done
+  done <<< "$import_file"
   echo Added $add sites
   echo Did not need to add $notadd sites
 else
@@ -148,7 +137,7 @@ else
   sorted=$(mktemp)
 
   # If using an OpnSense dnsmasq list, extract hostnames
-  if $opnsense_dnsmasq; then
+  if ${opnsense_dnsmasq[0]}; then
     curl -sL -X GET -u "$opnsense_key:$opnsense_secret" "$opnsense_server"/api/dnsmasq/settings/download_hosts | python3 -c "
       import csv
       import sys
@@ -166,7 +155,7 @@ else
   fi # if $opnsense
 
   # If using an AdGuard list, extract hostnames
-  if $adguard_list; then
+  if ${adguard_list[0]}; then
     curl -s "$adguard_list_url" | awk -F '[|^;]' '/;(A|CNAME);/{sub(/^https?:\/\//,"");print "https://" $2}' | grep -Ev "(adguard\.adguard)$" >> "$unsort"
   fi
 
