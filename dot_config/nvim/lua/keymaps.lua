@@ -21,7 +21,7 @@ vim.keymap.set("n", "<ESC>", ":nohlsearch<CR>", { desc = "Clear search highlight
 
 vim.keymap.set('n', '-', ':Ex<cr>', { desc = 'File Manager', silent = true })
 
-vim.keymap.set("n", "<leader>x", function()
+vim.keymap.set("n", "<leader>X", function()
   local file = vim.fn.expand("%:p")  -- full path, not relative
   if file == "" then
     vim.notify("No file", vim.log.levels.ERROR)
