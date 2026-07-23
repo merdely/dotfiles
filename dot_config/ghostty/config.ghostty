@@ -1,0 +1,16 @@
+background = 000000
+background-opacity = 0.8
+font-family = DejaVuSansM Nerd Font Mono
+font-size = 11
+# theme = Adwaita Dark
+# theme = Apple System Colors
+# theme = Argonaut
+# theme = Builtin Dark
+# theme = dankcolors
+# theme = Darkside
+
+theme = Kitty Default
+
+# closest so far
+# theme = Dark Pastel
+# theme = Deep
