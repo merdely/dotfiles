@@ -152,10 +152,14 @@ case "$ID" in
     fi
 
     # Enable service: cronie
-    ! systemctl is-enabled -q cronie.service && $sudo systemctl enable --now cronie.service
+    if ! systemctl is-enabled -q cronie.service; then
+      echo "Enabling cronie.service"
+      $sudo systemctl enable --now cronie.service
+    fi
 
     # Enable service: ssh-agent
     if ! systemctl --user is-enabled -q ssh-agent.service; then
+      echo "Enabling ssh-agent.service"
       command -v ssh-agent > /dev/null 2>&1 && systemctl --user enable ssh-agent.service 2> /dev/null
     fi
 
@@ -176,15 +180,20 @@ case "$ID" in
 
       # Enable service: dms
       if ! systemctl --user is-enabled -q dms.service; then
+        echo "Enabling dms.service"
         command -v dms > /dev/null 2>&1 && systemctl --user enable dms.service 2> /dev/null
       fi
 
       # Enable service: ydotool
       if ! systemctl --user is-enabled -q ydotool.service; then
+        echo "Enabling ydotool.service"
         command -v ydotool > /dev/null 2>&1 && systemctl --user enable ydotool.service 2> /dev/null
       fi
 
-      $kvm && echo "WLR_NO_HARDWARE_CURSORS=1" > "$HOME"/.config/environment.d/wlr_cursors.conf
+      if $kvm && [ ! -e "$HOME"/.config/environment.d/wlr_cursors.conf ]; then
+        echo "Adding WLR_NO_HARDWARE_CURSORS=1 to environment"
+        echo "WLR_NO_HARDWARE_CURSORS=1" > "$HOME"/.config/environment.d/wlr_cursors.conf
+      fi
 
       if [ -e /etc/greetd/config.toml ]; then
         if ! grep -qE "^\s*command\s*=.*dms-greeter" /etc/greetd/config.toml; then
@@ -207,10 +216,12 @@ case "$ID" in
         fi
 
         if [ ! -e /usr/bin/dms-greeter ]; then
+          echo "Creating link for dms-greeter in /usr/bin"
           $sudo ln -sf /usr/share/quickshell/dms/Modules/Greetd/assets/dms-greeter /usr/bin/
         fi
 
         if [ ! -d /etc/greetd/niri_overrides.kdl ]; then
+          echo "Creating sample niri_overrides.kdl for greetd"
           {
             echo '// Example niri_overrides.kdl'
             echo '//'
