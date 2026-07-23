@@ -12,7 +12,7 @@ ls.add_snippets("sh", {
       '',
     })
   }),
-  ls.snippet("getopt", {
+  ls.snippet("getopts", {
      ls.text_node({
        'usage() { echo "usage: ${0##*} [-h] [-a] [-b b]" ; exit "${1:-0}" ; }',
        '# local OPTIND=1 OPTARG="" opt=""',
@@ -25,7 +25,8 @@ ls.add_snippets("sh", {
        '    \\?) echo "Unknown option: -$OPTARG" ; exit 1 ;;',
        '  esac',
        'done',
-       'shift $(( OPTIND - 1 ))'
+       'shift $(( OPTIND - 1 ))',
+       ''
      }),
   }),
   ls.snippet("function", {
