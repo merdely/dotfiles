@@ -237,7 +237,9 @@ delete() {
   fi
 
   for vm in "$@"; do
-    virsh destroy "$vm"
+    if ! grep -q "shut off" < <(virsh domstate "$vm"); then
+      virsh destroy "$vm"
+    fi
     virsh undefine "$vm" --nvram --remove-all-storage
   done
 }
@@ -278,7 +280,7 @@ list() {
     esac
   done
   shift $(( OPTIND - 1 ))
-  (( ${#opts[@]} == 0 )) && opts=(--state-running --state-shutoff --state-paused --state-other)
+  (( ${#opts[@]} == 0 )) && opts=(--all)
 
   if [[ "$mode" == ip ]]; then
     virsh net-dhcp-leases "${1:-default}"
