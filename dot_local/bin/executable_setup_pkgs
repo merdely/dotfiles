@@ -22,8 +22,6 @@ while getopts ":hd" opt; do
 done
 shift $(( OPTIND - 1 ))
 
-echo "Installing system packages"
-
 sudo=sudo
 ! command -v sudo > /dev/null 2>&1 && sudo=doas
 if [ "$sudo" = "doas" ] && ! command -v doas > /dev/null 2>&1; then
