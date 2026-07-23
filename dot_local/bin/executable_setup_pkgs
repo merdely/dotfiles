@@ -220,7 +220,7 @@ case "$ID" in
           $sudo ln -sf /usr/share/quickshell/dms/Modules/Greetd/assets/dms-greeter /usr/bin/
         fi
 
-        if [ ! -d /etc/greetd/niri_overrides.kdl ]; then
+        if [ ! -e /etc/greetd/niri_overrides.kdl ]; then
           echo "Creating sample niri_overrides.kdl for greetd"
           {
             echo '// Example niri_overrides.kdl'
