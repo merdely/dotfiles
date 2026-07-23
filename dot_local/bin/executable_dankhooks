@@ -52,6 +52,7 @@ case "$1" in
   onSessionLocked)
     case "$2" in
       locked)
+        rbw lock
         dms ipc call mpris pause
         if dms ipc call audio status | grep -q "^Output:  (muted) "; then
           touch "$HOME"/.cache/dms_lock_muted_audio
