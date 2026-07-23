@@ -46,17 +46,9 @@ case "$ID" in
       REMOUNT=true
       echo "Mounting / as read-write"
       sync
-      case "$SYSTEM" in
-        Linux)
-          $sudo systemctl daemon-reload
-          $sudo mount -o remount,rw /
-          $sudo systemctl daemon-reload
-          ;;
-        OpenBSD)
-          $sudo mount -o update,rw /
-          ;;
-        *) ;;
-      esac
+      $sudo systemctl daemon-reload
+      $sudo mount -o remount,rw /
+      $sudo systemctl daemon-reload
     fi
 
     # Go through the package list and find packages that are not installed
@@ -262,12 +254,22 @@ case "$ID" in
           fi
         done
       fi
-
     fi
 
     ;;
+  OpenBSD)
+    echo "Error: $ID System not implemented yet"
+    exit 1
+
+    #if mount|awk -F'[()]' 'BEGIN{r=1}/ on \/ type /{split($2,a,",");for(o in a)if(a[o]~"^[[:space:]]*(read-only|ro)[[:space:]]*$")r=0}END{exit r}'; then
+    #  REMOUNT=true
+    #  echo "Mounting / as read-write"
+    #  sync
+#      $sudo mount -o update,rw /
+    #fi
+    ;;
   *)
-    echo "Error: $ID System not integrated yet"
+    echo "Error: $ID System not implemented yet"
     exit 1
     ;;
 esac
