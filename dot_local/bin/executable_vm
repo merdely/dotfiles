@@ -14,7 +14,8 @@ clone_usage() {
 }
 
 clone() {
-  connect=(--connect qemu:///system)
+  local connect=(--connect qemu:///system)
+  local OPTIND=1 OPTARG="" opt=""
   while getopts ":hluc:" opt; do
     case $opt in
       l) virsh "${connect[@]}" list --all ; exit ;;
@@ -52,23 +53,18 @@ create_usage() {
 }
 
 create() {
-  vm_name=$1
-  vm_ram=8192
-  vm_vcpus=2
-  vm_disk=20
-  vm_iso=
-  iso_path=/share/software/Isos
+  local vm_name=$1 vm_ram=8192 vm_vcpus=2 vm_disk=20 vm_iso="" iso_path=/share/software/Isos
 
   # shellcheck disable=1091
   [[ -r "$HOME"/.config/newvmrc ]] && source "$HOME"/.config/newvmrc
 
-  testmode=""
-  vm_type=""
-  gpu_mode=(
+  local testmode="" vm_type=""
+  local gpu_mode=(
     "--graphics" "spice,listen=none"
     "--graphics" "egl-headless,gl.rendernode=/dev/dri/by-path/pci-0000:00:02.0-render"
     "--video" "model=virtio,accel3d=yes"
   )
+  local OPTIND=1 OPTARG="" opt=""
   while getopts ":hADOQn:r:v:d:i:gT" opt; do
     case $opt in
       A) vm_type=arch ;;
@@ -92,12 +88,12 @@ create() {
   [[ -z "$vm_type" ]] && { echo "Error: -A, -D, -O, -Q required" ; create_usage 1 ; }
 
   # Get system information
+  local sys_ram="" sys_proc="" sys_disk=""
   sys_ram=$(free -m | awk '/^Mem:/{print $2}')
   if [[ ! "$sys_ram" =~ ^[1-9][0-9]*$ ]]; then
     echo "Error: Could not determine system RAM"
     exit 1
   fi
-  sys_proc=
   if command -v nproc &> /dev/null; then
     sys_proc=$(nproc)
   elif [[ -r /proc/cpuinfo ]]; then
@@ -143,7 +139,7 @@ create() {
   fi
 
   # Validate ISO directory
-  iso_found=false
+  local iso_found=false iso=""
   for iso in "$iso_path"/*.iso; do
     iso_found=true
     break
@@ -154,7 +150,7 @@ create() {
     exit 1
   fi
 
-  local iso="" os_variant="" vm_label="" os_search="" iso_search="" install_flags=()
+  local os_variant="" vm_label="" os_search="" iso_search="" install_flags=()
   case "$vm_type" in
     arch)
       vm_label="Arch Linux"
@@ -214,7 +210,8 @@ create() {
 delete_usage() { echo "usage: ${0##*} delete [-h] [-f] VM_TO_DELETE.." ; exit "${1:-0}" ; }
 
 delete() {
-  local force=false pronoun=its vmlabel=VM
+  local force=false pronoun=its vmlabel=VM vm="" REPLY=""
+  local OPTIND=1 OPTARG="" opt=""
   while getopts ":hf" opt; do
     case $opt in
       f) force=true ;;
@@ -254,12 +251,15 @@ list_usage() {
   echo " -p: Print paused VMs"
   echo " -s: Print VMs with snapshot"
   echo " -S: Print VMs without snapshot"
+  echo " -i: List DHCP IP Address List"
+  echo "     Pass a network name on the command line (default: 'default')"
   exit "${1:-0}"
 }
 
 list() {
-  opts=()
-  while getopts ":haAropsS" opt; do
+  local opts=() mode=list
+  local OPTIND=1 OPTARG="" opt=""
+  while getopts ":haAropsSi" opt; do
     case $opt in
       a) [[ " ${opts[*]} " != *" --all "* ]] && opts+=(--all) ;;
       A) [[ " ${opts[*]} " != *" --autostart "* ]] && opts+=(--autostart) ;;
@@ -268,6 +268,7 @@ list() {
       p) [[ " ${opts[*]} " != *" --state-paused "* ]] && opts+=(--state-paused) ;;
       s) [[ " ${opts[*]} " != *" --with-snapshot "* ]] && opts+=(--with-snapshot) ;;
       S) [[ " ${opts[*]} " != *" --without-snapshot "* ]] && opts+=(--without-snapshot) ;;
+      i) mode=ip ;;
       h) list_usage ;;
       :) echo "-$OPTARG requires an argument" ; exit 1 ;;
       \?) echo "Unknown option: -$OPTARG" ; exit 1 ;;
@@ -275,6 +276,11 @@ list() {
   done
   shift $(( OPTIND - 1 ))
   (( ${#opts[@]} == 0 )) && opts=(--state-running --state-shutoff --state-paused --state-other)
+
+  if [[ "$mode" == ip ]]; then
+    virsh net-dhcp-leases "${1:-default}"
+    exit
+  fi
 
   virsh list "${opts[@]}"
 }
@@ -288,6 +294,7 @@ reboot_usage() {
 }
 
 reboot() {
+  local OPTIND=1 OPTARG="" opt=""
   while getopts ":h" opt; do
     case $opt in
       h) reboot_usage ;;
@@ -311,6 +318,7 @@ reset_usage() {
 }
 
 reset() {
+  local OPTIND=1 OPTARG="" opt=""
   while getopts ":h" opt; do
     case $opt in
       h) reset_usage ;;
@@ -335,20 +343,22 @@ snapshot_usage() {
   echo " -l          : List snapshots for VM_NAME"
   echo " -t          : List snapshots for VM_NAME (tree)"
   echo " -D          : Delete SNAPSHOT_NAME snapshot for VM_NAME"
+  echo " -R          : Revert/restore VM_NAME to SNAPSHOT_NAME"
   exit "${1:-0}"
 }
 
-# TODO: Implement restore
 snapshot() {
-  local mode=create vm="" snapshot="snapshot1" description="" force=false
+  local mode=create vm="" snapshot="snapshot1" description="" force=false REPLY=""
   local desc=() disks=() disk_opt=() disk="" mem_opt=()
-  while getopts ":hfd:ltD" opt; do
+  local OPTIND=1 OPTARG="" opt=""
+  while getopts ":hfd:ltDR" opt; do
     case $opt in
       d) description=$OPTARG ;;
       f) force=true ;;
       l) mode=list ;;
       t) mode=list-tree ;;
       D) mode=delete ;;
+      R) mode=revert ;;
       h) snapshot_usage ;;
       :) echo "-$OPTARG requires an argument" ; exit 1 ;;
       \?) echo "Unknown option: -$OPTARG" ; exit 1 ;;
@@ -382,6 +392,23 @@ snapshot() {
       echo
     fi
     virsh snapshot-delete "$vm" "$1"
+    return
+  fi
+
+  if [[ "$mode" == revert ]]; then
+    if [[ -z "$1" ]]; then
+      echo "Error: SNAPSHOT_NAME must be provided with -R" >&2
+      exit 1
+    fi
+    if ! "$force"; then
+      read -rp "Really revert $vm to snapshot '$1'? [yN] "
+      if [[ ! "$REPLY" =~ ^(YES|Yes|yes|Y|y|1)$ ]]; then
+        echo "Not reverting $vm to '$1'"
+        exit
+      fi
+      echo
+    fi
+    virsh snapshot-revert "$vm" "$1"
     return
   fi
 
@@ -422,7 +449,8 @@ start_usage() {
 }
 
 start() {
-  opts=()
+  local opts=()
+  local OPTIND=1 OPTARG="" opt=""
   while getopts ":hc" opt; do
     case $opt in
       c) opts+=(--console) ;;
@@ -432,6 +460,7 @@ start() {
     esac
   done
   shift $(( OPTIND - 1 ))
+
   (( $# == 0 )) && start_usage 1
 
   virsh start "$1" "${opts[@]}"
@@ -448,6 +477,7 @@ stop_usage() {
 
 stop() {
   local force=false
+  local OPTIND=1 OPTARG="" opt=""
   while getopts ":hf" opt; do
     case $opt in
       f) force=true ;;
@@ -459,6 +489,7 @@ stop() {
   shift $(( OPTIND - 1 ))
 
   (( $# == 0 )) && stop_usage 1
+
   if $force; then
     virsh destroy "$1"
   else
