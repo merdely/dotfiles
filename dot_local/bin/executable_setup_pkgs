@@ -1,13 +1,20 @@
 #!/bin/sh
 # vim: set filetype=sh :
 
-usage() { echo "usage: ${0##*/} [-h] [-D]" ; exit "${1:-0}" ; }
-#
+usage() {
+  echo "usage: ${0##*/} [-h] [-d]"
+  echo
+  echo "Options:"
+  echo " -h : This help text"
+  echo " -d : Set up in desktop mode (install desktop packages)"
+  exit "${1:-0}"
+}
+
 # local OPTIND=1 OPTARG="" opt=""
-desktop=true
-while getopts ":hD" opt; do
+desktop=false
+while getopts ":hd" opt; do
   case $opt in
-    D) desktop=false ;;
+    d) desktop=true ;;
     h) usage ;;
     :) echo "-$OPTARG requires an argument" ; exit 1 ;;
     \?) echo "Unknown option: -$OPTARG" ; exit 1 ;;
@@ -26,6 +33,11 @@ fi
 
 [ -r /etc/os-release ] && . /etc/os-release
 [ "$(uname -s)" = "OpenBSD" ] && ID=OpenBSD
+
+exec_user=$(id -un)
+groups=$(groups "$LOGNAME")
+groups=${groups#"$LOGNAME" : }
+
 case "$ID" in
   arch|artix|cachyos|garuda|endeavouros|manjaro|parabola|hyperbola|blackarch)
     SYSTEM=$(uname -s)
@@ -49,7 +61,7 @@ case "$ID" in
 
     # Go through the package list and find packages that are not installed
     need=""
-    packages="base-devel git openssh neovim vim ex-vi-compat man-db apparmor \
+    packages="base-devel git openssh neovim man-db apparmor \
       firejail rsync inetutils archlinux-contrib pacman-contrib \
       networkmanager openresolv htop btop jq 7zip bat ripgrep fd cronie \
       bash-completion bind fzf"
@@ -72,15 +84,6 @@ case "$ID" in
       pacman -Qqs ^"$pkg"$ >/dev/null 2>&1 || need="$need $pkg"
     done
 
-    # # Add home repo to pacman.conf
-    # if ! pacman -Sl home >/dev/null 2>&1; then
-    #   echo "Adding home repo to pacman.conf"
-    #   echo "" | sudo tee -a /etc/pacman.conf
-    #   echo "[home]" | sudo tee -a /etc/pacman.conf
-    #   echo "SigLevel = Optional TrustAll" | sudo tee -a /etc/pacman.conf
-    #   echo "Server = https://repo.erdely.in/Systems/Arch/aur/" | sudo tee -a /etc/pacman.conf
-    # fi
-
     # Install missing packages
     if [ -n "$need" ]; then
       echo "Installing packages: $need"
@@ -90,6 +93,178 @@ case "$ID" in
         exit 1
       fi
     fi
+
+    # Add user to useful groups
+    if [ "$exec_user" != root ]; then
+      for group in video render input wheel; do
+        # Skip groups from the list that do not exist
+        getent group "$group" > /dev/null 2>&1 || continue
+        # Skip groups already a member of
+        echo "$groups" | grep -qw "$group" && continue
+        # Add user to group (ok if already a member)
+        echo "Adding $LOGNAME to $group"
+        if ! $sudo usermod -aG "$group" "$LOGNAME"; then
+          echo "Error: Could not add $LOGNAME to $group" >&2
+          exit 0
+        fi
+      done
+    fi
+
+    # Set up $LOGNAME crontab
+    if command -v crontab > /dev/null 2>&1; then
+      crontab_vars="PATH MAILFROM COMPOSE_FILE XDG_CACHE_HOME XDG_CONFIG_HOME \
+          XDG_DATA_HOME XDG_RUNTIME_DIR XDG_STATE_HOME WAYLAND_DISPLAY \
+          DBUS_SESSION_BUS_ADDRESS DOCKER_CONFIG MACHINE_STORAGE_PATH"
+      # shellcheck disable=SC2034
+      crontab_PATH="$HOME/.local/bin:/srv/scripts/bin:/srv/scripts/sbin:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin"
+      # shellcheck disable=SC2034
+      crontab_MAILFROM=mike@erdelynet.com
+      # shellcheck disable=SC2034
+      crontab_COMPOSE_FILE=/srv/docker/compose.yaml
+      # shellcheck disable=SC2034
+      crontab_XDG_CACHE_HOME=$HOME/.cache
+      # shellcheck disable=SC2034
+      crontab_XDG_CONFIG_HOME=$HOME/.config
+      # shellcheck disable=SC2034
+      crontab_XDG_DATA_HOME=$HOME/.local/share
+      # shellcheck disable=SC2034
+      crontab_XDG_RUNTIME_DIR=/run/user/$(id -u)
+      # shellcheck disable=SC2034
+      crontab_XDG_STATE_HOME=$HOME/.local/state
+      # shellcheck disable=SC2034
+      crontab_WAYLAND_DISPLAY=wayland-1
+      # shellcheck disable=SC2034
+      crontab_DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$(id -u)/bus
+      # shellcheck disable=SC2034
+      crontab_DOCKER_CONFIG=$HOME/.config/docker
+      # shellcheck disable=SC2034
+      crontab_MACHINE_STORAGE_PATH=$HOME/.local/share/docker-machine
+
+      existing_crontab=$(crontab -l 2> /dev/null)
+      new_cron_lines=""
+      for var in $crontab_vars; do
+        eval "val=\${crontab_$var}"
+        { [ -z "$var" ] || [ -z "$val" ]; } && continue
+
+        printf '%s\n' "$existing_crontab" | grep -qE "^$var *=" && continue
+        printf 'Adding %s variable to crontab\n' "$var"
+        new_cron_lines="${new_cron_lines}${var} = ${val}
+"
+      done
+      if [ -n "$new_cron_lines" ]; then
+        {
+          printf '%s\n' "$new_cron_lines"
+          crontab -l 2> /dev/null
+        } | crontab -
+      fi
+    fi
+
+    # Enable service: cronie
+    ! systemctl is-enabled -q cronie.service && $sudo systemctl enable --now cronie.service
+
+    # Enable service: ssh-agent
+    if ! systemctl --user is-enabled -q ssh-agent.service; then
+      command -v ssh-agent > /dev/null 2>&1 && systemctl --user enable ssh-agent.service 2> /dev/null
+    fi
+
+    if $desktop; then
+      kvm=false
+      [ "$(systemd-detect-virt)" = kvm ] && kvm=true
+
+      # Set up DMS Idle Inhibitor Handler in cron
+      if command -v crontab > /dev/null 2>&1 && [ -e "$HOME"/.local/bin/handle_dms_idle_inhibitor ] && \
+        ! crontab -l 2> /dev/null | grep -qF 'handle_dms_idle_inhibitor'; then
+        echo "Adding DMS Idle Inhibitor Handler to $LOGNAME crontab"
+        {
+          crontab -l 2> /dev/null
+          # shellcheck disable=SC2016
+          echo '*/15 * * * * [ -d $XDG_RUNTIME_DIR ] && [ -S $XDG_RUNTIME_DIR/wayland-1 ] && flock -n $XDG_CACHE_HOME/.dms_idle.lock handle_dms_idle_inhibitor -h 4'
+        } | crontab -
+      fi
+
+      # Enable service: dms
+      if ! systemctl --user is-enabled -q dms.service; then
+        command -v dms > /dev/null 2>&1 && systemctl --user enable dms.service 2> /dev/null
+      fi
+
+      # Enable service: ydotool
+      if ! systemctl --user is-enabled -q ydotool.service; then
+        command -v ydotool > /dev/null 2>&1 && systemctl --user enable ydotool.service 2> /dev/null
+      fi
+
+      $kvm && echo "WLR_NO_HARDWARE_CURSORS=1" > "$HOME"/.config/environment.d/wlr_cursors.conf
+
+      if [ -e /etc/greetd/config.toml ]; then
+        if ! grep -qE "^\s*command\s*=.*dms-greeter" /etc/greetd/config.toml; then
+          if ! grep -q "^\[default_session\]" /etc/greetd/config.toml; then
+            echo "Error: greetd config missing default_session section" >&2
+          else
+            echo "Setting up greetd to use dms-greeter with niri"
+            # Comment out any lines with command = 
+            $sudo sed -ri 's/^(\s*)(command.*)$/\1# \2/' /etc/greetd/config.toml
+            # Under the default_session section heading, add a dms-greeter line
+            if $kvm; then
+              $sudo sed -ri 's#^(\[default_session].*)$#\1\r\ncommand = "/usr/bin/dms-greeter --no-save-username --command niri -p /usr/share/quickshell/dms"#' /etc/greetd/config.toml
+              $kvm && sudo sed -ri 's#(/usr/bin/dms-greeter)#env WLR_NO_HARDWARE_CURSORS=1 \1#' /etc/greetd/config.toml
+            else
+              $sudo sed -ri 's#^(\[default_session].*)$#\1\r\ncommand = "/usr/bin/dms-greeter --no-save-username --command niri -p /usr/share/quickshell/dms"#' /etc/greetd/config.toml
+            fi
+            # Enable the service
+            $sudo systemctl enable greetd
+          fi
+        fi
+
+        if [ ! -d /etc/greetd/niri_overrides.kdl ]; then
+          {
+            echo '// Example niri_overrides.kdl'
+            echo '//'
+            echo '// output "Virtual-1" {'
+            echo '//     mode "1920x1080@60"'
+            echo '//     position x=0 y=0'
+            echo '//     scale 1'
+            echo '// }'
+            echo ''
+            echo '// output "eDP-1" { off; }'
+            echo '// output "HDMI-A-1" { off; }'
+            echo '// output "DP-1" {'
+            echo '//     focus-at-startup'
+            echo '//     position x=1920 y=0'
+            echo '//     scale 1'
+            echo '// }'
+            echo ''
+            echo '// Fix for nvidia card'
+            echo '// debug { wait-for-frame-completion-before-queueing; }'
+          } > /etc/greetd/niri_overrides.kdl
+        fi
+
+        if getent group greeter > /dev/null 2>&1 && ! groups | sed "s/^$LOGNAME : //" | grep -qw greeter; then
+          echo "Adding $LOGNAME to $group"
+          $sudo usermod -aG greeter "$LOGNAME"
+        fi
+
+        if [ ! -d /var/cache/dms-greeter ]; then
+          install -d -m 750 -o greeter -g greeter /var/cache/dms-greeter
+        elif [ -n "$(find /var/cache/dms-greeter -maxdepth 0 -mindepth 0 -not -group greeter -type d)" ]; then
+          echo "Fixing permissions on /var/cache/dms-greeter"
+          $sudo chgrp greeter /var/cache/dms-greeter
+        fi
+
+        # Install dms-greeter settings/colors
+        for file in settings colors; do
+          if [ -r "$HOME"/.config/niri/greeter/"$file".json ]; then
+            if [ -r /var/cache/dms-greeter/"$file".json ]; then
+              : # do nothing
+            elif [ ! -x /var/cache/dms-greeter ] || ! $sudo test -r /var/cache/dms-greeter/"$file".json; then
+              echo "Configuring dms-greeter $file"
+              $sudo install -m 644 -o root -g "$(id -gn root)" \
+                "$HOME"/.config/niri/greeter/"$file".json /var/cache/dms-greeter
+            fi
+          fi
+        done
+      fi
+
+    fi
+
     ;;
   *)
     echo "Error: $ID System not integrated yet"
