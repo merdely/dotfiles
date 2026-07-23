@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+domain="${1#qemu/}"
+port="${2:-22}"
+
+cid=$(virsh -c qemu:///system dumpxml "$domain" 2>/dev/null \
+      | xmllint --xpath 'string(//vsock/cid/@address)' - 2>/dev/null || true)
+
+if [[ -z "$cid" ]]; then
+    cid=$(virsh -c qemu:///session dumpxml "$domain" 2>/dev/null \
+          | xmllint --xpath 'string(//vsock/cid/@address)' - 2>/dev/null || true)
+fi
+
+if [[ -z "$cid" ]]; then
+    echo "No vsock CID found for domain '$domain'" >&2
+    exit 1
+fi
+
+exec socat - VSOCK-CONNECT:"$cid":"$port"
