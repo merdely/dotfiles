@@ -1,0 +1,54 @@
+input {
+    touchpad {
+        // off
+        tap
+        dwt
+        // dwtp
+        // drag false
+        // drag-lock
+        // natural-scroll
+        // accel-speed 0.2
+        // accel-profile "flat"
+        // scroll-factor 1.0
+        // scroll-factor vertical=1.0 horizontal=-2.0
+        // scroll-method "two-finger"
+        // scroll-button 273
+        // scroll-button-lock
+        // tap-button-map "left-middle-right"
+        click-method "clickfinger"
+        // left-handed
+        // disabled-on-external-mouse
+        // middle-emulation
+    }
+
+    /-trackpoint {
+        // off
+        // natural-scroll
+        // accel-speed 0.2
+        // accel-profile "flat"
+        // scroll-method "on-button-down"
+        // scroll-button 273
+        // scroll-button-lock
+        // left-handed
+        // middle-emulation
+    }
+    focus-follows-mouse max-scroll-amount="49%"
+}
+
+window-rule {
+    match app-id=r#"imv"# title=r#"niri_help"#
+    open-floating true
+    // min-width 1600
+    // min-height 700
+    // default-floating-position x=32 y=32 relative-to="top-left"
+    // default-column-width { fixed 1000; }
+    // default-window-height { fixed 700; }
+    min-width 1600
+    min-height 900
+    max-width 1600
+    max-height 900
+    // default-column-width { proportion 0.90; }
+    // default-window-height { proportion 0.90; }
+    default-floating-position x=45 y=50 relative-to="top-left"
+}
+
