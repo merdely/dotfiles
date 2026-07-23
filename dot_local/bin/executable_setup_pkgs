@@ -58,10 +58,10 @@ case "$ID" in
 
     if $desktop; then
       packages="$packages niri alacritty fuzzel xdg-desktop-portal-gnome pipewire-jack \
-        greetd dms-shell-niri nwg-hello accountsservice cava cups-pk-helper dgop \
-        khal kimageformats matugen power-profiles-daemon qt6-imageformats \
+        greetd dms-shell-niri nwg-hello accountsservice cava cups-pk-helper dgop polkit \
+        khal kimageformats matugen power-profiles-daemon qt6-imageformats xorg-xwayland \
         kitty rofi rofi-rbw gcr ydotool wl-clipboard wl-clip-persist \
-        noto-fonts noto-fonts-emoji ttf-liberation ttf-dejavu-nerd \
+        noto-fonts noto-fonts-emoji ttf-liberation ttf-dejavu-nerd ttf-fira-code inter-font \
         ttf-jetbrains-mono ttf-roboto ttf-roboto-mono woff2-font-awesome otf-font-awesome \
         ttf-nerd-fonts-symbols ttf-nerd-fonts-symbols-common ttf-nerd-fonts-symbols-mono \
         libnotify imv imagemagick python-pillow python-cairocffi satty grim slurp \
