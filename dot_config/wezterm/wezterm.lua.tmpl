@@ -38,11 +38,9 @@ config.font = wezterm.font 'DejaVuSansM Nerd Font Mono'
 config.color_scheme = 'deep'
 config.enable_tab_bar = false
 
-local ok, local_config = pcall(require, 'mercury')
+local ok, local_config = pcall(require, '{{ .chezmoi.hostname }}')
 if ok then
   local_config.apply(config)
-else
-  wezterm.log_error('Failed to load mercury.lua: ' .. tostring(local_config))
 end
 
 return config
