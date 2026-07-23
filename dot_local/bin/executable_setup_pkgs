@@ -2,6 +2,7 @@
 # vim: set filetype=sh :
 
 usage() { echo "usage: ${0##*} [-h] [-D]" ; exit "${1:-0}" ; }
+#
 # local OPTIND=1 OPTARG="" opt=""
 desktop=true
 while getopts ":hD" opt; do
@@ -83,7 +84,8 @@ case "$ID" in
     # Install missing packages
     if [ -n "$need" ]; then
       echo "Installing packages: $need"
-      if ! sudo pacman -Syu --disable-download-timeout --needed --noconfirm "${need# }"; then
+      # shellcheck disable=SC2086
+      if ! sudo pacman -Syu --disable-download-timeout --needed --noconfirm ${need# }; then
         echo "Error: 'pacman -Syu ...' failed" >&2
         exit 1
       fi
