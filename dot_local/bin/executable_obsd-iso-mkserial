@@ -1,0 +1,152 @@
+#!/usr/bin/env bash
+#
+# remaster-openbsd-iso.sh
+#
+# Takes a stock OpenBSD install ISO and produces a copy with
+# "set tty com0" appended to /etc/boot.conf, so the installer boots
+# straight to the serial console with no manual `boot> set tty com0`
+# step required.
+#
+# STRATEGY: earlier versions of this script tried to patch the
+# existing ISO in place with xorriso (-update / -boot_image replay).
+# That kept corrupting the ISO9660 directory tree in ways that broke
+# access to files elsewhere on the disc (e.g. the kernel at
+# /<rel>/<arch>/bsd.rd), even though only /etc/boot.conf was touched.
+#
+# OpenBSD's own release engineering never patches an existing ISO --
+# it always builds fresh from a source tree with mkhybrid/mkisofs
+# using specific flags (disable deep directory relocation, omit
+# version numbers, separate BIOS + EFI El Torito boot images). This
+# script replicates that: extract everything, edit boot.conf as a
+# plain file, then rebuild from scratch with matching flags via
+# `xorriso -as mkisofs`, rather than trying to surgically edit the
+# existing image.
+#
+# Requires: xorriso
+#   Debian/Ubuntu: sudo apt install xorriso
+#   Fedora/RHEL:   sudo dnf install xorriso
+#   macOS:         brew install xorriso
+#   OpenBSD:       pkg_add xorriso
+#
+# Usage:
+#   ./remaster-openbsd-iso.sh install79.iso [output.iso]
+
+set -euo pipefail
+
+usage() {
+    echo "Usage: ${0##*/} [-f] <input.iso> [output.iso]" >&2
+    exit "${1:-0}"
+}
+
+force=false
+while getopts ":hf" opt; do
+  case $opt in
+    f) force=true ;;
+    h) usage ;;
+    :) echo "-$OPTARG requires an argument" ; exit 1 ;;
+    \?) echo "Unknown option: -$OPTARG" ; exit 1 ;;
+  esac
+done
+shift $(( OPTIND - 1 ))
+
+(( $# > 0 )) || usage 1
+
+IN_ISO=$1
+OUT_ISO=${2:-"${IN_ISO%.iso}-serial.iso"}
+
+if [ ! -f "$IN_ISO" ]; then
+    echo "Error: input ISO '$IN_ISO' not found" >&2
+    exit 1
+fi
+
+if $force && [ -e "$OUT_ISO" ]; then
+    rm -vf "$OUT_ISO"
+elif [ -e "$OUT_ISO" ]; then
+    echo "Error: output '$OUT_ISO' already exists, refusing to overwrite" >&2
+    exit 1
+fi
+
+if ! command -v xorriso >/dev/null 2>&1; then
+    echo "Error: xorriso not found. Install it and re-run." >&2
+    echo "  Arch         : sudo pacman -S libisoburn" >&2
+    echo "  Debian/Ubuntu: sudo apt install xorriso" >&2
+    echo "  Fedora/RHEL:   sudo dnf install xorriso" >&2
+    echo "  macOS:         brew install xorriso" >&2
+    exit 1
+fi
+
+WORKDIR=$(mktemp -d)
+trap 'rm -rf "$WORKDIR"' EXIT
+TREE="$WORKDIR/tree"
+mkdir -p "$TREE"
+
+echo "Extracting ISO contents (this can take a minute)..."
+xorriso -indev "$IN_ISO" -osirrox on -extract / "$TREE" 2>&1 \
+    | grep -v '^libisofs: NOTE' || true
+
+# The BIOS boot image (cdbr) lives under /<release>/<arch>/cdbr on the
+# ISO. Find it dynamically rather than hardcoding a version number.
+CDBR=$(find "$TREE" -type f -name cdbr | head -n1)
+if [ -z "$CDBR" ]; then
+    echo "Error: could not locate 'cdbr' anywhere in the extracted tree." >&2
+    echo "This doesn't look like a standard OpenBSD install ISO layout." >&2
+    exit 1
+fi
+BOOTDIR=$(dirname "$CDBR")
+BOOTREL=${BOOTDIR#"$TREE"/}
+echo "Detected boot directory: /$BOOTREL"
+
+EFIBOOT_ABS="$BOOTDIR/eficdboot"
+EFIBOOT_REL="$BOOTREL/eficdboot"
+BOOTCAT_REL="$BOOTREL/boot.catalog"
+
+echo "Updating /etc/boot.conf..."
+mkdir -p "$TREE/etc"
+if [ -f "$TREE/etc/boot.conf" ]; then
+    echo "  existing contents:"
+    sed 's/^/    /' "$TREE/etc/boot.conf"
+    if grep -qx "set tty com0" "$TREE/etc/boot.conf"; then
+        echo "  'set tty com0' already present, leaving as-is"
+    else
+        echo "set tty com0" >> "$TREE/etc/boot.conf"
+    fi
+else
+    echo "set tty com0" > "$TREE/etc/boot.conf"
+fi
+echo "  final contents:"
+sed 's/^/    /' "$TREE/etc/boot.conf"
+
+# Try to preserve the original volume label so the ISO still reports
+# itself the way the OpenBSD installer / your automation expects.
+VOLID=$(xorriso -indev "$IN_ISO" -pvd_info 2>/dev/null \
+    | sed -n "s/^Volume id[[:space:]]*:[[:space:]]*'\(.*\)'/\1/p" | head -n1)
+if [ -z "$VOLID" ]; then
+    VOLID="OpenBSD Install CD"
+fi
+echo "Using volume id: $VOLID"
+
+echo "Rebuilding ISO from extracted tree..."
+BUILD_ARGS=(
+    -as mkisofs
+    -R -l -L -d -D -N
+    -V "$VOLID"
+    -b "$BOOTREL/cdbr" -c "$BOOTCAT_REL" -no-emul-boot
+)
+
+if [ -f "$EFIBOOT_ABS" ]; then
+    echo "Detected EFI boot image, adding as alternate boot entry: /$EFIBOOT_REL"
+    BUILD_ARGS+=(-eltorito-alt-boot -e "$EFIBOOT_REL" -no-emul-boot -isohybrid-gpt-basdat)
+else
+    echo "No eficdboot found under /$BOOTREL -- building BIOS-only boot image."
+fi
+
+xorriso "${BUILD_ARGS[@]}" -o "$OUT_ISO" -graft-points "$TREE"
+
+echo
+echo "Done: $OUT_ISO"
+echo
+echo "Verify boot.conf made it in:"
+echo "  xorriso -indev '$OUT_ISO' -osirrox on -extract /etc/boot.conf /tmp/boot.conf && cat /tmp/boot.conf"
+echo
+echo "Boot-test this in a throwaway VM before trusting it, e.g.:"
+echo "  virt-install ... --cdrom '$OUT_ISO'"
