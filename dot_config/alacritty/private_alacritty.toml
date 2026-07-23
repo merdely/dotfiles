@@ -1,7 +1,7 @@
 [general]
 live_config_reload = true
 import = [
-  "~/.config/alacritty/themes/themes/hyper.toml"
+  "~/.config/alacritty/hyper.toml"
 ]
 
 [font]
