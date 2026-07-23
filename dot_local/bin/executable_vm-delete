@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+usage() { echo "usage: ${0##*} [-h] [-f] VM_TO_DELETE" ; exit "${1:-0}" ; }
+force=false
+while getopts ":hf" opt; do
+  case $opt in
+    f) force=true ;;
+    h) usage ;;
+    :) echo "-$OPTARG requires an argument" ; exit 1 ;;
+    \?) echo "Unknown option: -$OPTARG" ; exit 1 ;;
+  esac
+done
+shift $(( OPTIND - 1 ))
+
+if ! "$force"; then
+  read -rp "Really delete $1 VM and its storage? [yN] "
+  if [[ ! "$REPLY" =~ ^(YES|Yes|yes|Y|y|1)$ ]]; then
+    echo "Not deleting $1"
+    exit
+  fi
+fi
+
+virsh undefine "$1" --nvram --remove-all-storage
