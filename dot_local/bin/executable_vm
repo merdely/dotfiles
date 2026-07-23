@@ -31,7 +31,7 @@ clone() {
   shift $(( OPTIND - 1 ))
 
   virt-clone "${connect[@]}" --auto-clone --original "$1" --name "$2"
-  $start && virsh start "$2" "${opts[@]}"
+  $start && virsh start "$2" "${opts[@]}" || true
 }
 
 create_usage() {
