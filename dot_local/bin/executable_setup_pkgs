@@ -206,6 +206,10 @@ case "$ID" in
           fi
         fi
 
+        if [ ! -e /usr/bin/dms-greeter ]; then
+          $sudo ln -sf /usr/share/quickshell/dms/Modules/Greetd/assets/dms-greeter /usr/bin/
+        fi
+
         if [ ! -d /etc/greetd/niri_overrides.kdl ]; then
           {
             echo '// Example niri_overrides.kdl'
