@@ -1,0 +1,14 @@
+[main]
+adguard_list=true
+opensense_dnsmasq=false
+
+[opnsense]
+bw_entry="Mars Firewall (OpnSense)"
+bw_uri="uris"
+bw_api_key="API Key"
+bw_api_secret="API Secret"
+
+[adguard]
+bw_entry="++++Home Apps - Authelia, etc"
+bw_uri="AdGuard DNS List"
+
