@@ -178,7 +178,7 @@ bashp=$(command -v bash)
 [[ -n "$bashp" ]] && alias runbash="env PRE_PROMPT=\"(bash) \" SHELL=$bashp $bashp -l"
 kshp=$(command -v ksh)
 # shellcheck disable=SC2139
-[[ -n "$kshp" ]] && alias runksh="env ENV=$HOME/.kshrc PRE_PROMPT=\"(ksh) \" SHELL=$kshp $kshp -l"
+[[ -n "$kshp" ]] && alias runksh="env PRE_PROMPT=\"(ksh) \" SHELL=$kshp $kshp -l"
 zshp=$(command -v zsh)
 # shellcheck disable=SC2139
 [[ -n "$zshp" ]] && alias runzsh="env PRE_PROMPT=\"(zsh) \" SHELL=$zshp $zshp -l"
