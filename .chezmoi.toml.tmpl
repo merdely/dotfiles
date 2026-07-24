@@ -7,6 +7,11 @@ progress = true
 [diff]
     reverse = true
 
+{{- /*
+  # Grab the git remote for the chezmoi source directory
+  # Verify that the remote url is using SSH and my server
+  # Otherwise the repo was checked out read-only
+*/}}
 {{- $chezmoi_remote := output "sh" "-c" (printf "%s %s" .chezmoi.executable "git remote -- get-url origin") | trim }}
 {{- if $chezmoi_remote | regexMatch "^ssh://.*\\.erdely\\.in:[0-9]+/" }}
 
