@@ -20,6 +20,9 @@ GIT_PS1_SHOWUPSTREAM=auto
 [[ "$TERM" = "vt220" || "$TERM" = "linux" ]] && { dots="..." ; git_s="§" ; git_c=yellow ; pchar='%%' ; }
 if [[ -r /usr/share/git/git-prompt.sh ]]; then
   . /usr/share/git/git-prompt.sh
+elif [[ -r "$HOME"/.local/bin/git-prompt.sh ]]; then
+  # shellcheck disable=SC1091
+  . "$HOME"/.local/bin/git-prompt.sh
 else
   __git_ps1() { :; }
 fi
@@ -28,8 +31,9 @@ if [[ -n "$CHEZMOI_SUBSHELL" ]]; then
   subshell=" %F{magenta}+%f"
 fi
 
-# Set up ZSH Prompt
-PROMPT='${PRE_PROMPT}%B[%F{cyan}%n%f@%F{green}%m%f %F{blue}%(3~,${dots}/,)%2~%f]${subshell}'
+# Set Up Prompt
+# 14 = bright cyan, 10 = bright green, 12 = bright blue
+PROMPT='${PRE_PROMPT}%B[%F{14}%n%f@%F{10}%m%f %F{12}%(3~,${dots}/,)%2~%f]${subshell}'
 command -v __git_ps1 >/dev/null 2>&1 && PROMPT="$PROMPT"'$(__git_ps1 " (%%F{${git_c}}${git_s}%%f %s)")'
 PROMPT="$PROMPT"' %F{blue}%(!.#.${pchar})%f%b '
 vi_ins="%F{green}[I]%f"
@@ -84,8 +88,6 @@ zstyle ':completion:*' menu select
 zstyle ':completion:*' matcher-list ''
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}' 'm:{a-z}={A-Z} r:|[._-]=* r:|=*'
 
-bindkey -v
-alias reprofile='. $HOME/.zshrc'
 setopt append_history inc_append_history share_history hist_ignore_space
 setopt auto_cd cd_silent auto_pushd pushd_silent rmstarsilent
 setopt no_hup no_check_jobs prompt_subst interactive_comments no_match
@@ -94,6 +96,8 @@ setopt correct
 # setopt correct_all
 # CORRECT_IGNORE_FILE=
 stty stop undef
+bindkey -v
+alias reprofile='. $HOME/.zshrc'
 
 export LANG=en_US.UTF-8
 export LC_CTYPE=en_US.UTF-8
@@ -140,6 +144,8 @@ if [[ "$OSTYPE" == linux-gnu ]]; then
   alias grep='grep --color=auto'
   alias diff='diff --color=auto'
 fi
+command -v fdfind >/dev/null 2>&1 alias fd=fdfind
+command -v batcat >/dev/null 2>&1 alias bat=batcat
 command -v bat >/dev/null 2>&1 && alias cat='bat --paging=never --plain'
 alias check_reboot='sudo /srv/scripts/sbin/check_reboot'
 [[ -e /dev/pf ]] && alias pflog='doas tcpdump -n -e -ttt -i pflog0'
@@ -148,6 +154,15 @@ alias scpk='scp -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/nul
 alias rsynck='rsync -e "ssh -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"'
 alias dos_rsync='rsync -rtcvP'
 alias which='command -v'
+bashp=$(command -v bash)
+# shellcheck disable=SC2139
+[[ -n "$bashp" ]] && alias runbash="env PRE_PROMPT=\"(bash) \" SHELL=$bashp $bashp -l"
+kshp=$(command -v ksh)
+# shellcheck disable=SC2139
+[[ -n "$kshp" ]] && alias runksh="env ENV=$HOME/.kshrc PRE_PROMPT=\"(ksh) \" SHELL=$kshp $kshp -l"
+zshp=$(command -v zsh)
+# shellcheck disable=SC2139
+[[ -n "$zshp" ]] && alias runzsh="env PRE_PROMPT=\"(zsh) \" SHELL=$zshp $zshp -l"
 GPG_TTY=$(tty)
 VIRSH_DEFAULT_CONNECT_URI=qemu:///system
 COMPOSE_FILE=/srv/docker/compose.yaml
