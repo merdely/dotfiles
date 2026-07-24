@@ -72,8 +72,10 @@ map                       alt+shift+ctrl+j resize_window shorter
 map                       alt+shift+ctrl+k resize_window taller
 map                       alt+shift+ctrl+l resize_window wider
 
+{{/*
+  # Include file named $hostname.conf (I think it prints an error if it does not exist, but it's benign)
+*/ -}}
 include $HOME/.config/kitty/{{ .chezmoi.hostname }}.conf
-
 
 ## name: Solarized Dark
 ## author: Ethan Schoonover
