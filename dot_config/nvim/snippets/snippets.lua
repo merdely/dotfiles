@@ -14,7 +14,7 @@ ls.add_snippets("sh", {
   }),
   ls.snippet("getopts", {
      ls.text_node({
-       'usage() { echo "usage: ${0##*} [-h] [-a] [-b b]" ; exit "${1:-0}" ; }',
+       'usage() { echo "usage: ${0##*/} [-h] [-a] [-b b]" ; exit "${1:-0}" ; }',
        '# local OPTIND=1 OPTARG="" opt=""',
        'while getopts ":hab:" opt; do',
        '  case $opt in',
