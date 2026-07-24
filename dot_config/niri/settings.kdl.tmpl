@@ -221,5 +221,5 @@ window-rule {
     default-floating-position x=0 y=0 relative-to="top-right"
 }
 
-{{/* // If a file named $hostname.kdl exists, load it // */ -}}
+// If a file named $hostname.kdl exists, load it
 include optional=true "{{ .chezmoi.hostname }}.kdl"
