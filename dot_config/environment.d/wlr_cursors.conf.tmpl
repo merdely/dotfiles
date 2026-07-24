@@ -4,6 +4,7 @@
 
 # Force compositor to render cursor (VMs flip cursor without it)
 
+{{/* # If systemd-detect-virt prints "kvm", this is a vm and show the uncommented line */ -}}
 {{- $virt_output := output "sh" "-c" "systemd-detect-virt 2>/dev/null || true" | trim }}
 {{- if eq $virt_output "kvm" }}
 WLR_NO_HARDWARE_CURSORS=1
