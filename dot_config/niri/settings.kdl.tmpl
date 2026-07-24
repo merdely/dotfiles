@@ -54,7 +54,7 @@ binds {
     Mod+Shift+A          hotkey-overlay-title="Open Signal"      { spawn-sh "$HOME/.config/niri/scratchpad org.signal.Signal"; }
     // Must create a termfm.desktop in $HOME/.local/share/applications
     Mod+Shift+BracketLeft  hotkey-overlay-title="Terminal File Manager"  { spawn-sh "$HOME/.config/niri/scratchpad termfm"; }
-    Mod+Shift+BracketRight hotkey-overlay-title="GUI File Manager"       { spawn-sh "$HOME/.config/niri/scripts/minimize org.gnome.Nautilus"; }
+    Mod+Shift+BracketRight hotkey-overlay-title="GUI File Manager"       { spawn-sh "$HOME/.config/niri/scratchpad org.gnome.Nautilus"; }
     Mod+Shift+C          hotkey-overlay-title="Open Galculator"  { spawn-sh "pgrep -u $LOGNAME -x galculator && pkill -u $LOGNAME -x galculator || gtk-launch galculator"; }
     Mod+Shift+Q          hotkey-overlay-title="Open Logseq"      { spawn-sh "$HOME/.config/niri/scratchpad com.logseq.Logseq Logseq"; }
     // Must create a term-scratchpad.desktop in $HOME/.local/share/applications
@@ -109,7 +109,7 @@ window-rule {
 
 // Open scratchpad apps floating
 window-rule {
-    match app-id=r#"^Bitwarden|com\.logseq\.Logseq|Logseq|org\.kde\.kdeconnect\.sms|org\.signal\.Signal|htop|htop-earth|nvtop|nvtop-earth|term-scratchpad|termfm$"#
+    match app-id=r#"^Bitwarden|com\.logseq\.Logseq|Logseq|org\.gnome\.Nautilus|org\.kde\.kdeconnect\.sms|org\.signal\.Signal|htop|htop-earth|nvtop|nvtop-earth|term-scratchpad|termfm$"#
     open-maximized false
     open-floating true
 }
