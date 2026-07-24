@@ -37,6 +37,7 @@ config.font = wezterm.font 'DejaVuSansM Nerd Font Mono'
 config.color_scheme = 'deep'
 config.enable_tab_bar = false
 
+-- Include a file named hostname.lua (handles when doesn't exist)
 local ok, local_config = pcall(require, '{{ .chezmoi.hostname }}')
 if ok then
   local_config.apply(config)
