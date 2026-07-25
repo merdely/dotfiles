@@ -65,6 +65,7 @@ if [[ "$TERM" == "linux" || "$TERM" == "vt220" ]]; then
   c_red=$'\e[31m'
   c_green=$'\e[32m'
   c_blue=$'\e[34m'
+  # shellcheck disable=SC2034
   c_magenta=$'\e[35m'
   c_cyan=$'\e[36m'
   c_orange=$'\e[33m'
@@ -99,6 +100,7 @@ PROMPT_COMMAND="(( \$? )) && __prompt_color=$'\e[91m' || __prompt_color=$'\e[92m
 unset parts part
 
 # Prompt variable: '[\u@\h \W] \$' with formatting
+# shellcheck disable=SC1001,SC2140,SC2154
 PS1="\${PRE_PROMPT}[\[${c_cyan}\]\u\[${c_reset}\]@\[${c_green}\]\h\[${c_reset}\] \[${c_blue}\]\$(__prompt_trim_pwd "\W")\[${c_reset}\]]\[\e[22;24;27;49m\]${__shellind}${subshell}\$(__git_ps1 ' (\[\e[1m${c_orange}\]${git_s} \[${c_reset}\]%s\[\e[22m\])' 2>/dev/null) ${__nl}\[\${__prompt_color}\]${pchar}\[${c_reset}\] \[\e[0m\]"
 
 command -v fzf >/dev/null 2>&1 && { type __fzf_history__ > /dev/null 2>&1 || eval "$(fzf --bash)"; }

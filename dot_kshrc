@@ -78,8 +78,10 @@ if [[ "$TERM" == "linux" || "$TERM" == "vt220" ]]; then
   c_red='\e[31m'
   c_green='\e[32m'
   c_blue='\e[34m'
+  # shellcheck disable=SC2034
   c_magenta='\e[35m'
   c_cyan='\e[36m'
+  # shellcheck disable=SC2034
   c_orange='\e[33m'
 fi
 
