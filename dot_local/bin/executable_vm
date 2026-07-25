@@ -375,7 +375,7 @@ create() {
       esac
       [[ -z "$vm_iso" ]] && vm_iso=$(get_iso "$iso_search" "$vm_iso")
       install_flags=(
-        "--location" "$vm_iso${iso_flags}"
+        "--cdrom" "$vm_iso${iso_flags}"
         "--extra-args" "console=ttyS0,115200"
         "--extra-args" "inst.text"
       )
