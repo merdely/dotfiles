@@ -9,32 +9,56 @@ default_hosts=(mercury earth jupiter)
 all_hosts=("${default_hosts[@]}" venus saturn uranus carme metis tarvos sinope neptune)
 
 usage() {
-  echo "usage: $progname [-h] [-4] [-6] [-a] [-x HOST] [host1..hostN]"
-  echo "  -h           : Print this help text"
-  echo "  -4           : Connect using ipv4"
-  echo "  -6           : Connect using ipv6"
-  echo "  -a           : Pull scripts for all hosts"
-  echo "  -x HOST      : Exclude host from all"
-  echo "Without any host arguments, it pulls for ${default_hosts[@]}"
-  echo "Available hosts: ${all_hosts[@]}"
-  exit $1
+  echo "usage: $progname [Options] [host1..hostN]"
+  echo
+  echo "Options:"
+  echo "  -h|--help          : Print this help text"
+  echo "  -4|--ipv4          : Connect using ipv4"
+  echo "  -6|--ipv6          : Connect using ipv6"
+  echo "  -a|--all           : Pull scripts for all hosts"
+  echo "  -x|--exclude HOST  : Exclude host from all"
+  echo "Without any host arguments, it pulls for ${default_hosts[*]}"
+  echo "Available hosts: ${all_hosts[*]}"
+  exit "${1:-0}"
 }
 
 remove_opt() {
   [ -z "$2" ] && return 1
-  local myarr=($1)
-  for i in ${!myarr[@]}; do
-    [ "${myarr[$i]}" = "$2" ] && unset myarr[$i]
+  local myarr=("$1")
+  for i in "${!myarr[@]}"; do
+    [ "${myarr[$i]}" = "$2" ] && unset "myarr[i]"
   done
   myarr=("${myarr[@]}")
   echo "${myarr[@]}"
 }
 
-for a in $*; do [ $a = --help -o $a = -h ] && usage; done
 all=false
 exclude=()
 ssh_opts=()
 ping_opts=()
+# _LIB="/../lib"            # comment this line out if parseopts.sh is in the same directory as $0
+# _LIBDIR=/srv/scripts/lib  # Use a line like this to override location of parseopts.sh
+PARSEOPTS="${_LIBDIR:-"$(dirname "$0")${_LIB:-}"}/parseopts.sh"
+# shellcheck disable=SC1090,SC1091
+source "$PARSEOPTS" ; unset _LIB _LIBDIR
+
+OPT_SHORT="hfa:o?"
+OPT_LONG=("help" "flag" "arg:" "opt?")
+declare -a OPTRET
+parseopts "$OPT_SHORT" "${OPT_LONG[@]}" -- "$@" || exit 1
+set -- "${OPTRET[@]}" ; unset OPT_SHORT OPT_LONG OPTRET
+while true; do
+  case $1 in
+    -h|--help) usage ;;
+    -f|--flag) FLAG=1 ;;
+    -a|--arg)  ARG=1 ; shift ; ARG_VALUE=$1 ;;
+    -o|--opt)  OPT=1 ; [[ "$2" != -- ]] && { shift ; OPT_VALUE=$1 ; } ;;
+    --) shift ; break ;;
+    *) ;;
+  esac
+  shift
+done
+
 while getopts ":h46ax:" opt; do
   case $opt in
     a) all=true ;;
