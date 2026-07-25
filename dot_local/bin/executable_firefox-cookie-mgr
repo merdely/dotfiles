@@ -14,13 +14,14 @@ debug=${debug:-false}
 debug_exit=${debug_exit:-false}
 usage() {
   echo "usage: $progname [Options]"
+  echo
   echo "Options:"
-  echo "  -h          : show this help text"
-  echo "  -c RCFILE   : use FILE for $progname settings instead of $rcfile"
-  echo "  -a          : use AdGuard Blocklist from Git to download a list of hostnames"
-  echo "  -o          : use OpnSense to download a list of hostnames from dnsmasq"
-  echo "  -i SITEFILE : import file saved previously to permissions file specified with -p"
-  echo "  -p PERMFILE : permissions database file (e.g. ~/.mozilla/firefox/*.default-default/permissions.sqlite)"
+  echo "  -h|--help                : show this help text"
+  echo "  -c|--config RCFILE       : use FILE for $progname settings instead of $rcfile"
+  echo "  -a|--adguard             : use AdGuard Blocklist from Git to download a list of hostnames"
+  echo "  -o|--opnsense|--dnsmasq  : use OpnSense to download a list of hostnames from dnsmasq"
+  echo "  -i|--importfile SITEFILE : import file saved previously to permissions file specified with -p"
+  echo "  -p|--permfile PERMFILE   : permissions database file (e.g. ~/.mozilla/firefox/*.default-default/permissions.sqlite)"
   echo
   echo "For exporting, '-p PERMFILE' or '-a' or '-o' must be given. Output is printed to screen."
   echo "For importing, '-p PERMFILE' and '-i SITEFILE' must be given."
@@ -36,19 +37,33 @@ usage() {
 }
 adguard_list_set=false
 opnsense_dnsmasq_set=false
-while getopts ":hdDc:aoi:p:" opt; do
-  case "$opt" in
-    d) debug=true ;;
-    D) debug=true ; debug_exit=true ;;
-    c) rcfile=$OPTARG ;;
-    a) adguard_list=true ; adguard_list_set=true ;;
-    o) opnsense_dnsmasq=true ; opnsense_dnsmasq_set=true ;;
-    i) import_file=$OPTARG ;;
-    p) permissions_file=$OPTARG ;;
-    *) usage ;;
+
+# _LIB="/../lib"            # comment this line out if parseopts.sh is in the same directory as $0
+# _LIBDIR=/srv/scripts/lib  # Use a line like this to override location of parseopts.sh
+PARSEOPTS="${_LIBDIR:-"$(dirname "$0")${_LIB}"}/parseopts.sh"
+# shellcheck disable=SC1090,SC1091
+source "$PARSEOPTS" ; unset _LIB _LIBDIR
+
+OPT_SHORT="hfdDc:aoi:p:"
+OPT_LONG=("help" "debug" "debug-exit" "config:" "adguard" "opnsense" "dnsmasq" "importfile:" "permfile:")
+declare -a OPTRET
+parseopts "$OPT_SHORT" "${OPT_LONG[@]}" -- "$@" || exit 1
+set -- "${OPTRET[@]}" ; unset OPT_SHORT OPT_LONG OPTRET
+while true; do
+  case $1 in
+    -h|--help) usage ;;
+    -d|--debug) debug=true ;;
+    -D|--debug-exit) debug=true ; debug_exit=true ;;
+    -c|--config) shift ; rcfile=$1 ;;
+    -a|--adguard) adguard_list=true ; adguard_list_set=true ;;
+    -o|--opnsense|--dnsmasq) opnsense_dnsmasq=true ; opnsense_dnsmasq_set=true ;;
+    -i|--importfile) shift; import_file=$1 ;;
+    -p|--permfile)   shift; permissions_file=$1 ;;
+    --) shift ; break ;;
+    *) ;;
   esac
+  shift
 done
-shift $(( OPTIND - 1 ))
 
 if [ -r "$rcfile" ]; then
   mapfile -t adguard_list < <(awk -vs="main" -vk="adguard_list" 'BEGIN{p=0}$0~/^\\s*\[/{p=0}$0~"^\\s*\\["s"\\]"{p=1}p==1&&$0~"^\\s*"k"\\s*[:=]"{sub(/^[^:=]+[:=]/,"");if(L=="")sub(/^\s+/,"");if(T=="")sub(/\s+$/,"");if(Q==""){gsub(/^"/,"");gsub(/"$/,"")};print}' "$rcfile")
