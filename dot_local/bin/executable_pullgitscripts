@@ -42,51 +42,43 @@ PARSEOPTS="${_LIBDIR:-"$(dirname "$0")${_LIB:-}"}/parseopts.sh"
 # shellcheck disable=SC1090,SC1091
 source "$PARSEOPTS" ; unset _LIB _LIBDIR
 
-OPT_SHORT="hfa:o?"
-OPT_LONG=("help" "flag" "arg:" "opt?")
+OPT_SHORT="ha46x:"
+OPT_LONG=("help" "all" "ipv4" "inet" "ipv6" "inet6" "exclude:")
 declare -a OPTRET
 parseopts "$OPT_SHORT" "${OPT_LONG[@]}" -- "$@" || exit 1
 set -- "${OPTRET[@]}" ; unset OPT_SHORT OPT_LONG OPTRET
 while true; do
   case $1 in
     -h|--help) usage ;;
-    -f|--flag) FLAG=1 ;;
-    -a|--arg)  ARG=1 ; shift ; ARG_VALUE=$1 ;;
-    -o|--opt)  OPT=1 ; [[ "$2" != -- ]] && { shift ; OPT_VALUE=$1 ; } ;;
+    -a|--all) all=true ;;
+    -4|--ipv4|--inet)
+      ssh_opts+=("-4") ; ssh_opts=("$(remove_opt "${ssh_opts[*]}" "-6")")
+      ping_opts+=("-4") ; ping_opts=("$(remove_opt "${ping_opts[*]}" "-6")") ;;
+    -6|--ipv6|--inet6)
+      ssh_opts+=("-6") ; ssh_opts=("$(remove_opt "${ssh_opts[*]}" "-4")")
+      ping_opts+=("-6") ; ping_opts=("$(remove_opt "${ping_opts[*]}" "-4")") ;;
+    -x--exclude) shift ; exclude+=("$1") ;;
     --) shift ; break ;;
     *) ;;
   esac
   shift
 done
 
-while getopts ":h46ax:" opt; do
-  case $opt in
-    a) all=true ;;
-    4) ssh_opts+=("-4") ; ssh_opts=("$(remove_opt "${ssh_opts[*]}" "-6")")
-       ping_opts+=("-4") ; ping_opts=("$(remove_opt "${ping_opts[*]}" "-6")") ;;
-    6) ssh_opts+=("-6") ; ssh_opts=("$(remove_opt "${ssh_opts[*]}" "-4")")
-       ping_opts+=("-6") ; ping_opts=("$(remove_opt "${ping_opts[*]}" "-4")") ;;
-    x) exclude+=($OPTARG) ;;
-    *) usage ;;
-  esac
-done
-shift $((OPTIND -1))
-
 hostlist=()
-for arg in $*; do
-  hostlist+=($arg)
+for arg in "$@"; do
+  hostlist+=("$arg")
 done
 [ -z "$1" ] && hostlist=("${default_hosts[@]}")
 $all && hostlist=("${all_hosts[@]}")
 
 # Exclude hosts from list
 for i in "${!hostlist[@]}"; do
-  [[ " ${exclude[@]} " == *" ${hostlist[$i]} "* ]] && unset hostlist[$i]
+  [[ " ${exclude[*]} " == *" ${hostlist[i]} "* ]] && unset "hostlist[i]"
 done
 hostlist=("${hostlist[@]}")
 
 ssh() {
-  command ssh -o ClearAllForwardings=yes ${ssh_opts[@]} $*
+  command ssh -o ClearAllForwardings=yes "${ssh_opts[@]}" "$@"
 }
 
 if which hostname > /dev/null 2>&1; then
@@ -97,53 +89,54 @@ fi
 hostname=${hostname%%.*}
 find_scripts() {
   [ -z "$1" ] && echo "Error: update_host requires a host" && return 1
-  local doit=(ssh $1)
-  [ $1 = $hostname ] && doit=(sh -c)
-  [ $1 = venus ] && doit=(ssh $1 env PATH=/opt/homebrew/bin:\$PATH)
+  local doit=(ssh "$1")
+  [ "$1" = "$hostname" ] && doit=(sh -c)
+  [ "$1" = venus ] && doit=(ssh "$1" env PATH=/opt/homebrew/bin:\$PATH)
   local fd
-  ${doit[@]} "command -v fd" &> /dev/null
+  "${doit[@]}" "command -v fd" &> /dev/null
   local fd_found=$?
-  ${doit[@]} "command -v fdfind" &> /dev/null
+  "${doit[@]}" "command -v fdfind" &> /dev/null
   local fdfind_found=$?
   [ $fd_found = 0 ] && fd=fd
   [ $fdfind_found = 0 ] && fd=fdfind
   if [ -n "$fd" ]; then
     set -x
-    ${doit[@]} "$fd -HIg -E .snapshots --type d -x sh -c 'test -d \"{}/.git\" && echo {}' \; \"scripts\" \"\$HOME\""
+    "${doit[@]}" "$fd -HIg -E .snapshots --type d -x sh -c 'test -d \"{}/.git\" && echo {}' \; \"scripts\" \"\$HOME\""
     set +x
   else
-    ${doit[@]} "find \"$HOME\" -not -wholename \"*/.snapshots/*\" -name \"scripts\" -execdir test -d '{}/.git' \; -print"
+    "${doit[@]}" "find \"$HOME\" -not -wholename \"*/.snapshots/*\" -name \"scripts\" -execdir test -d '{}/.git' \; -print"
   fi
 }
 
 update_host() {
   [ -z "$1" ] && echo "Error: update_host requires a host" && return 1
 
-  echo "Updating $1${ssh_opts[@]:+ (${ssh_opts[@]})}:"
-  ping ${ping_opts[@]} -c 1 -W 1 $1 &> /dev/null
-  [ $? != 0 ] && echo " » Could not connect to $1" && return 1
+  echo "Updating $1${ssh_opts[*]:+ (${ssh_opts[*]})}:"
+  if ! ping "${ping_opts[@]}" -c 1 -W 1 "$1" &> /dev/null; then
+    echo " » Could not connect to $1" && return 1
+  fi
 
-  local doit=(ssh $1)
-  [ $1 = $hostname ] && doit=(sh -c)
+  local doit=(ssh "$1")
+  [ "$1" = "$hostname" ] && doit=(sh -c)
 
-  if [ $1 = venus ]; then
+  if [ "$1" = venus ]; then
     echo " » /opt/scripts:"
-    ssh root@$1 env HOME=/opt/root_git git -C /opt/scripts pull -q
-    ssh root@$1 env HOME=/opt/root_git git -C /opt/scripts diff --name-only ORIG_HEAD HEAD | sed '/^$/d;s/^/   - /'
+    ssh root@"$1" env HOME=/opt/root_git git -C /opt/scripts pull -q
+    ssh root@"$1" env HOME=/opt/root_git git -C /opt/scripts diff --name-only ORIG_HEAD HEAD | sed '/^$/d;s/^/   - /'
   else
-    if ${doit[@]} "test -x /srv/scripts/sbin/daily_report_linux" &> /dev/null; then
+    if "${doit[@]}" "test -x /srv/scripts/sbin/daily_report_linux" &> /dev/null; then
       echo " » /srv/scripts:"
-      ssh root@$1 "/srv/scripts/sbin/daily_report_linux scripts" 2>&1 | sed '/^$/d;s/^/  /'
+      ssh root@"$1" "/srv/scripts/sbin/daily_report_linux scripts" 2>&1 | sed '/^$/d;s/^/  /'
     fi
-    for dir in $(find_scripts $1 2> /dev/null); do
+    for dir in $(find_scripts "$1" 2> /dev/null); do
       echo " » $dir:"
-      ${doit[@]} "git -C \"$dir\" pull -q"
-      ${doit[@]} "git -C \"$dir\" diff --name-only ORIG_HEAD HEAD" | sed '/^$/d;s/^/   - /'
+      "${doit[@]}" "git -C \"$dir\" pull -q"
+      "${doit[@]}" "git -C \"$dir\" diff --name-only ORIG_HEAD HEAD" | sed '/^$/d;s/^/   - /'
     done
   fi
 }
 
-for host in ${hostlist[@]}; do
-  update_host $host
+for host in "${hostlist[@]}"; do
+  update_host "$host"
 done
 
