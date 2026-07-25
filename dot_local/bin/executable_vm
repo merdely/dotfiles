@@ -122,9 +122,7 @@ create_usage() {
   echo "VM Type Options:"
   echo "  -A|--arch           : Arch Linux"
   echo "  -D|--debian         : Debian"
-  echo "  -F|--fedora         : Fedora Workstation"
-  echo "  -G|--fedora-server  : Fedora Server"
-  echo "  -K|--fedora-kde     : Fedora KDE Desktop"
+  echo "  -F|--fedora         : Fedora"
   echo "  -O|--openbsd        : OpenBSD"
   echo "  -Q|--ol9            : Oracle Enterprise Linux 9"
   echo
@@ -187,8 +185,7 @@ create() {
   if [[ -z "$vm_type" ]]; then
     gumcheck create_usage
     local vm_types=(
-      "Arch Linux" Debian "Fedora Workstation" "Fedora Server" "Fedora KDE Desktop"
-      "OpenBSD" "Oracle Enterprise Linux 9" "<-- Back"
+      "Arch Linux" Debian Fedora "OpenBSD" "Oracle Enterprise Linux 9" "<-- Back"
     )
     local height=$(( ${#vm_types[@]} + 4 ))
     if (( height < 5 )); then
@@ -351,22 +348,9 @@ create() {
         "--extra-args" "console=ttyS0,115200n8 --- console=ttyS0,115200n8"
       )
       ;;
-    "Fedora Workstation"|"Fedora KDE Desktop"|"Fedora Server"|fedora|fedora-kde|fedora-server)
-      case "$vm_type" in
-        "Fedora Workstation"|fedora)
-          vm_label="Fedora Workstation"
-          os_search='fedora'
-          ;;
-        "Fedora KDE Desktop"|fedora-kde)
-          vm_label="Fedora KDE Desktop"
-          os_search='fedora'
-          ;;
-        "Fedora Server"|fedora-server)
-          vm_label="Fedora Server"
-          os_search='fedora'
-          ;;
-        *) echo "Error: Invalid Fedora Selection" ; exit 1
-      esac
+    Fedora|fedora)
+      vm_label="Fedora"
+      os_search='fedora'
       iso_search="Fedora-Everything-netinst-x86_64-*.iso"
       [[ -z "$vm_iso" ]] && vm_iso=$(get_iso "$iso_search" "$vm_iso")
       install_flags=(
