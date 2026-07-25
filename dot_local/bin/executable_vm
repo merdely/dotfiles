@@ -82,7 +82,7 @@ clone() {
     fi
     [[ -z "$dest_vm" ]] && return
     local output=() item="" tmp=""
-    if tmp=$(gum choose --header="Start VM? " --selected "Start VM" --no-limit "Start VM" "Connect to Console"); then
+    if tmp=$(gum filter --height=5 --header="Start VM? " --selected "Start VM" --no-limit "Start VM" "Connect to Console"); then
       mapfile -t output <<< "$tmp"
       start=false
       for item in "${output[@]}"; do
@@ -245,7 +245,13 @@ create() {
     options=("Start VM" "Connect to Console" "Disable GPU" "Test Mode (just print)")
     options=("Disable GPU" "Emulated TPM" "Test Mode (just print)")
     value=(--selected="Start VM,Connect to Console")
-    mapfile -t output < <(gum choose --header="VM Options> " "${value[@]}" --no-limit "${options[@]}")
+    local height=$(( ${#options[@]} + 3 ))
+    if (( height < 4 )); then
+      height=4
+    elif (( height > 15 )); then
+      height=15
+    fi
+    mapfile -t output < <(gum filter --height=$height --no-limit --header="VM Options> " "${value[@]}" --no-limit "${options[@]}")
     for item in "${output[@]}"; do
       case "$item" in
         "Start VM") start=true ;;
@@ -447,7 +453,7 @@ delete() {
     elif (( height > 15 )); then
       height=15
     fi
-    mapfile -t vms < <(gum choose --no-limit --header="Select VM to Delete> " "${vms[@]}")
+    mapfile -t vms < <(gum filter --height=$height --no-limit --header="Select VMs to Delete> " "${vms[@]}")
     if (( ${#vms[@]} == 0 )); then
       echo "Error getting VM to Delete" >&2
       exit 1
@@ -532,11 +538,19 @@ list() {
 
   if (( ${#opts[@]} == 0 )); then
     gumcheck list_usage
-    mode=$(gum choose --no-limit --header="Choose VM List Options> " \
-      --selected="All VMs" \
-      "All VMs" "Autostart VMs" "Running VMs" "Stopped VMs" "Paused VMs" \
-      "VMs with Snapshots" "VMs without Snapshots" \
-      "List DHCP IP Addresses (cannot be combined)")
+    local options=(
+      "All VMs" "Autostart VMs" "Running VMs" "Stopped VMs" "Paused VMs"
+      "VMs with Snapshots" "VMs without Snapshots" 
+      "List DHCP IP Addresses (cannot be combined)"
+    )
+    local height=$(( ${#options[@]} + 3 ))
+    if (( height < 4 )); then
+      height=4
+    elif (( height > 15 )); then
+      height=15
+    fi
+    mode=$(gum filter --height=$height --no-limit --header="Choose VM List Options> " \
+      --selected="All VMs" "${options[@]}")
     opts=()
     case "$mode" in
       "All VMs") [[ " ${opts[*]} " != *" --all "* ]] && opts+=(--all) ;;
@@ -604,7 +618,7 @@ reboot() {
       height=15
     fi
     (( ${#vms[@]} == 0 )) && { echo "No Running VMs" >&2 ; return ; }
-    mapfile -t vms < <(gum choose --no-limit --header="Select VM to $mode_label> " "${vms[@]}")
+    mapfile -t vms < <(gum filter --height=$height --no-limit --header="Select VMs to $mode_label> " "${vms[@]}")
     if (( ${#vms[@]} == 0 )); then
       echo "Error getting VM to $mode_label" >&2
       exit 1
@@ -693,7 +707,7 @@ snapshot() {
     elif (( height > 15 )); then
       height=15
     fi
-    if ! vm=$(gum choose --header="Select VM to Manage Snapshots> " "${vms[@]}"); then
+    if ! vm=$(gum filter --height=$height --header="Select VM to Manage Snapshots> " "${vms[@]}"); then
       echo "Error getting VM for Snapshot Management" >&2
       exit 1
     fi
@@ -703,7 +717,7 @@ snapshot() {
     case "$tmp" in
       "Create Snapshot") mode=create ;;
       "List Snapshots") mode=list ;;
-      "List Snapshots (tree)") mode=list-tree ;;
+      "List Snapshots (tree)") mode="list-tree" ;;
       "Revert Snapshot") mode=revert ;;
       "Delete Snapshots") mode=delete ;;
       *) echo "Invalid mode for Snapshot Management ($tmp)" >&2 ; exit 1 ;;
@@ -720,8 +734,15 @@ snapshot() {
 
   if [[ "$mode" == delete ]]; then
     if $gui_mode; then
-      snapshot=$(gum choose --no-limit --header="Choose snapshot(s) to Delete> " \
-        < <(virsh "${connect[@]}" snapshot-list "$vm" | awk 'NR>2&&/./{print $1}' 2> /dev/null))
+      local list=()
+      mapfile -t list < <(virsh "${connect[@]}" snapshot-list "$vm" | awk 'NR>2&&/./{print $1}' 2> /dev/null)
+      local height=$(( ${#list[@]} + 3 ))
+      if (( height < 4 )); then
+        height=4
+      elif (( height > 15 )); then
+        height=15
+      fi
+      snapshot=$(gum filter --height=$height --no-limit --header="Choose snapshot(s) to Delete> " "${list[@]}")
       [[ -z "$snapshot" ]] && return
       if ! "$force"; then
         tmp=$(gum choose --header="Really Delete snapshot '$snapshot' for $vm? " No Yes)
@@ -750,8 +771,15 @@ snapshot() {
 
   if [[ "$mode" == revert ]]; then
     if $gui_mode; then
-      snapshot=$(gum choose --no-limit --header="Choose snapshot(s) to Revert> " \
-        < <(virsh "${connect[@]}" snapshot-list "$vm" | awk 'NR>2&&/./{print $1}' 2> /dev/null))
+      local list=()
+      mapfile -t list < <(virsh "${connect[@]}" snapshot-list "$vm" | awk 'NR>2&&/./{print $1}' 2> /dev/null)
+      local height=$(( ${#list[@]} + 3 ))
+      if (( height < 4 )); then
+        height=4
+      elif (( height > 15 )); then
+        height=15
+      fi
+      snapshot=$(gum filter --height=$height --header="Choose snapshot to Revert> " "${list[@]}")
       [[ -z "$snapshot" ]] && return
       if ! "$force"; then
         tmp=$(gum choose --header="Really Revert snapshot '$snapshot' for $vm? " No Yes)
@@ -860,7 +888,7 @@ start() {
       height=15
     fi
     (( ${#vms[@]} == 0 )) && { echo "No available VMs" >&2 ; return ; }
-    mapfile -t vms < <(gum choose --no-limit --header="Select VM to $mode_label> " "${vms[@]}")
+    mapfile -t vms < <(gum filter --height=$height --no-limit --header="Select VM to $mode_label> " "${vms[@]}")
     if (( ${#vms[@]} == 0 )); then
       echo "Error getting VM to $mode_label" >&2
       exit 1
