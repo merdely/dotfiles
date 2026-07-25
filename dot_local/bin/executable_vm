@@ -12,6 +12,16 @@ PARSEOPTS="${_LIBDIR:-"$(dirname "$0")${_LIB:-}"}/parseopts.sh"
 # shellcheck disable=SC1090,SC1091
 source "$PARSEOPTS" ; unset _LIB _LIBDIR
 
+gumcheck() {
+  local usage=${1:-usage}
+  if ! command -v gum &>/dev/null; then
+    echo "Gum not found: Cannot load interactive menus" >&2
+    "$usage" "$2"
+    return 1
+  fi
+  return 0
+}
+
 clone_usage() {
   echo "usage: ${0##*/} clone [Options] SRC_VM DEST_VM"
   echo
@@ -49,6 +59,7 @@ clone() {
   done
 
   if [[ -z "$src_vm" || -z "$dest_vm" ]]; then
+    gumcheck clone_usage
     local selected=() vms=()
     mapfile -t vms < <(virsh "${connect[@]}" list --all | awk 'NR>2&&/./{print $2}' 2> /dev/null | sort -n)
     local height=$(( ${#vms[@]} + 3 ))
@@ -173,6 +184,7 @@ create() {
   done
 
   if [[ -z "$vm_type" ]]; then
+    gumcheck create_usage
     local vm_types=(
       "Arch Linux" Debian "Fedora Workstation" "Fedora Server" "Fedora KDE Desktop"
       "OpenBSD" "Oracle Enterprise Linux 9"
@@ -426,6 +438,7 @@ delete() {
   (( $# > 1 )) && { pronoun=their ; vmlabel=VMs ; }
 
   if (( $# == 0 )); then
+    gumcheck delete_usage
     local vms=() tmp=""
     mapfile -t vms < <(virsh "${connect[@]}" list --all | awk 'NR>2&&/./{print $2}' 2> /dev/null | sort -n)
     local height=$(( ${#vms[@]} + 3 ))
@@ -518,6 +531,7 @@ list() {
   done
 
   if (( ${#opts[@]} == 0 )); then
+    gumcheck list_usage
     mode=$(gum choose --no-limit --header="Choose VM List Options> " \
       --selected="All VMs" \
       "All VMs" "Autostart VMs" "Running VMs" "Stopped VMs" "Paused VMs" \
@@ -580,6 +594,7 @@ reboot() {
   done
 
   if (( $# == 0 )); then
+    gumcheck reboot_usage "$mode"
     local vms=() tmp=""
     mapfile -t vms < <(virsh "${connect[@]}" list --state-running --state-paused | awk 'NR>2&&/./{print $2}' 2> /dev/null | sort -n)
     local height=$(( ${#vms[@]} + 3 ))
@@ -668,6 +683,7 @@ snapshot() {
   snapshot=$2
 
   if [[ -z "$vm" ]]; then
+    gumcheck snapshot_usage
     local vms=() tmp=""
     gui_mode=true
     mapfile -t vms < <(virsh "${connect[@]}" list --all | awk 'NR>2&&/./{print $2}' 2> /dev/null | sort -n)
@@ -834,6 +850,7 @@ start() {
   done
 
   if (( $# == 0 )); then
+    gumcheck start_usage "$mode"
     local vms=() tmp=""
     mapfile -t vms < <(virsh "${connect[@]}" list "${states[@]}" | awk 'NR>2&&/./{print $2}' 2> /dev/null | sort -n)
     local height=$(( ${#vms[@]} + 3 ))
@@ -922,8 +939,10 @@ main_usage() {
   echo "  start    = Start VM            : ${0##*/} start [-h] [-c] VM_NAME"
   echo "  stop     = Stop VM             : ${0##*/} stop [-h] [-f] VM_NAME"
   echo "  help     = This help"
-  echo "If mode is not given and Gum* is installed, an interactive menu will be used"
-  echo "* https://github.com/charmbracelet/gum"
+  if command -v gum &>/dev/null; then
+    echo "If mode is not given and Gum* is installed, an interactive menu will be used"
+    echo "* https://github.com/charmbracelet/gum"
+  fi
   exit "${1:-0}"
 }
 
@@ -935,6 +954,7 @@ main() {
 
   while : ; do
     if $use_gui; then
+      gumcheck main_usage
       actions=(
         "Start VM(s)" "Stop VM(s)" "Create VM" "Clone VM" "Delete VM(s)"
         "VM Snapshots" "Reboot VM(s)" "Hard Reset VM(s)" "List VMs"
