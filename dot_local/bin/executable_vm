@@ -517,7 +517,25 @@ list() {
     shift
   done
 
-  (( ${#opts[@]} == 0 )) && opts=(--all)
+  if (( ${#opts[@]} == 0 )); then
+    mode=$(gum choose --no-limit --header="Choose VM List Options> " \
+      --selected="All VMs" \
+      "All VMs" "Autostart VMs" "Running VMs" "Stopped VMs" "Paused VMs" \
+      "VMs with Snapshots" "VMs without Snapshots" \
+      "List DHCP IP Addresses (cannot be combined)")
+    opts=()
+    case "$mode" in
+      "All VMs") [[ " ${opts[*]} " != *" --all "* ]] && opts+=(--all) ;;
+      "Autostart VMs") [[ " ${opts[*]} " != *" --autostart "* ]] && opts+=(--autostart) ;;
+      "Running VMs") [[ " ${opts[*]} " != *" --state-running "* ]] && opts+=(--state-running) ;;
+      "Stopped VMs") [[ " ${opts[*]} " != *" --state-shutoff "* ]] && opts+=(--state-shutoff) ;;
+      "Paused VMs") [[ " ${opts[*]} " != *" --state-paused "* ]] && opts+=(--state-paused) ;;
+      "VMs with Snapshots") [[ " ${opts[*]} " != *" --with-snapshots "* ]] && opts+=(--with-snapshots) ;;
+      "VMs without Snapshots") [[ " ${opts[*]} " != *" --without-snapshots "* ]] && opts+=(--without-snapshots) ;;
+      "List DHCP IP Addresses"*) mode=ip ;;
+      *) ;;
+    esac
+  fi
 
   if [[ "$mode" == ip ]]; then
     virsh "${connect[@]}" net-dhcp-leases "${1:-default}"
@@ -910,34 +928,51 @@ main_usage() {
 main() {
   command -v virsh &>/dev/null || { echo "Error: virsh is required for this program" >&2 ; exit 1 ; }
 
-  case "$1" in
-    clone|copy|duplicate|dupe) shift ; clone "$@" ;;
-    create|new) shift ; create "$@" ;;
-    delete|del|remove|rm) shift ; delete "$@" ;;
-    list|ls) shift ; list "$@" ;;
-    reboot) shift ; reboot "$@" ;;
-    reset) shift ; reboot --reset "$@" ;;
-    snapshot|snap) shift ; snapshot "$@" ;;
-    start) shift ; start "$@" ;;
-    stop|shutdown|destroy) shift ; start --stop "$@" ;;
-    ''|help|--help|-h)
-      shift
-      case "$1" in
-        clone|copy|duplicate|dupe) clone -h ;;
-        create|new) create -h ;;
-        delete|del|remove|rm) delete -h ;;
-        list|ls) list -h ;;
-        reboot) reboot -h ;;
-        reset) reboot --reset -h ;;
-        snapshot|snap) snapshot -h ;;
-        start) start -h ;;
-        stop|shutdown|destroy) start --stop -h ;;
-        *) main_usage ;;
-      esac
-      ;;
-    -*) create "$@" ;;
-    *) echo "Error: Invalid command" >&2 ; main_usage 1
-  esac
+  local use_gui=false action=$1 local actions=()
+  [[ -z "$action" ]] && use_gui=true
+
+  while : ; do
+    if $use_gui; then
+      actions=(
+        "Start VM(s)" "Stop VM(s)" "Create VM" "Clone VM" "Delete VM(s)"
+        "VM Snapshots" "Reboot VM(s)" "Hard Reset VM(s)" "List VMs"
+      )
+      action=$(gum filter --height=$(( ${#actions[@]} + 4 )) \
+        --header="Virtual Machine Management> " "${actions[@]}")
+      [[ -z "$action" ]] && exit
+    fi
+
+    case "$action" in
+      "Clone VM"|clone|copy|duplicate|dupe) shift ; clone "$@" ;;
+      "Create VM"|create|new) shift ; create "$@" ;;
+      "Delete VM(s)"|delete|del|remove|rm) shift ; delete "$@" ;;
+      "List VMs"|list|ls) shift ; list "$@" ;;
+      "Reboot VM(s)"|reboot) shift ; reboot "$@" ;;
+      "Reset VM(s)"|reset) shift ; reboot --reset "$@" ;;
+      "VM Snapshots"|snapshot|snap) shift ; snapshot "$@" ;;
+      "Start VM(s)"|start) shift ; start "$@" ;;
+      "Stop VM(s)"|stop|shutdown|destroy) shift ; start --stop "$@" ;;
+      ''|help|--help|-h)
+        shift
+        case "$1" in
+          clone|copy|duplicate|dupe) clone -h ;;
+          create|new) create -h ;;
+          delete|del|remove|rm) delete -h ;;
+          list|ls) list -h ;;
+          reboot) reboot -h ;;
+          reset) reboot --reset -h ;;
+          snapshot|snap) snapshot -h ;;
+          start) start -h ;;
+          stop|shutdown|destroy) start --stop -h ;;
+          *) main_usage ;;
+        esac
+        ;;
+      -*) create "$@" ;;
+      *) echo "Error: Invalid command" >&2 ; main_usage 1
+    esac
+
+    ! "$use_gui" && break
+  done
 }
 
 main "$@"
