@@ -20,7 +20,7 @@ ls.add_snippets("sh", {
      ls.text_node({
        '# _LIB="/../lib"            # comment this line out if parseopts.sh is in the same directory as $0',
        '# _LIBDIR=/srv/scripts/lib  # Use a line like this to override location of parseopts.sh',
-       'PARSEOPTS="${_LIBDIR:-"$(dirname "$0")${_LIB}"}/parseopts.sh"',
+       'PARSEOPTS="${_LIBDIR:-"$(dirname "$0")${_LIB:-}"}/parseopts.sh"',
        '# shellcheck disable=SC1090,SC1091',
        'source "$PARSEOPTS" ; unset _LIB _LIBDIR',
        '',
