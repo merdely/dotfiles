@@ -36,23 +36,38 @@ subtypes[medium]=2
 
 testmode=false
 stackmode=false
-while getopts ":hfrst" opt; do
-  case $opt in
-    f) chooser=fuzzel ;;
-    r) chooser=rofi ;;
-    s) stackmode=true ;;
-    t) testmode=true ;;
-    *)
-      echo "usage: ${0##*/} [-h] [-f|-r] [-s]"
-      echo "          -h     : show this help text"
-      echo "          -f     : use fuzzel"
-      echo "          -r     : use rofi"
-      echo "          -s     : stack-in-window (default: each camera in own mpv window)"
-      exit
-      ;;
+usage() {
+  echo "usage: ${0##*/} [Options]"
+  echo "  -h|--help    : show this help text"
+  echo "  -f|--fuzzel  : use fuzzel"
+  echo "  -r|--rofi    : use rofi"
+  echo "  -s|--stack   : stack-in-window (default: each camera in own mpv window)"
+  exit "${1:-0}"
+}
+
+# _LIB="/../lib"            # comment this line out if parseopts.sh is in the same directory as $0
+# _LIBDIR=/srv/scripts/lib  # Use a line like this to override location of parseopts.sh
+PARSEOPTS="${_LIBDIR:-"$(dirname "$0")${_LIB}"}/parseopts.sh"
+# shellcheck disable=SC1090,SC1091
+source "$PARSEOPTS" ; unset _LIB _LIBDIR
+
+OPT_SHORT="hfrst"
+OPT_LONG=("help" "fuzzel" "rofi" "stack" "test")
+declare -a OPTRET
+parseopts "$OPT_SHORT" "${OPT_LONG[@]}" -- "$@" || exit 1
+set -- "${OPTRET[@]}" ; unset OPT_SHORT OPT_LONG OPTRET
+while true; do
+  case $1 in
+    -h|--help)   usage ;;
+    -f|--fuzzel) chooser=fuzzel ;;
+    -r|--rofi)   chooser=rofi ;;
+    -s|--stack)  stackmode=true ;;
+    -t|--test)   testmode=true ;;
+    --) shift ; break ;;
+    *) ;;
   esac
+  shift
 done
-shift $((OPTIND -1))
 
 if [ -z "$1" ]; then
   camlist="

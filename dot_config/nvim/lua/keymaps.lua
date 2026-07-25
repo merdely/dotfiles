@@ -23,6 +23,19 @@ vim.keymap.set("v", "<A-.>", ":<C-u>execute \"'<,'>move '>+\" . v:count1<cr>gv=g
 vim.keymap.set("v", "<A-,>", ":<C-u>execute \"'<,'>move '<-\" . (v:count1 + 1)<cr>gv=gv", { desc = "Move Up" })
 vim.keymap.set("n", "<ESC>", ":nohlsearch<CR>", { desc = "Clear search highlights", noremap = true, silent = true })
 
+for _, key in ipairs({ "h", "j", "k", "l" }) do
+  vim.keymap.set("n", "<leader>" .. key, "@" .. key, { desc = "Run macro '" .. key .. "'" })
+end
+
+vim.keymap.set("n", "<leader>bx", function()
+  local alt = vim.fn.bufnr("#")
+  if alt ~= -1 and vim.api.nvim_buf_is_valid(alt) and vim.api.nvim_buf_is_loaded(alt) then
+    vim.cmd("bdelete " .. alt)
+  else
+    vim.notify("No previous buffer", vim.log.levels.WARN)
+  end
+end, { desc = "Delete previous buffer" })
+
 vim.keymap.set('n', '-', ':Ex<cr>', { desc = 'File Manager', silent = true })
 
 vim.keymap.set("n", "<leader>X", function()

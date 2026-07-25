@@ -16,7 +16,37 @@ ls.add_snippets("sh", {
       '',
     })
   }),
-  ls.snippet("getopts", {
+  ls.snippet("getopts_long", {
+     ls.text_node({
+       '# _LIB="/../lib"            # comment this line out if parseopts.sh is in the same directory as $0',
+       '# _LIBDIR=/srv/scripts/lib  # Use a line like this to override location of parseopts.sh',
+       'PARSEOPTS="${_LIBDIR:-"$(dirname "$0")${_LIB}"}/parseopts.sh"',
+       '# shellcheck disable=SC1090,SC1091',
+       'source "$PARSEOPTS" ; unset _LIB _LIBDIR',
+       '',
+       'OPT_SHORT="hfa:o?"',
+       'OPT_LONG=("help" "flag" "arg:" "opt?")',
+       'declare -a OPTRET',
+       'parseopts "$OPT_SHORT" "${OPT_LONG[@]}" -- "$@" || exit 1',
+       'set -- "${OPTRET[@]}" ; unset OPT_SHORT OPT_LONG OPTRET',
+       '',
+       'usage() { echo "usage: ${0##*/} [-h|--help] [-f|--flag] [-a|--arg ARG] [-o|--opt [OPT]]" ; exit "${1:-0}" ; }',
+       'FLAG=0 ; ARG=0 ; ARG_VALUE="" ; OPT=0 ; OPT_VALUE=""',
+       'while true; do',
+       '	case $1 in',
+       '    -h|--help) usage ;;',
+       '		-f|--flag) FLAG=1 ;;',
+       '    -a|--arg)  ARG=1 ; shift ; ARG_VALUE=$1 ;;',
+       '    -o|--opt)  OPT=1 ; [[ "$2" != -- ]] && { shift ; OPT_VALUE=$1 ; } ;;',
+       '		--) shift ; break ;;',
+       '    *) ;;',
+       '  esac',
+       '	shift',
+       'done',
+       '',
+     }),
+  }),
+  ls.snippet("getopts_short", {
      ls.text_node({
        'usage() { echo "usage: ${0##*/} [-h] [-a] [-b b]" ; exit "${1:-0}" ; }',
        '# local OPTIND=1 OPTARG="" opt=""',
