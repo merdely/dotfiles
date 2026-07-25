@@ -361,7 +361,7 @@ create() {
         "Fedora KDE Desktop"|fedora-kde)
           vm_label="Fedora KDE Desktop"
           os_search='fedora'
-          iso_search="Fedora-KDE-Desktop*-x86_64*.iso"
+          iso_search="Fedora-KDE-Desktop*.x86_64.iso"
           ;;
         "Fedora Server"|fedora-server)
           vm_label="Fedora Server"
