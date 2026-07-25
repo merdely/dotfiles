@@ -1009,7 +1009,7 @@ main() {
 
     case "$action" in
       "Clone VM"|clone|copy|duplicate|dupe) shift ; clone "$@" ;;
-      "Create VM"|create|new) shift ; create "$@" ;;
+      "Create VM"|create|install|new) shift ; create "$@" ;;
       "Delete VM(s)"|delete|del|remove|rm) shift ; delete "$@" ;;
       "List VMs"|list|ls) shift ; list "$@" ;;
       "Reboot VM(s)"|reboot) shift ; reboot "$@" ;;
