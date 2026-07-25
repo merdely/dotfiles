@@ -83,7 +83,7 @@ clone() {
     fi
     [[ -z "$dest_vm" ]] && return
     local output=() item="" tmp=""
-    if tmp=$(gum filter --height=5 --header="Start VM? " --selected "Start VM" --no-limit "Start VM" "Connect to Console"); then
+    if tmp=$(gum filter --height=6 --header="Start VM? " --selected "Start VM" --no-limit "Start VM" "Connect to Console"); then
       mapfile -t output <<< "$tmp"
       start=false
       for item in "${output[@]}"; do
@@ -203,7 +203,7 @@ create() {
     [[ -z "$vm_type" || "$vm_type" == "<-- Back" ]] && return
 
     local value=()
-    [[ -n "$vm_type" ]] && value=(--value="$(tr '[[:upper:]]' '[[:lower:]]' <<< ${vm_type// /})")
+    [[ -n "$vm_type" ]] && value=(--value="$(tr '[:upper:]' '[:lower:]' <<< "${vm_type// /}")")
     if ! vm_name=$(gum input --header="VM Name for $vm_type? " "${value[@]}"); then
       echo "Error getting VM Name" >&2
       exit 1
@@ -328,7 +328,7 @@ create() {
     exit 1
   fi
 
-  local os_variant="" vm_label="" os_search="" iso_search="" install_flags=() iso_flags=""
+  local os_variant="" vm_label="" os_search="" iso_search="" install_flags=()
   case "$vm_type" in
     "Arch Linux"|arch)
       vm_label="Arch Linux"
@@ -356,26 +356,21 @@ create() {
         "Fedora Workstation"|fedora)
           vm_label="Fedora Workstation"
           os_search='fedora'
-          iso_search="Fedora-Workstation*-x86_64*.iso"
-          iso_flags=""
           ;;
         "Fedora KDE Desktop"|fedora-kde)
           vm_label="Fedora KDE Desktop"
           os_search='fedora'
-          iso_search="Fedora-KDE-Desktop*.x86_64.iso"
-          iso_flags=""
           ;;
         "Fedora Server"|fedora-server)
           vm_label="Fedora Server"
           os_search='fedora'
-          iso_search="Fedora-Server*-x86_64*.iso"
-          iso_flags=",kernel=images/pxeboot/vmlinuz,initrd=images/pxeboot/initrd.img"
           ;;
         *) echo "Error: Invalid Fedora Selection" ; exit 1
       esac
+      iso_search="Fedora-Everything-netinst-x86_64-*.iso"
       [[ -z "$vm_iso" ]] && vm_iso=$(get_iso "$iso_search" "$vm_iso")
       install_flags=(
-        "--cdrom" "$vm_iso${iso_flags}"
+        "--location" "$vm_iso,kernel=images/pxeboot/vmlinuz,initrd=images/pxeboot/initrd.img"
         "--extra-args" "console=ttyS0,115200"
         "--extra-args" "inst.text"
       )
@@ -697,7 +692,7 @@ snapshot() {
       -d|--description) shift ; description=$1 ;;
       -f|--force) force=true ;;
       -l|--list) mode=list ;;
-      -t|--list-tree) mode=list-tree ;;
+      -t|--list-tree) mode="list-tree" ;;
       -D|--delete) mode=delete ;;
       -R|--revert) mode=revert ;;
       --) shift ; break ;;
@@ -996,7 +991,7 @@ main_usage() {
 main() {
   command -v virsh &>/dev/null || { echo "Error: virsh is required for this program" >&2 ; exit 1 ; }
 
-  local use_gui=false action=$1 local actions=()
+  local use_gui=false action=$1 actions=()
   [[ -z "$action" ]] && use_gui=true
 
   while : ; do
