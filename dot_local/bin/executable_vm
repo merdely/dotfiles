@@ -26,6 +26,7 @@ clone_usage() {
 clone() {
   command -v virt-clone &>/dev/null || { echo "Error: virt-clone is required for this program" >&2 ; exit 1 ; }
 
+  local src_vm=$1 dest_vm=$2
   local connect=(--connect "$CONNECT_URI") start=false opts=()
   local OPT_SHORT="huc:sS"
   local OPT_LONG=("help" "user" "session" "connect:" "start" "start-console")
@@ -39,15 +40,45 @@ clone() {
       -u|--user|--session) connect=(--connect qemu:///session) ;;
       -c|--connect) shift ; connect=(--connect "$1") ;;
       -s|--start) start=true ;;
-      -S|--start-console) start=true ; opts+=(--console) ;;
+      -S|--start-console) start=true ; [[ " ${opts[*]} " != *" --console "* ]] && opts+=(--console) ;;
       --) shift ; break ;;
       *) ;;
     esac
     shift
   done
 
-  virt-clone "${connect[@]}" --auto-clone --original "$1" --name "$2"
-  $start && virsh "${connect[@]}" start "$2" "${opts[@]}" || true
+  if [[ -z "$src_vm" || -z "$dest_vm" ]]; then
+    local selected=()
+    [[ -n "$src_vm" ]] && selected=(--selected="$src_vm")
+    if ! src_vm=$(gum choose --header="Select VM to Clone> " "${selected[@]}" < <(virsh "${connect[@]}" list --all | awk 'NR>2&&/./{print $2}' 2> /dev/null)); then
+      echo "Error getting source VM" >&2
+      exit 1
+    fi
+    [[ -z "$src_vm" ]] && return
+    local placeholder=()
+    [[ -n "$dest_vm" ]] && placeholder=(--placeholder="$dest_vm")
+    if ! dest_vm=$(gum input --header="Enter Name for New VM> " "${placeholder[@]}"); then
+      echo "Error getting destination VM name" >&2
+      exit 1
+    fi
+    [[ -z "$dest_vm" ]] && return
+    local output=() item="" tmp=""
+    if tmp=$(gum choose --header="Start VM? " --selected "Start VM" --no-limit "Start VM" "Connect to Console"); then
+      mapfile -t output <<< "$tmp"
+      start=false
+      for item in "${output[@]}"; do
+        case "$item" in
+          "Start VM") start=true ;;
+          "Connect to Console") [[ " ${opts[*]} " != *" --console "* ]] && opts+=(--console) ;;
+        esac
+      done
+    else
+      return
+    fi
+  fi
+
+  virt-clone "${connect[@]}" --auto-clone --original "$src_vm" --name "$dest_vm"
+  $start && virsh "${connect[@]}" start "$dest_vm" "${opts[@]}" || true
 }
 
 create_usage() {
@@ -126,7 +157,14 @@ create() {
     shift
   done
 
-  [[ -z "$vm_type" ]] && { echo "Error: A VM Type Option is required" ; create_usage 1 ; }
+  if [[ -z "$vm_type" ]]; then
+    if ! vm_type=$(gum choose --header="Choose VM Type> " "Arch Linux" Debian \
+         "Fedora {Workstation,Server,KDE Desktop}" "OpenBSD" "Oracle Enterprise Linux 9"); then
+      echo "Error getting VM Type" >&2
+      exit 1
+    fi
+    [[ -z "$vm_type" ]] && return
+  fi
 
   # Get system information
   local sys_ram="" sys_proc="" sys_disk=""
