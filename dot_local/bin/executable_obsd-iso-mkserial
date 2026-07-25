@@ -42,15 +42,26 @@ usage() {
 }
 
 force=false
-while getopts ":hf" opt; do
-  case $opt in
-    f) force=true ;;
-    h) usage ;;
-    :) echo "-$OPTARG requires an argument" ; exit 1 ;;
-    \?) echo "Unknown option: -$OPTARG" ; exit 1 ;;
+# _LIB="/../lib"            # comment this line out if parseopts.sh is in the same directory as $0
+# _LIBDIR=/srv/scripts/lib  # Use a line like this to override location of parseopts.sh
+PARSEOPTS="${_LIBDIR:-"$(dirname "$0")${_LIB}"}/parseopts.sh"
+# shellcheck disable=SC1090,SC1091
+source "$PARSEOPTS" ; unset _LIB _LIBDIR
+
+OPT_SHORT="hf"
+OPT_LONG=("help" "force")
+declare -a OPTRET
+parseopts "$OPT_SHORT" "${OPT_LONG[@]}" -- "$@" || exit 1
+set -- "${OPTRET[@]}" ; unset OPT_SHORT OPT_LONG OPTRET
+while true; do
+  case $1 in
+    -h|--help) usage ;;
+    -f|--force) force=true ;;
+    --) shift ; break ;;
+    *) ;;
   esac
+  shift
 done
-shift $(( OPTIND - 1 ))
 
 (( $# > 0 )) || usage 1
 
