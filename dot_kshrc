@@ -22,6 +22,7 @@ GIT_PS1_SHOWUPSTREAM=auto
 # shellcheck disable=SC2034
 [[ "$TERM" = "vt220" || "$TERM" = "linux" ]] && { dots="..." ; git_s="§" ; git_c=yellow ; pchar='%%' ; }
 if [[ -r /usr/share/git/git-prompt.sh ]]; then
+  # shellcheck disable=SC1091
   . /usr/share/git/git-prompt.sh
 elif [[ -r "$HOME"/.local/bin/git-prompt.sh ]]; then
   # shellcheck disable=SC1091
