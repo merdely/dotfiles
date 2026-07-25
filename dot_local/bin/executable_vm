@@ -328,7 +328,7 @@ create() {
     exit 1
   fi
 
-  local os_variant="" vm_label="" os_search="" iso_search="" install_flags=()
+  local os_variant="" vm_label="" os_search="" iso_search="" install_flags=() iso_flags=""
   case "$vm_type" in
     "Arch Linux"|arch)
       vm_label="Arch Linux"
@@ -357,22 +357,25 @@ create() {
           vm_label="Fedora Workstation"
           os_search='fedora'
           iso_search="Fedora-Workstation*-x86_64*.iso"
+          iso_flags=""
           ;;
         "Fedora KDE Desktop"|fedora-kde)
           vm_label="Fedora KDE Desktop"
           os_search='fedora'
           iso_search="Fedora-KDE-Desktop*.x86_64.iso"
+          iso_flags=""
           ;;
         "Fedora Server"|fedora-server)
           vm_label="Fedora Server"
           os_search='fedora'
           iso_search="Fedora-Server*-x86_64*.iso"
+          iso_flags=",kernel=images/pxeboot/vmlinuz,initrd=images/pxeboot/initrd.img"
           ;;
         *) echo "Error: Invalid Fedora Selection" ; exit 1
       esac
       [[ -z "$vm_iso" ]] && vm_iso=$(get_iso "$iso_search" "$vm_iso")
       install_flags=(
-        "--location" "$vm_iso,kernel=images/pxeboot/vmlinuz,initrd=images/pxeboot/initrd.img"
+        "--location" "$vm_iso${iso_flags}"
         "--extra-args" "console=ttyS0,115200"
         "--extra-args" "inst.text"
       )
