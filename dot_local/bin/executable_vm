@@ -922,6 +922,8 @@ main_usage() {
   echo "  start    = Start VM            : ${0##*/} start [-h] [-c] VM_NAME"
   echo "  stop     = Stop VM             : ${0##*/} stop [-h] [-f] VM_NAME"
   echo "  help     = This help"
+  echo "If mode is not given and Gum* is installed, an interactive menu will be used"
+  echo "* https://github.com/charmbracelet/gum"
   exit "${1:-0}"
 }
 
