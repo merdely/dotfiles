@@ -6,7 +6,7 @@
 # To install in crontab, add:
 # */15 * * * * $HOME/.local/bin/handle_dms_idle_inhibitor.sh
 
-[ -r $HOME/.config/idle_inhibitor ] && . $HOME/.config/idle_inhibitor
+[ -r "$HOME/.config/idle_inhibitor" ] && . "$HOME/.config/idle_inhibitor"
 
 ! command -v dms &> /dev/null && echo "Error: ${0##*/} requires dms" >&2 && exit 1
 ! command -v notify-send &> /dev/null && echo "Warning: ${0##*/} requires notify-send to send messages" >&2 && exit 1
@@ -26,7 +26,7 @@ calculate_check_seconds() {
   elif [[ $days =~ ^[1-9][0-9]*$ ]]; then
     result=$((days * 24 * 60 * 60))
   fi
-  echo $result
+  echo "$result"
 }
 pprint_time() {
   local def="$check_seconds seconds"
@@ -40,7 +40,7 @@ pprint_time() {
     def="$((check_seconds / (24 * 60 * 60) )) days"
   fi
   [[ $def == "1 "* ]] && def=${def%s}
-  echo $def
+  echo "$def"
 }
 
 [[ -n "$days" || -n "$hours" || -n "$minutes" || -n "$seconds" ]] && unset check_seconds
@@ -60,76 +60,88 @@ usage() {
     def="$((check_seconds / (24 * 60 * 60) )) days"
   fi
   [[ $def == "1 "* ]] && def=${def%s}
-  echo "usage: $progname [-h] [-i IDLE_FILE] [-d DAYS|-h HOURS|-m MINUTES|-s SECONDS]"
-  echo "  -h           : This help text"
-  echo "  -i IDLE_FILE : Use IDLE_FILE (default: $idle_file)"
-  echo "  -d DAYS      : Use DAYS days to check for age of idle_file (default: $(pprint_time))"
-  echo "  -h HOURS     : Use HOURS hours to check for age of idle_file (default: $(pprint_time))"
-  echo "  -m MINUTES   : Use MINUTES minutes to check for age of idle_file (default: $(pprint_time))"
-  echo "  -s SECONDS   : Use SECONDS seconds to check for age of idle_file (default: $(pprint_time))"
-  exit $1
+  echo "usage: $progname [Options]"
+  echo
+  echo "Options:"
+  echo "  -h|--help               : This help text"
+  echo "  -i|--idlefile IDLE_FILE : Use IDLE_FILE (default: $idle_file)"
+  echo "  -D|--days DAYS          : Use DAYS days to check for age of idle_file (default: $(pprint_time))"
+  echo "  -H|--hours HOURS        : Use HOURS hours to check for age of idle_file (default: $(pprint_time))"
+  echo "  -M|--minutes MINUTES    : Use MINUTES minutes to check for age of idle_file (default: $(pprint_time))"
+  echo "  -S|--seconds SECONDS    : Use SECONDS seconds to check for age of idle_file (default: $(pprint_time))"
+  exit "${1:-0}"
 }
+# _LIB="/../lib"            # comment this line out if parseopts.sh is in the same directory as $0
+# _LIBDIR=/srv/scripts/lib  # Use a line like this to override location of parseopts.sh
+PARSEOPTS="${_LIBDIR:-"$(dirname "$0")${_LIB}"}/parseopts.sh"
+# shellcheck disable=SC1090,SC1091
+source "$PARSEOPTS" ; unset _LIB _LIBDIR
 
-for a in $*; do [ $a = --help ] && usage; done
-while getopts ":h:d:m:s:i:" opt; do
-  case $opt in
-    :) case $OPTARG in
-         h) usage ;;
-         *) echo "ERROR: -$OPTARG requires an argument" > /dev/stderr ; exit 1 ;;
-       esac ;;
-    i) case $OPTARG in
-         -*) echo "Error: -$opt requires an argument" > /dev/stderr && exit 1 ;;
-          *)
-          idle_file_dir=$(realpath "$OPTARG")
-          idle_file_dir=${idle_file_dir%/*}
-          if [[ -w "$OPTARG" ]] || [[ -w "$idle_file_dir" ]]; then
-            idle_file=$OPTARG
-          else
-            if [ ! -w "$idle_file_dir" ]; then
-              echo "Error: Cannot write to $idle_file_dir" > /dev/stderr
-            else
-              echo "Error: Cannot write to $OPTARG" > /dev/stderr
-            fi
-            exit 1
-          fi ;;
-       esac ;;
-    d)
-      if [[ $OPTARG =~ ^[1-9][0-9]*$ ]]; then
+OPT_SHORT="hi:D:H:M:S:"
+OPT_LONG=("help" "idlefile:" "days:" "hours:" "minutes:" "seconds:")
+declare -a OPTRET
+parseopts "$OPT_SHORT" "${OPT_LONG[@]}" -- "$@" || exit 1
+set -- "${OPTRET[@]}" ; unset OPT_SHORT OPT_LONG OPTRET
+
+while true; do
+  case $1 in
+    -h|--help) usage ;;
+    -i|--idlefile)
+      shift
+      idle_file_dir=$(realpath "$1")
+      idle_file_dir=${idle_file_dir%/*}
+      if [[ -w "$1" ]] || [[ -w "$idle_file_dir" ]]; then
+        idle_file=$1
+      else
+        if [ ! -w "$idle_file_dir" ]; then
+          echo "Error: Cannot write to $idle_file_dir" > /dev/stderr
+        else
+          echo "Error: Cannot write to $1" > /dev/stderr
+        fi
+        exit 1
+      fi ;;
+    -d|--days)
+      shift
+      if [[ $1 =~ ^[1-9][0-9]*$ ]]; then
         unset days hours minutes
-        seconds=$((OPTARG * 24 * 60 * 60))
+        seconds=$((1 * 24 * 60 * 60))
       else
         echo "Error: DAYS must be a number greater than one" > /dev/stderr
         exit 1
       fi ;;
-    h)
-      if [[ $OPTARG =~ ^[1-9][0-9]*$ ]]; then
+    -H|--hours)
+      shift
+      if [[ $1 =~ ^[1-9][0-9]*$ ]]; then
         unset days hours minutes
-        seconds=$((OPTARG * 60 * 60))
-        hours=$OPTARG
+        seconds=$(($1 * 60 * 60))
+        hours=$1
       else
         echo "Error: HOURS must be a number greater than one" > /dev/stderr
         exit 1
       fi ;;
-    m)
-      if [[ $OPTARG =~ ^[1-9][0-9]*$ ]]; then
+    -M|--minutes)
+      shift
+      if [[ $1 =~ ^[1-9][0-9]*$ ]]; then
         unset days hours minutes
-        seconds=$((OPTARG * 60))
+        seconds=$(($1 * 60))
       else
         echo "Error: MINUTES must be a number greater than one" > /dev/stderr
         exit 1
       fi ;;
-    s)
-      if [[ $OPTARG =~ ^[1-9][0-9]*$ ]]; then
+    -S|--seconds)
+      shift
+      if [[ $1 =~ ^[1-9][0-9]*$ ]]; then
         unset days hours minutes
-        seconds=$OPTARG
+        seconds=$1
       else
         echo "Error: SECONDS must be a number greater than one" > /dev/stderr
         exit 1
       fi ;;
-    *) usage ;;
+    --) shift ; break ;;
+    *) ;;
   esac
+  shift
 done
-shift $((OPTIND - 1))
 
 # Recalculate check seconds after parsing command line
 check_seconds=$(calculate_check_seconds)
