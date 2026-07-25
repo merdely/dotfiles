@@ -145,11 +145,10 @@ create() {
   )
 
   local connect=(--connect "$CONNECT_URI")
-  local OPT_SHORT="hcu:ADOQn:r:v:d:i:gtTsS"
+  local OPT_SHORT="hcu:ADFOQn:r:v:d:i:gtTsS"
   local OPT_LONG=("help" "user" "session" "connect:" "name:" "ram:" "cpus:"
     "disk:" "iso:" "disable-gpu" "tpm" "emulated-tpm" "test" "start" "start-console"
-    "arch" "archlinux" "debian" "fedora" "fedora-server" "fedora-kde"
-    "openbsd" "ol9" "oraclelinux9"
+    "arch" "archlinux" "debian" "fedora" "openbsd" "ol9" "oraclelinux9"
   )
   declare -a OPTRET
   parseopts "$OPT_SHORT" "${OPT_LONG[@]}" -- "$@" || exit 1
