@@ -62,9 +62,10 @@ clone() {
     gumcheck clone_usage
     local selected=() vms=()
     mapfile -t vms < <(virsh "${connect[@]}" list --all | awk 'NR>2&&/./{print $2}' 2> /dev/null | sort -n)
-    local height=$(( ${#vms[@]} + 3 ))
-    if (( height < 4 )); then
-      height=4
+    vms+=("<-- Back")
+    local height=$(( ${#vms[@]} + 4 ))
+    if (( height < 5 )); then
+      height=5
     elif (( height > 15 )); then
       height=15
     fi
@@ -73,7 +74,7 @@ clone() {
       echo "Error getting source VM" >&2
       exit 1
     fi
-    [[ -z "$src_vm" ]] && return
+    [[ -z "$src_vm" || "$src_vm" == "<-- Back" ]] && return
     local value=()
     [[ -n "$dest_vm" ]] && value=(--value="$dest_vm")
     if ! dest_vm=$(gum input --header="Enter Name for New VM> " "${value[@]}"); then
@@ -187,11 +188,11 @@ create() {
     gumcheck create_usage
     local vm_types=(
       "Arch Linux" Debian "Fedora Workstation" "Fedora Server" "Fedora KDE Desktop"
-      "OpenBSD" "Oracle Enterprise Linux 9"
+      "OpenBSD" "Oracle Enterprise Linux 9" "<-- Back"
     )
-    local height=$(( ${#vm_types[@]} + 3 ))
-    if (( height < 4 )); then
-      height=4
+    local height=$(( ${#vm_types[@]} + 4 ))
+    if (( height < 5 )); then
+      height=5
     elif (( height > 15 )); then
       height=15
     fi
@@ -199,7 +200,7 @@ create() {
       echo "Error getting VM Type" >&2
       exit 1
     fi
-    [[ -z "$vm_type" ]] && return
+    [[ -z "$vm_type" || "$vm_type" == "<-- Back" ]] && return
 
     local value=()
     [[ -n "$vm_type" ]] && value=(--value="$(tr '[[:upper:]]' '[[:lower:]]' <<< ${vm_type// /})")
@@ -231,9 +232,9 @@ create() {
     value=() ; [[ -n "$vm_iso" ]] && value=(--selected="$vm_iso")
     mapfile -t iso_files < <(find "$ISO_PATH" -type f -iname "*.iso" -printf "%f\n" | sort)
     (( ${#iso_files[@]} == 0 )) && { echo "Error: Could not find any ISO files in $ISO_PATH" >&2 ; exit 1 ; }
-    local height=$(( ${#iso_files[@]} + 3 ))
-    if (( height < 4 )); then
-      height=4
+    local height=$(( ${#iso_files[@]} + 4 ))
+    if (( height < 5 )); then
+      height=5
     elif (( height > 15 )); then
       height=15
     fi
@@ -245,9 +246,9 @@ create() {
     options=("Start VM" "Connect to Console" "Disable GPU" "Test Mode (just print)")
     options=("Disable GPU" "Emulated TPM" "Test Mode (just print)")
     value=(--selected="Start VM,Connect to Console")
-    local height=$(( ${#options[@]} + 3 ))
-    if (( height < 4 )); then
-      height=4
+    local height=$(( ${#options[@]} + 4 ))
+    if (( height < 5 )); then
+      height=5
     elif (( height > 15 )); then
       height=15
     fi
@@ -447,9 +448,10 @@ delete() {
     gumcheck delete_usage
     local vms=() tmp=""
     mapfile -t vms < <(virsh "${connect[@]}" list --all | awk 'NR>2&&/./{print $2}' 2> /dev/null | sort -n)
-    local height=$(( ${#vms[@]} + 3 ))
-    if (( height < 4 )); then
-      height=4
+    vms+=("<-- Back")
+    local height=$(( ${#vms[@]} + 4 ))
+    if (( height < 5 )); then
+      height=5
     elif (( height > 15 )); then
       height=15
     fi
@@ -458,6 +460,9 @@ delete() {
       echo "Error getting VM to Delete" >&2
       exit 1
     fi
+    for tmp in "${vms[@]}"; do
+      [[ "$tmp" == "<-- Back" ]] && return
+    done
     set -- "${vms[@]}"
     (( $# > 1 )) && { pronoun=their ; vmlabel=VMs ; }
 
@@ -541,11 +546,11 @@ list() {
     local options=(
       "All VMs" "Autostart VMs" "Running VMs" "Stopped VMs" "Paused VMs"
       "VMs with Snapshots" "VMs without Snapshots" 
-      "List DHCP IP Addresses (cannot be combined)"
+      "List DHCP IP Addresses (cannot be combined)" "<-- Back"
     )
-    local height=$(( ${#options[@]} + 3 ))
-    if (( height < 4 )); then
-      height=4
+    local height=$(( ${#options[@]} + 4 ))
+    if (( height < 5 )); then
+      height=5
     elif (( height > 15 )); then
       height=15
     fi
@@ -561,6 +566,7 @@ list() {
       "VMs with Snapshots") [[ " ${opts[*]} " != *" --with-snapshots "* ]] && opts+=(--with-snapshots) ;;
       "VMs without Snapshots") [[ " ${opts[*]} " != *" --without-snapshots "* ]] && opts+=(--without-snapshots) ;;
       "List DHCP IP Addresses"*) mode=ip ;;
+      "<-- Back") return ;;
       *) ;;
     esac
   fi
@@ -611,18 +617,22 @@ reboot() {
     gumcheck reboot_usage "$mode"
     local vms=() tmp=""
     mapfile -t vms < <(virsh "${connect[@]}" list --state-running --state-paused | awk 'NR>2&&/./{print $2}' 2> /dev/null | sort -n)
-    local height=$(( ${#vms[@]} + 3 ))
-    if (( height < 4 )); then
-      height=4
+    (( ${#vms[@]} == 0 )) && { echo "No Running VMs" >&2 ; return ; }
+    vms+=("<-- Back")
+    local height=$(( ${#vms[@]} + 4 ))
+    if (( height < 5 )); then
+      height=5
     elif (( height > 15 )); then
       height=15
     fi
-    (( ${#vms[@]} == 0 )) && { echo "No Running VMs" >&2 ; return ; }
     mapfile -t vms < <(gum filter --height=$height --no-limit --header="Select VMs to $mode_label> " "${vms[@]}")
     if (( ${#vms[@]} == 0 )); then
       echo "Error getting VM to $mode_label" >&2
       exit 1
     fi
+    for tmp in "${vms[@]}"; do
+      [[ "$tmp" == "<-- Back" ]] && return
+    done
     set -- "${vms[@]}"
     (( $# > 1 )) && { pronoun=their ; vmlabel=VMs ; }
 
@@ -701,9 +711,10 @@ snapshot() {
     local vms=() tmp=""
     gui_mode=true
     mapfile -t vms < <(virsh "${connect[@]}" list --all | awk 'NR>2&&/./{print $2}' 2> /dev/null | sort -n)
-    local height=$(( ${#vms[@]} + 3 ))
-    if (( height < 4 )); then
-      height=4
+    vms+=("<-- Back")
+    local height=$(( ${#vms[@]} + 4 ))
+    if (( height < 5 )); then
+      height=5
     elif (( height > 15 )); then
       height=15
     fi
@@ -711,8 +722,8 @@ snapshot() {
       echo "Error getting VM for Snapshot Management" >&2
       exit 1
     fi
-    [[ -z "$vm" ]] && return
-    tmp=$(gum choose --header "Manage Snapshots for $vm" "Create Snapshot" "List Snapshots" \
+    [[ -z "$vm" || "$vm" == "<-- Back" ]] && return
+    tmp=$(gum filter --height=9 --header "Manage Snapshots for $vm" "Create Snapshot" "List Snapshots" \
       "List Snapshots (tree)" "Revert Snapshot" "Delete Snapshots")
     case "$tmp" in
       "Create Snapshot") mode=create ;;
@@ -735,10 +746,11 @@ snapshot() {
   if [[ "$mode" == delete ]]; then
     if $gui_mode; then
       local list=()
-      mapfile -t list < <(virsh "${connect[@]}" snapshot-list "$vm" | awk 'NR>2&&/./{print $1}' 2> /dev/null)
-      local height=$(( ${#list[@]} + 3 ))
-      if (( height < 4 )); then
-        height=4
+      mapfile -t list < <(virsh "${connect[@]}" snapshot-list --name "$vm" | grep . 2> /dev/null)
+      list+=("hi" "there")
+      local height=$(( ${#list[@]} + 4 ))
+      if (( height < 5 )); then
+        height=5
       elif (( height > 15 )); then
         height=15
       fi
@@ -773,9 +785,9 @@ snapshot() {
     if $gui_mode; then
       local list=()
       mapfile -t list < <(virsh "${connect[@]}" snapshot-list "$vm" | awk 'NR>2&&/./{print $1}' 2> /dev/null)
-      local height=$(( ${#list[@]} + 3 ))
-      if (( height < 4 )); then
-        height=4
+      local height=$(( ${#list[@]} + 4 ))
+      if (( height < 5 )); then
+        height=5
       elif (( height > 15 )); then
         height=15
       fi
@@ -881,9 +893,10 @@ start() {
     gumcheck start_usage "$mode"
     local vms=() tmp=""
     mapfile -t vms < <(virsh "${connect[@]}" list "${states[@]}" | awk 'NR>2&&/./{print $2}' 2> /dev/null | sort -n)
-    local height=$(( ${#vms[@]} + 3 ))
-    if (( height < 4 )); then
-      height=4
+    vms+=("<-- Back")
+    local height=$(( ${#vms[@]} + 4 ))
+    if (( height < 5 )); then
+      height=5
     elif (( height > 15 )); then
       height=15
     fi
@@ -893,6 +906,9 @@ start() {
       echo "Error getting VM to $mode_label" >&2
       exit 1
     fi
+    for tmp in "${vms[@]}"; do
+      [[ "$tmp" == "<-- Back" ]] && return
+    done
     set -- "${vms[@]}"
 
     if [[ "$mode" == stop ]] && ! "$force"; then
@@ -986,6 +1002,7 @@ main() {
       actions=(
         "Start VM(s)" "Stop VM(s)" "Create VM" "Clone VM" "Delete VM(s)"
         "VM Snapshots" "Reboot VM(s)" "Hard Reset VM(s)" "List VMs"
+        "Quit"
       )
       action=$(gum filter --height=$(( ${#actions[@]} + 4 )) \
         --header="Virtual Machine Management> " "${actions[@]}")
@@ -1002,6 +1019,7 @@ main() {
       "VM Snapshots"|snapshot|snap) shift ; snapshot "$@" ;;
       "Start VM(s)"|start) shift ; start "$@" ;;
       "Stop VM(s)"|stop|shutdown|destroy) shift ; start --stop "$@" ;;
+      "Quit") exit ;;
       ''|help|--help|-h)
         shift
         case "$1" in
