@@ -526,7 +526,7 @@ list() {
 
   (( ${#opts[@]} == 0 )) && opts+=(--all)
 
-  if $gui || [[ "$mode" == list ]] ; then
+  if $gui || [[ "${opts[*]}" == "--all" || "$mode" == list ]] ; then
     gumcheck list_usage
     local options=(
       "All VMs" "Autostart VMs" "Running VMs" "Stopped VMs" "Paused VMs"
