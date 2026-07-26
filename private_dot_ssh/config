@@ -4,7 +4,7 @@ Include ~/.ssh/config.top
 
 Host sol mercury venus earth mars jupiter saturn uranus neptune pluto homeassistant carme metis tarvos neso sinope
 
-Host 172.29.122.* 192.168.122.*
+Host qemu/* 172.29.122.* 192.168.122.*
   GlobalKnownHostsFile /dev/null
   UserKnownHostsFile /dev/null
   StrictHostKeyChecking no
