@@ -75,7 +75,7 @@ do
       -- clangd = {},
       -- gopls = {},
       -- pyright = {},
-      -- rust_analyzer = {},
+      rust_analyzer = {},
       --
       -- Some languages (like typescript) have entire language plugins that can be useful:
       --    https://github.com/pmizio/typescript-tools.nvim
@@ -141,9 +141,11 @@ do
     local ensure_installed = vim.tbl_keys(servers or {})
     if vim.fn.executable 'npm' == 1 then
       servers.bashls = {}
+      servers.ts_ls = {}
       servers.yamlls = {}
       vim.list_extend(ensure_installed, {
         "bashls",
+        "ts_ls",
         "yamlls",
       })
     else
@@ -189,6 +191,14 @@ do
       end
       servers.stylua = {}
       vim.list_extend(ensure_installed, { "stylua" })
+    end
+    if vim.fn.executable 'cc' == 1 or vim.fn.executable 'gcc' == 1 then
+      servers.clangd = {}
+      vim.list_extend(ensure_installed, { "clangd" })
+    end
+    if vim.fn.executable 'go' == 1 then
+      servers.gopls = {}
+      vim.list_extend(ensure_installed, { "gopls" })
     end
 
     -- Automatically install LSPs and related tools to stdpath for Neovim
