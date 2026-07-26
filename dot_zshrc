@@ -6,219 +6,76 @@
 umask 0022 >/dev/null 2>&1
 [[ $- != *i* ]] && return
 
-# shellcheck disable=SC1091
-[[ -e "$HOME"/.pre.profile.local ]] && . "$HOME"/.pre.profile.local
+__shell_specific() {
+  # Set Up Prompt
+  # 14 = bright cyan, 10 = bright green, 12 = bright blue
+  PROMPT='${PRE_PROMPT}%B[%F{14}%n%f@%F{10}%m%f %F{12}%(3~,${dots}/,)%2~%f]${subshell}'
+  command -v __git_ps1 >/dev/null 2>&1 && PROMPT="$PROMPT"'$(__git_ps1 " (%%F{${git_c}}${git_s}%%f %s)")'
+  PROMPT="$PROMPT"' %F{blue}%(!.#.${pchar})%f%b '
+  vi_ins="%F{green}[I]%f"
+  vi_cmd="%F{blue}[N]%f"
+  vi_mode=$vi_ins
+  function zle-line-init zle-keymap-select {
+    vi_mode="${${KEYMAP/vicmd/${vi_cmd}}/(main|viins)/${vi_ins}}"
+    zle reset-prompt
+  }
+  function zle-line-finish { vi_mode=$vi_ins ; }
+  zle -N zle-line-init
+  zle -N zle-keymap-select
+  zle -N zle-line-finish
+  RPROMPT='%(?..%F{red}($?%)%f )${vi_mode}'
 
-dots="…"
-git_s=""
-git_c=208
-pchar="❱"
-GIT_PS1_COMPRESSSPARSESTATE=true
-GIT_PS1_SHOWDIRTYSTATE=true
-GIT_PS1_SHOWUNTRACKEDFILES=true
-GIT_PS1_SHOWSTASHSTATE=true
-GIT_PS1_SHOWCOLORHINTS=true
-GIT_PS1_SHOWUPSTREAM=auto
-# shellcheck disable=SC2034
-[[ "$TERM" = "vt220" || "$TERM" = "linux" ]] && { dots="..." ; git_s="§" ; git_c=yellow ; pchar='%%' ; }
-if [[ -r /usr/share/git/git-prompt.sh ]]; then
-  # shellcheck disable=SC1091
-  . /usr/share/git/git-prompt.sh
-elif [[ -r "$HOME"/.local/bin/git-prompt.sh ]]; then
-  # shellcheck disable=SC1091
-  . "$HOME"/.local/bin/git-prompt.sh
-else
-  __git_ps1() { :; }
-fi
-if [[ -n "$CHEZMOI_SUBSHELL" ]]; then
-  # shellcheck disable=SC2034
-  subshell=" %F{magenta}+%f"
-fi
+  autoload -U colors && colors
+  autoload -U edit-command-line && zle -N edit-command-line
+  autoload compdef
+  autoload zmv
+  if command -v fzf >/dev/null 2>&1; then
+    . <(fzf --zsh)
+    bindkey -M viins '^p' history-search-backward
+    bindkey -M viins '^n' history-search-forward
+  fi
+  # . <(niri completions zsh)
 
-# Set Up Prompt
-# 14 = bright cyan, 10 = bright green, 12 = bright blue
-PROMPT='${PRE_PROMPT}%B[%F{14}%n%f@%F{10}%m%f %F{12}%(3~,${dots}/,)%2~%f]${subshell}'
-command -v __git_ps1 >/dev/null 2>&1 && PROMPT="$PROMPT"'$(__git_ps1 " (%%F{${git_c}}${git_s}%%f %s)")'
-PROMPT="$PROMPT"' %F{blue}%(!.#.${pchar})%f%b '
-vi_ins="%F{green}[I]%f"
-vi_cmd="%F{blue}[N]%f"
-vi_mode=$vi_ins
-function zle-line-init zle-keymap-select {
-  vi_mode="${${KEYMAP/vicmd/${vi_cmd}}/(main|viins)/${vi_ins}}"
-  zle reset-prompt
+  if [[ -r /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh ]]; then
+    . /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
+  elif [[ -r /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
+    . /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+  fi
+  if [[ -r /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh ]]; then
+    . /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh
+  elif [[ -r /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
+    . /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+  fi
+  bindkey -M vicmd j vi-down-line-or-history
+  bindkey -M vicmd k vi-up-line-or-history
+  bindkey -v '^?' backward-delete-char       # Allow backspace character to work
+  bindkey -M vicmd '^v' edit-command-line
+  bindkey -M viins '^y' autosuggest-execute
+  bindkey " " magic-space
+
+  autoload -Uz compinit && compinit
+  if [ -r "$HOME"/.config/zsh/plugins/fzf-tab/fzf-tab.plugin.zsh ]; then
+    . "$HOME"/.config/zsh/plugins/fzf-tab/fzf-tab.plugin.zsh
+    zstyle ":fzf-tab:*" use-fzf-default-opts yes
+    zstyle ":fzf-tab:complete:cd:*" fzf-preview "ls --color=always \${realpath}"
+    zstyle ':fzf-tab:*' query-string input
+  fi
+  zstyle ':completion:*' menu select
+  zstyle ':completion:*' matcher-list ''
+  zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}' 'm:{a-z}={A-Z} r:|[._-]=* r:|=*'
+
+  setopt append_history inc_append_history share_history hist_ignore_space
+  setopt auto_cd cd_silent auto_pushd pushd_silent rmstarsilent
+  setopt no_hup no_check_jobs prompt_subst interactive_comments no_match
+  setopt correct
+  # CORRECT_IGNORE=
+  # setopt correct_all
+  # CORRECT_IGNORE_FILE=
+  stty stop undef
+  bindkey -v
+  alias reprofile='. $HOME/.zshrc'
 }
-function zle-line-finish { vi_mode=$vi_ins ; }
-zle -N zle-line-init
-zle -N zle-keymap-select
-zle -N zle-line-finish
-RPROMPT='%(?..%F{red}($?%)%f )${vi_mode}'
 
-autoload -U colors && colors
-autoload -U edit-command-line && zle -N edit-command-line
-autoload compdef
-autoload zmv
-if command -v fzf >/dev/null 2>&1; then
-  . <(fzf --zsh)
-  bindkey -M viins '^p' history-search-backward
-  bindkey -M viins '^n' history-search-forward
-fi
-# . <(niri completions zsh)
-
-if [[ -r /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh ]]; then
-  . /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
-elif [[ -r /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
-  . /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-fi
-if [[ -r /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh ]]; then
-  . /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh
-elif [[ -r /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
-  . /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-fi
-bindkey -M vicmd j vi-down-line-or-history
-bindkey -M vicmd k vi-up-line-or-history
-bindkey -v '^?' backward-delete-char       # Allow backspace character to work
-bindkey -M vicmd '^v' edit-command-line
-bindkey -M viins '^y' autosuggest-execute
-bindkey " " magic-space
-
-autoload -Uz compinit && compinit
-if [ -r "$HOME"/.config/zsh/plugins/fzf-tab/fzf-tab.plugin.zsh ]; then
-  . "$HOME"/.config/zsh/plugins/fzf-tab/fzf-tab.plugin.zsh
-  zstyle ":fzf-tab:*" use-fzf-default-opts yes
-  zstyle ":fzf-tab:complete:cd:*" fzf-preview "ls --color=always \${realpath}"
-  zstyle ':fzf-tab:*' query-string input
-fi
-zstyle ':completion:*' menu select
-zstyle ':completion:*' matcher-list ''
-zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}' 'm:{a-z}={A-Z} r:|[._-]=* r:|=*'
-
-setopt append_history inc_append_history share_history hist_ignore_space
-setopt auto_cd cd_silent auto_pushd pushd_silent rmstarsilent
-setopt no_hup no_check_jobs prompt_subst interactive_comments no_match
-setopt correct
-# CORRECT_IGNORE=
-# setopt correct_all
-# CORRECT_IGNORE_FILE=
-stty stop undef
-bindkey -v
-alias reprofile='. $HOME/.zshrc'
-
-export LANG=en_US.UTF-8
-export LC_CTYPE=en_US.UTF-8
-export LC_ALL=en_US.UTF-8
-export GIT_AUTHOR_NAME="Michael Erdely"
-export GIT_AUTHOR_EMAIL="mike@erdelynet.com"
-export GIT_COMMITTER_NAME=$GIT_AUTHOR_NAME
-export GIT_COMMITTER_EMAIL=$GIT_AUTHOR_EMAIL
-export ANSIBLE_NOCOWS=1
-[[ ":$PATH:" != *:$HOME/.local/bin:*  ]] && PATH=$HOME/.local/bin:$PATH
-[[ ":$PATH:" != *:/usr/sbin:*         ]] && PATH=$PATH:/usr/sbin
-[[ ":$PATH:" != *:/srv/scripts/bin:*  ]] && PATH=$PATH:/srv/scripts/bin
-[[ ":$PATH:" != *:/srv/scripts/sbin:* ]] && PATH=$PATH:/srv/scripts/sbin
-
-[[ ! -d "$HOME"/.cache ]] && mkdir -p "$HOME"/.cache
-HISTFILE=$HOME/.cache/${SHELL##*/}_history
-HISTFILESIZE=100000
-HISTCONTROL=ignoreboth:erasedups
-HISTSIZE=$HISTFILESIZE
-SAVEHIST=$HISTFILESIZE
-
-# shellcheck disable=SC2046
-command -v dircolors >/dev/null 2>&1 && eval $(dircolors -b)
-
-if command -v nvim >/dev/null 2>&1; then
-  export EDITOR=nvim
-elif command -v vim >/dev/null 2>&1; then
-  export EDITOR=vim
-elif command -v vi >/dev/null 2>&1; then
-  export EDITOR=vi
-elif command -v nano >/dev/null 2>&1; then
-  export EDITOR=nano
-fi
-if [[ -n "$EDITOR" ]]; then
-  export SUDO_EDITOR=$EDITOR
-  [[ "$EDITOR" != vi ]] && alias vi='$EDITOR'
-fi
-
-[[ -r /etc/os-release ]] && . /etc/os-release
-
-alias ls='ls -F'
-if [[ "$OSTYPE" == linux-gnu ]]; then
-  alias ls='ls -F --color=auto'
-  alias grep='grep --color=auto'
-  alias diff='diff --color=auto'
-fi
-command -v fdfind >/dev/null 2>&1 alias fd=fdfind
-command -v batcat >/dev/null 2>&1 alias bat=batcat
-command -v bat >/dev/null 2>&1 && alias cat='bat --paging=never --plain'
-alias check_reboot='sudo /srv/scripts/sbin/check_reboot'
-[[ -e /dev/pf ]] && alias pflog='doas tcpdump -n -e -ttt -i pflog0'
-alias sshk='ssh -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
-alias scpk='scp -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
-alias rsynck='rsync -e "ssh -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"'
-alias dos_rsync='rsync -rtcvP'
-alias apv='ansible-playbook --ask-vault-pass'
-alias apkv='ANSIBLE_SSH_ARGS="-o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" ansible-playbook --ask-vault-pass'
-alias apk='ANSIBLE_SSH_ARGS="-o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" ansible-playbook'
-alias which='command -v'
-bashp=$(command -v bash)
-# shellcheck disable=SC2139
-[[ -n "$bashp" ]] && alias runbash="env PRE_PROMPT=\"(bash) \" SHELL=$bashp $bashp -l"
-kshp=$(command -v ksh)
-# shellcheck disable=SC2139
-[[ -n "$kshp" ]] && alias runksh="env PRE_PROMPT=\"(ksh) \" SHELL=$kshp $kshp -l"
-zshp=$(command -v zsh)
-# shellcheck disable=SC2139
-[[ -n "$zshp" ]] && alias runzsh="env PRE_PROMPT=\"(zsh) \" SHELL=$zshp $zshp -l"
-GPG_TTY=$(tty)
-VIRSH_DEFAULT_CONNECT_URI=qemu:///system
-COMPOSE_FILE=/srv/docker/compose.yaml
-export GPG_TTY VIRSH_DEFAULT_CONNECT_URI COMPOSE_FILE
-alias remain='tmux -f "$HOME"/.config/tmux/tmux.conf.remain new-session -A -s main'
-if [[ "${SSH_CLIENT%% *}" == "192.168.25.38" || "${SSH_CLIENT%% *}" == "192.168.25.38" ]]; then
-  alias remain='echo SSH to carme'
-fi
-
-if [[ "$ID" == arch || "$ID_LIKE" == *arch* ]]; then
-  alias ls_orphans='pacman -Qdtq'
-  # shellcheck disable=SC2154
-  alias rm_orphans='o=$(pacman -Qdtq); [ -n "$o" ] && echo Removing "$o" && sudo pacman -Rcns "$o"; unset o'
-  alias updates='echo Using pacman; sudo pacman -S --needed archlinux-keyring ; sudo pacman -Syu --noconfirm'
-  alias banner='figlet -d $HOME/.config/figlet -f banner'
-elif [[ "$ID" == debian || "$ID_LIKE" == *debian* ]]; then
-  alias updates='echo Using apt dist-upgrade; sudo apt update && sudo apt dist-upgrade -y'
-  [[ -x /usr/local/bin/rw ]] && alias updates='echo Using apt dist-upgrade; rw; sudo apt update ; sudo apt dist-upgrade -y ; sudo apt autoremove -y ; sleep 2; sync ; ro'
-elif [[ -x /usr/sbin/syspatch ]]; then
-  alias updates="echo running syspatch; doas syspatch; echo running pkg_add -u; doas pkg_add -ui"
-  halt_func() { shutdown -h "$@" now; } ; alias halt=halt_func
-  reboot_func() { shutdown -r "$@" now; } ; alias reboot=reboot_func
-  stty status '^T'
-fi
-if [[ "$ID" == archarm ]] && command -v pikvm-update >/dev/null 2>&1; then
-  alias updates='echo Using pikvm-update; rw; sudo pikvm-update --no-reboot; sleep 2; sync; ro'
-fi
-
-# Handle common typos
-alias chemzoi=chezmoi
-
-if [[ -z "$NO_WAYLAND" && -z "$SUDO_USER" && -z "$DOAS_USER" && -n "$SSH_CONNECTION" ]]; then
-  if [[ "$OSTYPE" == linux* && -d "/run/user/$EUID" ]]; then
-    WAYLAND_DISPLAY_FILE=$(find "/run/user/$EUID" -maxdepth 1 -type s -name "wayland-[0-9]*")
-  elif [[ "$OSTYPE" == openbsd* && -d "/tmp/run/user/$EUID" ]]; then
-    WAYLAND_DISPLAY_FILE=$(find "/tmp/run/user/$EUID" -maxdepth 1 -type s -name "wayland-[0-9]*")
-  fi
-  if [ -n "$WAYLAND_DISPLAY_FILE" ]; then
-    export XDG_SESSION_TYPE=wayland
-    export WAYLAND_DISPLAY=${WAYLAND_DISPLAY_FILE##*/}
-    NIRI_SOCKET=$(find "$XDG_RUNTIME_DIR" -maxdepth 1 -name "niri.wayland-*.sock" 2> /dev/null)
-    [ -n "$NIRI_SOCKET" ] && { export NIRI_SOCKET ; export XDG_CURRENT_DESKTOP=niri ; }
-    [ -z "$NIRI_SOCKET" ] && unset NIRI_SOCKET
-  else
-    unset WAYLAND_DISPLAY_FILE
-  fi
-fi
-
-# shellcheck disable=SC1091
-[[ -e "$HOME"/.profile.local ]] && . "$HOME"/.profile.local
-
+[ -r "$HOME"/.shellrc ] && . "$HOME"/.shellrc
 true
+

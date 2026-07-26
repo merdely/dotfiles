@@ -6,35 +6,6 @@
 umask 0022 >/dev/null 2>&1
 [[ $- != *i* ]] && return
 
-# shellcheck disable=SC1091
-[[ -e "$HOME"/.pre.profile.local ]] && . "$HOME"/.pre.profile.local
-
-dots="…"
-git_s=""
-git_c=208
-pchar="❱"
-GIT_PS1_COMPRESSSPARSESTATE=true
-GIT_PS1_SHOWDIRTYSTATE=true
-GIT_PS1_SHOWUNTRACKEDFILES=true
-GIT_PS1_SHOWSTASHSTATE=true
-GIT_PS1_SHOWCOLORHINTS=true
-GIT_PS1_SHOWUPSTREAM=auto
-# shellcheck disable=SC2034
-[[ "$TERM" = "vt220" || "$TERM" = "linux" ]] && { dots="..." ; git_s="§" ; git_c=yellow ; pchar='%%' ; }
-if [[ -r /usr/share/git/git-prompt.sh ]]; then
-  # shellcheck disable=SC1091
-  . /usr/share/git/git-prompt.sh
-elif [[ -r "$HOME"/.local/bin/git-prompt.sh ]]; then
-  # shellcheck disable=SC1091
-  . "$HOME"/.local/bin/git-prompt.sh
-else
-  __git_ps1() { :; }
-fi
-if [[ -n "$CHEZMOI_SUBSHELL" ]]; then
-  # shellcheck disable=SC2034
-  subshell=" \[\e[1;95m\]+\[\e[22;39m\]"
-fi
-
 # Set Up Prompt
 __prompt_trim_pwd() {
   local default=${1:-\\w}
@@ -55,186 +26,73 @@ __prompt_trim_pwd() {
   fi
 }
 
-c_red=$'\e[91m'
-c_green=$'\e[92m'
-c_blue=$'\e[94m'
-c_magenta=$'\e[95m'
-c_cyan=$'\e[96m'
-c_orange=$'\e[38;5;208m'
-c_reset=$'\e[39m'
-if [[ "$TERM" == "linux" || "$TERM" == "vt220" ]]; then
-  c_red=$'\e[31m'
-  c_green=$'\e[32m'
-  c_blue=$'\e[34m'
-  # shellcheck disable=SC2034
-  c_magenta=$'\e[35m'
-  c_cyan=$'\e[36m'
-  c_orange=$'\e[33m'
-fi
-
-PROMPT_DIRTRIM=2
-__nl='\n'
-[[ "$TERM" != "vt220" && ${COLUMNS:-80} -ge 75 ]] && unset __nl
-(( "$EUID" == 0 )) && pchar="#"
-
-bind 'set show-mode-in-prompt on' # Show the mode in the prompt
-bind 'set keyseq-timeout 100'     # Lower the timeout for pressing escape
-
-# Set vi-cmd-mode string to bold; clear for emacs/vi-ins-mode
-bind "set vi-cmd-mode-string \"\1\e[0m\2\""
-bind "set vi-ins-mode-string \"\1\e[1m\2\""
-bind "set emacs-mode-string \"\1\e[1m\2\""
-
-# Strip out history and return code elements of PROMPT_COMMAND to add them in the right place
-# This prevents duplication
-eval 'IFS=";" read -ra parts <<< "$PROMPT_COMMAND"'
-PROMPT_COMMAND=""
-for part in "${parts[@]}"; do
-  [[ -z "$part" || "$part" == "history "* || "$part" == "(( \$? )) && "* || "$part" == ":" ]] && continue
-  PROMPT_COMMAND="$PROMPT_COMMAND;$part"
-done
-
-PROMPT_COMMAND="$PROMPT_COMMAND;history -a"
-
-# Set the exit status of the previous command for the prompt
-PROMPT_COMMAND="(( \$? )) && __prompt_color=$'\e[91m' || __prompt_color=$'\e[92m'$PROMPT_COMMAND"
-unset parts part
-
-# Prompt variable: '[\u@\h \W] \$' with formatting
-# shellcheck disable=SC1001,SC2140,SC2154
-PS1="\${PRE_PROMPT}[\[${c_cyan}\]\u\[${c_reset}\]@\[${c_green}\]\h\[${c_reset}\] \[${c_blue}\]\$(__prompt_trim_pwd "\W")\[${c_reset}\]]\[\e[22;24;27;49m\]${__shellind}${subshell}\$(__git_ps1 ' (\[\e[1m${c_orange}\]${git_s} \[${c_reset}\]%s\[\e[22m\])' 2>/dev/null) ${__nl}\[\${__prompt_color}\]${pchar}\[${c_reset}\] \[\e[0m\]"
-
-command -v fzf >/dev/null 2>&1 && { type __fzf_history__ > /dev/null 2>&1 || eval "$(fzf --bash)"; }
-
-# Set readline options
-bind 'set completion-ignore-case on'     # ignore case
-bind 'set completion-map-case on'        # treat hyphens and underscores the same
-#bind 'set show-all-if-ambiguous on'      # show all completions on first tab
-bind 'set show-all-if-unmodified on'     # show all completions on first tab with no partial match
-bind 'set colored-stats on'              # types in ls-style colors
-bind 'set colored-completion-prefix on'  # display common prefix in ls-style colors
-bind 'set mark-symlinked-directories on' # show directory symlinks with trailing slash
-bind 'set visible-stats on'              # append character indicating type
-
-shopt -s autocd cdspell extglob histappend
-alias reprofile='. $HOME/.bashrc'
-set -o vi
-
-export LANG=en_US.UTF-8
-export LC_CTYPE=en_US.UTF-8
-export LC_ALL=en_US.UTF-8
-export GIT_AUTHOR_NAME="Michael Erdely"
-export GIT_AUTHOR_EMAIL="mike@erdelynet.com"
-export GIT_COMMITTER_NAME=$GIT_AUTHOR_NAME
-export GIT_COMMITTER_EMAIL=$GIT_AUTHOR_EMAIL
-export ANSIBLE_NOCOWS=1
-[[ ":$PATH:" != *:$HOME/.local/bin:*  ]] && PATH=$HOME/.local/bin:$PATH
-[[ ":$PATH:" != *:/usr/sbin:*         ]] && PATH=$PATH:/usr/sbin
-[[ ":$PATH:" != *:/srv/scripts/bin:*  ]] && PATH=$PATH:/srv/scripts/bin
-[[ ":$PATH:" != *:/srv/scripts/sbin:* ]] && PATH=$PATH:/srv/scripts/sbin
-
-[[ ! -d "$HOME"/.cache ]] && mkdir -p "$HOME"/.cache
-HISTFILE=$HOME/.cache/${SHELL##*/}_history
-HISTFILESIZE=100000
-HISTCONTROL=ignoreboth:erasedups
-HISTSIZE=$HISTFILESIZE
-
-# shellcheck disable=SC2046
-command -v dircolors >/dev/null 2>&1 && eval $(dircolors -b)
-
-if command -v nvim >/dev/null 2>&1; then
-  export EDITOR=nvim
-elif command -v vim >/dev/null 2>&1; then
-  export EDITOR=vim
-elif command -v vi >/dev/null 2>&1; then
-  export EDITOR=vi
-elif command -v nano >/dev/null 2>&1; then
-  export EDITOR=nano
-fi
-if [[ -n "$EDITOR" ]]; then
-  export SUDO_EDITOR=$EDITOR
-  [[ "$EDITOR" != vi ]] && alias vi='$EDITOR'
-fi
-
-[[ -r /etc/os-release ]] && . /etc/os-release
-
-alias ls='ls -F'
-if [[ "$OSTYPE" == linux-gnu ]]; then
-  alias ls='ls -F --color=auto'
-  alias grep='grep --color=auto'
-  alias diff='diff --color=auto'
-fi
-command -v fdfind >/dev/null 2>&1 alias fd=fdfind
-command -v batcat >/dev/null 2>&1 alias bat=batcat
-command -v bat >/dev/null 2>&1 && alias cat='bat --paging=never --plain'
-alias check_reboot='sudo /srv/scripts/sbin/check_reboot'
-[[ -e /dev/pf ]] && alias pflog='doas tcpdump -n -e -ttt -i pflog0'
-alias sshk='ssh -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
-alias scpk='scp -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
-alias rsynck='rsync -e "ssh -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"'
-alias apv='ansible-playbook --ask-vault-pass'
-alias apkv='ANSIBLE_SSH_ARGS="-o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" ansible-playbook --ask-vault-pass'
-alias apk='ANSIBLE_SSH_ARGS="-o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" ansible-playbook'
-alias dos_rsync='rsync -rtcvP'
-alias which='command -v'
-bashp=$(command -v bash)
-# shellcheck disable=SC2139
-[[ -n "$bashp" ]] && alias runbash="env PRE_PROMPT=\"(bash) \" SHELL=$bashp $bashp -l"
-kshp=$(command -v ksh)
-# shellcheck disable=SC2139
-[[ -n "$kshp" ]] && alias runksh="env PRE_PROMPT=\"(ksh) \" SHELL=$kshp $kshp -l"
-zshp=$(command -v zsh)
-# shellcheck disable=SC2139
-[[ -n "$zshp" ]] && alias runzsh="env PRE_PROMPT=\"(zsh) \" SHELL=$zshp $zshp -l"
-GPG_TTY=$(tty)
-VIRSH_DEFAULT_CONNECT_URI=qemu:///system
-COMPOSE_FILE=/srv/docker/compose.yaml
-export GPG_TTY VIRSH_DEFAULT_CONNECT_URI COMPOSE_FILE
-alias remain='tmux -f "$HOME"/.config/tmux/tmux.conf.remain new-session -A -s main'
-if [[ "${SSH_CLIENT%% *}" == "192.168.25.38" || "${SSH_CLIENT%% *}" == "192.168.25.38" ]]; then
-  alias remain='echo SSH to carme'
-fi
-
-if [[ "$ID" == arch || "$ID_LIKE" == *arch* ]]; then
-  alias ls_orphans='pacman -Qdtq'
-  # shellcheck disable=SC2154
-  alias rm_orphans='o=$(pacman -Qdtq); [ -n "$o" ] && echo Removing "$o" && sudo pacman -Rcns "$o"; unset o'
-  alias updates='echo Using pacman; sudo pacman -S --needed archlinux-keyring ; sudo pacman -Syu --noconfirm'
-  alias banner='figlet -d $HOME/.config/figlet -f banner'
-elif [[ "$ID" == debian || "$ID_LIKE" == *debian* ]]; then
-  alias updates='echo Using apt dist-upgrade; sudo apt update && sudo apt dist-upgrade -y'
-  [[ -x /usr/local/bin/rw ]] && alias updates='echo Using apt dist-upgrade; rw; sudo apt update ; sudo apt dist-upgrade -y ; sudo apt autoremove -y ; sleep 2; sync ; ro'
-elif [[ -x /usr/sbin/syspatch ]]; then
-  alias updates="echo running syspatch; doas syspatch; echo running pkg_add -u; doas pkg_add -ui"
-  halt_func() { shutdown -h "$@" now; } ; alias halt=halt_func
-  reboot_func() { shutdown -r "$@" now; } ; alias reboot=reboot_func
-  stty status '^T'
-fi
-if [[ "$ID" == archarm ]] && command -v pikvm-update >/dev/null 2>&1; then
-  alias updates='echo Using pikvm-update; rw; sudo pikvm-update --no-reboot; sleep 2; sync; ro'
-fi
-
-# Handle common typos
-alias chemzoi=chezmoi
-
-if [[ -z "$NO_WAYLAND" && -z "$SUDO_USER" && -z "$DOAS_USER" && -n "$SSH_CONNECTION" ]]; then
-  if [[ "$OSTYPE" == linux* && -d "/run/user/$EUID" ]]; then
-    WAYLAND_DISPLAY_FILE=$(find "/run/user/$EUID" -maxdepth 1 -type s -name "wayland-[0-9]*")
-  elif [[ "$OSTYPE" == openbsd* && -d "/tmp/run/user/$EUID" ]]; then
-    WAYLAND_DISPLAY_FILE=$(find "/tmp/run/user/$EUID" -maxdepth 1 -type s -name "wayland-[0-9]*")
+__shell_specific() {
+  c_red=$'\e[91m'
+  c_green=$'\e[92m'
+  c_blue=$'\e[94m'
+  c_magenta=$'\e[95m'
+  c_cyan=$'\e[96m'
+  c_orange=$'\e[38;5;208m'
+  c_reset=$'\e[39m'
+  if [[ "$TERM" == "linux" || "$TERM" == "vt220" ]]; then
+    c_red=$'\e[31m'
+    c_green=$'\e[32m'
+    c_blue=$'\e[34m'
+    # shellcheck disable=SC2034
+    c_magenta=$'\e[35m'
+    c_cyan=$'\e[36m'
+    c_orange=$'\e[33m'
   fi
-  if [ -n "$WAYLAND_DISPLAY_FILE" ]; then
-    export XDG_SESSION_TYPE=wayland
-    export WAYLAND_DISPLAY=${WAYLAND_DISPLAY_FILE##*/}
-    NIRI_SOCKET=$(find "$XDG_RUNTIME_DIR" -maxdepth 1 -name "niri.wayland-*.sock" 2> /dev/null)
-    [ -n "$NIRI_SOCKET" ] && { export NIRI_SOCKET ; export XDG_CURRENT_DESKTOP=niri ; }
-    [ -z "$NIRI_SOCKET" ] && unset NIRI_SOCKET
-  else
-    unset WAYLAND_DISPLAY_FILE
-  fi
-fi
 
-# shellcheck disable=SC1091
-[[ -e "$HOME"/.profile.local ]] && . "$HOME"/.profile.local
+  PROMPT_DIRTRIM=2
+  __nl='\n'
+  [[ "$TERM" != "vt220" && ${COLUMNS:-80} -ge 75 ]] && unset __nl
+  (( "$EUID" == 0 )) && pchar="#"
 
+  bind 'set show-mode-in-prompt on' # Show the mode in the prompt
+  bind 'set keyseq-timeout 100'     # Lower the timeout for pressing escape
+
+  # Set vi-cmd-mode string to bold; clear for emacs/vi-ins-mode
+  bind "set vi-cmd-mode-string \"\1\e[0m\2\""
+  bind "set vi-ins-mode-string \"\1\e[1m\2\""
+  bind "set emacs-mode-string \"\1\e[1m\2\""
+
+  # Strip out history and return code elements of PROMPT_COMMAND to add them in the right place
+  # This prevents duplication
+  eval 'IFS=";" read -ra parts <<< "$PROMPT_COMMAND"'
+  PROMPT_COMMAND=""
+  for part in "${parts[@]}"; do
+    [[ -z "$part" || "$part" == "history "* || "$part" == "(( \$? )) && "* || "$part" == ":" ]] && continue
+    PROMPT_COMMAND="$PROMPT_COMMAND;$part"
+  done
+
+  PROMPT_COMMAND="$PROMPT_COMMAND;history -a"
+
+  # Set the exit status of the previous command for the prompt
+  PROMPT_COMMAND="(( \$? )) && __prompt_color=$'\e[91m' || __prompt_color=$'\e[92m'$PROMPT_COMMAND"
+  unset parts part
+
+  # Prompt variable: '[\u@\h \W] \$' with formatting
+  # shellcheck disable=SC1001,SC2140,SC2154
+  PS1="\${PRE_PROMPT}[\[${c_cyan}\]\u\[${c_reset}\]@\[${c_green}\]\h\[${c_reset}\] \[${c_blue}\]\$(__prompt_trim_pwd "\W")\[${c_reset}\]]\[\e[22;24;27;49m\]${__shellind}${subshell}\$(__git_ps1 ' (\[\e[1m${c_orange}\]${git_s} \[${c_reset}\]%s\[\e[22m\])' 2>/dev/null) ${__nl}\[\${__prompt_color}\]${pchar}\[${c_reset}\] \[\e[0m\]"
+
+  command -v fzf >/dev/null 2>&1 && { type __fzf_history__ > /dev/null 2>&1 || eval "$(fzf --bash)"; }
+
+  # Set readline options
+  bind 'set completion-ignore-case on'     # ignore case
+  bind 'set completion-map-case on'        # treat hyphens and underscores the same
+  #bind 'set show-all-if-ambiguous on'      # show all completions on first tab
+  bind 'set show-all-if-unmodified on'     # show all completions on first tab with no partial match
+  bind 'set colored-stats on'              # types in ls-style colors
+  bind 'set colored-completion-prefix on'  # display common prefix in ls-style colors
+  bind 'set mark-symlinked-directories on' # show directory symlinks with trailing slash
+  bind 'set visible-stats on'              # append character indicating type
+
+  shopt -s autocd cdspell extglob histappend
+  alias reprofile='. $HOME/.bashrc'
+  set -o vi
+}
+
+[ -r "$HOME"/.shellrc ] && . "$HOME"/.shellrc
 true
+
