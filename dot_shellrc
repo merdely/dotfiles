@@ -116,6 +116,19 @@ if [[ "${SSH_CLIENT%% *}" == "192.168.25.38" || "${SSH_CLIENT%% *}" == "192.168.
   alias remain='echo SSH to carme'
 fi
 
+# Make sure ~/.ssh/ctl is pointing to a temporary directory
+# shellcheck disable=2174
+[[ -d "$HOME"/.ssh ]] || mkdir -pm 700 "$HOME"/.ssh
+if [[ ! -L "$HOME"/.ssh/ctl || ! -d "$HOME"/.ssh/ctl ]]; then
+  tmpdir=/tmp/$LOGNAME
+  while ! mkdir "$tmpdir" 2>/dev/null; do tmpdir="/tmp/$LOGNAME.$RANDOM"; done
+  if [[ -d "$HOME"/.ssh/ctl ]]; then
+    mv "$HOME"/.ssh/ctl/* "$HOME"/.ssh/ctl/.* "$tmpdir" 2>/dev/null
+    rmdir "$HOME"/.ssh/ctl
+  fi
+  ln -s "$tmpdir" "$HOME"/.ssh/ctl
+fi
+
 if [[ "$ID" == arch || "$ID_LIKE" == *arch* ]]; then
   alias ls_orphans='pacman -Qdtq'
   # shellcheck disable=2154
