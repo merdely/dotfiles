@@ -135,10 +135,10 @@ fi
 # [[ ! -e "$XDG_RUNTIME_DIR"/ssh-auth-sock && -n "$SSH_AUTH_SOCK" ]] &&
 #   ln -sf "$SSH_AUTH_SOCK" "$XDG_RUNTIME_DIR"/ssh-auth-sock
 
-SSH_AUTH_SOCK_OLD=$(readlink -f "$HOME/.ssh/ssh-agent.socket" 2>/dev/null)
-if [[ -n "$SSH_CONNECTION" && "$SSH_AUTH_SOCK_OLD" != "$SSH_AUTH_SOCK" ]]; then
-  rm -Rf "$HOME"/.ssh/ssh-agent.socket 2>/dev/null
-  ln -sf "$SSH_AUTH_SOCK" "$HOME"/.ssh/ssh-agent.socket
+SSH_AUTH_SOCK_OLD=$(readlink -f "$HOME/.ssh/ssh-auth.sock" 2>/dev/null)
+if [[ -n "$SSH_CONNECTION" && "$SSH_AUTH_SOCK" != "$HOME"/.ssh/ssh-auth.sock && "$SSH_AUTH_SOCK_OLD" != "$SSH_AUTH_SOCK" ]]; then
+  rm -Rf "$HOME"/.ssh/ssh-auth.sock 2>/dev/null
+  ln -sf "$SSH_AUTH_SOCK" "$HOME"/.ssh/ssh-auth.sock
 else
   unset SSH_AUTH_SOCK_OLD
 fi
