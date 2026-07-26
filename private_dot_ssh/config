@@ -10,7 +10,7 @@ Host qemu/* 172.29.122.* 192.168.122.*
   StrictHostKeyChecking no
 
 Host qemu/*
-  ControlMaster off
+  ControlMaster no
 
 Host marsconsole marscon
   Hostname metis
