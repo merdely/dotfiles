@@ -42,8 +42,9 @@ Host * !*_j
   # %h=remote hostname
   # %p=remote port
   # %n=remote hostname as given on command line
+  # %j=ProxyJump option
   # %C=hash of %l%h%p%r (%l=local hostname with domain)
-  ControlPath ~/.ssh/ctl-%C
+  ControlPath ~/.ssh/ctl-%C-%j
   # ControlPath ~/.ssh/ctl-%L-%r-%h-%p
   # ControlPath ~/.ssh/ctl/%r-%h-%p
   # ControlPersist off/on (indefinite)/time
