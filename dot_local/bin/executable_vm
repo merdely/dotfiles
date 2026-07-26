@@ -510,7 +510,7 @@ list() {
          --gui) gui=true ;;
       -u|--user|--session) connect=(--connect qemu:///session) ;;
       -c|--connect) shift ; connect=(--connect "$1") ;;
-      -a|--all) [[ " ${opts[*]} " != *" --all "* ]] && opts+=(--all) ;;
+      -a|--all) [[ " ${opts[*]} " != *" --all "* ]] && opts+=(--all) ; mode=all ;;
       -A|--autostart) [[ " ${opts[*]} " != *" --autostart "* ]] && opts+=(--autostart) ;;
       -r|--on|--running) [[ " ${opts[*]} " != *" --state-running "* ]] && opts+=(--state-running) ;;
       -o|--off|--stopped|--shutoff) [[ " ${opts[*]} " != *" --state-shutoff "* ]] && opts+=(--state-shutoff) ;;
@@ -524,9 +524,9 @@ list() {
     shift
   done
 
-  (( ${#opts[@]} == 0 )) && opts+=(--all)
+  (( ${#opts[@]} == 0 )) && { opts+=(--all) ; mode=all ; }
 
-  if $gui || [[ "${opts[*]}" == "--all" || "$mode" == list ]] ; then
+  if $gui || [[ "$mode" == list ]] ; then
     gumcheck list_usage
     local options=(
       "All VMs" "Autostart VMs" "Running VMs" "Stopped VMs" "Paused VMs"
@@ -998,7 +998,7 @@ main() {
       "Clone VM"|clone|copy|duplicate|dupe) shift ; clone "$@" ;;
       "Create VM"|create|install|new) shift ; create "$@" ;;
       "Delete VM(s)"|delete|del|remove|rm) shift ; delete "$@" ;;
-      "List VMs"|list|ls) shift ; list "$@" ;;
+      "List VMs"|list|ls) shift ; if $use_gui; then list --gui "$@" ; else list "$@" ; fi ;;
       "Reboot VM(s)"|reboot) shift ; reboot "$@" ;;
       "Reset VM(s)"|reset) shift ; reboot --reset "$@" ;;
       "VM Snapshots"|snapshot|snap) shift ; snapshot "$@" ;;
