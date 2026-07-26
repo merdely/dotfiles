@@ -131,6 +131,8 @@ fi
 [[ -d "$HOME"/.ssh ]] || mkdir -pm 700 "$HOME"/.ssh
 # shellcheck disable=2174
 [[ -d "$HOME"/.ssh/ctl ]] || mkdir -pm 700 "$HOME"/.ssh/ctl
+# [[ ! -e "$XDG_RUNTIME_DIR"/ssh-auth-sock && -n "$SSH_AUTH_SOCK" ]] &&
+#   ln -sf "$SSH_AUTH_SOCK" "$XDG_RUNTIME_DIR"/ssh-auth-sock
 
 if [[ "$ID" == arch || "$ID_LIKE" == *arch* ]]; then
   alias ls_orphans='pacman -Qdtq'
