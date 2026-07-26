@@ -1024,5 +1024,11 @@ main() {
   done
 }
 
-main "$@"
+# Do not run main if sourced from another script
+if (return 2> /dev/null); then
+  return 0
+else
+  main "$@"
+fi
+
 
