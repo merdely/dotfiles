@@ -9,6 +9,16 @@
 # shellcheck disable=SC1091
 [[ -e "$HOME"/.pre.profile.local ]] && . "$HOME"/.pre.profile.local
 
+export XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
+export XDG_CACHE_HOME=${XDG_CACHE_HOME:-$HOME/.cache}
+export XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}
+export XDG_STATE_HOME=${XDG_STATE_HOME:-$HOME/.local/state}
+export XDG_DATA_DIRS=$XDG_DATA_HOME:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}
+export XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR:-/run/user/$EUID}
+if [[ ! -d /run/user && -d /tmp/run/user ]]; then
+  export XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR:-/tmp/run/user/$EUID}
+fi
+
 dots="…"
 git_s=""
 git_c=208
@@ -119,15 +129,8 @@ fi
 # Make sure ~/.ssh/ctl is pointing to a temporary directory
 # shellcheck disable=2174
 [[ -d "$HOME"/.ssh ]] || mkdir -pm 700 "$HOME"/.ssh
-if [[ ! -L "$HOME"/.ssh/ctl || ! -d "$HOME"/.ssh/ctl ]]; then
-  tmpdir=/tmp/$LOGNAME
-  while ! mkdir "$tmpdir" 2>/dev/null; do tmpdir="/tmp/$LOGNAME.$RANDOM"; done
-  if [[ -d "$HOME"/.ssh/ctl ]]; then
-    mv "$HOME"/.ssh/ctl/* "$HOME"/.ssh/ctl/.* "$tmpdir" 2>/dev/null
-    rmdir "$HOME"/.ssh/ctl
-  fi
-  ln -s "$tmpdir" "$HOME"/.ssh/ctl
-fi
+# shellcheck disable=2174
+[[ -d "$HOME"/.ssh/ctl ]] || mkdir -pm 700 "$HOME"/.ssh/ctl
 
 if [[ "$ID" == arch || "$ID_LIKE" == *arch* ]]; then
   alias ls_orphans='pacman -Qdtq'
