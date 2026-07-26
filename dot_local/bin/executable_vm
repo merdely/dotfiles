@@ -480,6 +480,7 @@ list_usage() {
   echo "  -h|--help             : This help text"
   echo "  -u|--user|--session   : Connect to hypervisor with libvirt user/session URI (default: system URI)"
   echo "  -c|--connect URI      : Connect to hypervisor with libvirt URI (e.g.: -c qemu:///otherhost.example.com)"
+  echo "     --gui              : Use GUI Mode"
   echo "  -a|--all              : Print all VMs (default action)"
   echo "  -A|--autostart        : Print VMs set to autostart"
   echo "  -r|--running          : Print running VMs"
@@ -493,11 +494,11 @@ list_usage() {
 }
 
 list() {
-  local opts=() mode=list
+  local opts=() mode=list gui=false
   local connect=(--connect "$CONNECT_URI")
   local OPT_SHORT="huc:aAropsSi"
   local OPT_LONG=(
-    "help" "user" "session" "connect:" "all" "autostart" "running" "on"
+    "help" "user" "session" "connect:" "all" "autostart" "running" "on" "gui"
     "off" "shutoff" "stopped" "paused" "with-snapshot" "without-snapshot" "list-ips"
   )
   declare -a OPTRET
@@ -506,6 +507,7 @@ list() {
   while true; do
     case $1 in
       -h|--help) list_usage ;;
+         --gui) gui=true ;;
       -u|--user|--session) connect=(--connect qemu:///session) ;;
       -c|--connect) shift ; connect=(--connect "$1") ;;
       -a|--all) [[ " ${opts[*]} " != *" --all "* ]] && opts+=(--all) ;;
@@ -522,7 +524,9 @@ list() {
     shift
   done
 
-  if (( ${#opts[@]} == 0 )) && [[ "$mode" == list ]]; then
+  (( ${#opts[@]} == 0 )) && opts+=(--all)
+
+  if $gui || [[ "$mode" == list ]] ; then
     gumcheck list_usage
     local options=(
       "All VMs" "Autostart VMs" "Running VMs" "Stopped VMs" "Paused VMs"
