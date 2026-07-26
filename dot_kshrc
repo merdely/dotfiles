@@ -78,5 +78,9 @@ __shell_specific() {
 }
 
 [ -r "$HOME"/.shellrc ] && . "$HOME"/.shellrc
+
+# Setup using .logout
+trap '[ -r "$HOME"/.logout ] && . "$HOME"/.logout' 0
+
 true
 
