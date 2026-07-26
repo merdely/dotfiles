@@ -3,6 +3,6 @@
 # Use: chezmoi edit ~/.logout
 # Or after editing, run: chezmoi re-add ~/.logout
 
-if [[ -n "$SSH_CONNECTION" && -n "$SSH_AUTH_SOCK_OLD" && -S "$SSH_AUTH_SOCK_OLD" ]]; then
+if [[ -n "$SSH_CONNECTION" && "$SSH_AUTH_SOCK_OLD" != "$HOME"/.ssh/ssh-agent.socket && -n "$SSH_AUTH_SOCK_OLD" && -S "$SSH_AUTH_SOCK_OLD" ]]; then
   ln -sf "$SSH_AUTH_SOCK_OLD" "$HOME"/.ssh/ssh-agent.socket
 fi
