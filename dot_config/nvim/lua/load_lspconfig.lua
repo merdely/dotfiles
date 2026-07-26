@@ -193,8 +193,10 @@ do
       vim.list_extend(ensure_installed, { "stylua" })
     end
     if vim.fn.executable 'cc' == 1 or vim.fn.executable 'gcc' == 1 then
-      servers.clangd = {}
-      vim.list_extend(ensure_installed, { "clangd" })
+      if vim.uv.os_uname().machine == "x86_64" then
+        servers.clangd = {}
+        vim.list_extend(ensure_installed, { "clangd" })
+      end
     end
     if vim.fn.executable 'go' == 1 then
       servers.gopls = {}
