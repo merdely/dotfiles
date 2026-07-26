@@ -998,7 +998,8 @@ main() {
       "Clone VM"|clone|copy|duplicate|dupe) shift ; clone "$@" ;;
       "Create VM"|create|install|new) shift ; create "$@" ;;
       "Delete VM(s)"|delete|del|remove|rm) shift ; delete "$@" ;;
-      "List VMs"|list|ls) shift ; if $use_gui; then list --gui "$@" ; else list "$@" ; fi ;;
+      "List VMs") shift ; list --gui "$@" ;;
+      list|ls) shift ; list "$@" ;;
       "Reboot VM(s)"|reboot) shift ; reboot "$@" ;;
       "Reset VM(s)"|reset) shift ; reboot --reset "$@" ;;
       "VM Snapshots"|snapshot|snap) shift ; snapshot "$@" ;;
