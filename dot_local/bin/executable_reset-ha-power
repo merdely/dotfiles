@@ -1,0 +1,21 @@
+#!/bin/sh
+
+SLEEP=10
+if command -v rbw >/dev/null 2>&1; then
+  TASMOTA_USER=$(rbw get -f username "Tasmota/Shelly Admin")
+  TASMOTA_PASS=$(rbw get -f password "Tasmota/Shelly Admin")
+fi
+
+if [ -z "$TASMOTA_PASS" ]; then
+  echo "Error: Could not get tasmota password from Bitwarden"
+  exit 1
+fi
+
+echo "Turning off HA power"
+curl -sLu "$TASMOTA_USER":"$TASMOTA_PASS" "http://tasmota-den-earth-strip.erdely.in/cm?cmnd=POWER5%20OFF" >/dev/null 2>&1
+
+echo "Sleeping $SLEEP seconds"
+sleep "$SLEEP"
+
+echo "Turning on HA power"
+curl -sLu "$TASMOTA_USER":"$TASMOTA_PASS" "http://tasmota-den-earth-strip.erdely.in/cm?cmnd=POWER5%20ON" >/dev/null 2>&1
