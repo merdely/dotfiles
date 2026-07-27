@@ -3,6 +3,8 @@
 # Use: chezmoi edit ~/.a0d7b954-ssh.local
 # Or after editing, run: chezmoi re-add ~/.a0d7b954-ssh.local
 
+# This is the .profile.local for the Home Assistant SSH Add-On
+
 alias ls='ls -F'
 
 [ -z "$PROFILE_READ" ] && cd /config
