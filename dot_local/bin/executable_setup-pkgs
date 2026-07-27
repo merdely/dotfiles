@@ -60,7 +60,7 @@ case "$ID" in
       networkmanager openresolv htop btop jq 7zip unzip bat fd \
       zsh git-zsh-completion zsh-autocomplete zsh-autosuggestions \
       zsh-completions zsh-syntax-highlighting ripgrep tesseract-data-eng \
-      bash-completion bind fzf gum nvtop tmux"
+      bash-completion bind fzf gum nvtop tmux python-pipx"
 
     if $desktop; then
       packages="$packages niri alacritty fuzzel xdg-desktop-portal-gnome pipewire-jack \
@@ -192,6 +192,11 @@ case "$ID" in
       if ! systemctl --user is-enabled -q ydotool.service; then
         echo "Enabling ydotool.service"
         command -v ydotool > /dev/null 2>&1 && systemctl --user enable ydotool.service 2> /dev/null
+      fi
+
+      if command -v pipx > /de/vnull 2>&1 && ! pipx list --short | grep -q ^keymap-drawer; then
+        echo "Installing keymap-drawer for creating help files"
+        pipx install keymap-drawer
       fi
 
       if $kvm && [ ! -e "$HOME"/.config/environment.d/wlr_cursors.conf ]; then
