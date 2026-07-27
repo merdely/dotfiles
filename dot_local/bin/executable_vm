@@ -899,7 +899,7 @@ sub_menu() {
 main_menu() {
   if ! command -v gum &>/dev/null; then
     echo "Gum not found: Cannot load interactive menus" >&2
-    exit 1
+    main_usage 1
   fi
 
   local choice header padding=5 height=0 ret=0
