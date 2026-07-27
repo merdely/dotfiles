@@ -12,6 +12,32 @@ PARSEOPTS="${_LIBDIR:-"$(dirname "$0")${_LIB:-}"}/parseopts.sh"
 # shellcheck disable=SC1090,SC1091
 source "$PARSEOPTS" ; unset _LIB _LIBDIR
 
+MAIN_MENU=(
+  "Start VM(s)"
+  "Stop VM(s)"
+  "List VMs"
+  "VM Console"
+  "Create VM"
+  "Clone VM"
+  "VM Snapshots"
+  "Reboot VM(s)"
+  "Reset VM(s)"
+  "Delete VM(s)"
+  "Quit"
+)
+
+VM_TYPES=(
+  "Arch Linux (arch)"
+  "Debian (debian)"
+  "Fedora (fedora)"
+  "OpenBSD (openbsd)"
+  "Oracle Enterprise Linux 9 (oel9)"
+)
+
+GUM_STYLE=(
+  --header.foreground=33
+)
+
 gumcheck() {
   local usage=${1:-usage}
   if ! command -v gum &>/dev/null; then
@@ -38,7 +64,7 @@ clone() {
   command -v virt-clone &>/dev/null || { echo "Error: virt-clone is required for this program" >&2 ; exit 1 ; }
 
   local src_vm=$1 dest_vm=$2
-  local connect=(--connect "$CONNECT_URI") start=false opts=()
+  local connect=$CONNECT_URI start=false opts=()
   local OPT_SHORT="huc:sS"
   local OPT_LONG=("help" "user" "session" "connect:" "start" "start-console")
   declare -a OPTRET
@@ -48,8 +74,8 @@ clone() {
   while true; do
     case $1 in
       -h|--help) clone_usage ;;
-      -u|--user|--session) connect=(--connect qemu:///session) ;;
-      -c|--connect) shift ; connect=(--connect "$1") ;;
+      -u|--user|--session) connect=qemu:///session ;;
+      -c|--connect) shift ; connect=$1 ;;
       -s|--start) start=true ;;
       -S|--start-console) start=true ; [[ " ${opts[*]} " != *" --console "* ]] && opts+=(--console) ;;
       --) shift ; break ;;
@@ -58,47 +84,10 @@ clone() {
     shift
   done
 
-  if [[ -z "$src_vm" || -z "$dest_vm" ]]; then
-    gumcheck clone_usage
-    local selected=() vms=()
-    mapfile -t vms < <(virsh "${connect[@]}" list --all | awk 'NR>2&&/./{print $2}' 2> /dev/null | sort -n)
-    vms+=("<-- Back")
-    local height=$(( ${#vms[@]} + 4 ))
-    if (( height < 5 )); then
-      height=5
-    elif (( height > 15 )); then
-      height=15
-    fi
-    [[ -n "$src_vm" ]] && selected=(--selected="$src_vm")
-    if ! src_vm=$(gum filter --no-fuzzy-sort --height=$height --placeholder="Select VM to Clone> " "${selected[@]}" "${vms[@]}"); then
-      echo "Error getting source VM" >&2
-      exit 1
-    fi
-    [[ -z "$src_vm" || "$src_vm" == "<-- Back" ]] && return
-    local value=()
-    [[ -n "$dest_vm" ]] && value=(--value="$dest_vm")
-    if ! dest_vm=$(gum input --header="Enter Name for New VM> " "${value[@]}"); then
-      echo "Error getting destination VM name" >&2
-      exit 1
-    fi
-    [[ -z "$dest_vm" ]] && return
-    local output=() item="" tmp=""
-    if tmp=$(gum filter --height=6 --header="Start VM? " --selected "Start VM" --no-limit "Start VM" "Connect to Console"); then
-      mapfile -t output <<< "$tmp"
-      start=false
-      for item in "${output[@]}"; do
-        case "$item" in
-          "Start VM") start=true ;;
-          "Connect to Console") [[ " ${opts[*]} " != *" --console "* ]] && opts+=(--console) ;;
-        esac
-      done
-    else
-      return
-    fi
-  fi
+  [[ -z "$src_vm" || -z "$dest_vm" ]] && { main_menu clone ; exit ; }
 
-  virt-clone "${connect[@]}" --auto-clone --original "$src_vm" --name "$dest_vm"
-  $start && virsh "${connect[@]}" start "$dest_vm" "${opts[@]}" || true
+  virt-clone --connect "${connect:-$CONNECT_URI}" --auto-clone --original "$src_vm" --name "$dest_vm"
+  $start && virsh --connect "${connect:-$CONNECT_URI}" start "$dest_vm" "${opts[@]}" || true
 }
 
 create_usage() {
@@ -144,7 +133,7 @@ create() {
     "--video" "model=virtio,accel3d=yes"
   )
 
-  local connect=(--connect "$CONNECT_URI")
+  local connect=$CONNECT_URI
   local OPT_SHORT="hcu:ADFOQn:r:v:d:i:gtTsS"
   local OPT_LONG=("help" "user" "session" "connect:" "name:" "ram:" "cpus:"
     "disk:" "iso:" "disable-gpu" "tpm" "emulated-tpm" "test" "start" "start-console"
@@ -156,8 +145,8 @@ create() {
   while true; do
     case $1 in
       -h|--help) create_usage ;;
-      -u|--user|--session) connect=(--connect qemu:///session) ;;
-      -c|--connect) shift ; connect=(--connect "$1") ;;
+      -u|--user|--session) connect=qemu:///session ;;
+      -c|--connect) shift ; connect=$1 ;;
       -n|--name) shift ; vm_name=$1 ;;
       -r|--ram)  shift ; vm_ram=$1 ;;
       -v|--cpus) shift ; vm_vcpus=$1 ;;
@@ -181,85 +170,7 @@ create() {
     shift
   done
 
-  if [[ -z "$vm_type" ]]; then
-    gumcheck create_usage
-    local vm_types=(
-      "Arch Linux" Debian Fedora "OpenBSD" "Oracle Enterprise Linux 9" "<-- Back"
-    )
-    local height=$(( ${#vm_types[@]} + 4 ))
-    if (( height < 5 )); then
-      height=5
-    elif (( height > 15 )); then
-      height=15
-    fi
-    if ! vm_type=$(gum filter --height=$height --placeholder="Choose VM Type> " "${vm_types[@]}"); then
-      echo "Error getting VM Type" >&2
-      exit 1
-    fi
-    [[ -z "$vm_type" || "$vm_type" == "<-- Back" ]] && return
-
-    local value=()
-    [[ -n "$vm_type" ]] && value=(--value="$(tr '[:upper:]' '[:lower:]' <<< "${vm_type// /}")")
-    if ! vm_name=$(gum input --header="VM Name for $vm_type? " "${value[@]}"); then
-      echo "Error getting VM Name" >&2
-      exit 1
-    fi
-
-    local value=()
-    [[ -n "$vm_ram" ]] && value=(--value="$vm_ram")
-    if ! vm_ram=$(gum input --header="How much RAM for $vm_type? " "${value[@]}"); then
-      echo "Error getting RAM" >&2
-      exit 1
-    fi
-
-    value=() ; [[ -n "$vm_vcpus" ]] && value=(--value="$vm_vcpus")
-    if ! vm_vcpus=$(gum input --header="How many virtual CPUs for $vm_type? " "${value[@]}"); then
-      echo "Error getting vCPUs" >&2
-      exit 1
-    fi
-
-    value=() ; [[ -n "$vm_disk" ]] && value=(--value="$vm_disk")
-    if ! vm_disk=$(gum input --header="How much disk space for $vm_type? " "${value[@]}"); then
-      echo "Error getting disks space" >&2
-      exit 1
-    fi
-
-    local iso_files=()
-    value=() ; [[ -n "$vm_iso" ]] && value=(--selected="$vm_iso")
-    mapfile -t iso_files < <(find "$ISO_PATH" -type f -iname "*.iso" -printf "%f\n" | sort)
-    (( ${#iso_files[@]} == 0 )) && { echo "Error: Could not find any ISO files in $ISO_PATH" >&2 ; exit 1 ; }
-    local height=$(( ${#iso_files[@]} + 4 ))
-    if (( height < 5 )); then
-      height=5
-    elif (( height > 15 )); then
-      height=15
-    fi
-    vm_iso=$(gum filter --height=$height --placeholder="Pick an ISO to use for $vm_type? " "${value[@]}" "${iso_files[@]}")
-    (( $? == 130 )) && return
-    [[ -n "$vm_iso" && "$vm_iso" != "nothing selected" ]] && vm_iso="$ISO_PATH"/"${vm_iso#"$ISO_PATH"/}"
-
-    local output=() item="" tmp="" options=()
-    options=("Start VM" "Connect to Console" "Disable GPU" "Test Mode (just print)")
-    options=("Disable GPU" "Emulated TPM" "Test Mode (just print)")
-    value=(--selected="Start VM,Connect to Console")
-    local height=$(( ${#options[@]} + 4 ))
-    if (( height < 5 )); then
-      height=5
-    elif (( height > 15 )); then
-      height=15
-    fi
-    mapfile -t output < <(gum filter --height=$height --no-limit --header="VM Options> " "${value[@]}" --no-limit "${options[@]}")
-    for item in "${output[@]}"; do
-      case "$item" in
-        "Start VM") start=true ;;
-        "Connect to Console") [[ " ${opts[*]} " != *" --console "* ]] && opts+=(--console) ;;
-        "Disable GPU") gpu_mode=("--video" "virtio") ;;
-        "Emulated TPM") tpm_mode=(--tpm "backend.type=emulator,backend.version=2.0,backend.profile.source=default-v1,model=tpm-crb") ;;
-        "Test Mode (just print)") testmode="echo" ;;
-        *) ;;
-      esac
-    done
-  fi
+  [[ -z "$vm_type" ]] && { main_menu create ; exit ; }
 
   # Get system information
   local sys_ram="" sys_proc="" sys_disk=""
@@ -385,7 +296,7 @@ create() {
   os_variant=$(get_os_variant "$os_search")
   echo "Installing a new $vm_label VM: name=$vm_name, ram=$vm_ram, disk=$vm_disk, cpu=$vm_vcpus"
 
-  $testmode virt-install "${connect[@]}" \
+  $testmode virt-install --connect "${connect:-$CONNECT_URI}" \
     --os-variant "$os_variant" --name "$vm_name" --ram "$vm_ram" --vcpus "$vm_vcpus" \
     --disk path=/var/lib/libvirt/images/"$vm_name".qcow2,size="$vm_disk",format=qcow2 \
     --vsock cid.auto=yes --boot uefi "${gpu_mode[@]}" "${tpm_mode[@]}" --autoconsole text \
@@ -404,8 +315,8 @@ delete_usage() {
 }
 
 delete() {
-  local force=false pronoun=its vmlabel=VM vm="" REPLY=""
-  local connect=(--connect "$CONNECT_URI")
+  local force=false pronoun=its vmlabel=VM vm="" REPLY="" snapshots=() snapshot=""
+  local connect=$CONNECT_URI
   local OPT_SHORT="huc:f"
   local OPT_LONG=("help" "user" "session" "connect:" "force")
   declare -a OPTRET
@@ -414,8 +325,8 @@ delete() {
   while true; do
     case $1 in
       -h|--help) delete_usage ;;
-      -u|--user|--session) connect=(--connect qemu:///session) ;;
-      -c|--connect) shift ; connect=(--connect "$1") ;;
+      -u|--user|--session) connect=qemu:///session ;;
+      -c|--connect) shift ; connect=$1 ;;
       -f|--force) force=true ;;
       --) shift ; break ;;
       *) ;;
@@ -423,53 +334,27 @@ delete() {
     shift
   done
 
+  (( $# == 0 )) && { main_menu delete ; exit ; }
   (( $# > 1 )) && { pronoun=their ; vmlabel=VMs ; }
 
-  if (( $# == 0 )); then
-    gumcheck delete_usage
-    local vms=() tmp=""
-    mapfile -t vms < <(virsh "${connect[@]}" list --all | awk 'NR>2&&/./{print $2}' 2> /dev/null | sort -n)
-    vms+=("<-- Back")
-    local height=$(( ${#vms[@]} + 4 ))
-    if (( height < 5 )); then
-      height=5
-    elif (( height > 15 )); then
-      height=15
+  if ! "$force"; then
+    read -rp "Really delete $vmlabel ($*) and $pronoun storage? [yN] "
+    if [[ ! "$REPLY" =~ ^(YES|Yes|yes|Y|y|1)$ ]]; then
+      echo "Not deleting $vmlabel: $*"
+      exit
     fi
-    mapfile -t vms < <(gum filter --height=$height --no-limit --header="Select VMs to Delete> " "${vms[@]}")
-    if (( ${#vms[@]} == 0 )); then
-      echo "Error getting VM to Delete" >&2
-      exit 1
-    fi
-    for tmp in "${vms[@]}"; do
-      [[ "$tmp" == "<-- Back" ]] && return
-    done
-    set -- "${vms[@]}"
-    (( $# > 1 )) && { pronoun=their ; vmlabel=VMs ; }
-
-    if ! "$force"; then
-      tmp=$(gum choose --header="Really delete $vmlabel ($*) and $pronoun storage? " No Yes)
-      if [[ "$tmp" != "Yes" ]]; then
-        echo "Not deleting $vmlabel: $*"
-        return
-      fi
-    fi
-  else
-    if ! "$force"; then
-      read -rp "Really delete $vmlabel ($*) and $pronoun storage? [yN] "
-      if [[ ! "$REPLY" =~ ^(YES|Yes|yes|Y|y|1)$ ]]; then
-        echo "Not deleting $vmlabel: $*"
-        exit
-      fi
-      echo
-    fi
+    echo
   fi
 
   for vm in "$@"; do
-    if ! grep -q "shut off" < <(virsh "${connect[@]}" domstate "$vm"); then
-      virsh "${connect[@]}" destroy "$vm"
+    if ! grep -q "shut off" < <(virsh --connect "${connect:-$CONNECT_URI}" domstate "$vm"); then
+      virsh --connect "${connect:-$CONNECT_URI}" destroy "$vm"
     fi
-    virsh "${connect[@]}" undefine "$vm" --nvram --remove-all-storage
+    mapfile -t snapshots < <(virsh --connect "${connect:-$CONNECT_URI}" snapshot-list --name "$vm"|grep .)
+    for snapshot in "${snapshots[@]}"; do
+      virsh --connect "${connect:-$CONNECT_URI}" snapshot-delete "$vm" "$snapshot"
+    done
+    virsh --connect "${connect:-$CONNECT_URI}" undefine "$vm" --nvram --remove-all-storage
   done
 }
 
@@ -494,8 +379,8 @@ list_usage() {
 }
 
 list() {
-  local opts=() mode=list gui=false
-  local connect=(--connect "$CONNECT_URI")
+  local opts=() mode=list
+  local connect=$CONNECT_URI
   local OPT_SHORT="huc:aAropsSi"
   local OPT_LONG=(
     "help" "user" "session" "connect:" "all" "autostart" "running" "on" "gui"
@@ -507,9 +392,8 @@ list() {
   while true; do
     case $1 in
       -h|--help) list_usage ;;
-         --gui) gui=true ;;
-      -u|--user|--session) connect=(--connect qemu:///session) ;;
-      -c|--connect) shift ; connect=(--connect "$1") ;;
+      -u|--user|--session) connect=qemu:///session ;;
+      -c|--connect) shift ; connect=$1 ;;
       -a|--all) [[ " ${opts[*]} " != *" --all "* ]] && opts+=(--all) ; mode=all ;;
       -A|--autostart) [[ " ${opts[*]} " != *" --autostart "* ]] && opts+=(--autostart) ;;
       -r|--on|--running) [[ " ${opts[*]} " != *" --state-running "* ]] && opts+=(--state-running) ;;
@@ -526,42 +410,12 @@ list() {
 
   (( ${#opts[@]} == 0 )) && { opts+=(--all) ; mode=all ; }
 
-  if $gui || [[ "$mode" == list ]] ; then
-    gumcheck list_usage
-    local options=(
-      "All VMs" "Autostart VMs" "Running VMs" "Stopped VMs" "Paused VMs"
-      "VMs with Snapshots" "VMs without Snapshots" 
-      "List DHCP IP Addresses (cannot be combined)" "<-- Back"
-    )
-    local height=$(( ${#options[@]} + 4 ))
-    if (( height < 5 )); then
-      height=5
-    elif (( height > 15 )); then
-      height=15
-    fi
-    mode=$(gum filter --height=$height --no-limit --header="Choose VM List Options> " \
-      --selected="All VMs" "${options[@]}")
-    opts=()
-    case "$mode" in
-      "All VMs") [[ " ${opts[*]} " != *" --all "* ]] && opts+=(--all) ;;
-      "Autostart VMs") [[ " ${opts[*]} " != *" --autostart "* ]] && opts+=(--autostart) ;;
-      "Running VMs") [[ " ${opts[*]} " != *" --state-running "* ]] && opts+=(--state-running) ;;
-      "Stopped VMs") [[ " ${opts[*]} " != *" --state-shutoff "* ]] && opts+=(--state-shutoff) ;;
-      "Paused VMs") [[ " ${opts[*]} " != *" --state-paused "* ]] && opts+=(--state-paused) ;;
-      "VMs with Snapshots") [[ " ${opts[*]} " != *" --with-snapshots "* ]] && opts+=(--with-snapshots) ;;
-      "VMs without Snapshots") [[ " ${opts[*]} " != *" --without-snapshots "* ]] && opts+=(--without-snapshots) ;;
-      "List DHCP IP Addresses"*) mode=ip ;;
-      "<-- Back") return ;;
-      *) ;;
-    esac
-  fi
-
   if [[ "$mode" == ip ]]; then
-    virsh "${connect[@]}" net-dhcp-leases "${1:-default}"
+    virsh --connect "${connect:-$CONNECT_URI}" net-dhcp-leases "${1:-default}"
     exit
   fi
 
-  virsh "${connect[@]}" list "${opts[@]}"
+  virsh --connect "${connect:-$CONNECT_URI}" list "${opts[@]}"
 }
 
 reboot_usage() {
@@ -579,7 +433,7 @@ reboot_usage() {
 
 reboot() {
   local mode=reboot mode_label=Reboot force=false pronoun=its vmlabel=VM vm="" REPLY=""
-  local connect=(--connect "$CONNECT_URI")
+  local connect=$CONNECT_URI
   local OPT_SHORT="hucf:"
   local OPT_LONG=("help" "reset" "user" "session" "connect:" "force")
   declare -a OPTRET
@@ -589,8 +443,8 @@ reboot() {
     case $1 in
       --reset) mode=reset ; mode_label="Hard Reset" ;;
       -h|--help) reboot_usage ${mode:-reboot} ;;
-      -u|--user|--session) connect=(--connect qemu:///session) ;;
-      -c|--connect) shift ; connect=(--connect "$1") ;;
+      -u|--user|--session) connect=qemu:///session ;;
+      -c|--connect) shift ; connect=$1 ;;
       -f|--force) force=true ;;
       --) shift ; break ;;
       *) ;;
@@ -598,49 +452,18 @@ reboot() {
     shift
   done
 
-  if (( $# == 0 )); then
-    gumcheck reboot_usage "$mode"
-    local vms=() tmp=""
-    mapfile -t vms < <(virsh "${connect[@]}" list --state-running --state-paused | awk 'NR>2&&/./{print $2}' 2> /dev/null | sort -n)
-    (( ${#vms[@]} == 0 )) && { echo "No Running VMs" >&2 ; return ; }
-    vms+=("<-- Back")
-    local height=$(( ${#vms[@]} + 4 ))
-    if (( height < 5 )); then
-      height=5
-    elif (( height > 15 )); then
-      height=15
+  (( $# == 0 )) && { main_menu "$mode" ; exit ; }
+  if ! "$force"; then
+    read -rp "Really $mode_label $vmlabel ($*)? [yN] "
+    if [[ ! "$REPLY" =~ ^(YES|Yes|yes|Y|y|1)$ ]]; then
+      echo "Not ${mode}ing $vmlabel: $*"
+      exit
     fi
-    mapfile -t vms < <(gum filter --height=$height --no-limit --header="Select VMs to $mode_label> " "${vms[@]}")
-    if (( ${#vms[@]} == 0 )); then
-      echo "Error getting VM to $mode_label" >&2
-      exit 1
-    fi
-    for tmp in "${vms[@]}"; do
-      [[ "$tmp" == "<-- Back" ]] && return
-    done
-    set -- "${vms[@]}"
-    (( $# > 1 )) && { pronoun=their ; vmlabel=VMs ; }
-
-    if ! "$force"; then
-      tmp=$(gum choose --header="Really $mode_label $vmlabel ($*)? " No Yes)
-      if [[ "$tmp" != "Yes" ]]; then
-        echo "Not ${mode}ing $vmlabel: $*"
-        return
-      fi
-    fi
-  else
-    if ! "$force"; then
-      read -rp "Really $mode_label $vmlabel ($*)? [yN] "
-      if [[ ! "$REPLY" =~ ^(YES|Yes|yes|Y|y|1)$ ]]; then
-        echo "Not ${mode}ing $vmlabel: $*"
-        exit
-      fi
-      echo
-    fi
+    echo
   fi
 
   for vm in "$@"; do
-    virsh "${connect[@]}" $mode "$vm"
+    virsh --connect "${connect:-$CONNECT_URI}" $mode "$vm"
   done
 }
 
@@ -662,8 +485,8 @@ snapshot_usage() {
 
 snapshot() {
   local mode=create vm="" snapshot_default="snapshot1" description="" force=false REPLY=""
-  local desc=() disks=() disk_opt=() disk="" mem_opt=() gui_mode=true
-  local connect=(--connect "$CONNECT_URI")
+  local desc=() disks=() disk_opt=() disk="" mem_opt=()
+  local connect=$CONNECT_URI
   local OPT_SHORT="huc:fd:ltDR"
   local OPT_LONG=(
     "help" "user" "session" "connect:" "force" "description:" "list" "list-tree" "delete" "revert"
@@ -674,8 +497,8 @@ snapshot() {
   while true; do
     case $1 in
       -h|--help) snapshot_usage ;;
-      -u|--user|--session) connect=(--connect qemu:///session) ;;
-      -c|--connect) shift ; connect=(--connect "$1") ;;
+      -u|--user|--session) connect=qemu:///session ;;
+      -c|--connect) shift ; connect=$1 ;;
       -d|--description) shift ; description=$1 ;;
       -f|--force) force=true ;;
       -l|--list) mode=list ;;
@@ -691,119 +514,51 @@ snapshot() {
   vm=$1
   snapshot=$2
 
-  if [[ -z "$vm" ]]; then
-    gumcheck snapshot_usage
-    local vms=() tmp=""
-    gui_mode=true
-    mapfile -t vms < <(virsh "${connect[@]}" list --all | awk 'NR>2&&/./{print $2}' 2> /dev/null | sort -n)
-    vms+=("<-- Back")
-    local height=$(( ${#vms[@]} + 4 ))
-    if (( height < 5 )); then
-      height=5
-    elif (( height > 15 )); then
-      height=15
-    fi
-    if ! vm=$(gum filter --height=$height --header="Select VM to Manage Snapshots> " "${vms[@]}"); then
-      echo "Error getting VM for Snapshot Management" >&2
-      exit 1
-    fi
-    [[ -z "$vm" || "$vm" == "<-- Back" ]] && return
-    tmp=$(gum filter --height=9 --header "Manage Snapshots for $vm" "Create Snapshot" "List Snapshots" \
-      "List Snapshots (tree)" "Revert Snapshot" "Delete Snapshots")
-    case "$tmp" in
-      "Create Snapshot") mode=create ;;
-      "List Snapshots") mode=list ;;
-      "List Snapshots (tree)") mode="list-tree" ;;
-      "Revert Snapshot") mode=revert ;;
-      "Delete Snapshots") mode=delete ;;
-      *) echo "Invalid mode for Snapshot Management ($tmp)" >&2 ; exit 1 ;;
-    esac
-  fi
+  [[ -z "$vm" ]] && { main_menu snapshot ; exit ; }
 
   if [[ "$mode" == list ]]; then
-    virsh "${connect[@]}" snapshot-list "$vm"
+    virsh --connect "${connect:-$CONNECT_URI}" snapshot-list "$vm"
     return
   elif [[ "$mode" == list-tree ]]; then
-    virsh "${connect[@]}" snapshot-list "$vm" --tree
+    virsh --connect "${connect:-$CONNECT_URI}" snapshot-list "$vm" --tree
     return
   fi
 
   if [[ "$mode" == delete ]]; then
-    if $gui_mode; then
-      local list=()
-      mapfile -t list < <(virsh "${connect[@]}" snapshot-list --name "$vm" | grep . 2> /dev/null)
-      list+=("hi" "there")
-      local height=$(( ${#list[@]} + 4 ))
-      if (( height < 5 )); then
-        height=5
-      elif (( height > 15 )); then
-        height=15
-      fi
-      snapshot=$(gum filter --height=$height --no-limit --header="Choose snapshot(s) to Delete> " "${list[@]}")
-      [[ -z "$snapshot" ]] && return
-      if ! "$force"; then
-        tmp=$(gum choose --header="Really Delete snapshot '$snapshot' for $vm? " No Yes)
-        if [[ "$tmp" != "Yes" ]]; then
-          echo "Not deleting '$snapshot' for $vm"
-          return
-        fi
-      fi
-    else
-      if [[ -z "$snapshot" ]]; then
-        echo "Error: SNAPSHOT_NAME must be provided when using -D" >&2
-        exit 1
-      fi
-      if ! "$force"; then
-        read -rp "Really delete snapshot '$snapshot' for $vm? [yN] "
-        if [[ ! "$REPLY" =~ ^(YES|Yes|yes|Y|y|1)$ ]]; then
-          echo "Not deleting '$snapshot' for $vm"
-          exit
-        fi
-        echo
-      fi
+    if [[ -z "$snapshot" ]]; then
+      echo "Error: SNAPSHOT_NAME must be provided when using -D" >&2
+      exit 1
     fi
-    virsh "${connect[@]}" snapshot-delete "$vm" "$snapshot"
+    if ! "$force"; then
+      read -rp "Really delete snapshot '$snapshot' for $vm? [yN] "
+      if [[ ! "$REPLY" =~ ^(YES|Yes|yes|Y|y|1)$ ]]; then
+        echo "Not deleting '$snapshot' for $vm"
+        exit
+      fi
+      echo
+    fi
+    virsh --connect "${connect:-$CONNECT_URI}" snapshot-delete "$vm" "$snapshot"
     return
   fi
 
   if [[ "$mode" == revert ]]; then
-    if $gui_mode; then
-      local list=()
-      mapfile -t list < <(virsh "${connect[@]}" snapshot-list "$vm" | awk 'NR>2&&/./{print $1}' 2> /dev/null)
-      local height=$(( ${#list[@]} + 4 ))
-      if (( height < 5 )); then
-        height=5
-      elif (( height > 15 )); then
-        height=15
-      fi
-      snapshot=$(gum filter --height=$height --header="Choose snapshot to Revert> " "${list[@]}")
-      [[ -z "$snapshot" ]] && return
-      if ! "$force"; then
-        tmp=$(gum choose --header="Really Revert snapshot '$snapshot' for $vm? " No Yes)
-        if [[ "$tmp" != "Yes" ]]; then
-          echo "Not reverting '$snapshot' for $vm"
-          return
-        fi
-      fi
-    else
-      if [[ -z "$snapshot" ]]; then
-        echo "Error: SNAPSHOT_NAME must be provided when using -R" >&2
-        exit 1
-      fi
-      if ! "$force"; then
-        read -rp "Really revert $vm to snapshot '$snapshot'? [yN] "
-        if [[ ! "$REPLY" =~ ^(YES|Yes|yes|Y|y|1)$ ]]; then
-          echo "Not reverting $vm to '$snapshot'"
-          exit
-        fi
-        echo
-      fi
+    if [[ -z "$snapshot" ]]; then
+      echo "Error: SNAPSHOT_NAME must be provided when using -R" >&2
+      exit 1
     fi
-    virsh "${connect[@]}" snapshot-revert "$vm" "$snapshot"
+    if ! "$force"; then
+      read -rp "Really revert $vm to snapshot '$snapshot'? [yN] "
+      if [[ ! "$REPLY" =~ ^(YES|Yes|yes|Y|y|1)$ ]]; then
+        echo "Not reverting $vm to '$snapshot'"
+        exit
+      fi
+      echo
+    fi
+    virsh --connect "${connect:-$CONNECT_URI}" snapshot-revert "$vm" "$snapshot"
     return
   fi
 
-  mapfile -t disks < <(virsh "${connect[@]}" domblklist "$vm" --details | awk '$1=="file" && $2=="disk" {print $3}')
+  mapfile -t disks < <(virsh --connect "${connect:-$CONNECT_URI}" domblklist "$vm" --details | awk '$1=="file" && $2=="disk" {print $3}')
 
   for disk in "${disks[@]}"; do
     disk_opt+=(--diskspec "$disk,snapshot=external")
@@ -815,12 +570,6 @@ snapshot() {
 
   [[ -z "$snapshot" ]] && snapshot=$snapshot_default
 
-  if $gui_mode; then
-    snapshot=$(gum input --value="$snapshot" --header="Enter name for new $vm snapshot> ")
-    [[ -z "$snapshot" ]] && return
-    description=$(gum write --value="$description" --header="Enter description for new $vm snapshot> ")
-  fi
-
   if [[ -n "$description" ]]; then
     desc=(--description "$description")
   fi
@@ -829,11 +578,11 @@ snapshot() {
   [[ ! -d /var/lib/libvirt/qemu/snapshot/"$vm" ]] &&
     mkdir -m 775 -p /var/lib/libvirt/qemu/snapshot/"$vm"
 
-  if ! grep -q "shut off" < <(virsh "${connect[@]}" domstate "$vm"); then
+  if ! grep -q "shut off" < <(virsh --connect "${connect:-$CONNECT_URI}" domstate "$vm"); then
     mem_opt=(--memspec "/var/lib/libvirt/qemu/snapshot/$vm/$snapshot-memory,snapshot=external")
   fi
 
-  virsh "${connect[@]}" snapshot-create-as "$vm" --name "$snapshot" "${desc[@]}" \
+  virsh --connect "${connect:-$CONNECT_URI}" snapshot-create-as "$vm" --name "$snapshot" "${desc[@]}" \
     --atomic "${disk_opt[@]}" "${mem_opt[@]}"
 }
 
@@ -852,20 +601,20 @@ start_usage() {
 }
 
 start() {
-  local mode=start mode_label=Start command=start force=false
-  local states=(--state-shutoff --state-paused) opts=()
-  local connect=(--connect "$CONNECT_URI")
+  local mode=start mode_label=Start command=start force=false vmlabel=VM opts=()
+  local connect=$CONNECT_URI
   local OPT_SHORT="huc:Cf"
-  local OPT_LONG=("help" "stop" "user" "session" "connect:" "console" "force")
+  local OPT_LONG=("help" "stop" "join-console" "user" "session" "connect:" "console" "force")
   declare -a OPTRET
   parseopts "$OPT_SHORT" "${OPT_LONG[@]}" -- "$@" || exit 1
   set -- "${OPTRET[@]}" ; unset OPT_SHORT OPT_LONG OPTRET
   while true; do
     case $1 in
-      --stop) mode=stop ; mode_label=Stop ; command=destroy states=(--state-running --state-paused) ;;
+      --stop) mode=stop ; mode_label=Stop ; command=destroy ;;
+      --join-console) mode=console ; mode_label=Console ; command=console ;;
       -h|--help) start_usage "${mode:-start}" ;;
-      -u|--user|--session) connect=(--connect qemu:///session) ;;
-      -c|--connect) shift ; connect=(--connect "$1") ;;
+      -u|--user|--session) connect=qemu:///session ;;
+      -c|--connect) shift ; connect=$1 ;;
       -C|--console) opts+=(--console) ;;
       -f|--force) force=true ;;
       --) shift ; break ;;
@@ -874,44 +623,14 @@ start() {
     shift
   done
 
-  if (( $# == 0 )); then
-    gumcheck start_usage "$mode"
-    local vms=() tmp=""
-    mapfile -t vms < <(virsh "${connect[@]}" list "${states[@]}" | awk 'NR>2&&/./{print $2}' 2> /dev/null | sort -n)
-    vms+=("<-- Back")
-    local height=$(( ${#vms[@]} + 4 ))
-    if (( height < 5 )); then
-      height=5
-    elif (( height > 15 )); then
-      height=15
+  (( $# == 0 )) && { main_menu "$mode" ; exit ; }
+  if [[ "$mode" == stop ]] && ! "$force"; then
+    read -rp "Really $mode_label $vmlabel ($*)? [yN] "
+    if [[ ! "$REPLY" =~ ^(YES|Yes|yes|Y|y|1)$ ]]; then
+      echo "Not ${mode}ing $vmlabel: $*"
+      exit
     fi
-    (( ${#vms[@]} == 0 )) && { echo "No available VMs" >&2 ; return ; }
-    mapfile -t vms < <(gum filter --height=$height --no-limit --header="Select VM to $mode_label> " "${vms[@]}")
-    if (( ${#vms[@]} == 0 )); then
-      echo "Error getting VM to $mode_label" >&2
-      exit 1
-    fi
-    for tmp in "${vms[@]}"; do
-      [[ "$tmp" == "<-- Back" ]] && return
-    done
-    set -- "${vms[@]}"
-
-    if [[ "$mode" == stop ]] && ! "$force"; then
-      tmp=$(gum choose --header="Really $mode_label $vmlabel ($*)? " No Yes)
-      if [[ "$tmp" != "Yes" ]]; then
-        echo "Not ${mode}ing $vmlabel: $*"
-        return
-      fi
-    fi
-  else
-    if [[ "$mode" == stop ]] && ! "$force"; then
-      read -rp "Really $mode_label $vmlabel ($*)? [yN] "
-      if [[ ! "$REPLY" =~ ^(YES|Yes|yes|Y|y|1)$ ]]; then
-        echo "Not ${mode}ing $vmlabel: $*"
-        exit
-      fi
-      echo
-    fi
+    echo
   fi
 
   if (( $# > 1 )) && [[ "$mode" == start && " ${opts[*]} " == *" --console "* ]]; then
@@ -925,7 +644,7 @@ start() {
   [[ "$mode" == stop ]] && opts=()
 
   for vm in "$@"; do
-    virsh "${connect[@]}" $command "$vm" "${opts[@]}"
+    virsh --connect "${connect:-$CONNECT_URI}" "$command" "$vm" "${opts[@]}"
   done
 }
 
@@ -954,6 +673,298 @@ get_iso() {
   echo "$vm_iso"
 }
 
+sub_menu() {
+  local padding=4 vm_type="" vm_name="" vm_ram="" vm_vcpus="" vm_disk="" vm_iso="" back="<-- Back"
+  local ret=0 default_name="" option="" header="" answer="" choice="" mode="" height=0
+  local menu=() iso_files=() menu=() options=() opts=() menu=() selected=() states=()
+  [[ "$1" == "--one" ]] && { back=Quit ; shift ; }
+  while : ; do
+    case "$1" in
+      list)
+        vm list
+        printf '\nPress Enter to continue'
+        read -r
+        return
+        ;;
+      start|stop|delete|reboot|reset|console)
+        menu=() ; height=0 ; vms=() ; options=(--no-limit)
+        states=(--state-shutoff --state-paused)
+        [[ "$1" =~ ^stop|reboot|reset|console$ ]] && states=(--state-running --state-paused)
+        [[ "$1" == console ]] && options=()
+        [[ "$1" == delete ]] && states=(--all)
+        mapfile -t menu < <(virsh --connect "${connect:-$CONNECT_URI}" list "${states[@]}" --name|grep .)
+        if (( ${#menu[@]} == 0 )); then
+          if [[ "$back" == Quit ]]; then
+            echo "There are no VMs top ${1^}"
+            exit
+          fi
+          return 2
+        fi
+        menu=("$back" "${menu[@]}")
+        height=${#menu[@]}
+        (( height > 15 )) && height=15
+        mapfile -t vms < <(gum filter "${GUM_STYLE[@]}" --placeholder="Choose VMs to ${1^}..." --header="${1^} VMs" --no-fuzzy-sort "${options[@]}" --height=$(( height + padding )) "${menu[@]}"; echo "ret=$?")
+        ret=${vms[-1]##*=}
+        case $ret in 130) exit ;; 0) ;; *) return 10 ;; esac
+        vms=("${vms[@]:0:${#vms[@]}-1}")
+        case "${vms[0]}" in
+          "$back") return ;;
+          '') echo "Error: Menu failure" >&2 ; exit 1 ;;
+          *)
+            # shellcheck disable=2086
+            case "$1" in
+              start|console) vm "$1" "${vms[@]}" ;;
+              stop|reboot|restart|delete)
+                answer=$(gum choose --header="Really ${1^} VMs: ${vms[*]}" Yes No)
+                case $? in 130) exit ;; 0) ;; *) return 11 ;; esac
+                [[ "$answer" == "Yes" ]] && vm "$1" --force "${vms[@]}"
+                ;;
+              *) return 100 ;;
+            esac
+            ;;
+        esac
+        ;;
+      clone)
+        selected=() ; menu=() ; summary=() ; options=() ; height=0 ; choice="" ; vm_name=""
+        summary=("## Cloned VM Summary")
+        mapfile -t menu < <(virsh --connect "${connect:-$CONNECT_URI}" list --all --name|grep .)
+        (( ${#menu[@]} == 0 )) && return 2
+        menu=("$back" "${menu[@]}")
+        height=${#menu[@]}
+        (( height > 15 )) && height=15
+        choice=$(gum filter "${GUM_STYLE[@]}" --placeholder="Choose a VM to ${1^}..." --header="${1^} a VM" --no-fuzzy-sort --height=$(( height + padding )) "${menu[@]}")
+        (( "${#choice[@]}" == 0 )) && return 12
+        case "$choice" in
+          "$back") return ;;
+          '') echo "Error: Menu failure" >&2 ; exit 1 ;;
+          *) ;;
+        esac
+        vm_name=$(gum input "${GUM_STYLE[@]}" --placeholder="New VM Name" --header="Enter a name for the new VM...")
+        case $? in 130) exit ;; 0) ;; *) return 5 ;; esac
+        [[ -z "$vm_name" ]] && return 4
+        summary+=("- Source VM: $choice")
+        summary+=("- New VM: $vm_name")
+        menu=("Start VM" "Connect to Console")
+        height=${#menu[@]}
+        (( height > 15 )) && height=15
+        mapfile -t options < <(gum filter "${GUM_STYLE[@]}" --no-limit --height=$(( height + padding )) --placeholder="Pick options for new $vm_name VM..." --no-fuzzy-sort --header="${1^} a VM" "${menu[@]}" ; echo "ret=$?")
+        ret=${options[-1]##*=}
+        case $ret in 130) exit ;; 0) ;; *) return 10 ;; esac
+        (( ${#options[@]} > 1 )) && summary+=("- Options:")
+        for option in "${options[@]}"; do
+          case "$option" in
+            "Start VM") opts+=(--start) ; summary+=("  - Start VM") ;;
+            "Connect to Console") opts+=(--start-console) ; summary+=("  - Connect to Console") ;;
+            *) ;;
+          esac
+        done
+        summary+=("")
+        summary+=("Clone '$choice' to '$vm_name'?")
+        header=$(printf '%s\n' "${summary[@]}" | gum format)
+        answer=$(gum choose --header="$header" Yes No)
+        case $? in 130) exit ;; 0) ;; *) return 11 ;; esac
+        [[ "$answer" == "Yes" ]] && vm clone "$choice" "$vm_name" "${opts[@]}"
+        ;;
+      snapshot)
+        while : ; do
+          vms=() ; choice="" ; mode="" ; vm_name="" ; answer=""
+          mapfile -t vms < <(virsh --connect "${connect:-$CONNECT_URI}" list --all --name|grep .)
+          (( ${#vms[@]} == 0 )) && return 2
+          vms=("$back" "${vms[@]}")
+          height=${#vms[@]}
+          (( height > 15 )) && height=15
+          vm_name=$(gum filter "${GUM_STYLE[@]}" --placeholder="Choose a VM to ${1^}..." --header="VM Snapshot Management" --no-fuzzy-sort --height=$(( height + padding )) "${vms[@]}")
+          case $? in 130) exit ;; 0) ;; *) return 4 ;; esac
+          case "$vm_name" in
+            "$back") return ;;
+            '') echo "Error: Menu failure" >&2 ; exit 1 ;;
+            *) ;;
+          esac
+          while : ; do
+            menu=(
+              "$back" "Create Snapshot" "List Snapshots"
+              "List Snapshots (tree)" "Revert Snapshot" "Delete Snapshots"
+            )
+            height=${#menu[@]}
+            (( height > 15 )) && height=15
+            choice=$(gum filter "${GUM_STYLE[@]}" --placeholder="Choose an Snapshot action..." --header="VM Snapshot Management" --no-fuzzy-sort --height=$(( height + padding )) "${menu[@]}")
+            case $? in 130) exit ;; 0) ;; *) return 13 ;; esac
+            case "$choice" in
+              "$back") break ;;
+              '') echo "Error: Menu failure" >&2 ; exit 1 ;;
+              "Create Snapshot")
+                snapshot=$(gum input "${GUM_STYLE[@]}" --placeholder="New ${1^} Name" --header="Enter a name for the new ${1^} for $vm_name...")
+                case $? in 130) exit ;; 0) ;; *) return 14 ;; esac
+                answer=$(gum input "${GUM_STYLE[@]}" --placeholder="New ${1^} Name" --header="Enter a description for the new ${1^} for $vm_name...")
+                case $? in 130) exit ;; 0) ;; *) return 15 ;; esac
+                options=()
+                [[ -n "$answer" ]] && options=(--description "$answer")
+                vm snapshot "${options[@]}" "$vm_name" "$snapshot"
+                ;;
+              "List Snapshots")
+                vm snapshot --list "$vm_name"
+                printf '\nPress Enter to continue'
+                read -r
+                ;;
+              "List Snapshots (tree)")
+                vm snapshot --list-tree "$vm_name"
+                printf '\nPress Enter to continue'
+                read -r
+                ;;
+              "Revert Snapshot"|"Delete Snapshots")
+                mode=revert
+                [[ "$choice" == "Delete Snapshots" ]] && mode=delete
+                mapfile -t menu < <(virsh --connect "${connect:-$CONNECT_URI}" snapshot-list --name "$vm_name"|grep .)
+                (( ${#menu[@]} == 0 )) && return 2
+                menu=("$back" "${menu[@]}")
+                height=${#menu[@]}
+                (( height > 15 )) && height=15
+                snapshot=$(gum filter "${GUM_STYLE[@]}" --placeholder="Choose a Snapshot to ${mode^}..." --header="VM Snapshot Management" --no-fuzzy-sort --height=$(( height + padding )) "${menu[@]}")
+                case $? in 130) exit ;; 0) ;; *) return 4 ;; esac
+                case "$snapshot" in
+                  "$back") return ;;
+                  '') echo "Error: Menu failure" >&2 ; exit 1 ;;
+                  *) ;;
+                esac
+                answer=$(gum choose --header="Really ${1^} $snapshot Snapshot for $vm_name" Yes No)
+                case $? in 130) exit ;; 0) ;; *) return 11 ;; esac
+                [[ "$answer" == "Yes" ]] && vm "$1" --"$mode" --force "$vm_name" "$snapshot"
+                ;;
+              *) return 13 ;;
+            esac
+          done
+        done
+        ;;
+      create)
+        vm_type="" ; vm_name="" ; vm_ram="" ; vm_vcpus="" ; vm_disk="" ; vm_iso="" ; height=""
+        ret=0 ; default_name="" ; option="" ; header="" ; answer=""
+        menu=() ; options=() ; opts=() ; menu=()
+        summary=("## VM Summary")
+        (( ${#VM_TYPES[@]} == 0 )) && return 2
+        menu=("$back" "${VM_TYPES[@]}")
+        height=${#menu[@]}
+        (( height > 15 )) && height=15
+        vm_type=$(gum filter "${GUM_STYLE[@]}" --placeholder="Choose a VM Type..." --header="${1^} a VM" --no-fuzzy-sort --height=$(( height + padding )) "${menu[@]}")
+        (( $? == 130 )) && exit
+        [[ -z "$vm_type" ]] && return 3
+        default_name=${vm_type#*\(}
+        default_name=${default_name%\)*}
+        case "$vm_type" in
+          "$back") return ;;
+          '') echo "Error: Menu failure" >&2 ; exit 1 ;;
+          *) ;;
+        esac
+        default_name=$(tr '[:upper:]' '[:lower:]' <<< "${default_name// /}")
+        vm_name=$(gum input "${GUM_STYLE[@]}" --value="$default_name" --header="Enter a VM Name for $vm_type...")
+        case $? in 130) exit ;; 0) ;; *) return 4 ;; esac
+        summary+=("- Name: $vm_name")
+        summary+=("- Type: $vm_type")
+        vm_ram=$(gum input "${GUM_STYLE[@]}" --placeholder="Enter nothing to accept 8192" --header="Enter amount of RAM in MB for $vm_name...")
+        case $? in 130) exit ;; 0) ;; *) return 5 ;; esac
+        [[ "$vm_ram" =~ ^[0-9]+$ ]] && { opts+=(--disk "$vm_ram") ; summary+=("- RAM: $vm_ram MB$( (( vm_ram < 1024 )) && echo " * That's low" )") ; }
+        vm_disk=$(gum input "${GUM_STYLE[@]}" --placeholder="Enter nothing to accept 20" --header="Enter disk size in GB for $vm_name...")
+        case $? in 130) exit ;; 0) ;; *) return 7 ;; esac
+        [[ "$vm_disk" =~ ^[0-9]+$ ]] && { opts+=(--disk "$vm_disk") ; summary+=("- Disk: $vm_disk$( (( vm_disk > 100 )) && echo " * That's high" )") ; }
+        vm_vcpus=$(gum input "${GUM_STYLE[@]}" --placeholder="Enter nothing to accept 1" --header="Enter number of vCPUs for $vm_name...")
+        case $? in 130) exit ;; 0) ;; *) return 6 ;; esac
+        [[ "$vm_vcpus" =~ ^[0-9]+$ ]] && { opts+=(--cpus "$vm_vcpus") ; summary+=("- vCPUs: $vm_vcpus$( (( vm_vcpus > $(nproc) )) && echo " * That's high")") ; }
+        (( ${#iso_files[@]} == 0 )) && mapfile -t iso_files < <(find "$ISO_PATH" -type f -name "*.iso" -printf "%f\n" 2>/dev/null|sort)
+        (( ${#iso_files[@]} == 0 )) && return 8
+        height=${#iso_files[@]}
+        (( height > 15 )) && height=15
+        vm_iso=$(gum filter "${GUM_STYLE[@]}" --height="$height" --placeholder="Pick an ISO file for $vm_name..." --no-fuzzy-sort --header="${1^} a VM" "${selected[@]}" "${iso_files[@]}")
+        case $? in 130) exit ;; 0) ;; *) return 9 ;; esac
+        [[ -r "$vm_iso" ]] && { opts+=(--iso "$vm_iso") ; summary+=("- vCPUs: $vm_vcpus") ; }
+        menu=("Disable GPU" "Enable TPM Emulation" "Test Mode (just print command)")
+        height=${#menu[@]}
+        (( height > 15 )) && height=15
+        mapfile -t options < <(gum filter "${GUM_STYLE[@]}" --no-limit --height=$(( height + padding )) --placeholder="Pick options for $vm_name..." --no-fuzzy-sort --header="${1^} a VM" "${menu[@]}" ; echo "ret=$?")
+        ret=${options[-1]##*=}
+        case $ret in 130) exit ;; 0) ;; *) return 10 ;; esac
+        (( ${#options[@]} > 1 )) && summary+=("- Options:")
+        for option in "${options[@]}"; do
+          case "$option" in
+            "Start VM") opts+=(--start) ; summary+=("  - Start VM") ;;
+            "Connect to Console") opts+=(--start-console) ; summary+=("  - Connect to Console") ;;
+            "Disable GPU") opts+=(--disable-gpu) ; summary+=("  - Disable GPU") ;;
+            "Enable TPM Emulation") opts+=(--emulated-tpm) ; summary+=("  - Emulated TPM") ;;
+            "Test Mode (just print command)") opts+=(--test) ; summary+=("  - Test Mode") ;;
+            *) ;;
+          esac
+        done
+        summary+=("")
+        summary+=("Build new VM?")
+        header=$(printf '%s\n' "${summary[@]}" | gum format)
+        answer=$(gum choose --header="$header" Yes No)
+        case $? in 130) exit ;; 0) ;; *) return 11 ;; esac
+        [[ "$answer" == "Yes" ]] && vm create --"$default_name" "${opts[@]}"
+        ;;
+      *) return 100 ;;
+    esac
+  done
+}
+
+main_menu() {
+  local choice header padding=5 height=0 ret=0
+  case "$1" in
+      start)    sub_menu --one start    ; exit ;;
+      stop)     sub_menu --one stop     ; exit ;;
+      reboot)   sub_menu --one reboot   ; exit ;;
+      reset)    sub_menu --one reset    ; exit ;;
+      console)  sub_menu --one console  ; exit ;;
+      create)   sub_menu --one create   ; exit ;;
+      clone)    sub_menu --one clone    ; exit ;;
+      delete)   sub_menu --one delete   ; exit ;;
+      list)     sub_menu --one list     ; exit ;;
+      snapshot) sub_menu --one snapshot ; exit ;;
+      quit)     exit ;;
+      *)        ;;
+  esac
+  while : ; do
+    case "${ret:-0}" in
+      2) header="$(gum style --foreground=212 "$choice")$(gum style --foreground=33 " has no VMs available")" ;;
+      3) header="Invalid VM Type given for $(gum style --foreground=212 "$choice")" ;;
+      4) header="Invalid VM Name given for $(gum style --foreground=212 "$choice")" ;;
+      5) header="Invalid VM RAM given for $(gum style --foreground=212 "$choice")" ;;
+      6) header="Invalid VM vCPUs given for $(gum style --foreground=212 "$choice")" ;;
+      7) header="Invalid VM Disk given for $(gum style --foreground=212 "$choice")" ;;
+      8) header="No ISO files found for $(gum style --foreground=212 "$choice")" ;;
+      9) header="Invalid VM ISO given for $(gum style --foreground=212 "$choice")" ;;
+      10) header="Invalid options given for $(gum style --foreground=212 "$choice")" ;;
+      11) header="Invalid confirmation to build given for $(gum style --foreground=212 "$choice")" ;;
+      12) header="Invalid source VM for $(gum style --foreground=212 "$choice")" ;;
+      13) header="Invalid action for $(gum style --foreground=212 "$choice")" ;;
+      14) header="Invalid name for $(gum style --foreground=212 "$choice")" ;;
+      15) header="Invalid description for $(gum style --foreground=212 "$choice")" ;;
+      100) header="$(gum style --foreground=212 "$choice")$(gum style --foreground=33 " not implemented")" ;;
+      *) header="" ; (( padding-- )) ;;
+    esac
+    height=${#MAIN_MENU[@]}
+    [[ -z "$header" ]] && header="VM Management"
+    [[ -n "$header" ]] && (( height++ ))
+    (( height > 15 )) && height=15
+    choice=$(gum filter "${GUM_STYLE[@]}" --placeholder="Choose an action..." --header="$header" --no-fuzzy-sort --height=$(( height + padding )) "${MAIN_MENU[@]}")
+    (( $? == 130 )) && exit
+    ret=0
+    case $choice in
+      "Start VM(s)")  sub_menu start    ; ret=$? ;;
+      "Stop VM(s)")   sub_menu stop     ; ret=$? ;;
+      "Reboot VM(s)") sub_menu reboot   ; ret=$? ;;
+      "Reset VM(s)")  sub_menu reset    ; ret=$? ;;
+      "VM Console")   sub_menu console  ; ret=$? ;;
+      "Create VM")    sub_menu create   ; ret=$? ;;
+      "Clone VM")     sub_menu clone    ; ret=$? ;;
+      "Delete VM(s)") sub_menu delete   ; ret=$? ;;
+      "List VMs")     sub_menu list     ; ret=$? ;;
+      "VM Snapshots") sub_menu snapshot ; ret=$? ;;
+      "Quit")         exit ;;
+      *)              ;;
+    esac
+    (( ${#MAIN_MENU[@]} > 0 )) && [[ "${MAIN_MENU[0]}" != "Quit" ]] &&
+      MAIN_MENU=("${MAIN_MENU[-1]}" "${MAIN_MENU[@]:0:${#MAIN_MENU[@]}-1}")
+  done
+}
+
 main_usage() {
   echo "usage: ${0##*/} MODE"
   echo
@@ -968,65 +979,47 @@ main_usage() {
   echo "  start    = Start VM            : ${0##*/} start [-h] [-c] VM_NAME"
   echo "  stop     = Stop VM             : ${0##*/} stop [-h] [-f] VM_NAME"
   echo "  help     = This help"
-  if command -v gum &>/dev/null; then
-    echo "If mode is not given and Gum* is installed, an interactive menu will be used"
-    echo "* https://github.com/charmbracelet/gum"
-  fi
   exit "${1:-0}"
 }
 
 main() {
   command -v virsh &>/dev/null || { echo "Error: virsh is required for this program" >&2 ; exit 1 ; }
 
-  local use_gui=false action=$1 actions=()
-  [[ -z "$action" ]] && use_gui=true
+  local action=$1
+  [[ -z "$action" ]] && { main_menu "$@" ; exit ; }
 
-  while : ; do
-    if $use_gui; then
-      gumcheck main_usage
-      actions=(
-        "Start VM(s)" "Stop VM(s)" "Create VM" "Clone VM" "Delete VM(s)"
-        "VM Snapshots" "Reboot VM(s)" "Hard Reset VM(s)" "List VMs"
-        "Quit"
-      )
-      action=$(gum filter --height=$(( ${#actions[@]} + 4 )) \
-        --header="Virtual Machine Management> " "${actions[@]}")
-      [[ -z "$action" ]] && exit
-    fi
-
-    case "$action" in
-      "Clone VM"|clone|copy|duplicate|dupe) shift ; clone "$@" ;;
-      "Create VM"|create|install|new) shift ; create "$@" ;;
-      "Delete VM(s)"|delete|del|remove|rm) shift ; delete "$@" ;;
-      "List VMs") shift ; list --gui "$@" ;;
-      list|ls) shift ; list "$@" ;;
-      "Reboot VM(s)"|reboot) shift ; reboot "$@" ;;
-      "Reset VM(s)"|reset) shift ; reboot --reset "$@" ;;
-      "VM Snapshots"|snapshot|snap) shift ; snapshot "$@" ;;
-      "Start VM(s)"|start) shift ; start "$@" ;;
-      "Stop VM(s)"|stop|shutdown|destroy) shift ; start --stop "$@" ;;
-      "Quit") exit ;;
-      ''|help|--help|-h)
-        shift
-        case "$1" in
-          clone|copy|duplicate|dupe) clone -h ;;
-          create|new) create -h ;;
-          delete|del|remove|rm) delete -h ;;
-          list|ls) list -h ;;
-          reboot) reboot -h ;;
-          reset) reboot --reset -h ;;
-          snapshot|snap) snapshot -h ;;
-          start) start -h ;;
-          stop|shutdown|destroy) start --stop -h ;;
-          *) main_usage ;;
-        esac
-        ;;
-      -*) create "$@" ;;
-      *) echo "Error: Invalid command" >&2 ; main_usage 1
-    esac
-
-    ! "$use_gui" && break
-  done
+  case "$action" in
+    "Clone VM"|clone|copy|duplicate|dupe) shift ; clone "$@" ;;
+    "Create VM"|create|install|new) shift ; create "$@" ;;
+    "Delete VM(s)"|delete|del|remove|rm) shift ; delete "$@" ;;
+    "List VMs") shift ; list --gui "$@" ;;
+    list|ls) shift ; list "$@" ;;
+    "Reboot VM(s)"|reboot) shift ; reboot "$@" ;;
+    "Reset VM(s)"|reset) shift ; reboot --reset "$@" ;;
+    "VM Snapshots"|snapshot|snap) shift ; snapshot "$@" ;;
+    "Start VM(s)"|start) shift ; start "$@" ;;
+    "Stop VM(s)"|stop|shutdown|destroy) shift ; start --stop "$@" ;;
+    "Join Console"|console) shift ; start --join-console "$@" ;;
+    "Quit") exit ;;
+    ''|help|--help|-h)
+      shift
+      case "$1" in
+        clone|copy|duplicate|dupe) clone -h ;;
+        create|new) create -h ;;
+        delete|del|remove|rm) delete -h ;;
+        list|ls) list -h ;;
+        reboot) reboot -h ;;
+        reset) reboot --reset -h ;;
+        console) start --join-console -h ;;
+        snapshot|snap) snapshot -h ;;
+        start) start -h ;;
+        stop|shutdown|destroy) start --stop -h ;;
+        *) main_usage ;;
+      esac
+      ;;
+    -*) create "$@" ;;
+    *) echo "Error: Invalid command" >&2 ; main_usage 1
+  esac
 }
 
 # Do not run main if sourced from another script
@@ -1035,5 +1028,4 @@ if (return 2> /dev/null); then
 else
   main "$@"
 fi
-
 
