@@ -18,8 +18,10 @@ output "HDMI-A-1" {
 
 binds {
 //     Mod+Shift+d  hotkey-overlay-title="Terminal File Manager"  { spawn-sh "$HOME/.config/niri/new_scratchpad termfm"; }
-    Mod+Ctrl+Comma      hotkey-overlay-title="System Monitor"   { spawn-sh "$HOME/.config/niri/scratchpad htop-earth"; }
-    Mod+Ctrl+Period     hotkey-overlay-title="GPU Monitor"      { spawn-sh "$HOME/.config/niri/scratchpad nvtop-earth"; }
+    Mod+Ctrl+Comma      hotkey-overlay-title="Earth htop"       { spawn-sh "$HOME/.config/niri/scratchpad htop-earth"; }
+    Mod+Ctrl+Period     hotkey-overlay-title="Earth nvtop"      { spawn-sh "$HOME/.config/niri/scratchpad nvtop-earth"; }
+    Mod+Alt+Comma       hotkey-overlay-title="Jupiter htop"     { spawn-sh "$HOME/.config/niri/scratchpad htop-jupiter"; }
+    Mod+Alt+Period      hotkey-overlay-title="Jupiter nvtop"    { spawn-sh "$HOME/.config/niri/scratchpad nvtop-jupiter"; }
 }
 
 // Fix for nvidia card
