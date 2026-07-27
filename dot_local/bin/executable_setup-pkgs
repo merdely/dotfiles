@@ -54,10 +54,12 @@ case "$ID" in
 
     # Go through the package list and find packages that are not installed
     need=""
-    packages="base-devel git openssh neovim man-db apparmor \
-      firejail rsync inetutils archlinux-contrib pacman-contrib \
-      networkmanager openresolv htop btop jq 7zip bat ripgrep fd cronie \
-      bash-completion bind fzf"
+    packages="base-devel python git openssh neovim man-db apparmor cronie \
+      firejail rsync inetutils archlinux-contrib pacman-contrib tree-sitter-cli \
+      networkmanager openresolv htop btop jq 7zip unzip bat ripgrep fd \
+      zsh git-zsh-completion zsh-autocomplete zsh-autosuggestions \
+      zsh-completions zsh-syntax-highlighting \
+      bash-completion bind fzf gum nvtop tmux"
 
     if $desktop; then
       packages="$packages niri alacritty fuzzel xdg-desktop-portal-gnome pipewire-jack \
