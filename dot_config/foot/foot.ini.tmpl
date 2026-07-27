@@ -12,7 +12,11 @@ alpha=0.8
 login-shell=yes
 font=monospace:size=11
 pad=4x4
+{{ if eq .chezmoi.os "openbsd" -}}
+include=/usr/local/share/foot/themes/kitty
+{{ else -}}
 include=/usr/share/foot/themes/kitty
+{{ end -}}
 
 # Include a file named $hostname.ini
 include=~/.config/foot/{{ .chezmoi.hostname }}.ini
