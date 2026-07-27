@@ -60,8 +60,8 @@ binds {
     Mod+Shift+Q          hotkey-overlay-title="Open Logseq"      { spawn-sh "$HOME/.config/niri/scratchpad com.logseq.Logseq Logseq"; }
     // Must create a term-scratchpad.desktop in $HOME/.local/share/applications
     Mod+Shift+Return     hotkey-overlay-title="Scratch Terminal" { spawn-sh "$HOME/.config/niri/scratchpad term-scratchpad"; }
-    Mod+Shift+Semicolon  hotkey-overlay-title="System Monitor"   { spawn-sh "$HOME/.config/niri/scratchpad htop"; }
-    Mod+Shift+Apostrophe hotkey-overlay-title="GPU Monitor"      { spawn-sh "$HOME/.config/niri/scratchpad nvtop"; }
+    Mod+Shift+Comma      hotkey-overlay-title="System Monitor"   { spawn-sh "$HOME/.config/niri/scratchpad htop"; }
+    Mod+Shift+Period     hotkey-overlay-title="GPU Monitor"      { spawn-sh "$HOME/.config/niri/scratchpad nvtop"; }
     Mod+Shift+Space hotkey-overlay-title="Clear Notifications"   { spawn-sh "dms ipc call notifications clearAll;dms ipc call notifications close"; }
     Mod+Shift+W          hotkey-overlay-title="Open SMS"         { spawn-sh "$HOME/.config/niri/scratchpad org.kde.kdeconnect.sms"; }
     Mod+Shift+X          hotkey-overlay-title="Cam Chooser"      { spawn-sh "pgrep -u $LOGNAME -f '[r]ofi -p View Camera' && pkill -u $LOGNAME -f '[r]ofi -p View Camera' || $HOME/.local/bin/cam-chooser"; }
