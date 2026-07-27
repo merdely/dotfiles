@@ -1,0 +1,51 @@
+# vim: set filetype=sh :
+
+if [[ -n "$COMPOSE_FILE" ]]; then
+  alias caddy='docker compose -f "$COMPOSE_FILE" exec caddy caddy'
+  alias caddyreload='docker compose -f "$COMPOSE_FILE" exec caddy caddy reload -c /etc/caddy/Caddyfile'
+  alias caddycheck='docker compose -f "$COMPOSE_FILE" exec caddy caddy validate -c /etc/caddy/Caddyfile'
+  alias caddyfmt='docker compose -f "$COMPOSE_FILE" exec caddy caddy fmt --overwrite -c /etc/caddy/Caddyfile'
+  alias caddylogs='docker compose -f "$COMPOSE_FILE" logs -f caddy --since 1m'
+  alias ollama='docker compose -f "$COMPOSE_FILE" exec ollama ollama'
+fi
+
+alias ap=ansible-playbook
+alias apv='ansible-playbook --ask-vault-pass'
+alias apkv='ANSIBLE_SSH_ARGS="-o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" ansible-playbook --ask-vault-pass'
+alias apk='ANSIBLE_SSH_ARGS="-o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" ansible-playbook'
+
+alias dmesg='sudo dmesg'
+alias archbuild='ssh -t earth docker compose -f /srv/docker/compose.yaml exec archbuild bash -l'
+alias archarmbuild='ssh -t earth docker compose -f /srv/docker/compose.yaml exec archarmbuild bash -l'
+
+alias remain='echo SSH to carme'
+alias suvcheck='sudo su -s /bin/bash -l vcheck'
+
+alias suvcheck='sudo su - -s /bin/bash vcheck'
+alias vcheck='sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck'
+alias vc='vcheck'
+alias v='sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -L all'
+alias vd='sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -D -L all'
+
+if [[ "$EDITOR" == nvim ]]; then
+  alias lazyvim='env NVIM_APPNAME=nvim-lazyvim nvim'
+  alias kickstart='env NVIM_APPNAME=nvim-kickstart nvim'
+
+  alias nvim-bare='env NVIM_APPNAME=__NONE__ nvim'
+  alias nvim-basic='env NVIM_APPNAME=nvim-basic nvim'
+  alias nvim-base='env NVIM_APPNAME=nvim-base nvim'   # very base install of my favorite options
+
+  # alias nvim-np='env NVIM_APPNAME=nvim-np nvim'
+  # alias nvim-test='env NVIM_APPNAME=nvim-test nvim'
+  # alias nvchad='env NVIM_APPNAME=nvim-nvchad nvim'
+  # alias astronvim='env NVIM_APPNAME=nvim-astronvim nvim'
+  # alias lunarvim='env NVIM_APPNAME=nvim-lunarvim nvim'
+  # alias nvim-mp='env NVIM_APPNAME=nvim-mp nvim'
+fi
+
+alias cm=chezmoi
+alias cme='chezmoi edit'
+alias cms='chezmoi status'
+alias cmd='chezmoi diff'
+
+alias dr='docker run --rm -it --name mwetest'
