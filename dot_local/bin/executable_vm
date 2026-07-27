@@ -77,7 +77,8 @@ clone() {
   done
   src_vm=$1 dest_vm=$2
 
-  [[ $# -ne 2 || -z "$src_vm" || -z "$dest_vm" ]] && { main_menu clone ; exit ; }
+  (( $# != 2 )) && clone_usage 1
+  [[ -z "$src_vm" || -z "$dest_vm" ]] && { main_menu clone ; exit ; }
 
   virt-clone --connect "${connect:-$CONNECT_URI}" --auto-clone --original "$src_vm" --name "$dest_vm"
   $start && virsh --connect "${connect:-$CONNECT_URI}" start "$dest_vm" "${opts[@]}" || true
