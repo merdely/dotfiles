@@ -275,7 +275,7 @@ recent-windows {
 {{ if eq .chezmoi.os "openbsd" -}}
 include "dms/binds.kdl"
 include "settings.kdl"
-{{ else }}
+{{ else -}}
 // Include dms files
 include optional=true "dms/colors.kdl"
 include optional=true "dms/layout.kdl"
