@@ -12,6 +12,8 @@ PARSEOPTS="${_LIBDIR:-"$(dirname "$0")${_LIB:-}"}/parseopts.sh"
 # shellcheck disable=SC1090,SC1091
 source "$PARSEOPTS" ; unset _LIB _LIBDIR
 
+command -v virsh &>/dev/null || { echo "Error: virsh is required for this program" >&2 ; exit 1 ; }
+
 MAIN_MENU=(
   "Start VM(s)"
   "Stop VM(s)"
@@ -37,16 +39,6 @@ VM_TYPES=(
 GUM_STYLE=(
   --header.foreground=33
 )
-
-gumcheck() {
-  local usage=${1:-usage}
-  if ! command -v gum &>/dev/null; then
-    echo "Gum not found: Cannot load interactive menus" >&2
-    "$usage" "$2"
-    return 1
-  fi
-  return 0
-}
 
 clone_usage() {
   echo "usage: ${0##*/} clone [Options] SRC_VM DEST_VM"
@@ -905,6 +897,11 @@ sub_menu() {
 }
 
 main_menu() {
+  if ! command -v gum &>/dev/null; then
+    echo "Gum not found: Cannot load interactive menus" >&2
+    exit 1
+  fi
+
   local choice header padding=5 height=0 ret=0
   case "$1" in
       start)    sub_menu --one start    ; exit ;;
@@ -983,8 +980,6 @@ main_usage() {
 }
 
 main() {
-  command -v virsh &>/dev/null || { echo "Error: virsh is required for this program" >&2 ; exit 1 ; }
-
   local action=$1
   [[ -z "$action" ]] && { main_menu "$@" ; exit ; }
 
