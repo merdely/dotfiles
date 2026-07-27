@@ -73,7 +73,7 @@ case "$ID" in
         libnotify imv imagemagick python-pillow python-cairocffi satty grim slurp \
         nwg-look adw-gtk-theme breeze-gtk breeze-icons gnome-keyring ksshaskpass \
         zathura zathura-pdf-mupdf geany mpv celluloid galculator  \
-        nm-connection-editor yad nautilus gvfs-dnssd"
+        nm-connection-editor yad nautilus gvfs-dnssd flatpak"
     fi
 
     for pkg in $packages; do
@@ -194,9 +194,29 @@ case "$ID" in
         command -v ydotool > /dev/null 2>&1 && systemctl --user enable ydotool.service 2> /dev/null
       fi
 
-      if command -v pipx > /de/vnull 2>&1 && ! pipx list --short | grep -q ^keymap-drawer; then
+      # Install keymap-drawer for creating Niri help files
+      if command -v pipx > /dev/null 2>&1 && ! pipx list --short | grep -q ^keymap-drawer; then
         echo "Installing keymap-drawer for creating help files"
         pipx install keymap-drawer
+      fi
+
+      # Install flatpak and flatpaks
+      if command -v flatpak > /dev/null 2>&1; then
+        if flatpak --system remotes | grep -q ^flathub; then
+          sudo flatpak --system remote-delete flathub
+        fi
+
+        # Set flathub as a remote for --user
+        flatpak --user remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+
+        if ! flatpak --user list --app --columns=application | grep ^com.github.tchx84.Flatseal; then
+          echo "Installing Flatseal"
+          flatpak --user install --assumeyes com.github.tchx84.Flatseal
+        fi
+        if ! flatpak --user list --app --columns=application | grep ^io.gitlab.librewolf-community; then
+          echo "Installing Librewolf"
+          flatpak --user install --assumeyes io.gitlab.librewolf-community
+        fi
       fi
 
       if $kvm && [ ! -e "$HOME"/.config/environment.d/wlr_cursors.conf ]; then

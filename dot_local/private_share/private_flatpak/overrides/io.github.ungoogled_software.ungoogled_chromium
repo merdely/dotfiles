@@ -1,0 +1,7 @@
+[Context]
+sockets=!pcsc
+devices=dri
+filesystems=/usr/share/pipewire/client.conf:ro
+
+[Session Bus Policy]
+org.freedesktop.portal.Desktop=talk

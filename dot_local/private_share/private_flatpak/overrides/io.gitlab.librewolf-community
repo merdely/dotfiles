@@ -1,0 +1,6 @@
+[Context]
+devices=all
+filesystems=xdg-config/librewolf/librewolf/librewolf.overrides.cfg;/usr/share/pipewire/client.conf:ro
+
+[Session Bus Policy]
+org.freedesktop.portal.Desktop=talk

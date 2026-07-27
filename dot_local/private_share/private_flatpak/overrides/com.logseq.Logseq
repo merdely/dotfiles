@@ -1,0 +1,3 @@
+[Context]
+sockets=!ssh-auth;!pulseaudio
+filesystems=~/.local/share/Syncthing/Logseq;~/.logseq;!home

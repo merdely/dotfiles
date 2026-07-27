@@ -1,0 +1,2 @@
+[Context]
+filesystems=xdg-videos;xdg-pictures;xdg-documents;~/.local/share/Syncthing;!home
