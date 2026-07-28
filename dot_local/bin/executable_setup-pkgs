@@ -4,6 +4,8 @@
 # Use: chezmoi edit ~/.local/bin/setup-pkgs
 # Or after editing, run: chezmoi re-add ~/.local/bin/setup-pkgs
 
+DOMAIN_NAME=erdely.in
+
 usage() {
   echo "usage: ${0##*/} [-h] [-d]"
   echo
@@ -168,6 +170,26 @@ case "$ID" in
     fi
 
     # Configure SSH Known Hosts
+    if command -v rbw >/dev/null 2>&1; then
+      command -v hostname >/dev/null 2>&1 && hostname=$(hostname)
+      [ -z "$hostname" ] && command -v hostnamectl >/dev/null 2>&1 && hostname=$(hostnamectl hostname)
+      hostname=${hostname%%.*}
+      if [ -n "$hostname" ] && [ -r "$HOME"/.ssh/home_known_hosts ]; then
+        hostkey=$(awk -v h="$hostname" '$0 ~ "^"h {sub(/^.* ssh-ed25519 /,"");sub(/ .*$/,"");print}' ~/.ssh/home_known_hosts)
+        conf_hostkey=$(awk '{sub(/^(.* )?ssh-ed25519 /,"");sub(/ .*$/,"");print}' /etc/ssh/ssh_host_ed25519_key.pub)
+        if [ "$hostkey" != "$conf_hostkey" ]; then
+          prv=$(rbw get "${hostname}_private_host_key" "SSH Host Keys" | sed 's/ /\n/g')
+          pub=$(rbw get "${hostname}_public_host_key" "SSH Host Keys")
+          if [ -n "$prv" ] && [ -n "$pub" ]; then
+            printf -- 'ssh-ed25519 %s root@%s.%s\n' "$pub" "$hostname" "$DOMAIN_NAME" | sudo tee /etc/ssh/ssh_host_ed25519_key.pub >/dev/null
+            printf -- '-----BEGIN OPENSSH PRIVATE KEY-----\n%s\n-----END OPENSSH PRIVATE KEY-----\n' "$prv" | sudo tee /etc/ssh/ssh_host_ed25519_key >/dev/null
+            $sudo systemctl reload sshd 2>/dev/null || $sudo systemctl reload ssh 2>/dev/null
+          fi
+        fi
+      fi
+    fi
+
+    # TODO: Configure sudoers here
 
     if $desktop; then
       kvm=false
@@ -311,8 +333,29 @@ case "$ID" in
     #  REMOUNT=true
     #  echo "Mounting / as read-write"
     #  sync
-#      $sudo mount -o update,rw /
+    #  $sudo mount -o update,rw /
     #fi
+
+    # Configure SSH Known Hosts
+    #if command -v rbw >/dev/null 2>&1; then
+    #  command -v hostname >/dev/null 2>&1 && hostname=$(hostname)
+    #  [ -z "$hostname" ] && command -v hostnamectl >/dev/null 2>&1 && hostname=$(hostnamectl hostname)
+    #  hostname=${hostname%%.*}
+    #  if [ -n "$hostname" ] && [ -r "$HOME"/.ssh/home_known_hosts ]; then
+    #    hostkey=$(awk -v h="$hostname" '$0 ~ "^"h {sub(/^.* ssh-ed25519 /,"");sub(/ .*$/,"");print}' ~/.ssh/home_known_hosts)
+    #    conf_hostkey=$(awk '{sub(/^(.* )?ssh-ed25519 /,"");sub(/ .*$/,"");print}' /etc/ssh/ssh_host_ed25519_key.pub)
+    #    if [ "$hostkey" != "$conf_hostkey" ]; then
+    #      prv=$(rbw get "${hostname}_private_host_key" "SSH Host Keys" | sed 's/ /\n/g')
+    #      pub=$(rbw get "${hostname}_public_host_key" "SSH Host Keys")
+    #      if [ -n "$prv" ] && [ -n "$pub" ]; then
+    #        printf -- 'ssh-ed25519 %s root@%s.%s\n' "$pub" "$hostname" "$DOMAIN_NAME" | sudo tee /etc/ssh/ssh_host_ed25519_key.pub >/dev/null
+    #        printf -- '-----BEGIN OPENSSH PRIVATE KEY-----\n%s\n-----END OPENSSH PRIVATE KEY-----\n' "$prv" | sudo tee /etc/ssh/ssh_host_ed25519_key >/dev/null
+    #        $sudo systemctl reload sshd 2>/dev/null || $sudo systemctl reload ssh 2>/dev/null
+    #      fi
+    #    fi
+    #  fi
+    #fi
+
     ;;
   *)
     echo "Error: $ID System not implemented yet"
