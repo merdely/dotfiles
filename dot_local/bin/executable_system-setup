@@ -181,8 +181,8 @@ case "$ID" in
           prv=$(rbw get -f "${hostname}" "SSH Host Keys" | sed 's/ /\n/g')
           if [ -n "$prv" ]; then
             echo "Updating SSH Host Key (ed25519)"
-            printf -- 'ssh-ed25519 %s root@%s.%s\n' "$hostkey" "$hostname" "$DOMAIN_NAME" | sudo tee /etc/ssh/ssh_host_ed25519_key.pub >/dev/null
-            printf -- '-----BEGIN OPENSSH PRIVATE KEY-----\n%s\n-----END OPENSSH PRIVATE KEY-----\n' "$prv" | sudo tee /etc/ssh/ssh_host_ed25519_key >/dev/null
+            printf -- 'ssh-ed25519 %s root@%s.%s\n' "$hostkey" "$hostname" "$DOMAIN_NAME" | $sudo tee /etc/ssh/ssh_host_ed25519_key.pub >/dev/null
+            printf -- '-----BEGIN OPENSSH PRIVATE KEY-----\n%s\n-----END OPENSSH PRIVATE KEY-----\n' "$prv" | $sudo tee /etc/ssh/ssh_host_ed25519_key >/dev/null
             $sudo systemctl reload sshd 2>/dev/null || $sudo systemctl reload ssh 2>/dev/null
           fi
         fi
@@ -227,7 +227,7 @@ case "$ID" in
       # Install flatpak and flatpaks
       if command -v flatpak > /dev/null 2>&1; then
         if flatpak --system remotes | grep -q ^flathub; then
-          sudo flatpak --system remote-delete flathub
+          $sudo flatpak --system remote-delete flathub
         fi
 
         # Set flathub as a remote for --user
@@ -347,8 +347,8 @@ case "$ID" in
           prv=$(rbw get -f "${hostname}" "SSH Host Keys" | sed 's/ /\n/g')
           if [ -n "$prv" ]; then
             echo "Updating SSH Host Key (ed25519)"
-            printf -- 'ssh-ed25519 %s root@%s.%s\n' "$hostkey" "$hostname" "$DOMAIN_NAME" | sudo tee /etc/ssh/ssh_host_ed25519_key.pub >/dev/null
-            printf -- '-----BEGIN OPENSSH PRIVATE KEY-----\n%s\n-----END OPENSSH PRIVATE KEY-----\n' "$prv" | sudo tee /etc/ssh/ssh_host_ed25519_key >/dev/null
+            printf -- 'ssh-ed25519 %s root@%s.%s\n' "$hostkey" "$hostname" "$DOMAIN_NAME" | $sudo tee /etc/ssh/ssh_host_ed25519_key.pub >/dev/null
+            printf -- '-----BEGIN OPENSSH PRIVATE KEY-----\n%s\n-----END OPENSSH PRIVATE KEY-----\n' "$prv" | $sudo tee /etc/ssh/ssh_host_ed25519_key >/dev/null
             $sudo rcctl reload sshd
           fi
         fi
