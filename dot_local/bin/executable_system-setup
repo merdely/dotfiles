@@ -343,7 +343,7 @@ case "$ID" in
 
     if $desktop; then
       packages="$package niri dejavusansmono-nerd-fonts firefox alacritty fuzzel \
-        mpv imv "
+        mpv imv waybar swayidle swaylock"
     fi
 
     # Configure SSH Known Hosts
