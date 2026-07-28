@@ -326,15 +326,15 @@ case "$ID" in
 
     ;;
   OpenBSD)
-    echo "Error: $ID System not implemented yet"
-    exit 1
+    echo "Warning: Only updating the SSH Host Key (ed25519) is implemented" >&2
+    echo
 
-    #if mount|awk -F'[()]' 'BEGIN{r=1}/ on \/ type /{split($2,a,",");for(o in a)if(a[o]~"^[[:space:]]*(read-only|ro)[[:space:]]*$")r=0}END{exit r}'; then
-    #  REMOUNT=true
-    #  echo "Mounting / as read-write"
-    #  sync
-    #  $sudo mount -o update,rw /
-    #fi
+    if mount|awk -F'[()]' 'BEGIN{r=1}/ on \/ type /{split($2,a,",");for(o in a)if(a[o]~"^[[:space:]]*(read-only|ro)[[:space:]]*$")r=0}END{exit r}'; then
+     REMOUNT=true
+     echo "Mounting / as read-write"
+     sync
+     $sudo mount -o update,rw /
+    fi
 
     # Configure SSH Known Hosts
     if command -v rbw >/dev/null 2>&1; then
