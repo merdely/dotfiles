@@ -3,6 +3,8 @@ case "$OSTYPE" in
     ;;
   openbsd*)
     export XDG_RUNTIME_DIR=/tmp/run/user/$UID
+    reboot() { shutdown -r now ; }
+    halt() { shutdown -h now ; }
     ;;
   *)
     ;;
