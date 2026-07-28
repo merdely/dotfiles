@@ -162,10 +162,12 @@ case "$ID" in
     fi
 
     # Enable service: ssh-agent
-    if ! systemctl --user is-enabled -q ssh-agent.service; then
+    if command -v ssh-agent > /dev/null 2>&1 && ! systemctl --user is-enabled -q ssh-agent.service; then
       echo "Enabling ssh-agent.service"
-      command -v ssh-agent > /dev/null 2>&1 && systemctl --user enable ssh-agent.service 2> /dev/null
+      systemctl --user enable ssh-agent.service
     fi
+
+    # Configure SSH Known Hosts
 
     if $desktop; then
       kvm=false

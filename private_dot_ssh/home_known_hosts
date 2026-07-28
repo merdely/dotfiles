@@ -1,0 +1,45 @@
+## home machines
+homeassistant,homeassistant.erdely.in,ha,ha.erdely.in,hass,hass.erdely.in,192.168.25.80 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJHd5qweJpOMHetH9zAtMTF6K5wZLRHGsRt/QnZqbHUA
+mars,mars.erdely.in,192.168.25.1 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMGVaO2WrMqV4z5wW6t3777BwzTie/afmUFzNnMvwEWX
+sol,sol.erdely.in,192.168.25.21 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFMVulfAzZfFpSq71N7XwoTeJDylPE6m5holJjRlxEOd
+
+# Servers
+earth,earth.erdely.in,splunk,splunk.erdely.in,src.erdely.in,[src.erdely.in]:2222,[192.168.25.44]:2222,192.168.25.44 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDP7b4h2hX8BlEbzP/2r4fW3HwWI0T3Z/vHIzNstTFlD
+jupiter,jupiter.erdely.in,10.99.99.99 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFBs17LpxlMJdV3dOxW6oSYlQH4NaM/B4VXMAetrLRq/
+git.erdelynet.com,[git.erdelynet.com]:2222,[10.99.99.99]:2222 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMz4I3ILZpEmbfdA/SqHfnU3bNgY2OpXpWBNG2TwCGVA
+saturn,saturn.erdely.in,192.168.27.163 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIH606DUWbBOm6K+02pH+4HsIGnRkjdD9+VCfTrAOXlpD
+pluto,pluto.erdelynet.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMz4I3ILZpEmbfdA/SqHfnU3bNgY2OpXpWBNG2TwCGVA
+
+# PIs
+carme,carme.erdely.in,192.168.25.38 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIByIaAPNu35hM3ARABIj5PxmJZKe9lrgqU2PZ7qOaZBo
+metis,metis.erdely.in,192.168.25.42 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPDUtkoegPfUpTcxJ0EWN/4K1M8x9RulxuzHXaZ8UAsp
+tarvos,tarvos.erdely.in,192.168.25.34 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGnZki2Q6qsRG7sLcDFIzJjlCF2rXXtq//iZ8VyDCy5+
+sinope,sinope.erdely.in,192.168.27.7 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAII03fXD/4nrPs9BKXTpQqzdZTucHTVLIa/ec3dG1I6r0
+neso,neso.erdely.in,192.168.27.99 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGKbJiAqUPnVRytsOXabr6krW9SKFkztTJd99MzjvWU3
+lepotato,lepotato.erdely.in,192.168.25.127 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBch1xTTGAH4TyepsDf+5TpTLaYMSTrdG2f/tQ4oFDnA
+
+# Clients
+mercury,mercury.erdely.in,mercury-wired,mercury-wired.erdely.in,192.168.25.100,mercury-vpn.erdely.in,mercury-vpn,172.30.225.3,mercury-wifi,mercury-wifi.erdely.in,192.168.25.101 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIB57W7VuBKPL+aamz+mSike5L5OV1mWMDOCQogOagncT
+neptune,neptune.erdely.in,neptune-wired,neptune-wired.erdely.in,192.168.25.24,neptune-vpn.erdely.in,neptune-vpn,172.30.225.10,neptune-wifi,neptune-wifi.erdely.in,192.168.25.25 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOrpcuLO/tfa0vZXOMrj33Lxq8MM5IumpFVnv5IZ7YMR
+styx,styx.erdely.in,192.168.25.123,styx-vpn.erdely.in,styx-vpn,172.30.225.15 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDwGuGeBT3D5PdAQbbRJJvi19kHbeDai/eIoD5rDrY1q
+venus,venus.erdely.in,venus-wired,venus-wired.erdely.in,192.168.25.116 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBkvQnN4h77bWzZ5uij0KzpwU/ajSge4fShWOUcVk9vh
+uranus,uranus.erdely.in,192.168.25.96 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAOOERyGBti3A+uZuznPaDB5IrbnnFKBid+BeEHoCbgi
+ersa,ersa.erdely.in,192.168.25.142 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIM1mrje7VqOblqQsev/MCFKxBabX/L7Ka0+8xNnrvVyt
+dia,dia.erdely.in,192.168.25.125 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGXlvUe49rmta8KSVk6CfhiVuZvmv1N8txMWZ0JjNRKF
+e5530,e5530.erdely.in ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIYZGMuD2wELs0Otpa1uiYIqP7m53rb0tgHqakhBSAj1
+
+# Other systems
+dione,dione.erdely.in,192.168.27.98 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICBhqpl6hibiQhURi2E4K3RUHO9alGsKDJ1sfe9vo9rm
+elara,elara.erdely.in,192.168.25.88 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILajixkwg4QFfJ1PURgKiOPQlJg7nYcsfGKK82eMlUke
+thebe,thebe.erdely.in,192.168.25.64 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIP/T5cYt1nPTom3Zd6FaxQl0WifNTcGeSGaOaa33Ubmr
+carpo,carpo.erdely.in,192.168.25.84 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOe1UKh4aXl3GzH1QjVaOYf2rhme0eV3j7KnxWHfSjq/
+ymir,ymir.erdely.in,192.168.25.96 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINpCkGYI1GdO/hE0RTOkwrvRdnR5RWQ2nqv7dsegedcI
+192.168.122.69 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINApEKF55qYwRSb+wcby0vHTvedhnBtHMu2el79XiSZU
+leda,leda.erdely.in,192.168.25.61 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDKBr4QSIC9x5MXhR4Vy8bHKV/61y7/aMrUxGKjQFwnD
+loge,leda.erdely.in,192.168.25.63 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJwUk7FZj9uyRxAi/razNrnY8U8StxsSgsS/M7e59uRU
+
+# WAPs
+wap-upstairs,wap-upstairs.erdely.in,192.168.25.5 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDKBqllsoKKMPNG4qvGIN1WGFxnvySrBLSzBXIEuyGGa9QTe6PK2GUaJJLyDcAne+yjCdwopE7woS7sZ6e+BOyqxLzC8lKgUixp4DqjQl943rAs1yJd367a5Frd1YTtPRGPT8Y4Jk9RXPwP9Z7aetp7EGtUTNaHqY9iotHT7ErRLl5wZrRKtF3PhjhqUTW5UZ3+Y95GrNSNH6BH7gaBOeS/XC6k3lqyXhJBuLfoZaejr7B54CX2jDMf33le7r0LhDLw7J+wDDJlZ+8malJ8uLhKSrTo0iVbYqPU1BInmD3O+/wUBOPZ1Zqz1AnDvGVqfeDQAeE/mWEnF3qAEy9ckceN
+wap-middle-level,wap-middle-level.erdely.in,192.168.25.6 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC0ADAN4ek588QdyxYziuAxdEHVmpKifRLrsWwkKBuXh8Y+T6V3WFUxrelgTc9pwZ15jfVsKWXiEJyecnx/QZg6NrknND1PXdEha3SOlyiC5P/nuLNgA/qdeJwHncVH5+5S/2EUx4TPqBuMgFnHLDhLCt/8dEtfdArBILT5Ikd/XdND8Z5hCyRydevtQ+ehEu3DtggWw0RmPS2WW+l638UL2930jSQq1d4f/LrsAlj1i5exCoTkFgzszo0eEMJj4M8y82JblUC3zLEzDeFKAt72Qs1zoxf524Td9nlpeTli/zIgfN3VtIO1rA3DdiYyGRDuv55/5vMAI1R6+6VF7n73
+wap-downstairs,wap-downstairs.erdely.in,192.168.25.7 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCQ/hwYXtpWn+DLl2iz3wbAHW1zmALgQxTx+stwnvaQY9cDsHely8X0I4GnhxuFjUi0gBFHKn1otrgy2c7Eb/KpoYlSO/kuWIwJYsdAwjVSyYKIgdIPJFfgcXtJx6ODNcrJtoC7pRsyomtlBSYG6m5mWI0tchXi2e+LvE5LEQHtq9leAKJxqLjnWd1uJTx7Y3dC7TpIMuPAEhSkzAtJsjsb6lc9g9FFkxAZGaIF4hR5dafKq9V5arEruicNJW8XxKaJlH3Ag/oAi6GOsW4Vs0glE0YMPWsIz/WhMTd7/kquBzYp1Z74f3tuuJEy7XkkHN2BPS6fGwzHN5ng06fXZ1Xj
+wap-garage,wap-garage.erdely.in,192.168.25.8 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgnG3aMML5W2ncr/+sGa5oQPhsndCPXTWnNXS7WUBVwMQqCvUrypv6roWwdVRCnM3abtE/bNNzFgTnWcKbdH/VYvpveU0OO+qFHjswBdI1QXoKN1gujCNXp4nUPcWxy89or1luDh/ev7l+atuUAGR0MTQdb6vip2fY6nCgHLxBM7aaoU=
