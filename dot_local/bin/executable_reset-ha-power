@@ -1,6 +1,23 @@
 #!/bin/sh
 
+PLUG=tasmota-home-assistant-plug.erdely.in
+DEFAULT_IP_ADDRESS=192.168.26.197
 SLEEP=10
+
+FORCE=false
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -h|--help|help) echo "usage: ${0##*/} [--force] [IP_ADDRESS]" ; exit ;;
+    --force) FORCE=true ; shift ;;
+    *)
+      if echo "$1" | grep -Pq "^[012]?\d{1,2}\.[012]?\d{1,2}\.[012]?\d{1,2}\.[012]?\d{1,2}$"; then
+        IP_ADDRESS=$1
+        shift
+      fi
+      ;;
+  esac
+done
+
 if command -v rbw >/dev/null 2>&1; then
   TASMOTA_USER=$(rbw get -f username "Tasmota/Shelly Admin")
   TASMOTA_PASS=$(rbw get -f password "Tasmota/Shelly Admin")
@@ -11,11 +28,29 @@ if [ -z "$TASMOTA_PASS" ]; then
   exit 1
 fi
 
+if ! $FORCE; then
+  printf "Are you sure you want to reset the power for Home Assistant? [yN] "
+  read -r REPLY
+  case "$REPLY" in
+    YES|Yes|yes|Y|y) ;;
+    *) exit ;;
+  esac
+fi
+
+if [ -z "$IP_ADDRESS" ]; then
+  IP_ADDRESS=$(getent hosts "$PLUG" | cut -f 1 -d " ")
+  # shellcheck disable=2181
+  if [ $? -ne 0 ] || [ -z "$IP_ADDRESS" ]; then
+    IP_ADDRESS=$DEFAULT_IP_ADDRESS
+  fi
+fi
+
 echo "Turning off HA power"
-curl -sLu "$TASMOTA_USER":"$TASMOTA_PASS" "http://tasmota-home-assistant-plug.erdely.in/cm?cmnd=POWER%20OFF" >/dev/null 2>&1
+curl -sLu "$TASMOTA_USER":"$TASMOTA_PASS" "http://$IP_ADDRESS/cm?cmnd=POWER%20OFF" >/dev/null 2>&1
 
 echo "Sleeping $SLEEP seconds"
 sleep "$SLEEP"
 
 echo "Turning on HA power"
-curl -sLu "$TASMOTA_USER":"$TASMOTA_PASS" "http://tasmota-home-assistant-plug.erdely.in/cm?cmnd=POWER%20ON" >/dev/null 2>&1
+curl -sLu "$TASMOTA_USER":"$TASMOTA_PASS" "http://$IP_ADDRESS/cm?cmnd=POWER%20ON" >/dev/null 2>&1
+
