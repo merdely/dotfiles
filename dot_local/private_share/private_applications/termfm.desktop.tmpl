@@ -4,7 +4,11 @@
 # Or after editing, run: chezmoi re-add ~/.local/applications/termfm.desktop
 
 [Desktop Entry]
+{{ if lookPath "yazi" -}}
 Exec=bash -c "$HOME/.local/bin/x-terminal-emulator --title Yazi -e --class termfm yazi"
+{{ else if lookPath "ranger" -}}
+Exec=bash -c "$HOME/.local/bin/x-terminal-emulator --title Yazi -e --class termfm ranger"
+{{ end -}}
 Name=Terminal File Manager
 Icon=utilities-terminal
 StartupNotify=false
