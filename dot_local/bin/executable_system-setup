@@ -177,9 +177,10 @@ case "$ID" in
       if [ -n "$hostname" ] && [ -r "$HOME"/.ssh/home_known_hosts ]; then
         local_hostkey=$(awk '{sub(/^(.* )?ssh-ed25519 /,"");sub(/ .*$/,"");print}' /etc/ssh/ssh_host_ed25519_key.pub)
         hostkey=$(awk -v h="$hostname" '$0 ~ "^"h {sub(/^.* ssh-ed25519 /,"");sub(/ .*$/,"");print}' ~/.ssh/home_known_hosts)
-        if [ "$local_hostkey" != "$hostkey" ]; then
+        if [ -n "$local_hostkey" ] && [ -n "$hostkey" ] && [ "$local_hostkey" != "$hostkey" ]; then
           prv=$(rbw get -f "${hostname}" "SSH Host Keys" | sed 's/ /\n/g')
-          if [ -n "$prv" ] && [ -n "$pub" ]; then
+          if [ -n "$prv" ]; then
+            echo "Updating SSH Host Key (ed25519)"
             printf -- 'ssh-ed25519 %s root@%s.%s\n' "$hostkey" "$hostname" "$DOMAIN_NAME" | sudo tee /etc/ssh/ssh_host_ed25519_key.pub >/dev/null
             printf -- '-----BEGIN OPENSSH PRIVATE KEY-----\n%s\n-----END OPENSSH PRIVATE KEY-----\n' "$prv" | sudo tee /etc/ssh/ssh_host_ed25519_key >/dev/null
             $sudo systemctl reload sshd 2>/dev/null || $sudo systemctl reload ssh 2>/dev/null
@@ -342,9 +343,9 @@ case "$ID" in
       if [ -n "$hostname" ] && [ -r "$HOME"/.ssh/home_known_hosts ]; then
         local_hostkey=$(awk '{sub(/^(.* )?ssh-ed25519 /,"");sub(/ .*$/,"");print}' /etc/ssh/ssh_host_ed25519_key.pub)
         hostkey=$(awk -v h="$hostname" '$0 ~ "^"h {sub(/^.* ssh-ed25519 /,"");sub(/ .*$/,"");print}' ~/.ssh/home_known_hosts)
-        if [ "$local_hostkey" != "$hostkey" ]; then
+        if [ -n "$local_hostkey" ] && [ -n "$hostkey" ] && [ "$local_hostkey" != "$hostkey" ]; then
           prv=$(rbw get -f "${hostname}" "SSH Host Keys" | sed 's/ /\n/g')
-          if [ -n "$prv" ] && [ -n "$pub" ]; then
+          if [ -n "$prv" ]; then
             echo "Updating SSH Host Key (ed25519)"
             printf -- 'ssh-ed25519 %s root@%s.%s\n' "$hostkey" "$hostname" "$DOMAIN_NAME" | sudo tee /etc/ssh/ssh_host_ed25519_key.pub >/dev/null
             printf -- '-----BEGIN OPENSSH PRIVATE KEY-----\n%s\n-----END OPENSSH PRIVATE KEY-----\n' "$prv" | sudo tee /etc/ssh/ssh_host_ed25519_key >/dev/null
