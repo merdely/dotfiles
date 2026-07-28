@@ -40,11 +40,11 @@ fi
 exec_user=$(id -un)
 groups=$(groups "$LOGNAME")
 groups=${groups#"$LOGNAME" : }
+REMOUNT=false
 
 case "$ID" in
   arch|artix|cachyos|garuda|endeavouros|manjaro|parabola|hyperbola|blackarch)
     SYSTEM=$(uname -s)
-    REMOUNT=false
     if mount|awk -F'[()]' 'BEGIN{r=1}/ on \/ type /{split($2,a,",");for(o in a)if(a[o]~"^[[:space:]]*(read-only|ro)[[:space:]]*$")r=0}END{exit r}'; then
       REMOUNT=true
       echo "Mounting / as read-write"
@@ -349,7 +349,7 @@ case "$ID" in
           if [ -n "$prv" ]; then
             echo "Updating SSH Host Key (ed25519)"
             printf -- 'ssh-ed25519 %s root@%s.%s\n' "$hostkey" "$hostname" "$DOMAIN_NAME" | $sudo tee /etc/ssh/ssh_host_ed25519_key.pub >/dev/null
-            printf -- '-----BEGIN OPENSSH PRIVATE KEY-----\n%s\n-----END OPENSSH PRIVATE KEY-----\n' "$prv" | $sudo tee /etc/ssh/ssh_host_ed25519_key >/dev/null
+            printf -- '-----BEGIN OPENSSH PRIVATE KEY-----\n%b\n-----END OPENSSH PRIVATE KEY-----\n' "$prv" | $sudo tee /etc/ssh/ssh_host_ed25519_key >/dev/null
             $sudo rcctl reload sshd
           fi
         fi
