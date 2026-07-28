@@ -175,13 +175,12 @@ case "$ID" in
       [ -z "$hostname" ] && command -v hostnamectl >/dev/null 2>&1 && hostname=$(hostnamectl hostname)
       hostname=${hostname%%.*}
       if [ -n "$hostname" ] && [ -r "$HOME"/.ssh/home_known_hosts ]; then
+        local_hostkey=$(awk '{sub(/^(.* )?ssh-ed25519 /,"");sub(/ .*$/,"");print}' /etc/ssh/ssh_host_ed25519_key.pub)
         hostkey=$(awk -v h="$hostname" '$0 ~ "^"h {sub(/^.* ssh-ed25519 /,"");sub(/ .*$/,"");print}' ~/.ssh/home_known_hosts)
-        conf_hostkey=$(awk '{sub(/^(.* )?ssh-ed25519 /,"");sub(/ .*$/,"");print}' /etc/ssh/ssh_host_ed25519_key.pub)
-        if [ "$hostkey" != "$conf_hostkey" ]; then
-          prv=$(rbw get "${hostname}_private_host_key" "SSH Host Keys" | sed 's/ /\n/g')
-          pub=$(rbw get "${hostname}_public_host_key" "SSH Host Keys")
+        if [ "$local_hostkey" != "$hostkey" ]; then
+          prv=$(rbw get "${hostname}" "SSH Host Keys" | sed 's/ /\n/g')
           if [ -n "$prv" ] && [ -n "$pub" ]; then
-            printf -- 'ssh-ed25519 %s root@%s.%s\n' "$pub" "$hostname" "$DOMAIN_NAME" | sudo tee /etc/ssh/ssh_host_ed25519_key.pub >/dev/null
+            printf -- 'ssh-ed25519 %s root@%s.%s\n' "$hostkey" "$hostname" "$DOMAIN_NAME" | sudo tee /etc/ssh/ssh_host_ed25519_key.pub >/dev/null
             printf -- '-----BEGIN OPENSSH PRIVATE KEY-----\n%s\n-----END OPENSSH PRIVATE KEY-----\n' "$prv" | sudo tee /etc/ssh/ssh_host_ed25519_key >/dev/null
             $sudo systemctl reload sshd 2>/dev/null || $sudo systemctl reload ssh 2>/dev/null
           fi
@@ -337,24 +336,22 @@ case "$ID" in
     #fi
 
     # Configure SSH Known Hosts
-    #if command -v rbw >/dev/null 2>&1; then
-    #  command -v hostname >/dev/null 2>&1 && hostname=$(hostname)
-    #  [ -z "$hostname" ] && command -v hostnamectl >/dev/null 2>&1 && hostname=$(hostnamectl hostname)
-    #  hostname=${hostname%%.*}
-    #  if [ -n "$hostname" ] && [ -r "$HOME"/.ssh/home_known_hosts ]; then
-    #    hostkey=$(awk -v h="$hostname" '$0 ~ "^"h {sub(/^.* ssh-ed25519 /,"");sub(/ .*$/,"");print}' ~/.ssh/home_known_hosts)
-    #    conf_hostkey=$(awk '{sub(/^(.* )?ssh-ed25519 /,"");sub(/ .*$/,"");print}' /etc/ssh/ssh_host_ed25519_key.pub)
-    #    if [ "$hostkey" != "$conf_hostkey" ]; then
-    #      prv=$(rbw get "${hostname}_private_host_key" "SSH Host Keys" | sed 's/ /\n/g')
-    #      pub=$(rbw get "${hostname}_public_host_key" "SSH Host Keys")
-    #      if [ -n "$prv" ] && [ -n "$pub" ]; then
-    #        printf -- 'ssh-ed25519 %s root@%s.%s\n' "$pub" "$hostname" "$DOMAIN_NAME" | sudo tee /etc/ssh/ssh_host_ed25519_key.pub >/dev/null
-    #        printf -- '-----BEGIN OPENSSH PRIVATE KEY-----\n%s\n-----END OPENSSH PRIVATE KEY-----\n' "$prv" | sudo tee /etc/ssh/ssh_host_ed25519_key >/dev/null
-    #        $sudo systemctl reload sshd 2>/dev/null || $sudo systemctl reload ssh 2>/dev/null
-    #      fi
-    #    fi
-    #  fi
-    #fi
+    if command -v rbw >/dev/null 2>&1; then
+      command -v hostname >/dev/null 2>&1 && hostname=$(hostname)
+      hostname=${hostname%%.*}
+      if [ -n "$hostname" ] && [ -r "$HOME"/.ssh/home_known_hosts ]; then
+        local_hostkey=$(awk '{sub(/^(.* )?ssh-ed25519 /,"");sub(/ .*$/,"");print}' /etc/ssh/ssh_host_ed25519_key.pub)
+        hostkey=$(awk -v h="$hostname" '$0 ~ "^"h {sub(/^.* ssh-ed25519 /,"");sub(/ .*$/,"");print}' ~/.ssh/home_known_hosts)
+        if [ "$local_hostkey" != "$hostkey" ]; then
+          prv=$(rbw get "${hostname}" "SSH Host Keys" | sed 's/ /\n/g')
+          if [ -n "$prv" ] && [ -n "$pub" ]; then
+            printf -- 'ssh-ed25519 %s root@%s.%s\n' "$hostkey" "$hostname" "$DOMAIN_NAME" | sudo tee /etc/ssh/ssh_host_ed25519_key.pub >/dev/null
+            printf -- '-----BEGIN OPENSSH PRIVATE KEY-----\n%s\n-----END OPENSSH PRIVATE KEY-----\n' "$prv" | sudo tee /etc/ssh/ssh_host_ed25519_key >/dev/null
+            $sudo rcctl reload sshd
+          fi
+        fi
+      fi
+    fi
 
     ;;
   *)
