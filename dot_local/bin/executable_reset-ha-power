@@ -12,10 +12,10 @@ if [ -z "$TASMOTA_PASS" ]; then
 fi
 
 echo "Turning off HA power"
-curl -sLu "$TASMOTA_USER":"$TASMOTA_PASS" "http://tasmota-den-earth-strip.erdely.in/cm?cmnd=POWER5%20OFF" >/dev/null 2>&1
+curl -sLu "$TASMOTA_USER":"$TASMOTA_PASS" "http://tasmota-home-assistant-plug.erdely.in/cm?cmnd=POWER%20OFF" >/dev/null 2>&1
 
 echo "Sleeping $SLEEP seconds"
 sleep "$SLEEP"
 
 echo "Turning on HA power"
-curl -sLu "$TASMOTA_USER":"$TASMOTA_PASS" "http://tasmota-den-earth-strip.erdely.in/cm?cmnd=POWER5%20ON" >/dev/null 2>&1
+curl -sLu "$TASMOTA_USER":"$TASMOTA_PASS" "http://tasmota-home-assistant-plug.erdely.in/cm?cmnd=POWER%20ON" >/dev/null 2>&1
