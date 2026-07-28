@@ -3,10 +3,6 @@ case "$OSTYPE" in
     ;;
   openbsd*)
     export XDG_RUNTIME_DIR=/tmp/run/user/$UID
-    unalias reboot
-    reboot() { shutdown -r now ; }
-    unalias halt
-    halt() { shutdown -h now ; }
     ;;
   *)
     ;;
