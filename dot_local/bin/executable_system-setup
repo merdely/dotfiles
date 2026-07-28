@@ -341,10 +341,11 @@ case "$ID" in
       command -v hostname >/dev/null 2>&1 && hostname=$(hostname)
       hostname=${hostname%%.*}
       if [ -n "$hostname" ] && [ -r "$HOME"/.ssh/home_known_hosts ]; then
-        local_hostkey=$(awk '{sub(/^(.* )?ssh-ed25519 /,"");sub(/ .*$/,"");print}' /etc/ssh/ssh_host_ed25519_key.pub)
+        local_hostkey=$(doas ssh-keygen -y -f /etc/ssh/ssh_host_ed25519_key |
+          awk '{sub(/^(.* )?ssh-ed25519 /,"");sub(/ .*$/,"");print}')
         hostkey=$(awk -v h="$hostname" '$0 ~ "^"h {sub(/^.* ssh-ed25519 /,"");sub(/ .*$/,"");print}' ~/.ssh/home_known_hosts)
         if [ -n "$local_hostkey" ] && [ -n "$hostkey" ] && [ "$local_hostkey" != "$hostkey" ]; then
-          prv=$(rbw get -f "${hostname}" "SSH Host Keys" | sed 's/ /\n/g')
+          prv=$(rbw get -f "${hostname}" "SSH Host Keys" | sed 's/ /\\n/g')
           if [ -n "$prv" ]; then
             echo "Updating SSH Host Key (ed25519)"
             printf -- 'ssh-ed25519 %s root@%s.%s\n' "$hostkey" "$hostname" "$DOMAIN_NAME" | $sudo tee /etc/ssh/ssh_host_ed25519_key.pub >/dev/null
