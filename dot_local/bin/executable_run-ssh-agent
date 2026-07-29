@@ -1,0 +1,23 @@
+#!/bin/sh
+
+case "$OSTYPE" in
+  linux*|freebsd*|darwin*) echo "Error: This program is for OpenBSD" >&2 ; exit 1 ;;
+  *) ;;
+esac
+
+if [ -n "$SSH_AGENT_PID" ]; then
+  echo "Warning: SSH_AGENT_PID already set ($SSH_AGENT_PID). Exiting." >&2
+  exit 0
+fi
+
+if pgrep -u "$LOGNAME" -x ssh-agent >/dev/null 2>&1; then
+  echo "Warning: ssh-agent is already running for $LOGNAME. Exiting." >&2
+  exit 0
+fi
+
+eval $(ssh-agent -s) > /dev/null
+
+rm -f "$HOME"/.ssh/agent/local-ssh-agent "$HOME"/.ssh/agent/local-ssh-agent.pid
+ln -sf "$SSH_AUTH_SOCK" "$HOME"/.ssh/agent/local-ssh-agent
+echo "$SSH_AGENT_PID" > "$HOME"/.ssh/agent/local-ssh-agent.pid
+
