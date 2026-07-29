@@ -222,8 +222,9 @@ do
           'shfmt',
         })
 
+        local sysname = string.lower(vim.uv.os_uname().sysname)
         local mason_tool_installer_installed = pcall(require, 'mason-tool-installer')
-        if mason_tool_installer_installed then
+        if mason_tool_installer_installed and sysname ~= "openbsd" then
           require('mason-tool-installer').setup { ensure_installed = ensure_installed }
         end
 

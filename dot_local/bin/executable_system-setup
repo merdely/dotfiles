@@ -6,9 +6,16 @@
 
 DOMAIN_NAME=erdely.in
 
-ACTIONS="packages groups crond crontab ssh-agent ssh-host-key sudoers \
-  dms dms-idle-handler ydotool keymap-drawer flatpak flatseal \
-  librewolf wlr-cursors greetd"
+[ -r /etc/os-release ] && . /etc/os-release
+[ "$(uname -s)" = "OpenBSD" ] && ID=OpenBSD
+
+ACTIONS="packages groups crond crontab ssh-host-key sudoers"
+if [ "$ID" = OpenBSD ]; then
+  :
+else
+  ACTIONS="$ACTIONS ssh-agent dms dms-idle-handler ydotool keymap-drawer \
+    flatpak flatseal librewolf wlr-cursors greetd"
+fi
 
 usage() {
   echo "usage: ${0##*/} [-h] [-d] [action1..actionN]"
@@ -60,9 +67,6 @@ if [ "$sudo" = "doas" ] && ! command -v doas > /dev/null 2>&1; then
   echo "Error: Cannot find sudo or doas" >&2
   exit 0
 fi
-
-[ -r /etc/os-release ] && . /etc/os-release
-[ "$(uname -s)" = "OpenBSD" ] && ID=OpenBSD
 
 exec_user=$(id -un)
 groups=$(groups "$LOGNAME")
