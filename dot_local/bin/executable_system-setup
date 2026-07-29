@@ -6,12 +6,20 @@
 
 DOMAIN_NAME=erdely.in
 
+ACTIONS="packages groups crond crontab ssh-agent ssh-host-key sudoers \
+  dms dms-idle-handler ydotool keymap-drawer flatpak flatseal \
+  librewolf wlr-cursors greetd"
+
 usage() {
-  echo "usage: ${0##*/} [-h] [-d]"
+  echo "usage: ${0##*/} [-h] [-d] [action1..actionN]"
   echo
   echo "Options:"
-  echo " -h : This help text"
-  echo " -d : Set up in desktop mode (install desktop packages)"
+  echo "  -h : This help text"
+  echo "  -d : Set up in desktop mode (install desktop packages)"
+  echo
+  echo "Actions:"
+  echo "$ACTIONS" | tr -s ' ' | fold -s | sed 's/^/  /'
+  echo "Running without specifying an action runs all actions"
   exit "${1:-0}"
 }
 
@@ -26,6 +34,25 @@ while getopts ":hd" opt; do
   esac
 done
 shift $(( OPTIND - 1 ))
+
+action_list=""
+[ $# -eq 0 ] && action_list=all
+action_given=false
+while [ $# -gt 0 ]; do
+  action_given=true
+  if echo " $ACTIONS " | grep -q " $1 "; then
+    action_list="$action_list $1"
+  else
+    echo "Warning: $1 is not a valid action" >&2
+  fi
+  action_list=${action_list# }
+  shift
+done
+if $action_given && [ -z "$action_list" ]; then
+  echo "Error: No valid actions specified" >&2
+  exit 1
+fi
+echo "action_list=$action_list"
 
 sudo=sudo
 ! command -v sudo > /dev/null 2>&1 && sudo=doas
@@ -54,273 +81,305 @@ case "$ID" in
       $sudo systemctl daemon-reload
     fi
 
-    # Go through the package list and find packages that are not installed
-    need=""
-    # tesseract-data-eng is required by tesseract, required by ripgrep/libmupdf
-    packages="base-devel python git openssh neovim man-db apparmor cronie \
-      firejail rsync inetutils archlinux-contrib pacman-contrib tree-sitter-cli \
-      networkmanager openresolv htop btop jq 7zip unzip bat fd \
-      zsh git-zsh-completion zsh-autocomplete zsh-autosuggestions \
-      zsh-completions zsh-syntax-highlighting ripgrep tesseract-data-eng \
-      bash-completion bind fzf gum nvtop tmux yazi python-pipx"
+    if echo " $action_list " | grep -Eq " (packages|all) "; then
+      # Go through the package list and find packages that are not installed
+      need=""
+      # tesseract-data-eng is required by tesseract, required by ripgrep/libmupdf
+      packages="base-devel python git openssh neovim man-db apparmor cronie \
+        firejail rsync inetutils archlinux-contrib pacman-contrib tree-sitter-cli \
+        networkmanager openresolv htop btop jq 7zip unzip bat fd \
+        zsh git-zsh-completion zsh-autocomplete zsh-autosuggestions \
+        zsh-completions zsh-syntax-highlighting ripgrep tesseract-data-eng \
+        bash-completion bind fzf gum nvtop tmux yazi python-pipx"
 
-    if $desktop; then
-      packages="$packages niri alacritty fuzzel xdg-desktop-portal-gnome pipewire-jack \
-        greetd dms-shell-niri accountsservice cava cups-pk-helper dgop polkit \
-        khal kimageformats matugen power-profiles-daemon qt6-imageformats xorg-xwayland \
-        kitty rofi rofi-rbw gcr ydotool wl-clipboard wl-clip-persist \
-        noto-fonts noto-fonts-emoji ttf-liberation ttf-dejavu-nerd ttf-fira-code inter-font \
-        ttf-jetbrains-mono ttf-roboto ttf-roboto-mono woff2-font-awesome otf-font-awesome \
-        ttf-nerd-fonts-symbols ttf-nerd-fonts-symbols-common ttf-nerd-fonts-symbols-mono \
-        libnotify imv imagemagick python-pillow python-cairocffi satty grim slurp \
-        nwg-look adw-gtk-theme breeze-gtk breeze-icons gnome-keyring ksshaskpass \
-        zathura zathura-pdf-mupdf geany mpv celluloid galculator  \
-        nm-connection-editor yad nautilus gvfs-dnssd flatpak"
-    fi
-
-    for pkg in $packages; do
-      pacman -Qqs ^"$pkg"$ >/dev/null 2>&1 || need="$need $pkg"
-    done
-
-    # Install missing packages
-    if [ -n "$need" ]; then
-      echo "Installing packages: $need"
-      # shellcheck disable=SC2086
-      if ! $sudo pacman -Syu --disable-download-timeout --needed --noconfirm ${need# }; then
-        echo "Error: 'pacman -Syu ...' failed" >&2
-        exit 1
+      if $desktop; then
+        packages="$packages niri alacritty fuzzel xdg-desktop-portal-gnome pipewire-jack \
+          greetd dms-shell-niri accountsservice cava cups-pk-helper dgop polkit \
+          khal kimageformats matugen power-profiles-daemon qt6-imageformats xorg-xwayland \
+          kitty rofi rofi-rbw gcr ydotool wl-clipboard wl-clip-persist \
+          noto-fonts noto-fonts-emoji ttf-liberation ttf-dejavu-nerd ttf-fira-code inter-font \
+          ttf-jetbrains-mono ttf-roboto ttf-roboto-mono woff2-font-awesome otf-font-awesome \
+          ttf-nerd-fonts-symbols ttf-nerd-fonts-symbols-common ttf-nerd-fonts-symbols-mono \
+          libnotify imv imagemagick python-pillow python-cairocffi satty grim slurp \
+          nwg-look adw-gtk-theme breeze-gtk breeze-icons gnome-keyring ksshaskpass \
+          zathura zathura-pdf-mupdf geany mpv celluloid galculator  \
+          nm-connection-editor yad nautilus gvfs-dnssd flatpak"
       fi
-    fi
 
-    # Add user to useful groups
-    if [ "$exec_user" != root ]; then
-      for group in video render input wheel; do
-        # Skip groups from the list that do not exist
-        getent group "$group" > /dev/null 2>&1 || continue
-        # Skip groups already a member of
-        echo "$groups" | grep -qw "$group" && continue
-        # Add user to group (ok if already a member)
-        echo "Adding $LOGNAME to $group"
-        if ! $sudo usermod -aG "$group" "$LOGNAME"; then
-          echo "Error: Could not add $LOGNAME to $group" >&2
-          exit 0
+      for pkg in $packages; do
+        pacman -Qqs ^"$pkg"$ >/dev/null 2>&1 || need="$need $pkg"
+      done
+
+      # Install missing packages
+      if [ -n "$need" ]; then
+        echo "Installing packages: $need"
+        # shellcheck disable=SC2086
+        if ! $sudo pacman -Syu --disable-download-timeout --needed --noconfirm ${need# }; then
+          echo "Error: 'pacman -Syu ...' failed" >&2
+          exit 1
         fi
-      done
-    fi
-
-    # Set up $LOGNAME crontab
-    if command -v crontab > /dev/null 2>&1; then
-      crontab_vars="PATH MAILFROM COMPOSE_FILE XDG_CACHE_HOME XDG_CONFIG_HOME \
-          XDG_DATA_HOME XDG_RUNTIME_DIR XDG_STATE_HOME WAYLAND_DISPLAY \
-          DBUS_SESSION_BUS_ADDRESS DOCKER_CONFIG MACHINE_STORAGE_PATH"
-      # shellcheck disable=SC2034
-      crontab_PATH="$HOME/.local/bin:/srv/scripts/bin:/srv/scripts/sbin:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin"
-      # shellcheck disable=SC2034
-      crontab_MAILFROM=mike@erdelynet.com
-      # shellcheck disable=SC2034
-      crontab_COMPOSE_FILE=/srv/docker/compose.yaml
-      # shellcheck disable=SC2034
-      crontab_XDG_CACHE_HOME=$HOME/.cache
-      # shellcheck disable=SC2034
-      crontab_XDG_CONFIG_HOME=$HOME/.config
-      # shellcheck disable=SC2034
-      crontab_XDG_DATA_HOME=$HOME/.local/share
-      # shellcheck disable=SC2034
-      crontab_XDG_RUNTIME_DIR=/run/user/$(id -u)
-      # shellcheck disable=SC2034
-      crontab_XDG_STATE_HOME=$HOME/.local/state
-      # shellcheck disable=SC2034
-      crontab_WAYLAND_DISPLAY=wayland-1
-      # shellcheck disable=SC2034
-      crontab_DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$(id -u)/bus
-      # shellcheck disable=SC2034
-      crontab_DOCKER_CONFIG=$HOME/.config/docker
-      # shellcheck disable=SC2034
-      crontab_MACHINE_STORAGE_PATH=$HOME/.local/share/docker-machine
-
-      existing_crontab=$(crontab -l 2> /dev/null)
-      new_cron_lines=""
-      for var in $crontab_vars; do
-        eval "val=\${crontab_$var}"
-        { [ -z "$var" ] || [ -z "$val" ]; } && continue
-
-        printf '%s\n' "$existing_crontab" | grep -qE "^$var *=" && continue
-        printf 'Adding %s variable to crontab\n' "$var"
-        new_cron_lines="${new_cron_lines}${var} = ${val}
-"
-      done
-      if [ -n "$new_cron_lines" ]; then
-        {
-          printf '%s\n' "$new_cron_lines"
-          crontab -l 2> /dev/null
-        } | crontab -
       fi
     fi
 
-    # Enable service: cronie
-    if ! systemctl is-enabled -q cronie.service; then
-      echo "Enabling cronie.service"
-      $sudo systemctl enable --now cronie.service
+    if echo " $action_list " | grep -Eq " (groups|all) "; then
+      # Add user to useful groups
+      if [ "$exec_user" != root ]; then
+        for group in video render input wheel; do
+          # Skip groups from the list that do not exist
+          getent group "$group" > /dev/null 2>&1 || continue
+          # Skip groups already a member of
+          echo "$groups" | grep -qw "$group" && continue
+          # Add user to group (ok if already a member)
+          echo "Adding $LOGNAME to $group"
+          if ! $sudo usermod -aG "$group" "$LOGNAME"; then
+            echo "Error: Could not add $LOGNAME to $group" >&2
+            exit 0
+          fi
+        done
+      fi
     fi
 
-    # Enable service: ssh-agent
-    if command -v ssh-agent > /dev/null 2>&1 && ! systemctl --user is-enabled -q ssh-agent.service; then
-      echo "Enabling ssh-agent.service"
-      systemctl --user enable ssh-agent.service
+    if echo " $action_list " | grep -Eq " (crond|dms-idle-handler|all) "; then
+      # Enable service: cronie
+      if ! systemctl is-enabled -q cronie.service; then
+        echo "Enabling cronie.service"
+        $sudo systemctl enable --now cronie.service
+      fi
     fi
 
-    # Configure SSH Known Hosts
-    if command -v rbw >/dev/null 2>&1; then
-      command -v hostname >/dev/null 2>&1 && hostname=$(hostname)
-      [ -z "$hostname" ] && command -v hostnamectl >/dev/null 2>&1 && hostname=$(hostnamectl hostname)
-      hostname=${hostname%%.*}
-      if [ -n "$hostname" ] && [ -r "$HOME"/.ssh/home_known_hosts ]; then
-        local_hostkey=$(awk '{sub(/^(.* )?ssh-ed25519 /,"");sub(/ .*$/,"");print}' /etc/ssh/ssh_host_ed25519_key.pub)
-        hostkey=$(awk -v h="$hostname" '$0 ~ "^"h {sub(/^.* ssh-ed25519 /,"");sub(/ .*$/,"");print}' ~/.ssh/home_known_hosts)
-        if [ -n "$local_hostkey" ] && [ -n "$hostkey" ] && [ "$local_hostkey" != "$hostkey" ]; then
-          prv=$(rbw get -f "${hostname}" "SSH Host Keys" | sed 's/ /\n/g')
-          if [ -n "$prv" ]; then
-            echo "Updating SSH Host Key (ed25519)"
-            printf -- 'ssh-ed25519 %s root@%s.%s\n' "$hostkey" "$hostname" "$DOMAIN_NAME" | $sudo tee /etc/ssh/ssh_host_ed25519_key.pub >/dev/null
-            printf -- '-----BEGIN OPENSSH PRIVATE KEY-----\n%s\n-----END OPENSSH PRIVATE KEY-----\n' "$prv" | $sudo tee /etc/ssh/ssh_host_ed25519_key >/dev/null
-            $sudo systemctl reload sshd 2>/dev/null || $sudo systemctl reload ssh 2>/dev/null
+    if echo " $action_list " | grep -Eq " (crontab|dms-idle-handler|all) "; then
+      # Set up $LOGNAME crontab
+      if command -v crontab > /dev/null 2>&1; then
+        crontab_vars="PATH MAILFROM COMPOSE_FILE XDG_CACHE_HOME XDG_CONFIG_HOME \
+            XDG_DATA_HOME XDG_RUNTIME_DIR XDG_STATE_HOME WAYLAND_DISPLAY \
+            DBUS_SESSION_BUS_ADDRESS DOCKER_CONFIG MACHINE_STORAGE_PATH"
+        # shellcheck disable=SC2034
+        crontab_PATH="$HOME/.local/bin:/srv/scripts/bin:/srv/scripts/sbin:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin"
+        # shellcheck disable=SC2034
+        crontab_MAILFROM=mike@erdelynet.com
+        # shellcheck disable=SC2034
+        crontab_COMPOSE_FILE=/srv/docker/compose.yaml
+        # shellcheck disable=SC2034
+        crontab_XDG_CACHE_HOME=$HOME/.cache
+        # shellcheck disable=SC2034
+        crontab_XDG_CONFIG_HOME=$HOME/.config
+        # shellcheck disable=SC2034
+        crontab_XDG_DATA_HOME=$HOME/.local/share
+        # shellcheck disable=SC2034
+        crontab_XDG_RUNTIME_DIR=/run/user/$(id -u)
+        # shellcheck disable=SC2034
+        crontab_XDG_STATE_HOME=$HOME/.local/state
+        # shellcheck disable=SC2034
+        crontab_WAYLAND_DISPLAY=wayland-1
+        # shellcheck disable=SC2034
+        crontab_DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$(id -u)/bus
+        # shellcheck disable=SC2034
+        crontab_DOCKER_CONFIG=$HOME/.config/docker
+        # shellcheck disable=SC2034
+        crontab_MACHINE_STORAGE_PATH=$HOME/.local/share/docker-machine
+
+        existing_crontab=$(crontab -l 2> /dev/null)
+        new_cron_lines=""
+        for var in $crontab_vars; do
+          eval "val=\${crontab_$var}"
+          { [ -z "$var" ] || [ -z "$val" ]; } && continue
+
+          printf '%s\n' "$existing_crontab" | grep -qE "^$var *=" && continue
+          printf 'Adding %s variable to crontab\n' "$var"
+          new_cron_lines="${new_cron_lines}${var} = ${val}
+  "
+        done
+        if [ -n "$new_cron_lines" ]; then
+          {
+            printf '%s\n' "$new_cron_lines"
+            crontab -l 2> /dev/null
+          } | crontab -
+        fi
+      fi
+    fi
+
+    if echo " $action_list " | grep -Eq " (ssh-agent|all) "; then
+      # Enable service: ssh-agent
+      if command -v ssh-agent > /dev/null 2>&1 && ! systemctl --user is-enabled -q ssh-agent.service; then
+        echo "Enabling ssh-agent.service"
+        systemctl --user enable ssh-agent.service
+      fi
+    fi
+
+    if echo " $action_list " | grep -Eq " (ssh-host-key|all) "; then
+      # Configure SSH Host Key (ed25519)
+      if command -v rbw >/dev/null 2>&1; then
+        command -v hostname >/dev/null 2>&1 && hostname=$(hostname)
+        [ -z "$hostname" ] && command -v hostnamectl >/dev/null 2>&1 && hostname=$(hostnamectl hostname)
+        hostname=${hostname%%.*}
+        if [ -n "$hostname" ] && [ -r "$HOME"/.ssh/home_known_hosts ]; then
+          local_hostkey=$(awk '{sub(/^(.* )?ssh-ed25519 /,"");sub(/ .*$/,"");print}' /etc/ssh/ssh_host_ed25519_key.pub)
+          hostkey=$(awk -v h="$hostname" '$0 ~ "^"h {sub(/^.* ssh-ed25519 /,"");sub(/ .*$/,"");print}' ~/.ssh/home_known_hosts)
+          if [ -n "$local_hostkey" ] && [ -n "$hostkey" ] && [ "$local_hostkey" != "$hostkey" ]; then
+            prv=$(rbw get -f "${hostname}" "SSH Host Keys" | sed 's/ /\n/g')
+            if [ -n "$prv" ]; then
+              echo "Updating SSH Host Key (ed25519)"
+              printf -- 'ssh-ed25519 %s root@%s.%s\n' "$hostkey" "$hostname" "$DOMAIN_NAME" | $sudo tee /etc/ssh/ssh_host_ed25519_key.pub >/dev/null
+              printf -- '-----BEGIN OPENSSH PRIVATE KEY-----\n%s\n-----END OPENSSH PRIVATE KEY-----\n' "$prv" | $sudo tee /etc/ssh/ssh_host_ed25519_key >/dev/null
+              $sudo systemctl reload sshd 2>/dev/null || $sudo systemctl reload ssh 2>/dev/null
+            fi
           fi
         fi
       fi
     fi
 
     # TODO: Configure sudoers here
+    if echo " $action_list " | grep -Eq " (sudoers|all) "; then
+      echo "Setting up sudoers is not implemented yet"
+    fi
 
     if $desktop; then
       kvm=false
       [ "$(systemd-detect-virt)" = kvm ] && kvm=true
 
-      # Set up DMS Idle Inhibitor Handler in cron
-      if command -v crontab > /dev/null 2>&1 && [ -e "$HOME"/.local/bin/handle_dms_idle_inhibitor ] && \
-        ! crontab -l 2> /dev/null | grep -qF 'handle_dms_idle_inhibitor'; then
-        echo "Adding DMS Idle Inhibitor Handler to $LOGNAME crontab"
-        {
-          crontab -l 2> /dev/null
-          # shellcheck disable=SC2016
-          echo '*/15 * * * * [ -d $XDG_RUNTIME_DIR ] && [ -S $XDG_RUNTIME_DIR/wayland-1 ] && flock -n $XDG_CACHE_HOME/.dms_idle.lock handle_dms_idle_inhibitor -h 4'
-        } | crontab -
-      fi
-
-      # Enable service: dms
-      if ! systemctl --user is-enabled -q dms.service; then
-        echo "Enabling dms.service"
-        command -v dms > /dev/null 2>&1 && systemctl --user enable dms.service 2> /dev/null
-      fi
-
-      # Enable service: ydotool
-      if ! systemctl --user is-enabled -q ydotool.service; then
-        echo "Enabling ydotool.service"
-        command -v ydotool > /dev/null 2>&1 && systemctl --user enable ydotool.service 2> /dev/null
-      fi
-
-      # Install keymap-drawer for creating Niri help files
-      if command -v pipx > /dev/null 2>&1 && ! pipx list --short | grep -q ^keymap-drawer; then
-        echo "Installing keymap-drawer for creating help files"
-        pipx install keymap-drawer
-      fi
-
-      # Install flatpak and flatpaks
-      if command -v flatpak > /dev/null 2>&1; then
-        if flatpak --system remotes | grep -q ^flathub; then
-          $sudo flatpak --system remote-delete flathub
-        fi
-
-        # Set flathub as a remote for --user
-        flatpak --user remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-
-        if ! flatpak --user list --app --columns=application | grep ^com.github.tchx84.Flatseal; then
-          echo "Installing Flatseal"
-          flatpak --user install --assumeyes com.github.tchx84.Flatseal
-        fi
-        if ! flatpak --user list --app --columns=application | grep ^io.gitlab.librewolf-community; then
-          echo "Installing Librewolf"
-          flatpak --user install --assumeyes io.gitlab.librewolf-community
+      if echo " $action_list " | grep -Eq " (dms|all) "; then
+        # Enable service: dms
+        if ! systemctl --user is-enabled -q dms.service; then
+          echo "Enabling dms.service"
+          command -v dms > /dev/null 2>&1 && systemctl --user enable dms.service 2> /dev/null
         fi
       fi
 
-      if $kvm && [ ! -e "$HOME"/.config/environment.d/wlr_cursors.conf ]; then
-        echo "Adding WLR_NO_HARDWARE_CURSORS=1 to environment"
-        echo "WLR_NO_HARDWARE_CURSORS=1" > "$HOME"/.config/environment.d/wlr_cursors.conf
-      fi
-
-      if [ -e /etc/greetd/config.toml ]; then
-        if ! grep -qE "^\s*command\s*=.*dms-greeter" /etc/greetd/config.toml; then
-          if ! grep -q "^\[default_session\]" /etc/greetd/config.toml; then
-            echo "Error: greetd config missing default_session section" >&2
-          else
-            echo "Setting up greetd to use dms-greeter with niri"
-            # Comment out any lines with command = 
-            $sudo sed -ri 's/^(\s*)(command.*)$/\1# \2/' /etc/greetd/config.toml
-            # Under the default_session section heading, add a dms-greeter line
-            if $kvm; then
-              $sudo sed -ri 's#^(\[default_session].*)$#\1\r\ncommand = "/usr/bin/dms-greeter --no-save-username --command niri -p /usr/share/quickshell/dms"#' /etc/greetd/config.toml
-              $kvm && $sudo sed -ri 's#(/usr/bin/dms-greeter)#env WLR_NO_HARDWARE_CURSORS=1 \1#' /etc/greetd/config.toml
-            else
-              $sudo sed -ri 's#^(\[default_session].*)$#\1\r\ncommand = "/usr/bin/dms-greeter --no-save-username --command niri -p /usr/share/quickshell/dms"#' /etc/greetd/config.toml
-            fi
-            # Enable the service
-            $sudo systemctl enable greetd
-          fi
-        fi
-
-        if [ ! -e /usr/bin/dms-greeter ]; then
-          echo "Creating link for dms-greeter in /usr/bin"
-          $sudo ln -sf /usr/share/quickshell/dms/Modules/Greetd/assets/dms-greeter /usr/bin/
-        fi
-
-        if [ ! -e /etc/greetd/niri_overrides.kdl ]; then
-          echo "Creating sample niri_overrides.kdl for greetd"
+      if echo " $action_list " | grep -Eq " (dms-idle-handler|all) "; then
+        # Set up DMS Idle Inhibitor Handler in cron
+        if command -v crontab > /dev/null 2>&1 && [ -e "$HOME"/.local/bin/handle_dms_idle_inhibitor ] && \
+          ! crontab -l 2> /dev/null | grep -qF 'handle_dms_idle_inhibitor'; then
+          echo "Adding DMS Idle Inhibitor Handler to $LOGNAME crontab"
           {
-            echo '// Example niri_overrides.kdl'
-            echo '//'
-            echo '// output "Virtual-1" {'
-            echo '//     mode "1920x1080@60"'
-            echo '//     position x=0 y=0'
-            echo '//     scale 1'
-            echo '// }'
-            echo ''
-            echo '// output "eDP-1" { off; }'
-            echo '// output "HDMI-A-1" { off; }'
-            echo '// output "DP-1" {'
-            echo '//     focus-at-startup'
-            echo '//     position x=1920 y=0'
-            echo '//     scale 1'
-            echo '// }'
-            echo ''
-            echo '// Fix for nvidia card'
-            echo '// debug { wait-for-frame-completion-before-queueing; }'
-          } | $sudo tee /etc/greetd/niri_overrides.kdl > /dev/null
+            crontab -l 2> /dev/null
+            # shellcheck disable=SC2016
+            echo '*/15 * * * * [ -d $XDG_RUNTIME_DIR ] && [ -S $XDG_RUNTIME_DIR/wayland-1 ] && flock -n $XDG_CACHE_HOME/.dms_idle.lock handle_dms_idle_inhibitor -h 4'
+          } | crontab -
         fi
+      fi
 
-        if getent group greeter > /dev/null 2>&1 && ! groups | sed "s/^$LOGNAME : //" | grep -qw greeter; then
-          echo "Adding $LOGNAME to $group"
-          $sudo usermod -aG greeter "$LOGNAME"
+      if echo " $action_list " | grep -Eq " (ydotool|all) "; then
+        # Enable service: ydotool
+        if ! systemctl --user is-enabled -q ydotool.service; then
+          echo "Enabling ydotool.service"
+          command -v ydotool > /dev/null 2>&1 && systemctl --user enable ydotool.service 2> /dev/null
         fi
+      fi
 
-        if [ ! -d /var/cache/dms-greeter ]; then
-          $sudo install -d -m 750 -o greeter -g greeter /var/cache/dms-greeter
-        elif [ -n "$(find /var/cache/dms-greeter -maxdepth 0 -mindepth 0 -not -group greeter -type d)" ]; then
-          echo "Fixing permissions on /var/cache/dms-greeter"
-          $sudo chgrp greeter /var/cache/dms-greeter
+      if echo " $action_list " | grep -Eq " (keymap-drawer|all) "; then
+        # Install keymap-drawer for creating Niri help files
+        if command -v pipx > /dev/null 2>&1 && ! pipx list --short | grep -q ^keymap-drawer; then
+          echo "Installing keymap-drawer for creating help files"
+          pipx install keymap-drawer
         fi
+      fi
 
-        # Install dms-greeter settings/colors
-        for file in settings colors; do
-          if [ -r "$HOME"/.config/niri/greeter/"$file".json ]; then
-            if [ -r /var/cache/dms-greeter/"$file".json ]; then
-              : # do nothing
-            elif [ ! -x /var/cache/dms-greeter ] || ! $sudo test -r /var/cache/dms-greeter/"$file".json; then
-              echo "Configuring dms-greeter $file"
-              $sudo install -m 644 -o root -g "$(id -gn root)" \
-                "$HOME"/.config/niri/greeter/"$file".json /var/cache/dms-greeter
+      if echo " $action_list " | grep -Eq " (flatpak|flatseal|librewolf|all) "; then
+        # Install flatpak and flatpaks
+        if command -v flatpak > /dev/null 2>&1; then
+          if flatpak --system remotes | grep -q ^flathub; then
+            $sudo flatpak --system remote-delete flathub
+          fi
+
+          # Set flathub as a remote for --user
+          flatpak --user remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+
+          if ! flatpak --user list --app --columns=application | grep ^com.github.tchx84.Flatseal; then
+            echo "Installing Flatseal"
+            flatpak --user install --assumeyes com.github.tchx84.Flatseal
+          fi
+        fi
+      fi
+
+      if echo " $action_list " | grep -Eq " (librewolf|all) "; then
+      if command -v flatpak >/dev/null 2>&1 &&
+         ! flatpak --user list --app --columns=application | grep ^io.gitlab.librewolf-community; then
+        echo "Installing Librewolf"
+        flatpak --user install --assumeyes io.gitlab.librewolf-community
+      fi
+
+      if echo " $action_list " | grep -Eq " (wlr-cursors|all) "; then
+        if $kvm && [ ! -e "$HOME"/.config/environment.d/wlr_cursors.conf ]; then
+          echo "Adding WLR_NO_HARDWARE_CURSORS=1 to environment"
+          echo "WLR_NO_HARDWARE_CURSORS=1" > "$HOME"/.config/environment.d/wlr_cursors.conf
+        fi
+      fi
+
+      if echo " $action_list " | grep -Eq " (greetd|dms|all) "; then
+        if [ -e /etc/greetd/config.toml ]; then
+          if ! grep -qE "^\s*command\s*=.*dms-greeter" /etc/greetd/config.toml; then
+            if ! grep -q "^\[default_session\]" /etc/greetd/config.toml; then
+              echo "Error: greetd config missing default_session section" >&2
+            else
+              echo "Setting up greetd to use dms-greeter with niri"
+              # Comment out any lines with command = 
+              $sudo sed -ri 's/^(\s*)(command.*)$/\1# \2/' /etc/greetd/config.toml
+              # Under the default_session section heading, add a dms-greeter line
+              if $kvm; then
+                $sudo sed -ri 's#^(\[default_session].*)$#\1\r\ncommand = "/usr/bin/dms-greeter --no-save-username --command niri -p /usr/share/quickshell/dms"#' /etc/greetd/config.toml
+                $kvm && $sudo sed -ri 's#(/usr/bin/dms-greeter)#env WLR_NO_HARDWARE_CURSORS=1 \1#' /etc/greetd/config.toml
+              else
+                $sudo sed -ri 's#^(\[default_session].*)$#\1\r\ncommand = "/usr/bin/dms-greeter --no-save-username --command niri -p /usr/share/quickshell/dms"#' /etc/greetd/config.toml
+              fi
+              # Enable the service
+              $sudo systemctl enable greetd
             fi
           fi
-        done
+
+          if [ ! -e /usr/bin/dms-greeter ]; then
+            echo "Creating link for dms-greeter in /usr/bin"
+            $sudo ln -sf /usr/share/quickshell/dms/Modules/Greetd/assets/dms-greeter /usr/bin/
+          fi
+
+          if [ ! -e /etc/greetd/niri_overrides.kdl ]; then
+            echo "Creating sample niri_overrides.kdl for greetd"
+            {
+              echo '// Example niri_overrides.kdl'
+              echo '//'
+              echo '// output "Virtual-1" {'
+              echo '//     mode "1920x1080@60"'
+              echo '//     position x=0 y=0'
+              echo '//     scale 1'
+              echo '// }'
+              echo ''
+              echo '// output "eDP-1" { off; }'
+              echo '// output "HDMI-A-1" { off; }'
+              echo '// output "DP-1" {'
+              echo '//     focus-at-startup'
+              echo '//     position x=1920 y=0'
+              echo '//     scale 1'
+              echo '// }'
+              echo ''
+              echo '// Fix for nvidia card'
+              echo '// debug { wait-for-frame-completion-before-queueing; }'
+            } | $sudo tee /etc/greetd/niri_overrides.kdl > /dev/null
+          fi
+
+          if getent group greeter > /dev/null 2>&1 && ! groups | sed "s/^$LOGNAME : //" | grep -qw greeter; then
+            echo "Adding $LOGNAME to $group"
+            $sudo usermod -aG greeter "$LOGNAME"
+          fi
+
+          if [ ! -d /var/cache/dms-greeter ]; then
+            $sudo install -d -m 750 -o greeter -g greeter /var/cache/dms-greeter
+          elif [ -n "$(find /var/cache/dms-greeter -maxdepth 0 -mindepth 0 -not -group greeter -type d)" ]; then
+            echo "Fixing permissions on /var/cache/dms-greeter"
+            $sudo chgrp greeter /var/cache/dms-greeter
+          fi
+
+          # Install dms-greeter settings/colors
+          for file in settings colors; do
+            if [ -r "$HOME"/.config/niri/greeter/"$file".json ]; then
+              if [ -r /var/cache/dms-greeter/"$file".json ]; then
+                : # do nothing
+              elif [ ! -x /var/cache/dms-greeter ] || ! $sudo test -r /var/cache/dms-greeter/"$file".json; then
+                echo "Configuring dms-greeter $file"
+                $sudo install -m 644 -o root -g "$(id -gn root)" \
+                  "$HOME"/.config/niri/greeter/"$file".json /var/cache/dms-greeter
+              fi
+            fi
+          done
+        fi
       fi
     fi
 
@@ -336,31 +395,35 @@ case "$ID" in
      $sudo mount -o update,rw /
     fi
 
-    # Building package list
-    need=""
-    package="curl bash bash-completion zsh zsh-syntax-highlighting neovim git \
-      btop htop jq unzip bat ripgrep fd 7zip fzf gcr rbw ruff py3-pipx"
+    if echo " $action_list " | grep -Eq " (packages|all) "; then
+      # Building package list
+      need=""
+      package="curl bash bash-completion zsh zsh-syntax-highlighting neovim git \
+        btop htop jq unzip bat ripgrep fd 7zip fzf gcr rbw ruff py3-pipx"
 
-    if $desktop; then
-      packages="$package niri dejavusansmono-nerd-fonts firefox alacritty fuzzel \
-        mpv imv waybar swayidle swaylock wl-clipboard dunst"
+      if $desktop; then
+        packages="$package niri dejavusansmono-nerd-fonts firefox alacritty fuzzel \
+          mpv imv waybar swayidle swaylock wl-clipboard dunst"
+      fi
     fi
 
-    # Configure SSH Known Hosts
-    if command -v rbw >/dev/null 2>&1; then
-      command -v hostname >/dev/null 2>&1 && hostname=$(hostname)
-      hostname=${hostname%%.*}
-      if [ -n "$hostname" ] && [ -r "$HOME"/.ssh/home_known_hosts ]; then
-        local_hostkey=$(doas ssh-keygen -y -f /etc/ssh/ssh_host_ed25519_key |
-          awk '{sub(/^(.* )?ssh-ed25519 /,"");sub(/ .*$/,"");print}')
-        hostkey=$(awk -v h="$hostname" '$0 ~ "^"h {sub(/^.* ssh-ed25519 /,"");sub(/ .*$/,"");print}' ~/.ssh/home_known_hosts)
-        if [ -n "$local_hostkey" ] && [ -n "$hostkey" ] && [ "$local_hostkey" != "$hostkey" ]; then
-          prv=$(rbw get -f "${hostname}" "SSH Host Keys" | sed 's/ /\\n/g')
-          if [ -n "$prv" ]; then
-            echo "Updating SSH Host Key (ed25519)"
-            printf -- 'ssh-ed25519 %s root@%s.%s\n' "$hostkey" "$hostname" "$DOMAIN_NAME" | $sudo tee /etc/ssh/ssh_host_ed25519_key.pub >/dev/null
-            printf -- '-----BEGIN OPENSSH PRIVATE KEY-----\n%b\n-----END OPENSSH PRIVATE KEY-----\n' "$prv" | $sudo tee /etc/ssh/ssh_host_ed25519_key >/dev/null
-            $sudo rcctl reload sshd
+    if echo " $action_list " | grep -Eq " (ssh-host-key|all) "; then
+      # Configure SSH Host Key (ed25519)
+      if command -v rbw >/dev/null 2>&1; then
+        command -v hostname >/dev/null 2>&1 && hostname=$(hostname)
+        hostname=${hostname%%.*}
+        if [ -n "$hostname" ] && [ -r "$HOME"/.ssh/home_known_hosts ]; then
+          local_hostkey=$(doas ssh-keygen -y -f /etc/ssh/ssh_host_ed25519_key |
+            awk '{sub(/^(.* )?ssh-ed25519 /,"");sub(/ .*$/,"");print}')
+          hostkey=$(awk -v h="$hostname" '$0 ~ "^"h {sub(/^.* ssh-ed25519 /,"");sub(/ .*$/,"");print}' ~/.ssh/home_known_hosts)
+          if [ -n "$local_hostkey" ] && [ -n "$hostkey" ] && [ "$local_hostkey" != "$hostkey" ]; then
+            prv=$(rbw get -f "${hostname}" "SSH Host Keys" | sed 's/ /\\n/g')
+            if [ -n "$prv" ]; then
+              echo "Updating SSH Host Key (ed25519)"
+              printf -- 'ssh-ed25519 %s root@%s.%s\n' "$hostkey" "$hostname" "$DOMAIN_NAME" | $sudo tee /etc/ssh/ssh_host_ed25519_key.pub >/dev/null
+              printf -- '-----BEGIN OPENSSH PRIVATE KEY-----\n%b\n-----END OPENSSH PRIVATE KEY-----\n' "$prv" | $sudo tee /etc/ssh/ssh_host_ed25519_key >/dev/null
+              $sudo rcctl reload sshd
+            fi
           fi
         fi
       fi
