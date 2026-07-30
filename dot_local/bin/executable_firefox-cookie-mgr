@@ -140,8 +140,6 @@ elif [[ -n "$import_file" && -n "$permissions_file" ]]; then
   notadd=0
   line=""
   while IFS=$'\n' read -r line; do
-    echo "line=$line" >&2
-    continue
     out=$(sqlite3 -readonly "$permissions_file" \
       "select id from moz_perms where type='cookie' and origin='$line'")
     [[ -n "$out" ]] && notadd=$((notadd+1))
@@ -151,7 +149,7 @@ elif [[ -n "$import_file" && -n "$permissions_file" ]]; then
       add=$((add+1))
       next=$((next+1))
     fi
-  done <<< "$import_file"
+  done < "$import_file"
   echo Added $add sites
   echo Did not need to add $notadd sites
 else
