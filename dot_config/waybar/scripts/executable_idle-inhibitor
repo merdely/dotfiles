@@ -1,0 +1,74 @@
+#!/bin/sh
+
+# idle_inhibitor for swayidle
+# For use with Waybar:
+# add the following module:
+# "custom/idle-inhibitor": {
+#   // "hide-empty-text": true,
+#   "format": "{icon}",
+#   "format-icons": {
+#     "activated": "",
+#     "deactivated": ""
+#   },
+#   "return-type": "json",
+#   "exec-if": "test -x ~/.config/waybar/scripts/idle-inhibitor"
+#   "exec": "~/.config/waybar/scripts/idle-inhibitor check"
+#   "on-click": "~/.config/waybar/scripts/idle-inhibitor toggle"
+# }
+
+WAIT=1
+
+enable_inhibitor() {
+  pkill -u "$LOGNAME" -x swayidle
+  [ ! -d "$HOME"/.cache ] && mkdir -p "$HOME"/.cache
+  touch "$HOME"/.cache/swayidle_idle_inhibited
+}
+
+disable_inhibitor() {
+  rm -f "$HOME"/.cache/swayidle_idle_inhibited
+  swayidle -w &
+}
+
+check_status() {
+  # If swayidle is running, inhibitor is not active
+  if pgrep -u "$LOGNAME" -x swayidle >/dev/null 2>&1; then
+    printf '{ "text": "%s", "alt": "%s", "tooltip": "%s", "class": "%s", "percentage": %d }\n' \
+      deactivated deactivated "Idle Inhibitor Inactive" deactivated 0
+  else
+    printf '{ "text": "%s", "alt": "%s", "tooltip": "%s", "class": "%s", "percentage": %d }\n' \
+      activated activated "Idle Inhibitor Active" activated 100
+  fi
+}
+
+case "$1" in
+  check)
+    check_status
+    ;;
+  check-loop)
+    while : ; do
+      check_status
+      sleep "${WAIT:-1}"
+    done
+    ;;
+  toggle)
+    # If swayidle is running, inhibitor is not active
+    if pgrep -u "$LOGNAME" -x swayidle >/dev/null 2>&1; then
+      enable_inhibitor
+    else
+      disable_inhibitor
+    fi
+    ;;
+  enable)
+    # Disable swayidle
+    enable_inhibitor
+    ;;
+  disable)
+    # Enable swayidle
+    disable_inhibitor
+    ;;
+  *)
+    echo "usage: ${0##*/} [-h] enable|disable|toggle|check|check-loop"
+    exit
+    ;;
+esac
+
