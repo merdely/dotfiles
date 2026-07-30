@@ -15,6 +15,8 @@ case "$OSTYPE" in
       SSH_AGENT_PID=$(cat "$HOME"/.ssh/agent/local-ssh-agent.pid)
       export SSH_AUTH_SOCK SSH_AGENT_PID
     fi
+
+    alias watch=gnuwatch
     ;;
   *)
     ;;
