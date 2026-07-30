@@ -9,7 +9,8 @@ case "$OSTYPE" in
   openbsd*)
     export XDG_RUNTIME_DIR=/tmp/run/user/$UID
     run-ssh-agent >/dev/null 2>&1
-    if [ -z "$SSH_AUTH_SOCK" ] && [ -S "$HOME"/.ssh/agent/local-ssh-agent ]; then
+
+    if [ -z "$SSH_CONNECTION" ] && [ -S "$HOME"/.ssh/agent/local-ssh-agent ]; then
       SSH_AUTH_SOCK="$HOME"/.ssh/agent/local-ssh-agent
       SSH_AGENT_PID=$(cat "$HOME"/.ssh/agent/local-ssh-agent.pid)
       export SSH_AUTH_SOCK SSH_AGENT_PID
