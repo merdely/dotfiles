@@ -1,0 +1,23 @@
+#!/bin/sh
+
+if [ ! -e ./compatibility.ini ] && [ ! -e cookies.sqlite ] && [ ! -e places.sqlite ] && [ ! -e storage.sqlite ]; then
+  echo "Error: Current directory is not a valid Firefox profile directory" >&2
+  exit 1
+fi
+
+if [ -e chrome/userChrome.css ] || [ -e chrome/userContent.css ]; then
+  echo "Error: userChrome.css and/or userContent.css are already installed" >&2
+  exit 1
+fi
+
+[ ! -d chrome ] && mkdir chrome
+[ ! -e chrome/userChrome.css ] && cp "$(dirname "$(realpath "$0")")"/chrome/userChrome.css chrome
+[ ! -e chrome/userContent.css ] && cp "$(dirname "$(realpath "$0")")"/chrome/userContent.css chrome
+
+if [ -e chrome/userChrome.css ] && [ -e chrome/userContent.css ]; then
+  echo "userChrome.css and userContent.css have been successfully set up"
+  exit
+else
+  echo "Error: Could not set up userChrome.css and/or userContent.css" >&2
+  exit 1
+fi
