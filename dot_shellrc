@@ -107,6 +107,7 @@ alias apkv='ANSIBLE_SSH_ARGS="-o GlobalKnownHostsFile=/dev/null -o UserKnownHost
 alias apk='ANSIBLE_SSH_ARGS="-o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" ansible-playbook'
 alias dos_rsync='rsync -rtcvP'
 alias which='command -v'
+alias chezmoi_updates='ansible chezmoi -oa "{{chezmoi}} update";ansible chezmoi_ro -oa "~/.local/bin/sync_home"'
 bashp=$(command -v bash)
 # shellcheck disable=2139
 [[ -n "$bashp" ]] && alias runbash="env PRE_PROMPT=\"(bash) \" SHELL=$bashp $bashp -l"
