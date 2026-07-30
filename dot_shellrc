@@ -119,7 +119,7 @@ zshp=$(command -v zsh)
 GPG_TTY=$(tty)
 VIRSH_DEFAULT_CONNECT_URI=qemu:///system
 COMPOSE_FILE=/srv/docker/compose.yaml
-ANSIBLE_CONFIG=$HOME/.config/ansible.cfg
+ANSIBLE_CONFIG=$HOME/.config/ansible/ansible.cfg
 ANSIBLE_NOCOWS=1
 export GPG_TTY VIRSH_DEFAULT_CONNECT_URI COMPOSE_FILE ANSIBLE_CONFIG ANSIBLE_NOCOWS
 alias remain='tmux -f "$HOME"/.config/tmux/tmux.conf.remain new-session -A -s main'
