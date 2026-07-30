@@ -9,6 +9,11 @@ if ! command -v rbw &>/dev/null; then
   exit 1
 fi
 
+if ! command -v jq &>/dev/null; then
+  echo OK | "${fuzzel[@]}" -p "Error: Can't find jq> "
+  exit 1
+fi
+
 if ! command -v wtype &>/dev/null && ! command -v ydotool &>/dev/null; then
   echo OK | "${fuzzel[@]}" -p "Error: Can't find wtype/ydotool> "
   exit 1
