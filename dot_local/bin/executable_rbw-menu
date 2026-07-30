@@ -53,7 +53,7 @@ while true; do
         echo OK | "${fuzzel[@]}" --no-sort -p "Error: Can't get password> "
         exit 1
       fi
-      type_text "$username\t$password"
+      type_text "$username	$password"
       value=$(rbw totp "$item")
       if [[ -n "$value" ]]; then
         printf '%s' "$value" | wl-copy
