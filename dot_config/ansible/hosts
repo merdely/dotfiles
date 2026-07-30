@@ -1,0 +1,31 @@
+# vim: set filetype=yaml :
+# For the host running ansible, create a host_vars directory next to this file
+# Create a file with the same name as the host and put in it:
+# ---
+# ansible_connection: localhost
+
+chezmoi:
+  hosts:
+    mercury:
+    venus:
+      ansible_python_interpreter: /opt/homebrew/bin/python3
+      chezmoi: /opt/homebrew/bin/chezmoi
+    earth:
+    jupiter:
+    saturn:
+    uranus:
+    neptune:
+    pluto:
+    carme:
+    metis:
+    tarvos:
+    sinope:
+  vars:
+    chezmoi: chezmoi
+
+chezmoi_ro:
+  hosts:
+    carme:
+    metis:
+    tarvos:
+    sinope:
