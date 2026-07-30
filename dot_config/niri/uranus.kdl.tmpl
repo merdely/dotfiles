@@ -18,6 +18,7 @@ binds {
     Mod+Shift+Space      hotkey-overlay-title="Clear Notifications" { spawn-sh "dunstctl close-all" ; }
     Mod+Alt+L            hotkey-overlay-title="Lock Screen"       { spawn-sh "swaylock -f -c 000000"; }
     Mod+Semicolon        hotkey-overlay-title="Run rbw-menu"      { spawn-sh "~/.local/bin/rbw-menu"; }
+    Mod+Apostrophe       hotkey-overlay-title="Toggle Idle Inhibitor"        { spawn-sh "pgrep -f '^((/usr)?/bin/)?systemd-inhibit --who=user-idle-inhibit --why=Prevent screenlock' > /dev/null 2>&1 && pkill -f '^((/usr)?/bin/)?systemd-inhibit --who=user-idle-inhibit --why=Prevent screenlock' || systemd-inhibit --who=user-idle-inhibit --why='Prevent screenlock' --what=idle sleep $((4*3600))"; }
 }
 {{ else -}}
 {{ end }}
