@@ -139,7 +139,7 @@ elif [[ -n "$import_file" && -n "$permissions_file" ]]; then
   add=0
   notadd=0
   line=""
-  while IFS=$'\n' line; do
+  while IFS=$'\n' read -r line; do
     out=$(sqlite3 -readonly "$permissions_file" \
       "select id from moz_perms where type='cookie' and origin='$line'")
     [[ -n "$out" ]] && notadd=$((notadd+1))
