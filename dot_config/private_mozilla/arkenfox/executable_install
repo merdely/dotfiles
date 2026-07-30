@@ -1,0 +1,59 @@
+#!/bin/sh
+
+updater_sh="https://github.com/arkenfox/user.js/raw/refs/heads/master/updater.sh"
+cleaner_sh="https://github.com/arkenfox/user.js/raw/refs/heads/master/prefsCleaner.sh"
+
+if [ ! -e ./compatibility.ini ] && [ ! -e cookies.sqlite ] && [ ! -e places.sqlite ] && [ ! -e storage.sqlite ]; then
+  echo "Error: Current directory is not a valid Firefox profile directory" >&2
+  exit 1
+fi
+
+os=""
+case "$OSTYPE" in
+  openbsd*) os=openbsd ;;
+  linux*) os=linux ;;
+  freebsd*) os=freebsd ;;
+  darwin*) os=darwin ;;
+  *) ;;
+esac
+
+fetch() {
+  if command -v curl >/dev/null 2>&1; then
+    curl -sLO "$@"
+  elif command -v wget >/dev/null 2>&1; then
+    wget -q "$@"
+  elif [[ "$os" = openbsd ]]; then
+    ftp -MVo "${1##*/}" "$1"
+  else
+    echo "Error: Cannot find download tool" >&2
+    exit 1
+  fi
+}
+
+if [[ -e prefsCleaner.sh ]] && [[ ! -x prefsCleaner.sh ]]; then
+  chmod 755 prefsCleaner.sh
+fi
+
+if [[ ! -e prefsCleaner.sh ]] ; then
+  fetch "$cleaner_sh"
+fi
+
+if [[ -e updater.sh ]] && [[ ! -x updater.sh ]]; then
+  chmod 755 updater.sh
+fi
+
+if [[ -e updater.sh ]] ; then
+  echo "Error: update.sh already exists in this profile. Update by running ./update.sh" >&2
+  exit 1
+fi
+
+fetch "$updater_sh"
+chmod 755 updater.sh
+[ ! -e user-overrides.js ] && cp "$(dirname "$(realpath "$0")")"/user-overrides.js .
+
+if [ -e prefsCleaner.sh ] && [ -e updater.sh ] && [ -e user-overrides.js ]; then
+  echo "Arkenfox is set up. Run './updater.sh' to configure it."
+else
+  echo "Error: Something when wrong, please verify prefsCleaner.sh, updater.sh, and user-overrides.js" >&2
+  exit 1
+fi

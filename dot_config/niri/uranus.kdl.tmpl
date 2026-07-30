@@ -17,6 +17,7 @@ binds {
     Super+X              hotkey-overlay-title="Power Menu"        { spawn-sh "$HOME/.config/niri/powermenu"; }
     Mod+Shift+Space      hotkey-overlay-title="Clear Notifications" { spawn-sh "dunstctl close-all" ; }
     Mod+Alt+L            hotkey-overlay-title="Lock Screen"       { spawn-sh "swaylock -f -c 000000"; }
+    Mod+Semicolon        hotkey-overlay-title="Run rbw-menu"      { spawn-sh "rbw-menu"; }
 }
 {{ else -}}
 {{ end }}
