@@ -6,7 +6,6 @@ sol,sol.erdely.in,192.168.25.21 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFMVulfAzZfF
 # Servers
 earth,earth.erdely.in,splunk,splunk.erdely.in,src.erdely.in,[src.erdely.in]:2222,[192.168.25.44]:2222,192.168.25.44 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDP7b4h2hX8BlEbzP/2r4fW3HwWI0T3Z/vHIzNstTFlD
 jupiter,jupiter.erdely.in,10.99.99.99 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFBs17LpxlMJdV3dOxW6oSYlQH4NaM/B4VXMAetrLRq/
-git.erdelynet.com,[git.erdelynet.com]:2222,[10.99.99.99]:2222 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMz4I3ILZpEmbfdA/SqHfnU3bNgY2OpXpWBNG2TwCGVA
 saturn,saturn.erdely.in,192.168.27.163 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIH606DUWbBOm6K+02pH+4HsIGnRkjdD9+VCfTrAOXlpD
 pluto,pluto.erdelynet.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMz4I3ILZpEmbfdA/SqHfnU3bNgY2OpXpWBNG2TwCGVA
 
