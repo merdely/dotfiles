@@ -1,0 +1,2 @@
+timeout 900 'swaylock -f'
+timeout 910 'niri msg action power-off-monitors'
