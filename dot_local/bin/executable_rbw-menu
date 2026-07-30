@@ -1,0 +1,164 @@
+#!/usr/bin/env bash
+
+fuzzel=(fuzzel --config "$HOME"/.config/rbw/rbw-menu.ini --no-sort -d)
+item_message=$'Alt+1: Type username,tab,password | Alt+2: Type username | Alt+3: Type password\nAlt+4: Type totp | Alt+c: Copy password | Alt+u: Copy username\nAlt+t: Copy totp | Alt+m: Menu | Alt+s: Sync logins'
+menu_message=$'Alt+t: Type | Alt+c: Copy'
+
+if ! command -v rbw &>/dev/null; then
+  echo OK | "${fuzzel[@]}" -p "Error: Can't find rbw> "
+  exit 1
+fi
+
+if ! command -v wtype &>/dev/null && ! command -v ydotool &>/dev/null; then
+  echo OK | "${fuzzel[@]}" -p "Error: Can't find wtype/ydotool> "
+  exit 1
+fi
+
+if ! command -v wl-copy &>/dev/null; then
+  echo OK | "${fuzzel[@]}" -p "Error: Can't find wl-copy> "
+  exit 1
+fi
+
+if ! rbw unlock; then
+  echo OK | "${fuzzel[@]}" -p "Error: Can't unlock rbw> "
+  exit 1
+fi
+
+type_text() {
+  [[ -z "$1" ]] && return 1
+  sleep 0.1
+  if command -v ydotool &>/dev/null; then
+    ydotool type "$1"
+  else
+    wtype "$1"
+  fi
+}
+
+while true; do
+  item=$(rbw list | "${fuzzel[@]}" --mesg="$item_message "-p "Search Bitwarden> ")
+  ret=$?
+  [[ -z "$item" ]] && exit
+  case "$ret" in
+    0|10) # Alt+1 - type username[tab]password
+      if ! username=$(rbw get -f username "$item"); then
+        echo OK | "${fuzzel[@]}" -p "Error: Can't get username> "
+        exit 1
+      fi
+      if ! password=$(rbw get -f password "$item"); then
+        echo OK | "${fuzzel[@]}" -p "Error: Can't get password> "
+        exit 1
+      fi
+      type_text "$username\t$password"
+      value=$(rbw totp "$item")
+      if [[ -n "$value" ]]; then
+        printf '%s' "$value" | wl-copy
+        notify-send "${0##*/}" "TOTP Code for $item copied to clipboard"
+      fi
+      exit
+      ;;
+    11) # Alt+2 - type username
+      if ! value=$(rbw get -f username "$item"); then
+        echo OK | "${fuzzel[@]}" -p "Error: Can't get username> "
+        exit 1
+      fi
+      type_text "$value"
+      exit
+      ;;
+    12) # Alt+3 - type password (and copy totp to clipboard + notify)
+      if ! value=$(rbw get -f password "$item"); then
+        echo OK | "${fuzzel[@]}" -p "Error: Can't get password> "
+        exit 1
+      fi
+      type_text "$value"
+      value=$(rbw totp "$item")
+      if [[ -n "$value" ]]; then
+        printf '%s' "$value" | wl-copy
+        notify-send "${0##*/}" "TOTP Code for $item copied to clipboard"
+      fi
+      exit
+      ;;
+    13) # Alt+4 - type totp
+      if rbw get --list-fields "$item" | grep -Eq "^totp$"; then
+        if ! value=$(rbw get -f totp "$item"); then
+          echo OK | "${fuzzel[@]}" -p "Error: Can't get totp> "
+          exit 1
+        fi
+        type_text "$value"
+      fi
+      exit
+      ;;
+    19) # Alt+c - copy password
+      if ! value=$(rbw get -f password "$item"); then
+        echo OK | "${fuzzel[@]}" -p "Error: Can't get password> "
+        exit 1
+      fi
+      printf '%s' "$value" | wl-copy
+      exit
+      ;;
+    20) # Alt+u - copy username
+      if ! value=$(rbw get -f username "$item"); then
+        echo OK | "${fuzzel[@]}" -p "Error: Can't get username> "
+        exit 1
+      fi
+      printf '%s' "$value" | wl-copy
+      exit
+      ;;
+    21) # Alt+t - copy totp
+      if rbw get --list-fields "$item" | grep -Eq "^totp$"; then
+        if ! value=$(rbw get -f totp "$item"); then
+          echo OK | "${fuzzel[@]}" -p "Error: Can't get totp> "
+          exit 1
+        fi
+        type_text "$value"
+      fi
+      printf '%s' "$value" | wl-copy
+      exit
+      ;;
+    22) # Alt+m - show menu
+      value=$(rbw get --raw "$item" | jq -r --arg totp "$(rbw totp "$item")" '
+        "Username: \(.data.username)\tv=\(.data.username)",
+        "Password: ***\tf=password",
+        (if (.data.totp // "") != "" then "TOTP: \($totp)\tf=totp" else empty end),
+        (.data.uris | to_entries[] | "URI \(.key+1): \(.value.uri)\tv=\(.value.uri)"),
+        (.fields[]
+          | select(.type == "text" or .type == "hidden")
+          | if .type == "hidden"
+            then "\(.name): ***\tf=\(.name)"
+            else "\(.name): \(.value)\tv=\(.value)"
+            end)
+      ' | "${fuzzel[@]}" --mesg "$menu_message" --width=60 --with-nth=1 --accept-nth=2 -p "Choose field> ")
+      ret=$?
+      case "${value%%=*}" in
+        f) field=${value#*=} ; value=$(rbw get --field "${value#*=}" "$item") ;;
+        v) value=${value#*=} ;;
+        *) exit 1 ;;
+      esac
+      case "$ret" in
+        19) # Alt+c - copy field
+          printf '%s' "$value" | wl-copy
+          exit
+          ;;
+        0|21) # Alt+t - type field
+          type_text "$value"
+          if [[ "$field" == password ]]; then
+            value=$(rbw totp "$item")
+            if [[ -n "$value" ]]; then
+              printf '%s' "$value" | wl-copy
+              notify-send "${0##*/}" "TOTP Code for $item copied to clipboard"
+            fi
+          fi
+          exit
+          ;;
+      esac
+      ;;
+    23) # Alt+s - sync vault
+      if ! rbw sync; then
+        echo OK | "${fuzzel[@]}" -p "Error: Can't sync vault> "
+        exit 1
+      fi
+      notify-send "${0##*/}" "Synced Vault with Server"
+      ;;
+    *) exit ;;
+  esac
+done
+
