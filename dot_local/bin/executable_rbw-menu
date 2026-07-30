@@ -1,31 +1,31 @@
 #!/usr/bin/env bash
 
-fuzzel=(fuzzel --config "$HOME"/.config/rbw/rbw-menu.ini --no-sort -d)
+fuzzel=(fuzzel --config "$HOME"/.config/rbw/rbw-menu.ini -d)
 item_message=$'Alt+1: Type username,tab,password | Alt+2: Type username | Alt+3: Type password\nAlt+4: Type totp | Alt+c: Copy password | Alt+u: Copy username\nAlt+t: Copy totp | Alt+m: Menu | Alt+s: Sync logins'
 menu_message=$'Alt+t: Type | Alt+c: Copy'
 
 if ! command -v rbw &>/dev/null; then
-  echo OK | "${fuzzel[@]}" -p "Error: Can't find rbw> "
+  echo OK | "${fuzzel[@]}" --no-sort -p "Error: Can't find rbw> "
   exit 1
 fi
 
 if ! command -v jq &>/dev/null; then
-  echo OK | "${fuzzel[@]}" -p "Error: Can't find jq> "
+  echo OK | "${fuzzel[@]}" --no-sort -p "Error: Can't find jq> "
   exit 1
 fi
 
 if ! command -v wtype &>/dev/null && ! command -v ydotool &>/dev/null; then
-  echo OK | "${fuzzel[@]}" -p "Error: Can't find wtype/ydotool> "
+  echo OK | "${fuzzel[@]}" --no-sort -p "Error: Can't find wtype/ydotool> "
   exit 1
 fi
 
 if ! command -v wl-copy &>/dev/null; then
-  echo OK | "${fuzzel[@]}" -p "Error: Can't find wl-copy> "
+  echo OK | "${fuzzel[@]}" --no-sort -p "Error: Can't find wl-copy> "
   exit 1
 fi
 
 if ! rbw unlock; then
-  echo OK | "${fuzzel[@]}" -p "Error: Can't unlock rbw> "
+  echo OK | "${fuzzel[@]}" --no-sort -p "Error: Can't unlock rbw> "
   exit 1
 fi
 
@@ -46,11 +46,11 @@ while true; do
   case "$ret" in
     0|10) # Alt+1 - type username[tab]password
       if ! username=$(rbw get -f username "$item"); then
-        echo OK | "${fuzzel[@]}" -p "Error: Can't get username> "
+        echo OK | "${fuzzel[@]}" --no-sort -p "Error: Can't get username> "
         exit 1
       fi
       if ! password=$(rbw get -f password "$item"); then
-        echo OK | "${fuzzel[@]}" -p "Error: Can't get password> "
+        echo OK | "${fuzzel[@]}" --no-sort -p "Error: Can't get password> "
         exit 1
       fi
       type_text "$username\t$password"
@@ -63,7 +63,7 @@ while true; do
       ;;
     11) # Alt+2 - type username
       if ! value=$(rbw get -f username "$item"); then
-        echo OK | "${fuzzel[@]}" -p "Error: Can't get username> "
+        echo OK | "${fuzzel[@]}" --no-sort -p "Error: Can't get username> "
         exit 1
       fi
       type_text "$value"
@@ -71,7 +71,7 @@ while true; do
       ;;
     12) # Alt+3 - type password (and copy totp to clipboard + notify)
       if ! value=$(rbw get -f password "$item"); then
-        echo OK | "${fuzzel[@]}" -p "Error: Can't get password> "
+        echo OK | "${fuzzel[@]}" --no-sort -p "Error: Can't get password> "
         exit 1
       fi
       type_text "$value"
@@ -85,7 +85,7 @@ while true; do
     13) # Alt+4 - type totp
       if rbw get --list-fields "$item" | grep -Eq "^totp$"; then
         if ! value=$(rbw get -f totp "$item"); then
-          echo OK | "${fuzzel[@]}" -p "Error: Can't get totp> "
+          echo OK | "${fuzzel[@]}" --no-sort -p "Error: Can't get totp> "
           exit 1
         fi
         type_text "$value"
@@ -94,7 +94,7 @@ while true; do
       ;;
     19) # Alt+c - copy password
       if ! value=$(rbw get -f password "$item"); then
-        echo OK | "${fuzzel[@]}" -p "Error: Can't get password> "
+        echo OK | "${fuzzel[@]}" --no-sort -p "Error: Can't get password> "
         exit 1
       fi
       printf '%s' "$value" | wl-copy
@@ -102,7 +102,7 @@ while true; do
       ;;
     20) # Alt+u - copy username
       if ! value=$(rbw get -f username "$item"); then
-        echo OK | "${fuzzel[@]}" -p "Error: Can't get username> "
+        echo OK | "${fuzzel[@]}" --no-sort -p "Error: Can't get username> "
         exit 1
       fi
       printf '%s' "$value" | wl-copy
@@ -111,7 +111,7 @@ while true; do
     21) # Alt+t - copy totp
       if rbw get --list-fields "$item" | grep -Eq "^totp$"; then
         if ! value=$(rbw get -f totp "$item"); then
-          echo OK | "${fuzzel[@]}" -p "Error: Can't get totp> "
+          echo OK | "${fuzzel[@]}" --no-sort -p "Error: Can't get totp> "
           exit 1
         fi
         type_text "$value"
@@ -131,7 +131,7 @@ while true; do
             then "\(.name): ***\tf=\(.name)"
             else "\(.name): \(.value)\tv=\(.value)"
             end)
-      ' | "${fuzzel[@]}" --mesg "$menu_message" --width=60 --with-nth=1 --accept-nth=2 -p "Choose field> ")
+      ' | "${fuzzel[@]}" --no-sort --mesg "$menu_message" --width=60 --with-nth=1 --accept-nth=2 -p "Choose field> ")
       ret=$?
       case "${value%%=*}" in
         f) field=${value#*=} ; value=$(rbw get --field "${value#*=}" "$item") ;;
@@ -158,7 +158,7 @@ while true; do
       ;;
     23) # Alt+s - sync vault
       if ! rbw sync; then
-        echo OK | "${fuzzel[@]}" -p "Error: Can't sync vault> "
+        echo OK | "${fuzzel[@]}" --no-sort -p "Error: Can't sync vault> "
         exit 1
       fi
       notify-send "${0##*/}" "Synced Vault with Server"
