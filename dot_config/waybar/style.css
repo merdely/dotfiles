@@ -217,26 +217,26 @@ label:focus {
     background-color: #f53c3c;
 }
 
-#pulseaudio {
-    background-color: #f1c40f;
-    color: #000000;
-}
+/* #pulseaudio { */
+/*     background-color: #f1c40f; */
+/*     color: #000000; */
+/* } */
+/**/
+/* #pulseaudio.muted { */
+/*     background-color: #90b1b1; */
+/*     color: #2a5c45; */
+/* } */
 
-#pulseaudio.muted {
-    background-color: #90b1b1;
-    color: #2a5c45;
-}
-
-#sndio,
-#custom-sndio {
-    background-color: #f1c40f;
-    color: #000;
-}
-
-#sndio.muted {
-    background-color: #90b1b1;
-    color: #2a5c45;
-}
+/* #sndio, */
+/* #custom-sndio { */
+/*     background-color: #f1c40f; */
+/*     color: #000; */
+/* } */
+/**/
+/* #sndio.muted { */
+/*     background-color: #90b1b1; */
+/*     color: #2a5c45; */
+/* } */
 
 #wireplumber {
     background-color: #fff0f5;
