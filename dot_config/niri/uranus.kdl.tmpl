@@ -11,6 +11,10 @@ spawn-sh-at-startup "dunst"
 spawn-sh-at-startup "syncthing --no-browser"
 spawn-sh-at-startup "ssh-add -l || ssh-add < /dev/null"
 
+environment {
+  RBW_PINENTRY "fuzzel"
+}
+
 // To override a previous definition, the same key name must be used (Super/Mod)
 binds {
     Mod+T                hotkey-overlay-title="Open Terminal"     { spawn-sh "foot"; }
