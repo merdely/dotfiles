@@ -7,7 +7,26 @@
 # To install in crontab, add:
 # */15 * * * * $HOME/.local/bin/handle_dms_idle_inhibitor.sh
 
+# shellcheck disable=1091
 [ -r "$HOME/.config/idle_inhibitor" ] && . "$HOME/.config/idle_inhibitor"
+
+usage() {
+  echo "usage: ${0##*/} [Options]"
+  echo
+  echo "Options:"
+  exit "${1:-0}"
+}
+while getopts ":hab:" opt; do
+  case $opt in
+    a) a=true ;;
+    b) b=$OPTARG ;;
+    h) usage ;;
+    :) echo "-$OPTARG requires an argument" ; exit 1 ;;
+    \?) echo "Unknown option: -$OPTARG" ; exit 1 ;;
+  esac
+done
+shift $(( OPTIND - 1 ))
+
 
 ! command -v dms &> /dev/null && echo "Error: ${0##*/} requires dms" >&2 && exit 1
 ! command -v notify-send &> /dev/null && echo "Warning: ${0##*/} requires notify-send to send messages" >&2 && exit 1
