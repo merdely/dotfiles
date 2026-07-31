@@ -404,11 +404,12 @@ case "$ID" in
       need=""
       package="curl bash bash-completion zsh zsh-syntax-highlighting git \
         neovim tree-sitter-cli shfmt shellcheck lua-language-server rust-analyzer \
-        btop htop jq unzip bat ripgrep fd 7zip fzf gcr rbw ruff py3-pipx"
+        btop htop jq unzip bat ripgrep fd 7zip fzf gcr rbw ruff py3-pipx gnuwatch"
 
       if $desktop; then
-        packages="$package niri dejavusansmono-nerd-fonts firefox alacritty fuzzel \
-          mpv imv waybar swayidle swaylock wl-clipboard dunst"
+        packages="$package niri dejavusansmono-nerd-fonts alacritty fuzzel \
+          greetd foot kitty mpv imv waybar swayidle swaylock wl-clipboard dunst \
+          pinentry-gnome3 firefox iridium"
       fi
     fi
 
@@ -430,6 +431,22 @@ case "$ID" in
               $sudo rcctl reload sshd
             fi
           fi
+        fi
+      fi
+    fi
+
+    if $desktop; then
+
+      # Add ability for iridium to open Logseq graphs
+      if command -v iridium >/dev/null 2>&1; then
+        if ! grep -q "^~/.local/share r$" /etc/iridium/unveil.main; then
+          echo "~/.local/share r" | $sudo tee -a /etc/iridium/unveil.main >/dev/null
+        fi
+        if ! grep -q "^~/.local/share/Syncthing r$" /etc/iridium/unveil.main; then
+          echo "~/.local/share/Syncthing r" | $sudo tee -a /etc/iridium/unveil.main >/dev/null
+        fi
+        if ! grep -q "^~/.local/share/Syncthing/Logseq rwc$" /etc/iridium/unveil.main; then
+          echo "~/.local/share/Syncthing/Logseq rwc" | $sudo tee -a /etc/iridium/unveil.main >/dev/null
         fi
       fi
     fi
