@@ -39,8 +39,10 @@ type_text() {
   fi
 }
 
+# [ ! -d "$HOME"/.cache/rbw-menu ] && rm -Rf "$HOME"/.cache/rbw-menu && mkdir -p "$HOME"/.cache/rbw-menu
+# [ ! -e "$HOME"/.cache/rbw-menu/fuzzel ] && touch "$HOME"/.cache/rbw-menu/fuzzel
 while true; do
-  item=$(rbw list | "${fuzzel[@]}" --mesg="$item_message "-p "Search Bitwarden> ")
+  item=$(rbw list | "${fuzzel[@]}" --cache=$HOME/.cache/rbw-menu --mesg="$item_message "-p "Search Bitwarden> ")
   ret=$?
   [[ -z "$item" ]] && exit
   case "$ret" in
