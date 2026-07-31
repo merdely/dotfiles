@@ -251,13 +251,13 @@ case "$ID" in
 
       if echo " $action_list " | grep -Eq " (dms-idle-handler|all) "; then
         # Set up DMS Idle Inhibitor Handler in cron
-        if command -v crontab > /dev/null 2>&1 && [ -e "$HOME"/.local/bin/handle_dms_idle_inhibitor ] && \
-          ! crontab -l 2> /dev/null | grep -qF 'handle_dms_idle_inhibitor'; then
+        if command -v crontab > /dev/null 2>&1 && [ -e "$HOME"/.local/bin/handle_idle_inhibitor ] && \
+          ! crontab -l 2> /dev/null | grep -qF 'handle_idle_inhibitor'; then
           echo "Adding DMS Idle Inhibitor Handler to $LOGNAME crontab"
           {
             crontab -l 2> /dev/null
             # shellcheck disable=SC2016
-            echo '*/15 * * * * [ -d $XDG_RUNTIME_DIR ] && [ -S $XDG_RUNTIME_DIR/wayland-1 ] && flock -n $XDG_CACHE_HOME/.dms_idle.lock handle_dms_idle_inhibitor -h 4'
+            echo '*/15 * * * * [ -d $XDG_RUNTIME_DIR ] && [ -S $XDG_RUNTIME_DIR/wayland-1 ] && flock -n $XDG_CACHE_HOME/.dms_idle.lock handle_idle_inhibitor -H 4'
           } | crontab -
         fi
       fi
