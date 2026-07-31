@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
 fuzzel=(fuzzel --config "$HOME"/.config/rbw/rbw-menu.ini -d)
-item_message=$'Alt+1: Type username,tab,password | Alt+2: Type username | Alt+3: Type password\nAlt+4: Type totp | Alt+c: Copy password | Alt+u: Copy username\nAlt+t: Copy totp | Alt+m: Menu | Alt+s: Sync logins'
-menu_message=$'Alt+t: Type | Alt+c: Copy'
 
 if ! command -v rbw &>/dev/null; then
   echo OK | "${fuzzel[@]}" --no-sort -p "Error: Can't find rbw> "
@@ -14,19 +12,30 @@ if ! command -v jq &>/dev/null; then
   exit 1
 fi
 
+has_typer=false
 if ! command -v wtype &>/dev/null && ! command -v ydotool &>/dev/null; then
-  echo OK | "${fuzzel[@]}" --no-sort -p "Error: Can't find wtype/ydotool> "
-  exit 1
+  # echo OK | "${fuzzel[@]}" --no-sort -p "Error: Can't find wtype/ydotool> "
+  # exit 1
+  has_typer=true
 fi
 
 if ! command -v wl-copy &>/dev/null; then
-  echo OK | "${fuzzel[@]}" --no-sort -p "Error: Can't find wl-copy> "
-  exit 1
+  # echo OK | "${fuzzel[@]}" --no-sort -p "Error: Can't find wl-copy> "
+  # exit 1
+  has_typer=true
 fi
 
 if ! rbw unlock; then
   # echo OK | "${fuzzel[@]}" --no-sort -p "Error: Can't unlock rbw> "
   exit 1
+fi
+
+if $has_typer; then
+  item_message=$'Alt+1: Type username,tab,password | Alt+2: Type username | Alt+3: Type password\nAlt+4: Type totp | Alt+c: Copy password | Alt+u: Copy username\nAlt+t: Copy totp | Alt+m: Menu | Alt+s: Sync logins'
+  menu_message=$'Alt+t: Type | Alt+c: Copy'
+else
+  item_message=$'Alt+c: Copy password | Alt+u: Copy username | Alt+t: Copy totp | Alt+m: Menu | Alt+s: Sync logins'
+  menu_message=$'Alt+c: Copy'
 fi
 
 type_text() {
