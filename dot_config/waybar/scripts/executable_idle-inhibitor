@@ -31,12 +31,36 @@ disable_inhibitor() {
 
 check_status() {
   # If swayidle is running, inhibitor is not active
+  set -x
   if pgrep -u "$LOGNAME" -x swayidle >/dev/null 2>&1; then
     printf '{ "text": "%s", "alt": "%s", "tooltip": "%s", "class": "%s", "percentage": %d }\n' \
       deactivated deactivated "Idle Inhibitor Inactive" deactivated 0
   else
+    tooltip="Idle Inhibitor Active"
+    command=$(crontab -l | grep -E "[ /]handle_idle_inhibitor (-[DHMS] ?[0-9]+ )?-s")
+    if [ -n "$command" ] && [ -e "$HOME"/.cache/idle_inhibited ]; then
+      [ -r "$HOME"/.config/idle_inhibitor ] && . "$HOME"/.config/idle_inhibitor
+      command_args=$(echo "$command" | sed 's/^.*handle_idle_inhibitor //' | sed -r 's/(^| )-s ?//')
+      if echo "$command_args" | grep -- "-D"; then
+        time=$(echo "$command_args" | sed -r 's/^.*-D ?([0-9]+).*$/\1/')
+        time=$(( time * 24 * 60 * 60 ))
+      elif echo "$command_args" | grep -- "-H"; then
+        time=$(echo "$command_args" | sed -r 's/^.*-H ?([0-9]+).*$/\1/')
+        time=$(( time * 60 * 60 ))
+      elif echo "$command_args" | grep -- "-M"; then
+        time=$(echo "$command_args" | sed -r 's/^.*-M ?([0-9]+).*$/\1/')
+        time=$(( time * 60 ))
+      elif echo "$command_args" | grep -- "-S"; then
+        time=$(echo "$command_args" | sed -r 's/^.*-S ?([0-9]+).*$/\1/')
+      fi
+      [ -n "$time" ] && check_seconds=$time
+      [ -z "$check_seconds" ] && check_seconds=$(( 4 * 60 * 60 ))
+      file_age=$(stat -f %m "$HOME"/.cache/idle_inhibited)
+      time_left=$(( check_seconds + file_age - $(date +%s) ))
+      tooltip="$tooltip for $time_left seconds"
+    fi
     printf '{ "text": "%s", "alt": "%s", "tooltip": "%s", "class": "%s", "percentage": %d }\n' \
-      activated activated "Idle Inhibitor Active" activated 100
+      activated activated "$tooltip" activated 100
   fi
 }
 
