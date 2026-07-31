@@ -20,9 +20,8 @@ if ! command -v wtype &>/dev/null && ! command -v ydotool &>/dev/null; then
 fi
 
 if ! command -v wl-copy &>/dev/null; then
-  # echo OK | "${fuzzel[@]}" --no-sort -p "Error: Can't find wl-copy> "
-  # exit 1
-  has_typer=true
+  echo OK | "${fuzzel[@]}" --no-sort -p "Error: Can't find wl-copy> "
+  exit 1
 fi
 
 if ! rbw unlock; then
