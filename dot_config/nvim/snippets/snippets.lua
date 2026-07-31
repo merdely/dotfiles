@@ -31,7 +31,10 @@ ls.add_snippets("sh", {
        'parseopts "$OPT_SHORT" "${OPT_LONG[@]}" -- "$@" || exit 1',
        'set -- "${OPTRET[@]}" ; unset OPT_SHORT OPT_LONG OPTRET',
        '',
-       'usage() { echo "usage: ${0##*/} [-h|--help] [-f|--flag] [-a|--arg ARG] [-o|--opt [OPT]]" ; exit "${1:-0}" ; }',
+       'usage() {',
+       '  echo "usage: ${0##*/} [-h|--help] [-f|--flag] [-a|--arg ARG] [-o|--opt [OPT]]"',
+       '  exit "${1:-0}"',
+       '}',
        'FLAG=0 ; ARG=0 ; ARG_VALUE="" ; OPT=0 ; OPT_VALUE=""',
        'while true; do',
        '	case $1 in',
@@ -49,7 +52,10 @@ ls.add_snippets("sh", {
   }),
   ls.snippet("getopts_short", {
      ls.text_node({
-       'usage() { echo "usage: ${0##*/} [-h] [-a] [-b b]" ; exit "${1:-0}" ; }',
+       'usage() {',
+       '  echo "usage: ${0##*/} [-h] [-a] [-b b]"',
+       '  exit "${1:-0}"',
+       '}',
        '# local OPTIND=1 OPTARG="" opt=""',
        'while getopts ":hab:" opt; do',
        '  case $opt in',
