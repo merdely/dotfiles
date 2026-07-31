@@ -129,7 +129,7 @@
     },
     "clock": {
         // "timezone": "America/New_York",
-        "format": "{:%OI:%M %p}  ",
+        "format": "{:%OI:%M:%S %p}  ",
         "format-alt": "{:%Y-%m-%d}"
     },
     "cpu": {
