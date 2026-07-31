@@ -286,11 +286,11 @@ label:focus {
     background-color: #eb4d4b;
 }
 
-#custom-idle-inhibitor,
-#idle_inhibitor {
-    background-color: #2d3436;
-    border-bottom: 3px solid rgba(100, 114, 125, 0.5);
-}
+/* #custom-idle-inhibitor, */
+/* #idle_inhibitor { */
+/*     background-color: #2d3436; */
+/*     border-bottom: 3px solid rgba(100, 114, 125, 0.5); */
+/* } */
 
 #custom-idle-inhibitor.activated,
 #idle_inhibitor.activated {
