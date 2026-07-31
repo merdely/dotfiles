@@ -296,8 +296,8 @@ label:focus {
 #idle_inhibitor.activated {
     /* background-color: #ecf0f1; */
     /* color: #2d3436; */
-    background-color: #3c4041;
-    color: #edf4f6;
+    background-color: #5c6061;
+    color: #9da4a6;
     border-bottom: 3px solid rgba(100, 114, 125, 0.5);
 }
 
