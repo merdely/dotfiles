@@ -31,6 +31,8 @@ calculate_check_seconds() {
   echo "$result"
 }
 pprint_time() {
+  [ -z "$1" ] && { echo "0 seconds" ; return 1 ; }
+  check_seconds=$1
   def="$check_seconds seconds"
   if [ $(( check_seconds % 60 )) -eq 0 ]; then
     def="$((check_seconds / 60 )) minutes"
@@ -43,6 +45,25 @@ pprint_time() {
   fi
   echo "$def" | grep -Eq "^1 " && def=${def%s}
   echo "$def"
+}
+
+touch_file() {
+  check_seconds=$1
+  file=$2
+  touch_seconds=$(( $(date "+%s") - check_seconds ))
+  case "$(uname -s)" in
+    Linux)
+      touch_string=$(date -d @"$touch_seconds" "+%Y%m%d%H%M.%S")
+      ;;
+    OpenBSD|FreeBSD|Darwin)
+      touch_string=$(date -r "$touch_seconds" "+%Y%m%d%H%M.%S")
+      ;;
+    *)
+      echo "Error: Unsupported system" >&2
+      exit 1
+      ;;
+  esac
+  touch -t "$touch_string" "$file"
 }
 
 if [ -n "$days" ] || [ -n "$hours" ] || [ -n "$minutes" ] || [ -n "$seconds" ]; then
@@ -71,10 +92,10 @@ usage() {
   echo "  -d           : Use Dank Material Shell"
   echo "  -s           : Use swayidle"
   echo "  -i IDLE_FILE : Use IDLE_FILE (default: $idle_file)"
-  echo "  -D DAYS      : Use DAYS days to check for age of idle_file (default: $(pprint_time))"
-  echo "  -H HOURS     : Use HOURS hours to check for age of idle_file (default: $(pprint_time))"
-  echo "  -M MINUTES   : Use MINUTES minutes to check for age of idle_file (default: $(pprint_time))"
-  echo "  -S SECONDS   : Use SECONDS seconds to check for age of idle_file (default: $(pprint_time))"
+  echo "  -D DAYS      : Use DAYS days to check for age of idle_file (default: $(pprint_time "$check_seconds"))"
+  echo "  -H HOURS     : Use HOURS hours to check for age of idle_file (default: $(pprint_time "$check_seconds"))"
+  echo "  -M MINUTES   : Use MINUTES minutes to check for age of idle_file (default: $(pprint_time "$check_seconds"))"
+  echo "  -S SECONDS   : Use SECONDS seconds to check for age of idle_file (default: $(pprint_time "$check_seconds"))"
   exit "${1:-0}"
 }
 MODE=dms
@@ -153,7 +174,7 @@ idle_file=${idle_file:=$XDG_CACHE_HOME/idle_inhibited}
 
 # Create TMPFILE for time comparison and make it $hours old
 TMPFILE=$(mktemp)
-touch -d "$(pprint_time) ago" "$TMPFILE"
+touch_file "$check_seconds" "$TMPFILE"
 
 # Compare idle_file with TMPFILE to see if idle_file is older than $hours old
 if test "$idle_file" -ot "$TMPFILE"; then
@@ -162,7 +183,7 @@ if test "$idle_file" -ot "$TMPFILE"; then
   else
     sh "$WAYBAR_SCRIPT" disable
   fi
-  notify-send -a cron "Inhibit Idle Changed" "Idle Inhibitor Disabled Automatically after $(pprint_time)"
+  notify-send -a cron "Inhibit Idle Changed" "Idle Inhibitor Disabled Automatically after $(pprint_time "$check_seconds")"
   rm -f "$idle_file"
 fi
 
