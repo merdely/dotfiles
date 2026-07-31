@@ -404,7 +404,7 @@ case "$ID" in
       need=""
       package="curl bash bash-completion zsh zsh-syntax-highlighting git \
         neovim tree-sitter-cli shfmt shellcheck lua-language-server rust-analyzer \
-        btop htop jq unzip bat ripgrep fd 7zip fzf gcr rbw ruff py3-pipx gnuwatch"
+        btop htop jq unzip bat ripgrep fd p7zip fzf gcr rbw ruff py3-pipx gnuwatch"
 
       if $desktop; then
         packages="$package niri dejavusansmono-nerd-fonts alacritty fuzzel \
