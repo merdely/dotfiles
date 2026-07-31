@@ -21,11 +21,11 @@ WAIT=1
 enable_inhibitor() {
   pkill -u "$LOGNAME" -x swayidle >/dev/null 2>&1
   [ ! -d "$HOME"/.cache ] && mkdir -p "$HOME"/.cache
-  touch "$HOME"/.cache/swayidle_idle_inhibited
+  touch "$HOME"/.cache/idle_inhibited
 }
 
 disable_inhibitor() {
-  rm -f "$HOME"/.cache/swayidle_idle_inhibited
+  rm -f "$HOME"/.cache/idle_inhibited
   pgrep -u "$LOGNAME" -x swayidle >/dev/null 2>&1 || swayidle -w &
 }
 
