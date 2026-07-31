@@ -21,9 +21,6 @@ binds {
     Mod+Semicolon        hotkey-overlay-title="Run rbw-menu"      { spawn-sh "~/.local/bin/rbw-menu"; }
     Mod+Apostrophe       hotkey-overlay-title="Toggle Idle Inhibitor" { spawn-sh "~/.config/waybar/scripts/idle-inhibitor toggle"; }
 }
-{{ else -}}
-{{ end }}
-
 
 layout {
     focus-ring { off; }
@@ -34,3 +31,8 @@ layout {
         urgent-color "#9b0000"
     }
 }
+
+{{ else -}}
+// Not running OpenBSD
+
+{{ end }}
