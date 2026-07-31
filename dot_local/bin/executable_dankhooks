@@ -10,7 +10,7 @@ progname=${0##*/}
 progname=${progname%.sh}
 
 export WAYLAND_DISPLAY=${WAYLAND_DISPLAY:-wayland-1}
-idle_file_default=${XDG_CACHE_HOME:-$HOME/.cache}/dms_idle_inhibited
+idle_file_default=${XDG_CACHE_HOME:-$HOME/.cache}/idle_inhibited
 
 case "$1" in
   onDankHooksStarted)
