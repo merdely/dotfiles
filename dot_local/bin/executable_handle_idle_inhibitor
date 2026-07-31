@@ -78,7 +78,8 @@ usage() {
   exit "${1:-0}"
 }
 MODE=dms
-for arg in "$@"; do [ "$arg" = --help ] && usage ; done
+# shellcheck disable=2048
+for arg in $*; do [ "$arg" = --help ] && usage ; done
 while getopts ":hdsi:D:H:M:S:" opt; do
   case "$opt" in
     i)
