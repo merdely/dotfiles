@@ -78,6 +78,7 @@ usage() {
   exit "${1:-0}"
 }
 MODE=dms
+for arg in "$@"; do [ "$arg" = --help ] && usage ; done
 while getopts ":hdsi:D:H:M:S:" opt; do
   case "$opt" in
     i)
@@ -98,7 +99,7 @@ while getopts ":hdsi:D:H:M:S:" opt; do
     D)
       if echo "$OPTARG" | grep -Eq "^[1-9][0-9]*$"; then
         unset days hours minutes
-        seconds=$((1 * 24 * 60 * 60))
+        seconds=$((OPTARG * 24 * 60 * 60))
       else
         echo "Error: DAYS must be a number greater than one" > /dev/stderr
         exit 1
@@ -106,7 +107,7 @@ while getopts ":hdsi:D:H:M:S:" opt; do
     H)
       if echo "$OPTARG" | grep -Eq "^[1-9][0-9]*$"; then
         unset days hours minutes
-        seconds=$(($1 * 60 * 60))
+        seconds=$((OPTARG * 60 * 60))
         hours=$1
       else
         echo "Error: HOURS must be a number greater than one" > /dev/stderr
@@ -115,7 +116,7 @@ while getopts ":hdsi:D:H:M:S:" opt; do
     M)
       if echo "$OPTARG" | grep -Eq "^[1-9][0-9]*$"; then
         unset days hours minutes
-        seconds=$(($1 * 60))
+        seconds=$((OPTARG * 60))
       else
         echo "Error: MINUTES must be a number greater than one" > /dev/stderr
         exit 1
@@ -123,7 +124,7 @@ while getopts ":hdsi:D:H:M:S:" opt; do
     S)
       if echo "$OPTARG" | grep -Eq "^[1-9][0-9]*$"; then
         unset days hours minutes
-        seconds=$1
+        seconds=$OPTARG
       else
         echo "Error: SECONDS must be a number greater than one" > /dev/stderr
         exit 1
