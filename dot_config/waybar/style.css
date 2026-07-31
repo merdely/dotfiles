@@ -289,12 +289,14 @@ label:focus {
 #custom-idle-inhibitor,
 #idle_inhibitor {
     background-color: #2d3436;
+    border-bottom: 3px solid rgba(100, 114, 125, 0.5);
 }
 
 #custom-idle-inhibitor.activated,
 #idle_inhibitor.activated {
     background-color: #ecf0f1;
     color: #2d3436;
+    border-bottom: 3px solid rgba(100, 114, 125, 0.5);
 }
 
 #mpd {
