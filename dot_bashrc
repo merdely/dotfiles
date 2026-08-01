@@ -76,9 +76,6 @@ __shell_specific() {
   # shellcheck disable=SC1001,SC2140,SC2154
   PS1="\${PRE_PROMPT}[\[${c_cyan}\]\u\[${c_reset}\]@\[${c_green}\]\h\[${c_reset}\] \[${c_blue}\]\$(__prompt_trim_pwd "\W")\[${c_reset}\]]\[\e[22;24;27;49m\]${__shellind}${subshell}\$(__git_ps1 ' (\[\e[1m${c_orange}\]${git_s} \[${c_reset}\]%s\[\e[22m\])' 2>/dev/null) ${__nl}\[\${__prompt_color}\]${pchar}\[${c_reset}\] \[\e[0m\]"
 
-  command -v fzf    >/dev/null 2>&1 && { type __fzf_history__ >/dev/null 2>&1 || eval "$(fzf --bash)"; }
-  command -v zoxide >/dev/null 2>&1 && { type __zoxide_cd     >/dev/null 2>&1 || eval "$(zoxide init bash)"; }
-
   # Set readline options
   bind 'set completion-ignore-case on'     # ignore case
   bind 'set completion-map-case on'        # treat hyphens and underscores the same
@@ -92,6 +89,9 @@ __shell_specific() {
   shopt -s autocd cdspell extglob histappend
   alias reprofile='. $HOME/.bashrc'
   set -o vi
+
+  command -v fzf    >/dev/null 2>&1 && { type __fzf_history__ >/dev/null 2>&1 || eval "$(fzf --bash)"; }
+  command -v zoxide >/dev/null 2>&1 && { type __zoxide_cd     >/dev/null 2>&1 || eval "$(zoxide init bash)"; }
 }
 
 [ -r "$HOME"/.shellrc ] && . "$HOME"/.shellrc
