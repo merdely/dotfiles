@@ -75,6 +75,11 @@ __shell_specific() {
 
   alias reprofile='. $HOME/.kshrc'
   set -o vi
+
+  if command -v zoxide >/dev/null 2>&1 && ! type __zoxide_cd >/dev/null 2>&1; then
+    eval "$(zoxide init posix --hook prompt)"
+    alias cd=z
+  fi
 }
 
 [ -r "$HOME"/.shellrc ] && . "$HOME"/.shellrc
