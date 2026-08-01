@@ -6,6 +6,9 @@
 umask 0022 >/dev/null 2>&1
 [[ $- != *i* ]] && return
 
+## A simple prompt
+# PROMPT='[%n@%m %~] > '
+
 __shell_specific() {
   # Set Up Prompt
   # 14 = bright cyan, 10 = bright green, 12 = bright blue
