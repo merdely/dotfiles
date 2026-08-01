@@ -79,6 +79,14 @@ __shell_specific() {
   alias reprofile='. $HOME/.kshrc'
   set -o vi
 
+  # Ksh binding for emacs mode only
+  function fzf-histo {
+      RES=$(fzf --tac --no-sort -e < "$HISTFILE")
+      test -n "$RES" || return 0
+      eval "$RES"
+  }
+  bind -m ^R=fzf-histo^J
+
   if command -v zoxide >/dev/null 2>&1 && ! type __zoxide_cd >/dev/null 2>&1; then
     eval "$(zoxide init posix --hook prompt)"
     alias cd=z
