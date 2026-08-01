@@ -402,7 +402,7 @@ case "$ID" in
     if echo " $action_list " | grep -Eq " (packages|all) "; then
       # Building package list
       need=""
-      package="curl bash bash-completion zsh zsh-syntax-highlighting git \
+      packages="curl bash bash-completion zsh zsh-syntax-highlighting git \
         neovim tree-sitter-cli shfmt shellcheck lua-language-server rust-analyzer \
         btop htop jq unzip bat ripgrep fd p7zip fzf gcr rbw ruff py3-pipx gnuwatch"
 
@@ -410,6 +410,19 @@ case "$ID" in
         packages="$package niri dejavusansmono-nerd-fonts alacritty fuzzel \
           greetd foot kitty mpv imv waybar swayidle swaylock wl-clipboard dunst \
           pinentry-gnome3 firefox iridium"
+      fi
+
+      for pkg in $packages; do
+        pkg_info -e "$pkg-*" >/dev/null || need="$need $pkg"
+      done
+
+      if [ -n "$need" ]; then
+        echo "Installing packages $need"
+        # shellcheck disable=2086
+        if ! $sudo pkg_add "${need# }"; then
+          echo "Error: 'pkg_add ...' failed" >&2
+          exit 1
+        fi
       fi
     fi
 
