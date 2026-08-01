@@ -67,6 +67,7 @@ do
   local todocomments_loaded = pcall(require, 'todo-comments')
   local trouble_loaded = pcall(require, 'trouble')
   local whichkey_loaded = pcall(require, 'which-key')
+  local miniai_loaded = pcall(require, 'mini.ai')
   local miniicons_loaded = pcall(require, 'mini.icons')
   local minisurround_loaded = pcall(require, 'mini.surround')
   local autopairs_loaded = pcall(require, 'nvim-autopairs')
@@ -125,6 +126,10 @@ do
   if miniicons_loaded then
     require("mini.icons").setup({})
     MiniIcons.mock_nvim_web_devicons()
+  end
+
+  if miniai_loaded then
+    require("mini.ai").setup({})
   end
 
   if trouble_loaded then
