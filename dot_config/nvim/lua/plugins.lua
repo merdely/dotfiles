@@ -48,6 +48,8 @@ do
 
     "https://github.com/brianhuster/live-preview.nvim",
     "https://github.com/MeanderingProgrammer/render-markdown.nvim",
+    "https://github.com/nvzone/volt",
+    "https://github.com/nvzone/typr",
   })
 
   local indentblankline_loaded = pcall(require, 'ibl')
@@ -71,6 +73,12 @@ do
   local luasnip_loaded = pcall(require, 'luasnip')
   local blink_loaded = pcall(require, 'blink.cmp')
   local conform_loaded = pcall(require, 'conform')
+  local typr_loaded = pcall(require, 'typr')
+
+  -- typr
+  if typr_loaded then
+    require('typr').setup {}
+  end
 
   -- indent-blankline
   if indentblankline_loaded then
