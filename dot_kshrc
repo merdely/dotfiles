@@ -6,6 +6,9 @@
 umask 0022 >/dev/null 2>&1
 [[ $- != *i* ]] && return
 
+## A simple prompt
+# PS1="[\u@\h \W] > "
+
 # Set Up Prompt
 __prompt_trim_pwd() {
   local default=${1:-\\w}
