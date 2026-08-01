@@ -29,16 +29,6 @@ __shell_specific() {
   autoload -U edit-command-line && zle -N edit-command-line
   autoload compdef
   autoload zmv
-  if command -v fzf >/dev/null 2>&1; then
-    . <(fzf --zsh)
-    bindkey -M viins '^p' history-search-backward
-    bindkey -M viins '^n' history-search-forward
-  fi
-  if command -v zoxide >/dev/null 2>&1; then
-    eval "$(zoxide init zsh)"
-  fi
-  # . <(niri completions zsh)
-
   if [[ -r /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh ]]; then
     . /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
   elif [[ -r /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
@@ -77,6 +67,16 @@ __shell_specific() {
   stty stop undef
   bindkey -v
   alias reprofile='. $HOME/.zshrc'
+
+  if command -v fzf >/dev/null 2>&1; then
+    . <(fzf --zsh)
+    bindkey -M viins '^p' history-search-backward
+    bindkey -M viins '^n' history-search-forward
+  fi
+  if command -v zoxide >/dev/null 2>&1; then
+    eval "$(zoxide init zsh)"
+  fi
+  # . <(niri completions zsh)
 }
 
 [ -r "$HOME"/.shellrc ] && . "$HOME"/.shellrc
