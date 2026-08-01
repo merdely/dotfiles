@@ -76,6 +76,7 @@ __shell_specific() {
     bindkey -M viins '^p' history-search-backward
     bindkey -M viins '^n' history-search-forward
   fi
+  # Install zoxide on OpenBSD with: cargo install zoxide --locked
   if command -v zoxide >/dev/null 2>&1; then
     eval "$(zoxide init zsh)"
     alias cd=z

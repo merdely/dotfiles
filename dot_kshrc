@@ -87,6 +87,7 @@ __shell_specific() {
   }
   bind -m ^R=fzf-histo^J
 
+  # Install zoxide on OpenBSD with: cargo install zoxide --locked
   if command -v zoxide >/dev/null 2>&1 && ! type __zoxide_cd >/dev/null 2>&1; then
     eval "$(zoxide init posix --hook prompt)"
     alias cd=z
