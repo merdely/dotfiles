@@ -64,6 +64,7 @@ do
           set_jumps = true,
         },
         select = {
+          enable = false,
           lookahead = true,
           selection_modes = {
             ["@parameter.outer"] = "v", -- charwise
