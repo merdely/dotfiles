@@ -76,8 +76,27 @@ __shell_specific() {
   unset parts part
 
   # Prompt variable: '[\u@\h \W] \$' with formatting
-  # shellcheck disable=SC1001,SC2140,SC2154
-  PS1="\${PRE_PROMPT}[\[${c_cyan}\]\u\[${c_reset}\]@\[${c_green}\]\h\[${c_reset}\] \[${c_blue}\]\$(__prompt_trim_pwd "\W")\[${c_reset}\]]\[\e[22;24;27;49m\]${__shellind}${subshell}\$(__git_ps1 ' (\[\e[1m${c_orange}\]${git_s} \[${c_reset}\]%s\[\e[22m\])' 2>/dev/null) ${__nl}\[\${__prompt_color}\]${pchar}\[${c_reset}\] \[\e[0m\]"
+  PS1=""
+  PS1="${PS1}\${PRE_PROMPT}"                  # Add (bash) if running in a bash subshell with runbash
+  PS1="${PS1}["                               # Start with a bracket
+  PS1="${PS1}\[${c_cyan}\]\u\[${c_reset}\]"   # Show username in cyan
+  PS1="${PS1}@"                               # @
+  PS1="${PS1}\[${c_green}\]\h\[${c_reset}\]"  # Show host in green
+  PS1="${PS1} "                               # space
+  # shellcheck disable=1001,2140
+  PS1="${PS1}\[${c_blue}\]\$(__prompt_trim_pwd "\W")\[${c_reset}\]"  # Show directories in blue
+  PS1="${PS1}]"                               # Close bracket
+  PS1="${PS1}\[\e[22;24;27;49m\]"             # Clear formatting
+  # shellcheck disable=2154
+  PS1="${PS1}${__shellind}"                   # Shell indicator?
+  PS1="${PS1}${subshell}"                     # If in a subshell (chezmoi) show a plus
+  # Git
+  PS1="${PS1}\$(__git_ps1 ' (\[\e[1m${c_orange}\]${git_s} \[${c_reset}\]%s\[\e[22m\])' 2>/dev/null)"
+  PS1="${PS1} ${__nl}"                        # A new line if necessary
+  # shellcheck disable=2154
+  PS1="${PS1}\[\${__prompt_color}\]${pchar}\[${c_reset}\]"  # Show prompt in green or red (exit status)
+  PS1="${PS1}\[\e[0m\]"                       # Clear formatting
+  PS1="${PS1} "                               # Trailing space
 
   # Set readline options
   bind 'set completion-ignore-case on'     # ignore case
