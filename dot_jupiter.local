@@ -12,14 +12,23 @@ alias dmesg='sudo dmesg'
 unset psql pbash createdb dropdb createuser dropuser pg_dump pg_dumpall pg_restore
 postgres_container=postgres-vchord
 #postgres_container=database
+# shellcheck disable=2139
 alias psql="docker compose exec -it -u postgres $postgres_container psql"
+# shellcheck disable=2139
 alias pbash="docker compose exec -it -u postgres $postgres_container bash"
+# shellcheck disable=2139
 alias createdb="docker compose exec -it -u postgres $postgres_container createdb"
+# shellcheck disable=2139
 alias dropdb="docker compose exec -it -u postgres $postgres_container dropdb"
+# shellcheck disable=2139
 alias createuser="docker compose exec -it -u postgres $postgres_container createuser"
+# shellcheck disable=2139
 alias dropuser="docker compose exec -it -u postgres $postgres_container dropuser"
+# shellcheck disable=2139
 alias pg_dump="docker compose exec -it -u postgres $postgres_container pg_dump"
+# shellcheck disable=2139
 alias pg_dumpall="docker compose exec -it -u postgres $postgres_container pg_dumpall"
+# shellcheck disable=2139
 alias pg_restore="docker compose exec -it -u postgres $postgres_container pg_restore"
 #psql() { docker compose exec -it -u postgres postgres psql "$@"; }
 #pbash() { docker compose exec -it -u postgres postgres bash; }
@@ -71,7 +80,13 @@ alias authgen='docker run --rm -it authelia/authelia:latest authelia crypto hash
 alias authlog='docker compose logs -f authelia --since 2m'
 alias authusers='sudoedit /srv/docker/authelia/config/users.yml'
 
+alias caddycheck='docker compose exec caddy caddy validate --config /etc/caddy/Caddyfile'
+alias caddyfmt='docker compose exec caddy caddy fmt --overwrite --config /etc/caddy/Caddyfile'
+alias caddylogs='docker compose logs -f caddy --since 1m'
+alias caddyreload='docker compose exec caddy caddy reload --config /etc/caddy/Caddyfile'
+
 alias vif='sudoedit /srv/docker/forgejo/data/custom/conf/app.ini'
 alias viq='sudoedit /srv/docker/qbittorrent/config/qBittorrent/qBittorrent.conf'
 
+# shellcheck disable=2154
 alias get_jitsi='u=$(curl -s https://api.github.com/repos/jitsi/docker-jitsi-meet/releases/latest | jq -r .tarball_url) && (cd /tmp; curl -LO "$u"); unset u'
