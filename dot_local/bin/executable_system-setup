@@ -13,7 +13,7 @@ ACTIONS="packages groups crond crontab ssh-host-key sudoers"
 if [ "$ID" = OpenBSD ]; then
   ACTIONS="$ACTIONS wtype"
 else
-  ACTIONS="$ACTIONS ssh-agent dms dms-idle-handler ydotool keymap-drawer \
+  ACTIONS="$ACTIONS ssh-agent dms idle-handler ydotool keymap-drawer \
     flatpak flatseal librewolf wlr-cursors greetd"
 fi
 
@@ -143,7 +143,7 @@ case "$ID" in
       fi
     fi
 
-    if echo " $action_list " | grep -Eq " (crond|dms-idle-handler|all) "; then
+    if echo " $action_list " | grep -Eq " (crond|idle-handler|all) "; then
       # Enable service: cronie
       if ! systemctl is-enabled -q cronie.service; then
         echo "Enabling cronie.service"
@@ -151,7 +151,7 @@ case "$ID" in
       fi
     fi
 
-    if echo " $action_list " | grep -Eq " (crontab|dms-idle-handler|all) "; then
+    if echo " $action_list " | grep -Eq " (crontab|idle-handler|all) "; then
       # Set up $LOGNAME crontab
       if command -v crontab > /dev/null 2>&1; then
         crontab_vars="PATH MAILFROM COMPOSE_FILE XDG_CACHE_HOME XDG_CONFIG_HOME \
@@ -249,7 +249,7 @@ case "$ID" in
         fi
       fi
 
-      if echo " $action_list " | grep -Eq " (dms-idle-handler|all) "; then
+      if echo " $action_list " | grep -Eq " (idle-handler|all) "; then
         # Set up DMS Idle Inhibitor Handler in cron
         if command -v crontab > /dev/null 2>&1 && [ -e "$HOME"/.local/bin/handle_idle_inhibitor ] && \
           ! crontab -l 2> /dev/null | grep -qF 'handle_idle_inhibitor'; then
@@ -320,10 +320,10 @@ case "$ID" in
               $sudo sed -ri 's/^(\s*)(command.*)$/\1# \2/' /etc/greetd/config.toml
               # Under the default_session section heading, add a dms-greeter line
               if $kvm; then
-                $sudo sed -ri 's#^(\[default_session].*)$#\1\r\ncommand = "/usr/bin/dms-greeter --no-save-username --command niri -p /usr/share/quickshell/dms"#' /etc/greetd/config.toml
+                $sudo sed -ri 's#^(\[default_session\].*)$#\1\r\ncommand = "/usr/bin/dms-greeter --no-save-username --command niri -p /usr/share/quickshell/dms"#' /etc/greetd/config.toml
                 $kvm && $sudo sed -ri 's#(/usr/bin/dms-greeter)#env WLR_NO_HARDWARE_CURSORS=1 \1#' /etc/greetd/config.toml
               else
-                $sudo sed -ri 's#^(\[default_session].*)$#\1\r\ncommand = "/usr/bin/dms-greeter --no-save-username --command niri -p /usr/share/quickshell/dms"#' /etc/greetd/config.toml
+                $sudo sed -ri 's#^(\[default_session\].*)$#\1\r\ncommand = "/usr/bin/dms-greeter --no-save-username --command niri -p /usr/share/quickshell/dms"#' /etc/greetd/config.toml
               fi
               # Enable the service
               $sudo systemctl enable greetd
@@ -402,7 +402,7 @@ case "$ID" in
     if echo " $action_list " | grep -Eq " (packages|all) "; then
       # Building package list
       need=""
-      packages="curl bash bash-completion zsh zsh-syntax-highlighting git rust \
+      packages="curl bash bash-completion zsh zsh-syntax-highlighting git flock \
         neovim tree-sitter-cli shfmt shellcheck lua-language-server rust-analyzer \
         btop htop jq unzip bat ripgrep fd p7zip fzf gcr rbw ruff py3-pipx gnuwatch"
 
@@ -423,6 +423,24 @@ case "$ID" in
           echo "Error: 'pkg_add ...' failed" >&2
           exit 1
         fi
+      fi
+    fi
+
+    if echo " $action_list " | grep -Eq " (groups|all) "; then
+      if [ "$exec_user" != root ]; then
+        for group in wheel _vmd _shutdown _seatd; do
+          # Skip groups from the list that do not exist
+          getent group "$group" > /dev/null 2>&1 || continue
+          # Skip groups already a member of
+          echo "$groups" | grep -qw "$group" && continue
+          # Add user to group (ok if already a member)
+          echo "Adding $LOGNAME to $group"
+          $sudo usermod -G "$group" "$LOGNAME"
+          if [ $? -ne 0 ]; then
+            echo "Error: Could not add $LOGNAME to $group" >&2
+            exit 0
+          fi
+        done
       fi
     fi
 
@@ -449,6 +467,30 @@ case "$ID" in
     fi
 
     if $desktop; then
+      # Add wtype
+      if ! command -v wtype >/dev/null 2>&1; then
+        pkg_add -e "rust-*" || doas pkg_add meson ninja
+        [ ! -d "$HOME"/git ] && mkdir -p "$HOME"/git
+        [ ! -d "$HOME"/git/wtype/.git ] && git clone https://github.com/atx/wtype.git "$HOME"/git/wtype
+        (
+          cd "$HOME"/git/wtype
+          ninja -C build
+          [ ! -d "$HOME"/.local/bin ] && install -m 755 -d "$HOME"/.local/bin
+          [ ! -x "$HOME"/.local/bin/wtype ] && install -m 755 build/wtype "$HOME"/.local/bin/wtype
+        )
+      fi
+
+      if echo " $action_list " | grep -Eq " (idle-handler|all) "; then
+        if [ -e "$HOME"/.local/bin/handle_idle_inhibitor ] && \
+          ! crontab -l 2> /dev/null | grep 'handle_idle_inhibitor'; then
+          echo "Adding Idle Inhibitor Handler to $LOGNAME crontab"
+          {
+            crontab -l 2> /dev/null
+            #shell check disable=2016
+            echo '*/15 * * * * flock -n "$HOME"/.cache/.idle.lock "$HOME"/.local/bin/handle_idle_inhibitor -s'
+          } | crontab -e
+        fi
+      fi
 
       # Add ability for iridium to open Logseq graphs
       if command -v iridium >/dev/null 2>&1; then
@@ -460,6 +502,25 @@ case "$ID" in
         fi
         if ! grep -q "^~/.local/share/Syncthing/Logseq rwc$" /etc/iridium/unveil.main; then
           echo "~/.local/share/Syncthing/Logseq rwc" | $sudo tee -a /etc/iridium/unveil.main >/dev/null
+        fi
+      fi
+
+      if echo " $action_list " | grep -Eq " (greetd|all) "; then
+        if [ -e /etc/greetd/config.toml ]; then
+          if ! grep -qE "^\s*command\s*=.*niri" /etc/greetd/config.toml; then
+            if ! grep -q "^\[default_session\]" /etc/greetd/config.toml; then
+              echo "Error: greetd config missing default_session section" >&2
+            else
+              echo "Setting up greetd to use niri"
+              # Comment out any lines with command = 
+              $sudo sed -ri 's/^(\s*)(command.*)$/\1# \2/' /etc/greetd/config.toml
+              # Under the default_session section heading, add a dms-greeter line
+              $sudo sed -ri 's#^(\[default_session\].*)$#\1\
+command = "agreety --cmd '"'"'env XDG_CURRENT_DESKTOP=niri dbus-run-session --config-file=~/.config/dbus/session.conf -- /usr/local/bin/niri'"'"'"#' /etc/greetd/config.toml
+              # Enable the service
+              $sudo systemctl enable greetd
+            fi
+          fi
         fi
       fi
     fi
