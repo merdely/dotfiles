@@ -25,11 +25,8 @@
         "custom/sndio",
         // "cpu",
         // "memory",
-{{ if eq .chezmoi.hostname "ceres" }}
-        "custom/battery",
-{{ else }}
+        {{ if eq .chezmoi.hostname "ceres" }}"custom/battery",{{ end }}
         // "custom/battery",
-{{ end }}
         // "custom/temperature",
         // "backlight",
         // "sway/language",
