@@ -74,7 +74,22 @@ __shell_specific() {
   [[ "$OSTYPE" != linux* ]] && [[ $(uname -s) = OpenBSD ]] && unset git_c_on git_c_off
 
   # Prompt variable: '[\u@\h \W] \$' with formatting
-  PS1="\${PRE_PROMPT}\[\e[1m\][\[${c_cyan}\]\u\[${c_reset}\]@\[${c_green}\]\h\[${c_reset}\] \[${c_blue}\]\$(__prompt_trim_pwd '\W')\[${c_reset}\]]\[\e[22;24;27;49m\]\[\e[1m\]\$(__git_ps1 \" (${git_c_on}${git_s} ${git_c_off}%s)\")\[\e[22m\] \${__nl}\[${c_blue}\]\[\${pchar}\]\[\e[0m\] "
+  PS1=""
+  PS1="${PS1}\${PRE_PROMPT}"                    # Show (ksh) if running in a ksh subshell with runksh
+  PS1="${PS1}\[\e[1m\]"                         # Bold the prompt
+  PS1="${PS1}["                                 # Start with a bracket
+  PS1="${PS1}\[${c_cyan}\]\u\[${c_reset}\]"     # Show the username in cyan
+  PS1="${PS1}@"                                 # @
+  PS1="${PS1}\[${c_green}\]\h\[${c_reset}\]"    # Show hostname in green
+  PS1="${PS1} "                                 # space
+  PS1="${PS1}\[${c_blue}\]\$(__prompt_trim_pwd '\W')\[${c_reset}\]"  # Show directories in blue
+  PS1="${PS1}]"                                 # Close bracket
+  PS1="${PS1}\[\e[22;24;27;49m\]"               # Clear formatting
+  # Git
+  PS1="${PS1}\[\e[1m\]\$(__git_ps1 \" (${git_c_on}${git_s} ${git_c_off}%s)\")\[\e[22m\] "
+  PS1="${PS1}\${__nl}"                          # Show a new line if necessary
+  PS1="${PS1}\[${c_blue}\]\[\${pchar}\]\[\e[0m\]"   # Show prompt in blue
+  PS1="${PS1} "                                 # Trailing space
 
   alias reprofile='. $HOME/.kshrc'
   set -o vi
