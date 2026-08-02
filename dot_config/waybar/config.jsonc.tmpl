@@ -1,4 +1,5 @@
 // -*- mode: jsonc -*-
+// vim: set filetype=json :
 {
     // "layer": "top", // Waybar at top layer
     // "position": "bottom", // Waybar position (top|bottom|left|right)
@@ -24,7 +25,11 @@
         "custom/sndio",
         // "cpu",
         // "memory",
+{{ if eq .chezmoi.hostname "ceres" -}}
+        "custom/battery",
+{{ else -}}
         // "custom/battery",
+{{ end -}}
         // "custom/temperature",
         // "backlight",
         // "sway/language",
