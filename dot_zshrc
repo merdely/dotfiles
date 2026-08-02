@@ -12,9 +12,23 @@ umask 0022 >/dev/null 2>&1
 __shell_specific() {
   # Set Up Prompt
   # 14 = bright cyan, 10 = bright green, 12 = bright blue
-  PROMPT='${PRE_PROMPT}%B[%F{14}%n%f@%F{10}%m%f %F{12}%(3~,${dots}/,)%2~%f]${subshell}'
-  command -v __git_ps1 >/dev/null 2>&1 && PROMPT="$PROMPT"'$(__git_ps1 " (%%F{${git_c}}${git_s}%%f %s)")'
-  PROMPT="$PROMPT"' %F{blue}%(!.#.${pchar})%f%b '
+  PROMPT=""
+  PROMPT="${PROMPT}${PRE_PROMPT}"  # Add (zsh) if running in a zsh subshell with runzsh
+  PROMPT="${PROMPT}%B"             # Bold the prompt
+  PROMPT="${PROMPT}["              # Start with a bracket
+  PROMPT="${PROMPT}%F{14}%n%f"     # Show username in cyan
+  PROMPT="${PROMPT}@"              # @
+  PROMPT="${PROMPT}%F{10}%m%f"     # Show host in green
+  PROMPT="${PROMPT} "              # space
+  PROMPT="${PROMPT}%F{12}%(3~,${dots}/,)%2~%f"  # Show directories in blue
+  PROMPT="${PROMPT}]"              # Close bracket
+  PROMPT="${PROMPT}${subshell}"    # If in a subshell (chezmoi) show a plus
+  # Git stuff
+  command -v __git_ps1 >/dev/null 2>&1 && PROMPT="$PROMPT\$(__git_ps1 \" (%%F{${git_c}}${git_s}%%f %s)\")"
+  PROMPT="${PROMPT} %F{blue}%(!.#.${pchar})%f"  # Show prompt in blue
+  PROMPT="${PROMPT}%b"             # End bold
+  PROMPT="${PROMPT} "              # Trailing space
+
   vi_ins="%F{green}[I]%f"
   vi_cmd="%F{blue}[N]%f"
   vi_mode=$vi_ins
@@ -26,7 +40,9 @@ __shell_specific() {
   zle -N zle-line-init
   zle -N zle-keymap-select
   zle -N zle-line-finish
-  RPROMPT='%(?..%F{red}($?%)%f )${vi_mode}'
+  RPROMPT=""
+  RPROMPT="${RPROMPT}%(?..%F{red}(\$?%)%f )"  # Show error exit code in red
+  RPROMPT="${RPROMPT}\${vi_mode}"             # Show cli vi mode state
 
   autoload -U colors && colors
   autoload -U edit-command-line && zle -N edit-command-line
