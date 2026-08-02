@@ -296,10 +296,11 @@ case "$ID" in
       fi
 
       if echo " $action_list " | grep -Eq " (librewolf|all) "; then
-      if command -v flatpak >/dev/null 2>&1 &&
-         ! flatpak --user list --app --columns=application | grep ^io.gitlab.librewolf-community; then
-        echo "Installing Librewolf"
-        flatpak --user install --assumeyes io.gitlab.librewolf-community
+        if command -v flatpak >/dev/null 2>&1 &&
+          ! flatpak --user list --app --columns=application | grep ^io.gitlab.librewolf-community; then
+          echo "Installing Librewolf"
+          flatpak --user install --assumeyes io.gitlab.librewolf-community
+        fi
       fi
 
       if echo " $action_list " | grep -Eq " (wlr-cursors|all) "; then
@@ -408,7 +409,7 @@ case "$ID" in
         gnuwatch flock rsync"
 
       if $desktop; then
-        packages="$package niri dejavusansmono-nerd-fonts alacritty fuzzel \
+        packages="$packages niri dejavusansmono-nerd-fonts alacritty fuzzel \
           greetd foot kitty mpv imv waybar swayidle swaylock wl-clipboard dunst \
           pinentry-gnome3 firefox iridium"
       fi
@@ -436,8 +437,7 @@ case "$ID" in
           echo "$groups" | grep -qw "$group" && continue
           # Add user to group (ok if already a member)
           echo "Adding $LOGNAME to $group"
-          $sudo usermod -G "$group" "$LOGNAME"
-          if [ $? -ne 0 ]; then
+          if ! $sudo usermod -G "$group" "$LOGNAME"; then
             echo "Error: Could not add $LOGNAME to $group" >&2
             exit 0
           fi
@@ -474,7 +474,7 @@ case "$ID" in
         [ ! -d "$HOME"/git ] && mkdir -p "$HOME"/git
         [ ! -d "$HOME"/git/wtype/.git ] && git clone https://github.com/atx/wtype.git "$HOME"/git/wtype
         (
-          cd "$HOME"/git/wtype
+          cd "$HOME"/git/wtype || exit
           ninja -C build
           [ ! -d "$HOME"/.local/bin ] && install -m 755 -d "$HOME"/.local/bin
           [ ! -x "$HOME"/.local/bin/wtype ] && install -m 755 build/wtype "$HOME"/.local/bin/wtype
@@ -487,13 +487,14 @@ case "$ID" in
           echo "Adding Idle Inhibitor Handler to $LOGNAME crontab"
           {
             crontab -l 2> /dev/null
-            #shell check disable=2016
+            # shellcheck disable=2016
             echo '*/15 * * * * flock -n "$HOME"/.cache/.idle.lock "$HOME"/.local/bin/handle_idle_inhibitor -s'
           } | crontab -e
         fi
       fi
 
       # Add ability for iridium to open Logseq graphs
+      # shellcheck disable=2088
       if command -v iridium >/dev/null 2>&1; then
         if ! grep -q "^~/.local/share r$" /etc/iridium/unveil.main; then
           echo "~/.local/share r" | $sudo tee -a /etc/iridium/unveil.main >/dev/null
