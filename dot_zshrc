@@ -101,6 +101,9 @@ __shell_specific() {
   # if command -v starship >/dev/null 2>&1; then
   #   eval "$(starship init zsh)"
   # fi
+  if command -v atuin >/dev/null 2>&1; then
+    eval "$(atuin init --disable-ai --disable-up-arrow zsh)"
+  fi
 }
 
 [ -r "$HOME"/.shellrc ] && . "$HOME"/.shellrc
