@@ -51,6 +51,7 @@ usage() {
   echo "  -p|--pacman     : Search for a Arch Linux package"
   echo "  -a|--appimage   : Search for a App Image"
   echo "     --test       : Print what would happen instead of installing"
+  echo "     --debug      : Print debugging information"
   exit "${1:-0}"
 }
 
@@ -62,13 +63,13 @@ main() {
   source "$PARSEOPTS" ; unset _LIB _LIBDIR
 
   local OPT_SHORT="hvc:suUtzdrpa"
-  local OPT_LONG=("help" "verbose" "system" "user" "upgrade" "test" "config:"
-    "tar" "zip" "deb" "rpm" "pacman" "appimage")
+  local OPT_LONG=("help" "verbose" "system" "user" "upgrade" "test" "debug"
+    "config:" "tar" "zip" "deb" "rpm" "pacman" "appimage")
   declare -a OPTRET
   parseopts "$OPT_SHORT" "${OPT_LONG[@]}" -- "$@" || exit 1
   set -- "${OPTRET[@]}" ; unset OPT_SHORT OPT_LONG OPTRET
 
-  local destdir="$HOME"/.local/bin sudo=()
+  local destdir="$HOME"/.local/bin sudo=() debug=false
   local verbose=false ext_regex="(tar\.gz|tgz|tar.bz2|tbz2|tar)" testmode=() upgrade=false
   while true; do
     case $1 in
@@ -85,6 +86,7 @@ main() {
       -p|--pacman)   ext_regex="(pkg\.tar\.xz|pkg\.tar\.zst)" ;;
       -a|--appimage) ext_regex="(appimage|AppImage|APPIMAGE)" ;;
          --test)     testmode=("echo") ;;
+         --debug)    debug=true ;;
       --) shift ; break ;;
       *) ;;
     esac
@@ -142,10 +144,12 @@ main() {
 
   # If no config entry, try to find it first with SYSTEM and ARCH, then adding STDLIB
   else
+    "$debug" && set -x
     for url in "${files[@]}"; do
       [[ "$url" =~ ${SYSTEM}.*${ARCH}.*\.${ext_regex}$ ||
         "$url" =~ ${ARCH}.*${SYSTEM}.*\.${ext_regex}$ ]] && matches+=("$url")
     done
+    set +x
     if (( ${#matches[@]} == 0 )); then
       echo "Error: Could not find a file matching $SYSTEM + $ARCH" >&2
       exit 1
