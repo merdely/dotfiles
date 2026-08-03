@@ -97,7 +97,7 @@ main() {
   done
 
   case "$ARCH" in
-    arm64|aarch64)  ARCH="(amd64|x86_64)" ;;
+    arm64|aarch64)  ARCH="(arm64|aarch64)" ;;
     amd64|x86_64|'') ARCH="(amd64|x86_64)" ;;
     *) echo "Error: $ARCH not implemented" >&2 ; exit 1 ;;
   esac
