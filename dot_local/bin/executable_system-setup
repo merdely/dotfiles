@@ -450,6 +450,7 @@ case "$ID" in
         command -v hostname >/dev/null 2>&1 && hostname=$(hostname)
         hostname=${hostname%%.*}
         if [ -n "$hostname" ] && [ -r "$HOME"/.ssh/home_known_hosts ]; then
+          echo "Reading SSH Host Key"
           local_hostkey=$(doas ssh-keygen -y -f /etc/ssh/ssh_host_ed25519_key |
             awk '{sub(/^(.* )?ssh-ed25519 /,"");sub(/ .*$/,"");print}')
           hostkey=$(awk -v h="$hostname" '$0 ~ "^"h {sub(/^.* ssh-ed25519 /,"");sub(/ .*$/,"");print}' ~/.ssh/home_known_hosts)
