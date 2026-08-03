@@ -1,0 +1,234 @@
+#!/usr/bin/env bash
+
+# Install binary files from GitHub projects of different types
+# Supported types: tarball, zipfile, deb, rpm, pacman, and appimage
+#
+# For repos that need help, a configuration file (~/.config/software.conf by default)
+# can contain settings:
+# pkg[REPO] gives a regex search string to find file amongst assets
+# srcbin[REPO] gives a regex search string to find the binary to copy in the archive file
+# bin[REPO] gives a filename for the destination file
+# Variables in these settings can be expanded from {ARCH}, {SYSTEM}, and {STDLIB}
+# ARCH: like x86_64, amd64, arm64, aarch64
+# STDLIB: like glibc, gnu, musl
+# SYSTEM: like openbsd, linux
+#
+# Example:
+#   pkg[atuinsh/atuin]='/atuin-{ARCH}-unknown-{SYSTEM}-{STDLIB}\.tar\.gz$'
+#   pkg[grafana/alloy]='/alloy-{SYSTEM}-{ARCH}\.zip$'
+#   srcbin[grafana/alloy]='alloy-{SYSTEM}-{ARCH}'
+#   bin[neovim/neovim]=nvim
+
+CONFIG="$HOME"/.config/software.conf
+ARCH=$(dpkg --print-architecture 2> /dev/null || echo amd64)
+SYSTEM=$(uname -s | tr '[:upper:]' '[:lower:]')
+STDLIB="(glibc|gnu)"
+ldd --version 2>&1 | grep -qi "musl" && STDLIB=musl
+
+TMPFILES=()
+cleanup() {
+  local exit_code=$?
+  rm -Rf -- "${TMPFILES[@]}"
+  exit "$exit_code"
+}
+trap "cleanup" EXIT
+trap "exit 1" INT TERM
+
+usage() {
+  echo "usage: ${0##*/} [Options] REPO"
+  echo
+  echo "Options:"
+  echo "  -h|--help       : this help text"
+  echo "  -v|--verbose    : print verbose messages"
+  echo "  -c|--config ARG : Configuration file (default: ${CONFIG/$HOME/\$HOME})"
+  echo "  -s|--system     : System install in /usr/local/bin"
+  echo "  -u|--user       : User install in \$HOME/.local/bin (default)"
+  echo "  -U|--upgrade    : Upgrade existing package (default: do not overwrite)"
+  echo "  -t|--tar        : Search for a tarball archive (default)"
+  echo "  -z|--zip        : Search for a zipfile archive"
+  echo "  -d|--deb        : Search for a Debian package"
+  echo "  -r|--rpm        : Search for a Red Hat package"
+  echo "  -p|--pacman     : Search for a Arch Linux package"
+  echo "  -a|--appimage   : Search for a App Image"
+  echo "     --test       : Print what would happen instead of installing"
+  exit "${1:-0}"
+}
+
+main() {
+  # _LIB="/../lib"            # comment this line out if parseopts.sh is in the same directory as $0
+  # _LIBDIR=/srv/scripts/lib  # Use a line like this to override location of parseopts.sh
+  local PARSEOPTS="${_LIBDIR:-"$(dirname "$0")${_LIB:-}"}/parseopts.sh"
+  # shellcheck disable=SC1090,SC1091
+  source "$PARSEOPTS" ; unset _LIB _LIBDIR
+
+  local OPT_SHORT="hvc:suUtzdrpa"
+  local OPT_LONG=("help" "verbose" "system" "user" "upgrade" "test" "config:"
+    "tar" "zip" "deb" "rpm" "pacman" "appimage")
+  declare -a OPTRET
+  parseopts "$OPT_SHORT" "${OPT_LONG[@]}" -- "$@" || exit 1
+  set -- "${OPTRET[@]}" ; unset OPT_SHORT OPT_LONG OPTRET
+
+  local destdir="$HOME"/.local/bin sudo=()
+  local verbose=false ext_regex="(tar\.gz|tgz|tar.bz2|tbz2|tar)" testmode=() upgrade=false
+  while true; do
+    case $1 in
+      -h|--help)     usage ;;
+      -v|--verbose)  verbose=true ;;
+      -s|--system)   destdir=/usr/local/bin ; sudo=("sudo") ;;
+      -u|--user)     destdir="$HOME"/.local/bin ; sudo=() ;;
+      -U|--upgrade)  upgrade=true ;;
+      -c|--config)   shift ; CONFIG=$1 ;;
+      -t|--tar)      ext_regex="(tar\.gz|tgz|tar.bz2|tbz2|tar)" ;;
+      -z|--zip)      ext_regex="(zip)" ;;
+      -d|--deb)      ext_regex="(deb|deb\.gz|deb\.bz2)" ;;
+      -r|--rpm)      ext_regex="(rpm|rpm\.gz|rpm\.bz2)" ;;
+      -p|--pacman)   ext_regex="(pkg\.tar\.xz|pkg\.tar\.zst)" ;;
+      -a|--appimage) ext_regex="(appimage|AppImage|APPIMAGE)" ;;
+         --test)     testmode=("echo") ;;
+      --) shift ; break ;;
+      *) ;;
+    esac
+    shift
+  done
+
+  case "$ARCH" in
+    arm64|aarch64)  ARCH="(amd64|x86_64)" ;;
+    amd64|x86_64|'') ARCH="(amd64|x86_64)" ;;
+    *) echo "Error: $ARCH not implemented" >&2 ; exit 1 ;;
+  esac
+
+  declare -A pkg bin srcbin
+  local repo=$1 tmpdir="" url="" srcbinfile="" files=() matches=()
+  tmpdir=$(mktemp -d)
+  TMPFILES=("$tmpdir")
+
+  [[ "$repo" != */* ]] && repo=$repo/$repo
+
+  # shellcheck disable=1090
+  [[ -r "$CONFIG" ]] && source "$CONFIG"
+
+  local regex=${pkg[$repo]}
+  local srcbinfile=${srcbin[$repo]}
+  local binfile=${bin[$repo]}
+  [[ -z "$srcbinfile" ]] && srcbinfile=${repo##*/}
+  [[ -z "$binfile" ]] && binfile=${repo##*/}
+
+  if ! "$upgrade" && [[ -e "$destdir"/"$binfile" ]]; then
+    echo "Error: $binfile is already installed" >&2
+    exit 1
+  fi
+
+  regex=${regex//{STDLIB\}/"$STDLIB"}
+  regex=${regex//{ARCH\}/"$ARCH"}
+  regex=${regex//{SYSTEM\}/"$SYSTEM"}
+
+  srcbinfile=${srcbinfile//{STDLIB\}/"$STDLIB"}
+  srcbinfile=${srcbinfile//{ARCH\}/"$ARCH"}
+  srcbinfile=${srcbinfile//{SYSTEM\}/"$SYSTEM"}
+
+  curl -sLo "$tmpdir"/curl.out "https://api.github.com/repos/$repo/releases/latest"
+  # curl -sLo /tmp/curl.out "https://api.github.com/repos/$repo/releases/latest"
+  local repo_info="$tmpdir"/curl.out
+  # repo_info=/tmp/curl.out
+
+
+  mapfile -t files < <(awk -F'"' '$2=="browser_download_url"{print $4}' "$repo_info")
+
+  # If configuration file has an entry for its regex, use it
+  if [[ -n "${pkg[$repo]}" ]]; then
+    for url in "${files[@]}"; do
+      [[ "$url" =~ ${regex} ]] && { matches+=("$url") ; break ; }
+    done
+
+  # If no config entry, try to find it first with SYSTEM and ARCH, then adding STDLIB
+  else
+    for url in "${files[@]}"; do
+      [[ "$url" =~ ${SYSTEM}.*${ARCH}.*\.${ext_regex}$ ||
+        "$url" =~ ${ARCH}.*${SYSTEM}.*\.${ext_regex}$ ]] && matches+=("$url")
+    done
+    if (( ${#matches[@]} == 0 )); then
+      echo "Error: Could not find a file matching $SYSTEM + $ARCH" >&2
+      exit 1
+    elif (( ${#matches[@]} > 1 )); then
+      "$verbose" && { echo "Warning: Found multiple matches ${#matches[@]}, narrowing with STDLIB ($STDLIB)" >&2 ; \
+        printf 'multiple: %s\n' "${matches[@]}" ; }
+      files=("${matches[@]}")
+      matches=()
+      for url in "${files[@]}"; do
+        [[ "$url" =~ ${SYSTEM}.*${ARCH}.*${STDLIB}.*\.${ext_regex}$ ||
+          "$url" =~ ${SYSTEM}.*${STDLIB}.*${ARCH}.*\.${ext_regex}$ ||
+          "$url" =~ ${STDLIB}.*${SYSTEM}.*${ARCH}.*\.${ext_regex}$ ||
+          "$url" =~ ${STDLIB}.*${ARCH}.*${SYSTEM}.*\.${ext_regex}$ ||
+          "$url" =~ ${ARCH}.*${SYSTEM}.*${STDLIB}.*\.${ext_regex}$ ||
+          "$url" =~ ${ARCH}.*${STDLIB}.*${SYSTEM}.*\.${ext_regex}$ ]] && matches+=("$url")
+      done
+      if (( ${#matches[@]} == 0 )); then
+        echo "Error: Narrowing with STDLIB gave zero results" >&2
+        exit 1
+      elif (( ${#matches[@]} > 1 )); then
+        echo "Error: Could not narrow down file to download (${#matches[@]} results)" >&2
+        printf '%s\n' "${matches[@]}"
+        exit 1
+      fi
+    fi
+  fi
+
+  if (( ${#matches[@]} != 1 )); then
+    echo "Error: Could not narrow down download url (${#matches[@]} matches)" >&2
+    exit 1
+  fi
+  url=${matches[0]}
+  [[ -z "$url" ]] && { echo "Error: Could not determine download_url for $repo" >&2 ; exit 1 ; }
+
+  local download_file="$tmpdir"/"${url##*/}"
+  curl -sLo "$download_file" "$url"
+  echo "Installing $repo $binfile"
+
+  case "${download_file##*/}" in
+    *.tar|*.tar.gz|.tgz|*.tar.bz2|*.tbz2)
+      "$verbose" && echo "Extracting tarball"
+      tar -C "$tmpdir" -xf "$download_file"
+      srcfile=$(find "$tmpdir" -type f | grep -E "$srcbinfile$")
+      if [[ -z "$srcfile" ]]; then
+        echo "Error: Could not find $binfile from tarball" >&2
+        exit 1
+      fi
+      echo "Copying $binfile to $destdir"
+      "${testmode[@]}" "${sudo[@]}" install -m 755 "$srcfile" "$destdir"/"$binfile"
+      ;;
+    *.zip)
+      "$verbose" && echo "Extracting zipfile"
+      unzip -q -d "$tmpdir" "$download_file"
+      srcfile=$(find "$tmpdir" -type f | grep -E "$srcbinfile$")
+      if [[ -z "$srcfile" ]]; then
+        echo "Error: Could not find $binfile from zipfile" >&2
+        exit 1
+      fi
+      echo "Copying $binfile to $destdir"
+      "${testmode[@]}" "${sudo[@]}" install -m 755 "$srcfile" "$destdir"/"$binfile"
+      ;;
+    *.appimage|*.AppImage)
+      echo "Copying $binfile to $destdir"
+      "${testmode[@]}" "${sudo[@]}" install -m 755 "$download_file" "$destdir"/"${download_file##*/}"
+      "${testmode[@]}" "${sudo[@]}" ln -sf "${download_file##*/}" "$destdir"/"$binfile"
+      ;;
+    *.deb|*.deb.gz|*.deb.bz2)
+      echo "Installing ${download_file##*/}"
+      [[ "${download_file##*/}" == *.deb.gz ]] && { gunzip "${download_file##*/}" ; download_file=${download_file%.gz} ; }
+      [[ "${download_file##*/}" == *.deb.bz2 ]] && { bunzip "${download_file##*/}" ; download_file=${download_file%.bz2} ; }
+      "${testmode[@]}" sudo apt install -y "${download_file}"
+      ;;
+    *.pkg.tar.xz|*.pkg.tar.zst)
+      echo "Installing ${download_file##*/}"
+      "${testmode[@]}" sudo pacman -U "${download_file}"
+      ;;
+    *.rpm|*.rpm.gz|*.rpm.bz2)
+      echo "Installing ${download_file##*/}"
+      [[ "${download_file##*/}" == *.rpm.gz ]] && { gunzip "${download_file##*/}" ; download_file=${download_file%.gz} ; }
+      [[ "${download_file##*/}" == *.rpm.bz2 ]] && { bunzip "${download_file##*/}" ; download_file=${download_file%.bz2} ; }
+      "${testmode[@]}" sudo dnf install -y "${download_file}"
+      ;;
+  esac
+}
+
+main "$@"
