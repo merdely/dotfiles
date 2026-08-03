@@ -421,7 +421,7 @@ case "$ID" in
       if [ -n "$need" ]; then
         echo "Installing packages $need"
         # shellcheck disable=2086
-        if ! $sudo pkg_add "${need# }"; then
+        if ! $sudo pkg_add ${need# }; then
           echo "Error: 'pkg_add ...' failed" >&2
           exit 1
         fi
@@ -489,7 +489,7 @@ case "$ID" in
             crontab -l 2> /dev/null
             # shellcheck disable=2016
             echo '*/15 * * * * flock -n "$HOME"/.cache/.idle.lock "$HOME"/.local/bin/handle_idle_inhibitor -s'
-          } | crontab -e
+          } | crontab -
         fi
       fi
 
