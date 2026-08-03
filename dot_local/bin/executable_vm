@@ -403,7 +403,7 @@ list() {
     shift
   done
 
-  (( ${#opts[@]} == 0 )) && { opts+=(--all) ; mode=all ; }
+  (( ${#opts[@]} == 0 )) && [[ "$mode" != ip ]] && { opts+=(--all) ; mode=all ; }
 
   if [[ "$mode" == ip ]]; then
     virsh --connect "${connect:-$CONNECT_URI}" net-dhcp-leases "${1:-default}"
