@@ -11,6 +11,7 @@ chezmoi:
       ansible_python_interpreter: /opt/homebrew/bin/python3
       chezmoi: /opt/homebrew/bin/chezmoi
     earth:
+      chezmoi: $HOME/.local/bin/chezmoi
     jupiter:
     saturn:
     uranus:
