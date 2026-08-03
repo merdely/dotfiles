@@ -129,18 +129,16 @@ main() {
   srcbinfile=${srcbinfile//{SYSTEM\}/"$SYSTEM"}
 
   curl -sLo "$tmpdir"/curl.out "https://api.github.com/repos/$repo/releases/latest"
-  # curl -sLo /tmp/curl.out "https://api.github.com/repos/$repo/releases/latest"
   local repo_info="$tmpdir"/curl.out
-  # repo_info=/tmp/curl.out
-
-
   mapfile -t files < <(awk -F'"' '$2=="browser_download_url"{print $4}' "$repo_info")
 
   # If configuration file has an entry for its regex, use it
   if [[ -n "${pkg[$repo]}" ]]; then
+    "$debug" && set -x
     for url in "${files[@]}"; do
       [[ "$url" =~ ${regex} ]] && { matches+=("$url") ; break ; }
     done
+    set +x
 
   # If no config entry, try to find it first with SYSTEM and ARCH, then adding STDLIB
   else
