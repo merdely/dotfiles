@@ -17,6 +17,19 @@ ls.add_snippets("sh", {
       '',
     })
   }),
+  ls.snippet("tmpfiles", {
+    ls.text_node({
+      'TMPFILES=()',
+      'cleanup() {',
+      '  local exit_code=$?',
+      '  rm -Rf -- "${TMPFILES[@]}"',
+      '  exit "$exit_code"',
+      '}',
+      'trap "cleanup" EXIT',
+      'trap "exit 1" INT TERM',
+      '',
+    })
+  }),
   ls.snippet("getopts_long", {
      ls.text_node({
        '# _LIB="/../lib"            # comment this line out if parseopts.sh is in the same directory as $0',
@@ -32,13 +45,13 @@ ls.add_snippets("sh", {
        'set -- "${OPTRET[@]}" ; unset OPT_SHORT OPT_LONG OPTRET',
        '',
        'usage() {',
-       '  echo "usage: ${0##*/}"',
+       '  echo "usage: ${0##*/} [Options]"',
        '  echo',
        '  echo "Options:"',
-       '  echo "  -h|--help      : this help text',
-       '  echo "  -f|--flag      : flag with no argument',
-       '  echo "  -a|--arg ARG   : required argument',
-       '  echo "  -o|--opt [OPT] : optional argument',
+       '  echo "  -h|--help      : this help text"',
+       '  echo "  -f|--flag      : flag with no argument"',
+       '  echo "  -a|--arg ARG   : required argument"',
+       '  echo "  -o|--opt [OPT] : optional argument"',
        '  exit "${1:-0}"',
        '}',
        'FLAG=0 ; ARG=0 ; ARG_VALUE="" ; OPT=0 ; OPT_VALUE=""',
@@ -78,7 +91,7 @@ ls.add_snippets("sh", {
        '  esac',
        'done',
        'shift $(( OPTIND - 1 ))',
-       ''
+       '',
      }),
   }),
   ls.snippet("function", {
