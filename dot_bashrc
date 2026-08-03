@@ -118,6 +118,12 @@ __shell_specific() {
     eval "$(zoxide init bash)"
     alias cd=z
   fi
+  # if command -v starship >/dev/null 2>&1; then
+  #   eval "$(starship init bash)"
+  # fi
+  if command -v atuin >/dev/null 2>&1; then
+    eval "$(atuin init --disable-ai --disable-up-arrow bash)"
+  fi
 }
 
 [ -r "$HOME"/.shellrc ] && . "$HOME"/.shellrc
