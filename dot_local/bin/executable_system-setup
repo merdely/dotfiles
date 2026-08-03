@@ -520,7 +520,7 @@ case "$ID" in
               $sudo sed -ri 's#^(\[default_session\].*)$#\1\
 command = "agreety --cmd '"'"'env XDG_CURRENT_DESKTOP=niri dbus-run-session --config-file=~/.config/dbus/session.conf -- /usr/local/bin/niri'"'"'"#' /etc/greetd/config.toml
               # Enable the service
-              $sudo systemctl enable greetd
+              $sudo rcctl enable greetd
             fi
           fi
         fi
