@@ -269,8 +269,10 @@ sync_address = "https://atuin.erdely.in"
 # strategy = "auto"
 
 [daemon]
+{{ if not eq .chezmoi.os "openbsd" -}}
 enabled = true
 autostart = true
+{{ end -}}
 ## Enables using the daemon to sync.
 # enabled = false
 
