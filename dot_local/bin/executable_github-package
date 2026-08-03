@@ -53,6 +53,8 @@ usage() {
   echo "  -r|--rpm        : Search for a Red Hat package"
   echo "  -p|--pacman     : Search for a Arch Linux package"
   echo "  -a|--appimage   : Search for a App Image"
+  echo "     --arch ARCH  : Specify an alternate architecture"
+  echo "     --dest DEST  : Specify an alternate destination directory (use --system if sudo needed)"
   echo "     --test       : Print what would happen instead of installing"
   echo "     --debug      : Print debugging information"
   exit "${1:-0}"
@@ -67,13 +69,14 @@ main() {
 
   local OPT_SHORT="hvc:suUtzdrpa"
   local OPT_LONG=("help" "verbose" "system" "user" "upgrade" "test" "debug"
-    "config:" "tar" "zip" "deb" "rpm" "pacman" "appimage")
+    "config:" "tar" "zip" "deb" "rpm" "pacman" "appimage" "arch:" "dest:")
   declare -a OPTRET
   parseopts "$OPT_SHORT" "${OPT_LONG[@]}" -- "$@" || exit 1
   set -- "${OPTRET[@]}" ; unset OPT_SHORT OPT_LONG OPTRET
 
   local destdir="$HOME"/.local/bin sudo=() debug=false
   local verbose=false ext_regex="(tar\.gz|tgz|tar.bz2|tbz2|tar)" testmode=() upgrade=false
+  local altarch="" altdest=""
   while true; do
     case $1 in
       -h|--help)     usage ;;
@@ -88,6 +91,8 @@ main() {
       -r|--rpm)      ext_regex="(rpm|rpm\.gz|rpm\.bz2)" ;;
       -p|--pacman)   ext_regex="(pkg\.tar\.xz|pkg\.tar\.zst)" ;;
       -a|--appimage) ext_regex="(appimage|AppImage|APPIMAGE)" ;;
+         --arch)     shift ; altarch=$1 ;;
+         --dest)     shift ; altdest=$1 ;;
          --test)     testmode=("echo") ;;
          --debug)    debug=true ;;
       --) shift ; break ;;
@@ -95,6 +100,9 @@ main() {
     esac
     shift
   done
+
+  # If --arch was given, use it as the architecture
+  [[ -n "$altarch" ]] && ARCH=$altarch
 
   case "$ARCH" in
     arm64|aarch64)  ARCH="(arm64|aarch64)" ;;
@@ -117,6 +125,7 @@ main() {
   local binfile=${bin[$repo]}
   [[ -z "$srcbinfile" ]] && srcbinfile=${repo##*/}
   [[ -z "$binfile" ]] && binfile=${repo##*/}
+  [[ -n "$altdest" ]] && destdir=$altdest
 
   if ! "$upgrade" && [[ -e "$destdir"/"$binfile" ]]; then
     echo "Error: $binfile is already installed" >&2
@@ -218,20 +227,35 @@ main() {
       "${testmode[@]}" "${sudo[@]}" ln -sf "${download_file##*/}" "$destdir"/"$binfile"
       ;;
     *.deb|*.deb.gz|*.deb.bz2)
-      echo "Installing ${download_file##*/}"
       [[ "${download_file##*/}" == *.deb.gz ]] && { gunzip "${download_file##*/}" ; download_file=${download_file%.gz} ; }
       [[ "${download_file##*/}" == *.deb.bz2 ]] && { bunzip "${download_file##*/}" ; download_file=${download_file%.bz2} ; }
-      "${testmode[@]}" sudo apt install -y "${download_file}"
+      if [[ -n "$altdest" ]]; then
+        echo "Copying ${download_file##*/} to $altdest"
+        cp "${download_file}" "$altdest"
+      else
+        echo "Installing ${download_file##*/}"
+        "${testmode[@]}" sudo apt install -y "${download_file}"
+      fi
       ;;
     *.pkg.tar.xz|*.pkg.tar.zst)
-      echo "Installing ${download_file##*/}"
-      "${testmode[@]}" sudo pacman -U "${download_file}"
+      if [[ -n "$altdest" ]]; then
+        echo "Copying ${download_file##*/} to $altdest"
+        cp "${download_file}" "$altdest"
+      else
+        echo "Installing ${download_file##*/}"
+        "${testmode[@]}" sudo pacman -U "${download_file}"
+      fi
       ;;
     *.rpm|*.rpm.gz|*.rpm.bz2)
-      echo "Installing ${download_file##*/}"
       [[ "${download_file##*/}" == *.rpm.gz ]] && { gunzip "${download_file##*/}" ; download_file=${download_file%.gz} ; }
       [[ "${download_file##*/}" == *.rpm.bz2 ]] && { bunzip "${download_file##*/}" ; download_file=${download_file%.bz2} ; }
-      "${testmode[@]}" sudo dnf install -y "${download_file}"
+      if [[ -n "$altdest" ]]; then
+        echo "Copying ${download_file##*/} to $altdest"
+        cp "${download_file}" "$altdest"
+      else
+        echo "Installing ${download_file##*/}"
+        "${testmode[@]}" sudo dnf install -y "${download_file}"
+      fi
       ;;
   esac
 }
