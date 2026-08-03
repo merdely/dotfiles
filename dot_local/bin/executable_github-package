@@ -5,6 +5,7 @@
 #
 # For repos that need help, a configuration file (~/.config/software.conf by default)
 # can contain settings:
+# alias[ALIAS] allows running 'github-package ALIAS' (the rest of the settings point to the real repo)
 # pkg[REPO] gives a regex search string to find file amongst assets
 # srcbin[REPO] gives a regex search string to find the binary to copy in the archive file
 # bin[REPO] gives a filename for the destination file
@@ -14,6 +15,8 @@
 # SYSTEM: like openbsd, linux
 #
 # Example:
+#   alias[atuin]=atuinsh/atuin
+#   alias[alloy]=grafana/alloy
 #   pkg[atuinsh/atuin]='/atuin-{ARCH}-unknown-{SYSTEM}-{STDLIB}\.tar\.gz$'
 #   pkg[grafana/alloy]='/alloy-{SYSTEM}-{ARCH}\.zip$'
 #   srcbin[grafana/alloy]='alloy-{SYSTEM}-{ARCH}'
@@ -99,16 +102,16 @@ main() {
     *) echo "Error: $ARCH not implemented" >&2 ; exit 1 ;;
   esac
 
-  declare -A pkg bin srcbin
+  declare -A alias pkg bin srcbin
   local repo=$1 tmpdir="" url="" srcbinfile="" files=() matches=()
   tmpdir=$(mktemp -d)
   TMPFILES=("$tmpdir")
 
-  [[ "$repo" != */* ]] && repo=$repo/$repo
-
   # shellcheck disable=1090
   [[ -r "$CONFIG" ]] && source "$CONFIG"
 
+  [[ -n "${alias[$repo]}" ]] && repo=${alias[$repo]}
+  [[ "$repo" != */* ]] && repo=$repo/$repo
   local regex=${pkg[$repo]}
   local srcbinfile=${srcbin[$repo]}
   local binfile=${bin[$repo]}
