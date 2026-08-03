@@ -46,7 +46,7 @@ alias mysqldump="docker compose exec -it -u mysql mysql mariadb-dump"
 alias mariadb-dump="docker compose exec -it -u mysql mysql mariadb-dump"
 
 # alias upgrade_meilisearch='docker run --rm -v /srv/docker/meilisearch:/meili_data getmeili/meilisearch:latest meilisearch --experimental-dumpless-upgrade'
-alias upgrade_meilisearch='docker compose pull meilisearch;docker compose rm -sf meilisearch;echo;echo "**********************************************************";echo "* Press Ctrl+C to exiting the upgrade-run of meilisearch *";echo "**********************************************************";echo;docker run --rm -v /srv/docker/meilisearch:/meili_data getmeili/meilisearch:latest meilisearch --experimental-dumpless-upgrade;docker compose up -d meilisearch; info2mqtt -n meilisearch; docker compose logs meilisearch'
+alias upgrade_meilisearch='docker compose pull meilisearch;docker compose rm -sf meilisearch;echo;echo "**********************************************************";echo "* Press Ctrl+C to exiting the upgrade-run of meilisearch *";echo "**********************************************************";echo;docker run --rm -v /srv/docker/meilisearch:/meili_data getmeili/meilisearch:latest meilisearch --upgrade-db;docker compose up -d meilisearch; info2mqtt -n meilisearch; docker compose logs meilisearch'
 
 alias pa='docker compose -f /srv/docker/compose.yaml exec ytdlp-shell /home/mike/bin/ytdl.py --print-album'
 alias ytdl.py='docker compose -f /srv/docker/compose.yaml exec ytdlp-shell /home/mike/bin/ytdl.py'
