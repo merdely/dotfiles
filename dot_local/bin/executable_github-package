@@ -23,7 +23,7 @@
 #   bin[neovim/neovim]=nvim
 
 CONFIG="$HOME"/.config/software.conf
-ARCH=$(dpkg --print-architecture 2> /dev/null || echo amd64)
+ARCH=$(uname -m)
 SYSTEM=$(uname -s | tr '[:upper:]' '[:lower:]')
 STDLIB="(glibc|gnu)"
 ldd --version 2>&1 | grep -qi "musl" && STDLIB=musl
