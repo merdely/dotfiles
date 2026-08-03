@@ -41,22 +41,23 @@ usage() {
   echo "usage: ${0##*/} [Options] REPO"
   echo
   echo "Options:"
-  echo "  -h|--help       : this help text"
-  echo "  -v|--verbose    : print verbose messages"
-  echo "  -c|--config ARG : Configuration file (default: ${CONFIG/$HOME/\$HOME})"
-  echo "  -s|--system     : System install in /usr/local/bin"
-  echo "  -u|--user       : User install in \$HOME/.local/bin (default)"
-  echo "  -U|--upgrade    : Upgrade existing package (default: do not overwrite)"
-  echo "  -t|--tar        : Search for a tarball archive (default)"
-  echo "  -z|--zip        : Search for a zipfile archive"
-  echo "  -d|--deb        : Search for a Debian package"
-  echo "  -r|--rpm        : Search for a Red Hat package"
-  echo "  -p|--pacman     : Search for a Arch Linux package"
-  echo "  -a|--appimage   : Search for a App Image"
-  echo "     --arch ARCH  : Specify an alternate architecture"
-  echo "     --dest DEST  : Specify an alternate destination directory (use --system if sudo needed)"
-  echo "     --test       : Print what would happen instead of installing"
-  echo "     --debug      : Print debugging information"
+  echo "  -h|--help          : this help text"
+  echo "  -v|--verbose       : print verbose messages"
+  echo "  -c|--config ARG    : Configuration file (default: ${CONFIG/$HOME/\$HOME})"
+  echo "  -s|--system        : System install in /usr/local/bin"
+  echo "  -u|--user          : User install in \$HOME/.local/bin (default)"
+  echo "  -U|--upgrade       : Upgrade existing package (default: do not overwrite)"
+  echo "  -t|--tar           : Search for a tarball archive (default)"
+  echo "  -z|--zip           : Search for a zipfile archive"
+  echo "  -d|--deb           : Search for a Debian package"
+  echo "  -r|--rpm           : Search for a Red Hat package"
+  echo "  -p|--pacman        : Search for a Arch Linux package"
+  echo "  -a|--appimage      : Search for a App Image"
+  echo "     --arch ARCH     : Specify an alternate architecture"
+  echo "     --stdlib STDLIB : Specify an alternate standard library (gnu/glibc or musl)"
+  echo "     --dest DEST     : Specify an alternate destination directory (use --system if sudo needed)"
+  echo "     --test          : Print what would happen instead of installing"
+  echo "     --debug         : Print debugging information"
   exit "${1:-0}"
 }
 
@@ -69,14 +70,14 @@ main() {
 
   local OPT_SHORT="hvc:suUtzdrpa"
   local OPT_LONG=("help" "verbose" "system" "user" "upgrade" "test" "debug"
-    "config:" "tar" "zip" "deb" "rpm" "pacman" "appimage" "arch:" "dest:")
+    "config:" "tar" "zip" "deb" "rpm" "pacman" "appimage" "arch:" "stdlib:" "dest:")
   declare -a OPTRET
   parseopts "$OPT_SHORT" "${OPT_LONG[@]}" -- "$@" || exit 1
   set -- "${OPTRET[@]}" ; unset OPT_SHORT OPT_LONG OPTRET
 
   local destdir="$HOME"/.local/bin sudo=() debug=false
   local verbose=false ext_regex="(tar\.gz|tgz|tar.bz2|tbz2|tar)" testmode=() upgrade=false
-  local altarch="" altdest=""
+  local altarch="" altdest="" altstdlib=""
   while true; do
     case $1 in
       -h|--help)     usage ;;
@@ -92,6 +93,7 @@ main() {
       -p|--pacman)   ext_regex="(pkg\.tar\.xz|pkg\.tar\.zst)" ;;
       -a|--appimage) ext_regex="(appimage|AppImage|APPIMAGE)" ;;
          --arch)     shift ; altarch=$1 ;;
+         --stdlib)   shift ; altstdlib=$1 ;;
          --dest)     shift ; altdest=$1 ;;
          --test)     testmode=("echo") ;;
          --debug)    debug=true ;;
@@ -126,6 +128,7 @@ main() {
   [[ -z "$srcbinfile" ]] && srcbinfile=${repo##*/}
   [[ -z "$binfile" ]] && binfile=${repo##*/}
   [[ -n "$altdest" ]] && destdir=$altdest
+  [[ "$altstdlib" =~ ^gnu|glibc|musl$ ]] && ARCH=$altstdlib
 
   if ! "$upgrade" && [[ -e "$destdir"/"$binfile" ]]; then
     echo "Error: $binfile is already installed" >&2
