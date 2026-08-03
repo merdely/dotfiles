@@ -13,14 +13,18 @@ chezmoi:
     earth:
       chezmoi: $HOME/.local/bin/chezmoi
     jupiter:
+      chezmoi: $HOME/.local/bin/chezmoi
     saturn:
+      chezmoi: $HOME/.local/bin/chezmoi
     uranus:
     neptune:
     pluto:
     carme:
     metis:
     tarvos:
+      chezmoi: $HOME/.local/bin/chezmoi
     sinope:
+      chezmoi: $HOME/.local/bin/chezmoi
   vars:
     chezmoi: chezmoi
 
