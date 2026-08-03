@@ -122,7 +122,7 @@ __shell_specific() {
   #   eval "$(starship init bash)"
   # fi
   if command -v atuin >/dev/null 2>&1; then
-    eval "$(atuin init {{ if not (eq .chezmoi.os "openbsd") }}--disable-ai {{ end }}--disable-up-arrow bash)"
+    eval "$(atuin init --disable-ai --disable-up-arrow bash)"
   fi
 }
 
