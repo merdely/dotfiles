@@ -59,7 +59,6 @@ if $action_given && [ -z "$action_list" ]; then
   echo "Error: No valid actions specified" >&2
   exit 1
 fi
-echo "action_list=$action_list"
 
 sudo=sudo
 ! command -v sudo > /dev/null 2>&1 && sudo=doas
