@@ -13,6 +13,6 @@ case "$command" in
   Lock) "$HOME"/.config/waybar/scripts/idle-inhibitor disable ; swaylock -f -c 000000 ;;
   Logout) config/waybar/scripts/idle-inhibitor disable ; niri msg action quit ;;
   Reboot) config/waybar/scripts/idle-inhibitor disable ; doas /sbin/reboot ;;
-  Shutdown/Halt) config/waybar/scripts/idle-inhibitor disable ; doas /sbin/halt -p ;;
+  "Shutdown/Halt") config/waybar/scripts/idle-inhibitor disable ; doas /sbin/halt -p ;;
   *) ;;
 esac
