@@ -12,7 +12,7 @@ command=$(printf '%s\n' "${options[@]}" | fuzzel -d)
 case "$command" in
   Lock) "$HOME"/.config/waybar/scripts/idle-inhibitor disable ; swaylock -f -c 000000 ;;
   Logout) "$HOME"/config/waybar/scripts/idle-inhibitor disable ; niri msg action quit ;;
-  Reboot) "$HOME"/config/waybar/scripts/idle-inhibitor disable ; doas /sbin/reboot ;;
-  Shutdown/Halt) "$HOME"/config/waybar/scripts/idle-inhibitor disable ; doas /sbin/halt -p ;;
+  Reboot) "$HOME"/config/waybar/scripts/idle-inhibitor disable ; /sbin/shutdown -r now ;;
+  Shutdown/Halt) "$HOME"/config/waybar/scripts/idle-inhibitor disable ; /sbin/shutdown -h now ;;
   *) ;;
 esac
