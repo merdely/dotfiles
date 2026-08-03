@@ -170,9 +170,7 @@
 ## If set to false, both enter and tab will place the command in the prompt for editing.
 ## This applies for new installs. Old installs will keep the old behaviour unless configured otherwise.
 enter_accept = true
-{{ if not (eq .chezmoi.os "openbsd") -}}
 search_mode = "daemon-fuzzy"
-{{ end -}}
 sync_address = "https://atuin.erdely.in"
 
 ## Defaults to false. If enabled, when triggered after &&, || or |, Atuin will complete commands to chain rather than replace the current line.
@@ -271,10 +269,8 @@ sync_address = "https://atuin.erdely.in"
 # strategy = "auto"
 
 [daemon]
-{{ if not (eq .chezmoi.os "openbsd") -}}
 enabled = true
 autostart = true
-{{ end -}}
 ## Enables using the daemon to sync.
 # enabled = false
 
