@@ -1,0 +1,28 @@
+#!/bin/sh
+
+# Print the rofi-rbw has for the cache file for a Bitwarden Entry
+
+main() {
+  command -v rbw >/dev/null 2>&1 || { echo "Error: rbw required" >&2 ; exit 1 ; }
+  if [ -z "$1" ] || [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    echo "usage: ${0##*/} rbw-entry"
+    if [ -z "$1" ]; then
+      exit 1
+    else
+      exit 0
+    fi
+  fi
+
+  name=$(rbw search "$*")
+  if [ -z "$name" ]; then
+    echo "Error: Could not find $* in your Bitwarden account" >&2
+    exit 1
+  fi
+
+  folder=$(rbw get --raw "$name" | awk -F '"' '$2=="folder"{print $4}')
+  user=$(rbw get --field username "$name")
+
+  printf '%s%s%s' "$name" "$folder" "$user" | sha1sum | cut -f 1 -d ' '
+}
+
+main "$@"
