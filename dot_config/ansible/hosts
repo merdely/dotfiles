@@ -19,6 +19,8 @@ chezmoi:
     uranus:
     neptune:
     pluto:
+    ceres:
+      chezmoi: $HOME/.local/bin/chezmoi
     carme:
     metis:
     tarvos:
