@@ -8,6 +8,7 @@ earth,earth.erdely.in,splunk,splunk.erdely.in,src.erdely.in,[src.erdely.in]:2222
 jupiter,jupiter.erdely.in,10.99.99.99 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFBs17LpxlMJdV3dOxW6oSYlQH4NaM/B4VXMAetrLRq/
 saturn,saturn.erdely.in,192.168.27.163 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIH606DUWbBOm6K+02pH+4HsIGnRkjdD9+VCfTrAOXlpD
 pluto,pluto.erdely.in,pluto.erdelynet.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMz4I3ILZpEmbfdA/SqHfnU3bNgY2OpXpWBNG2TwCGVA
+ceres,ceres.erdely.in,ceres.erdelynet.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILWBoj60hirKiTH22lkgHdnS+0paxuP4OqZHTk+TUrYj
 
 # PIs
 carme,carme.erdely.in,192.168.25.38 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIByIaAPNu35hM3ARABIj5PxmJZKe9lrgqU2PZ7qOaZBo
