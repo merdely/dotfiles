@@ -26,10 +26,15 @@ binds {
     Mod+Apostrophe       hotkey-overlay-title="Toggle Idle Inhibitor" { spawn-sh "~/.config/waybar/scripts/idle-inhibitor toggle"; }
 }
 
+window-rule {
+    geometry-corner-radius 8
+    clip-to-geometry true
+}
+
 layout {
     focus-ring { off; }
     border {
-        width 1
+        width 2
         active-color "#3daee9"
         inactive-color "#31363b"
         urgent-color "#9b0000"
