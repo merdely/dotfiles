@@ -1,0 +1,14 @@
+g:nightflyCursorColor	nightfly.txt	/*g:nightflyCursorColor*
+g:nightflyItalics	nightfly.txt	/*g:nightflyItalics*
+g:nightflyNormalFloat	nightfly.txt	/*g:nightflyNormalFloat*
+g:nightflyNormalPmenu	nightfly.txt	/*g:nightflyNormalPmenu*
+g:nightflyTerminalColors	nightfly.txt	/*g:nightflyTerminalColors*
+g:nightflyTransparent	nightfly.txt	/*g:nightflyTransparent*
+g:nightflyUndercurls	nightfly.txt	/*g:nightflyUndercurls*
+g:nightflyUnderlineMatchParen	nightfly.txt	/*g:nightflyUnderlineMatchParen*
+g:nightflyVirtualTextColor	nightfly.txt	/*g:nightflyVirtualTextColor*
+g:nightflyWinSeparator	nightfly.txt	/*g:nightflyWinSeparator*
+nightfly	nightfly.txt	/*nightfly*
+nightfly-options	nightfly.txt	/*nightfly-options*
+nightfly.custom_colors	nightfly.txt	/*nightfly.custom_colors*
+nightfly.palette	nightfly.txt	/*nightfly.palette*
