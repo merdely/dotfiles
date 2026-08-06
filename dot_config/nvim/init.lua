@@ -8,19 +8,3 @@ if vim.env.NVIM_NO_PERSIST then
   vim.o.backup     = false
   vim.o.writebackup= false
 end
-
-require("options")
-require("functions")
-require("lsp")
-require("treesitter")
-require("plugins")
-require("colorscheme")
-require("autocommands")
-require("diagnostics")
-require("formatting")
-require("keymaps")
-
--- require("statusline")
--- require("netrw")
--- require("find")
--- require("grep")
