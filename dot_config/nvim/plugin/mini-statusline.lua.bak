@@ -1,0 +1,73 @@
+---@diagnostic disable: undefined-global
+
+local ok, plugin_config = pcall(require, 'mini.statusline')
+if ok then
+  plugin_config.setup {
+    use_icons = true,
+    content = {
+      active = function()
+        local function get_current_function(bufnr)
+          bufnr = bufnr or vim.api.nvim_get_current_buf()
+          local ok, parser = pcall(vim.treesitter.get_parser, bufnr)
+          if not ok or not parser then
+            return nil
+          end
+          local cursor = vim.api.nvim_win_get_cursor(0)
+          local row, col = cursor[1] - 1, cursor[2]
+          local root = parser:parse()[1]:root()
+          local node = root:named_descendant_for_range(row, col, row, col)
+          local FUNCTION_NODE_TYPES = {
+            "function_declaration",
+            "function",
+            "arrow_function",
+            "method_definition",
+            "function_definition",
+          }
+          while node do
+            if vim.tbl_contains(FUNCTION_NODE_TYPES, node:type()) then
+              local name_node = node:field("name")[1]
+              if name_node then
+                return vim.treesitter.get_node_text(name_node, bufnr)
+              end
+              local parent = node:parent()
+              if parent then
+                for child in parent:iter_children() do
+                  if child:type() == "identifier" or child:type() == "property_identifier" then
+                    return vim.treesitter.get_node_text(child, bufnr)
+                  end
+                end
+              end
+            end
+            node = node:parent()
+          end
+          return nil
+        end
+
+        local mode, mode_hl = MiniStatusline.section_mode({ trunc_width = 120 })
+        local git           = MiniStatusline.section_git({ trunc_width = 40 })
+        local diff          = MiniStatusline.section_diff({ trunc_width = 75 })
+        local diagnostics   = MiniStatusline.section_diagnostics({ trunc_width = 75 })
+        local lsp           = MiniStatusline.section_lsp({ trunc_width = 75 })
+        local filename      = MiniStatusline.section_filename({ trunc_width = 140 })
+        local recording     = vim.fn.reg_recording() ~= "" and ("\u{eba7} @"..vim.fn.reg_recording()) or ""
+        local fileinfo      = MiniStatusline.section_fileinfo({ trunc_width = 120 })
+        local location      = MiniStatusline.section_location({ trunc_width = 75 })
+        local search        = MiniStatusline.section_searchcount({ trunc_width = 75 })
+        local funcname = ""
+        funcname = get_current_function() and ("\u{f0295} " .. get_current_function()) or ""
+
+        return MiniStatusline.combine_groups({
+          { hl = mode_hl,                  strings = { mode } },
+          { hl = "MiniStatuslineDevinfo",  strings = { git, diff, diagnostics, lsp } },
+          "%<", -- Mark general truncate point
+          { hl = "MiniStatuslineFilename", strings = { filename } },
+          { hl = "DiagnosticInfo", strings = { funcname } },
+          "%=", -- End left alignment
+          { hl = "MiniDiffOverDelete", strings = { recording } },
+          { hl = "MiniStatuslineFileinfo", strings = { fileinfo } },
+          { hl = mode_hl,                  strings = { search, location } },
+        })
+      end
+    }
+  }
+end
