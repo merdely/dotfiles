@@ -1,2 +1,2 @@
-.config/nvim/pack/plugins/start/github.com%nvim-mini%mini.nvim/tests
-
+.config/nvim/pack/plugins/start/*/tests
+.config/nvim/pack/plugins/opt/*/tests
