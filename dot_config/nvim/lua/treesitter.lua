@@ -1,6 +1,20 @@
-vim.treesitter.language.add("bash", { path = "/usr/lib/tree_sitter/bash.so" })
 vim.treesitter.language.register("bash", { "sh" })
-vim.treesitter.language.add("python", { path = "/usr/lib/tree_sitter/python.so" })
+local tree_sitter_libraries = {
+  "bash.so",
+  "c.so",
+  "lua.so",
+  "markdown.so",
+  "markdown_inline.so",
+  "python.so",
+  "query.so",
+  "vim.so",
+  "vimdoc.so",
+}
+for lib, _ in pairs(tree_sitter_libraries) do
+  if vim.uv.fs_stat("/usr/lib/tree_sitter/" .. lib) then
+    vim.treesitter.language.add(string.sub(lib, 1, -4), { path = "/usr/lib/tree_sitter/" .. lib })
+  end
+end
 
 if not vim.env.NVIM_DISABLE_PLUGINS then
   vim.pack.add({
