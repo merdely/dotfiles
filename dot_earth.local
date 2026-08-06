@@ -93,3 +93,5 @@ alias influxdb3='docker compose exec influxdb env INFLUXDB3_AUTH_TOKEN="$INFLUXD
 alias bat=batcat
 alias nvim-bare='env NVIM_APPNAME=- nvim'
 alias nvim-test='env NVIM_APPNAME=nvim-test nvim'
+
+export COMPOSE_FILE=/srv/docker/all/compose.yaml
