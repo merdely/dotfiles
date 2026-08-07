@@ -1,5 +1,13 @@
 -- lsp
-vim.lsp.enable({ "bashls", "dockerls", "lua_ls", "pylsp", "ts_ls", "yamlls" })
+
+-- Read all of the lsp lua files and enable them if present
+local lsp_dir = vim.fn.stdpath("config") .. "/lsp"
+local files = vim.fn.globpath(lsp_dir, "*.lua", false, true)
+for _, filepath in ipairs(files) do
+  local lsp_file = string.sub(vim.fn.fnamemodify(filepath, ":t"), 1, -5)
+  vim.lsp.enable({ lsp_file })
+end
+
 vim.diagnostic.config({ virtual_text = true })
 
 vim.api.nvim_create_autocmd("LspAttach", {

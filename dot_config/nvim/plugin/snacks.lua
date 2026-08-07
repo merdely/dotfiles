@@ -254,11 +254,13 @@ end, { desc = "Git Browse (copy)" })
     pattern = "snacks_picker_input",
     callback = function(event)
       vim.o.autocomplete = false
+      vim.b.minicompletion_disable = true
       vim.api.nvim_create_autocmd("BufLeave", {
         buffer = event.buf,
         once = true,
         callback = function()
           vim.o.autocomplete = true
+          vim.b.minicompletion_disable = false
         end,
       })
     end,
