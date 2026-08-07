@@ -9,8 +9,8 @@ local plugins = {
   "mini.comment",
   "mini.completion",
   "mini.diff",
-  "mini.git",
-  "mini.indentscope",
+  -- "mini.git",
+  -- "mini.indentscope",
   "mini.input",
   "mini.jump",
   "mini.jump2d",
@@ -34,8 +34,9 @@ do
     plugin_config.setup { }
     MiniKeymap.map_multistep("i", "<Tab>", { "pmenu_next" })
     MiniKeymap.map_multistep("i", "<S-Tab>", { "pmenu_prev" })
-    MiniKeymap.map_multistep("i", "<CR>", { "pmenu_accept", "minipairs_cr" })
-    MiniKeymap.map_multistep("i", "<BS>", { "minipairs_bs" })
+    MiniKeymap.map_multistep("i", "<CR>", { "pmenu_accept" })
+    -- MiniKeymap.map_multistep("i", "<CR>", { "pmenu_accept", "minipairs_cr" })
+    -- MiniKeymap.map_multistep("i", "<BS>", { "minipairs_bs" })
   end
 end
 
@@ -48,10 +49,10 @@ end
 --   end
 -- end
 
-do
-  local ok, plugin_config = pcall(require, "mini.pairs")
-  if ok then plugin_config.setup { modes = { command = true } } end
-end
+-- do
+--   local ok, plugin_config = pcall(require, "mini.pairs")
+--   if ok then plugin_config.setup { modes = { command = true } } end
+-- end
 
 do
   local ok, plugin_config = pcall(require, "mini.snippets")

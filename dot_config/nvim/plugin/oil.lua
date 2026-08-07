@@ -10,7 +10,7 @@ if ok then
       max_width = 0.80,
     },
     keymaps = {
-      ["<C-v>"] = { "actions.select", opts = { vertical = true } },
+      ["<C-s>"] = { "actions.select", opts = { vertical = true } },
       ["<C-h>"] = { "actions.select", opts = { horizontal = true } },
       ["<ESC>"] = { "actions.close", mode = "n" },
       -- default g keybinds

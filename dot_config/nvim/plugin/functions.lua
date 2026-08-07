@@ -76,8 +76,6 @@ local function update_plugins()
 	local pack_root = vim.fn.stdpath("config") .. "/pack/plugins"
 	local containers = { "start", "opt" }
 
-  vim.notify("Updating plugins")
-
 	local function scandir_dirs(path)
 		local dirs = {}
 		local fd = vim.uv.fs_scandir(path)
@@ -208,6 +206,11 @@ local function update_plugins()
 			end
 		end
 	end
+
+  local ok, _ = pcall(require, "nvim-treesitter")
+  if ok then
+    vim.cmd 'TSUpdate'
+  end
 
 	vim.notify(
 		string.format("plugin update: %d updated, %d failed, %d skipped", updated, failed, skipped),
