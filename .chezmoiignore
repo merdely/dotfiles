@@ -1,2 +1,4 @@
 .config/nvim/pack/plugins/start/*/tests
+.config/nvim/pack/plugins/start/*/test
 .config/nvim/pack/plugins/opt/*/tests
+.config/nvim/pack/plugins/opt/*/test
