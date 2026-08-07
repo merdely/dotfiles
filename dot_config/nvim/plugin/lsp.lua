@@ -1,5 +1,5 @@
 -- lsp
-vim.lsp.enable({ "bashls", "lua_ls", "tsgo" })
+vim.lsp.enable({ "bashls", "dockerls", "lua_ls", "pylsp", "ts_ls", "yamlls" })
 vim.diagnostic.config({ virtual_text = true })
 
 vim.api.nvim_create_autocmd("LspAttach", {
