@@ -33,6 +33,7 @@ Example: To install the plugin https://github.com/fake-plugin/fake.nvim:
 |Bash       | bashls   | bash-language-server shellcheck |
 |Dockerfile | dockerls | dockerfile-language-server      |
 |LUA        | lua_ls   | lua-language-server             |
+|Python     | pyright  | python-pynvim pyright           |
 |Python     | pylsp    | python-pynvim python-lsp-server |
 |Typescript | ls_ls    | typescript-language-server      |
 |YAML       | yamlls   | yaml-language-server            |
