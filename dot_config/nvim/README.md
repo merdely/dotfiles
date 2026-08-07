@@ -26,6 +26,17 @@ Example: To install the plugin https://github.com/fake-plugin/fake.nvim:
 1. Run: :UpdateLspConfigs
 1. The LSP config will be downloaded into that MODULE.lua file from github
 
+## Specific LSP Configs
+
+|LSP        | LSP_FILE | PACKAGE1 [..PACKAGEn]           |
+|-----------|----------|---------------------------------|
+|Bash       | bashls   | bash-language-server shellcheck |
+|Dockerfile | dockerls | dockerfile-language-server      |
+|LUA        | lua_ls   | lua-language-server             |
+|Python     | pylsp    | python-pynvim python-lsp-server |
+|Typescript | ls_ls    | typescript-language-server      |
+|YAML       | yamlls   | yaml-language-server            |
+
 ## Video this configuration is based on
 
 - Built live in this video: [youtu.be/otRvw9neQkg](https://youtu.be/otRvw9neQkg)
