@@ -68,6 +68,8 @@ if ok then
     util = { enabled = true },
     win = { enabled = true },
   })
+  vim.keymap.set({ "n", "i", "x" }, "<C-/>", function() Snacks.terminal() end, { desc = "Start a terminal" })
+  vim.keymap.set({ "n", "i", "x" }, "<C-_>", function() Snacks.terminal() end, { desc = "Start a terminal" })
 
   _G.dd = function(...)
     Snacks.debug.inspect(...)

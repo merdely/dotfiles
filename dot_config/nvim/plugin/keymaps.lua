@@ -42,12 +42,12 @@ vim.keymap.set({"n","x"}, "<leader>ca", vim.lsp.buf.code_action, { desc = "Code 
 vim.keymap.set({"n","x"}, "<leader>cc", vim.lsp.codelens.run, { desc = "Run Codelens" })
 vim.keymap.set("n", "<leader>cr", vim.lsp.buf.rename, { desc = "Rename" })
 
-vim.keymap.set("n", "<leader>t", ":hor terminal<CR>", { desc = "Open a terminal in a split" })
-vim.keymap.set("t", "<C-w><C-h>", "<c-\\><c-n><c-w>h", { desc = "Go to left window" })
-vim.keymap.set("t", "<C-w><C-j>", "<c-\\><c-n><c-w>j", { desc = "Go to lower window" })
-vim.keymap.set("t", "<C-w><C-k>", "<c-\\><c-n><c-w>k", { desc = "Go to upper window" })
-vim.keymap.set("t", "<C-w><C-l>", "<c-\\><c-n><c-w>l", { desc = "Go to right window" })
-vim.keymap.set("t", "<esc><esc>", "<c-\\><c-n>", { desc = "Escape from terminal buffer" })
+-- vim.keymap.set("n", "<leader>t", ":hor terminal<CR>", { desc = "Open a terminal in a split" })
+-- vim.keymap.set("t", "<C-w><C-h>", "<c-\\><c-n><c-w>h", { desc = "Go to left window" })
+-- vim.keymap.set("t", "<C-w><C-j>", "<c-\\><c-n><c-w>j", { desc = "Go to lower window" })
+-- vim.keymap.set("t", "<C-w><C-k>", "<c-\\><c-n><c-w>k", { desc = "Go to upper window" })
+-- vim.keymap.set("t", "<C-w><C-l>", "<c-\\><c-n><c-w>l", { desc = "Go to right window" })
+-- vim.keymap.set("t", "<esc><esc>", "<c-\\><c-n>", { desc = "Escape from terminal buffer" })
 
 vim.keymap.set("n", "<leader>;", ":e #<CR>", { desc = "Alternate Buffer" })
 vim.keymap.set("n", "<leader>bc", ":let @+=expand('%:p')<CR>", { desc = "Copy Buffer Path" })
