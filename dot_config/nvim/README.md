@@ -2,7 +2,11 @@
 
 ## Plugins
 
-Plugins are installed in $HOME/.config/nvim/pack.
+Plugins are installed in $HOME/.config/nvim/pack/plugins.
+
+- Plugins in $HOME/.config/nvim/pack/plugins/start are loaded automatically
+- Plugins in $HOME/.config/nvim/pack/plugins/opt are loaded with
+  :packadd PLUGIN
 
 Example: To install the plugin https://github.com/fake-plugin/fake.nvim:
 
