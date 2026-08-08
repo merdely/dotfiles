@@ -35,13 +35,36 @@ Example: To install the plugin https://github.com/fake-plugin/fake.nvim:
 |LSP        | LSP_FILE | PACKAGE1 [..PACKAGEn]           |
 |-----------|----------|---------------------------------|
 |Bash       | bashls   | bash-language-server shellcheck |
-|Alt Bash   | efm      | efm-langserver shellcheck shfmt |
 |Dockerfile | dockerls | dockerfile-language-server |
 |LUA        | lua_ls   | lua-language-server |
 |Python     | pyright  | python-pynvim pyright |
 |Python     | pylsp    | python-pynvim python-lsp-server/python3-pylsp |
 |Typescript | ls_ls    | typescript-language-server |
 |YAML       | yamlls   | yaml-language-server |
+
+### Installing bash-language-server, yaml-language-server on Debian
+
+```
+corepack config set prefix ~/.local
+corepack npm install -g bash-language-server
+corepack npm install -g yaml-language-server
+```
+
+### Installing lua-language-server on Debian
+
+```
+s=$(uname -s | tr '[:upper:]' '[:lower:]')
+a=$(dpkg --print-architecture)
+[ "$a" != "arm64" ] && a=x64
+u=$(curl -s https://api.github.com/repos/LuaLS/lua-language-server/releases/latest | \
+  awk -F '"' -v s=$s -v a=$a '$2=="browser_download_url"&&$4~"[0-9]-" s "-" a {print $4}')
+curl -LO "$u"
+mkdir -p ~/.local/lib/lua-language-server
+tar -C ~/.local/lib/lua-language-server -xf ./lua-language-server*"$s"-"$a".tar.gz
+printf '%s\n\n%s\n' '#!/bin/sh' 'exec "$HOME"/.local/lib/lua-language-server/bin/lua-language-server "$@"' > ~/.local/bin/lua-language-server
+chmod 755 ~/.local/bin/lua-language-server
+unset s a u
+```
 
 ## Video this configuration is based on
 
