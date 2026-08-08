@@ -1,5 +1,9 @@
 # Portable Neovim Config
 
+## Prerequisites
+
+Install tree-sitter-cli
+
 ## Plugins
 
 Plugins are installed in $HOME/.config/nvim/pack/plugins.
@@ -32,12 +36,12 @@ Example: To install the plugin https://github.com/fake-plugin/fake.nvim:
 |-----------|----------|---------------------------------|
 |Bash       | bashls   | bash-language-server shellcheck |
 |Alt Bash   | efm      | efm-langserver shellcheck shfmt |
-|Dockerfile | dockerls | dockerfile-language-server      |
-|LUA        | lua_ls   | lua-language-server             |
-|Python     | pyright  | python-pynvim pyright           |
-|Python     | pylsp    | python-pynvim python-lsp-server |
-|Typescript | ls_ls    | typescript-language-server      |
-|YAML       | yamlls   | yaml-language-server            |
+|Dockerfile | dockerls | dockerfile-language-server |
+|LUA        | lua_ls   | lua-language-server |
+|Python     | pyright  | python-pynvim pyright |
+|Python     | pylsp    | python-pynvim python-lsp-server/python3-pylsp |
+|Typescript | ls_ls    | typescript-language-server |
+|YAML       | yamlls   | yaml-language-server |
 
 ## Video this configuration is based on
 
