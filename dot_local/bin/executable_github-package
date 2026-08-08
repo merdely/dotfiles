@@ -47,9 +47,9 @@ usage() {
   echo "  -s|--system        : System install in /usr/local/bin"
   echo "  -u|--user          : User install in \$HOME/.local/bin (default)"
   echo "  -U|--upgrade       : Upgrade existing package (default: do not overwrite)"
-  echo "  -e|--executable    : Search for an executable file"
   echo "  -t|--tar           : Search for a tarball archive (default)"
   echo "  -z|--zip           : Search for a zipfile archive"
+  echo "  -x|--executable    : Search for an executable file"
   echo "  -d|--deb           : Search for a Debian package"
   echo "  -r|--rpm           : Search for a Red Hat package"
   echo "  -p|--pacman        : Search for a Arch Linux package"
@@ -69,9 +69,10 @@ main() {
   # shellcheck disable=SC1090,SC1091
   source "$PARSEOPTS" ; unset _LIB _LIBDIR
 
-  local OPT_SHORT="hvc:suUtzdrpa"
+  local OPT_SHORT="hvc:suUtzxdrpa"
   local OPT_LONG=("help" "verbose" "system" "user" "upgrade" "test" "debug"
-    "config:" "tar" "zip" "deb" "rpm" "pacman" "appimage" "arch:" "stdlib:" "dest:")
+    "config:" "tar" "zip" "executable" "deb" "rpm" "pacman" "appimage"
+    "arch:" "stdlib:" "dest:")
   declare -a OPTRET
   parseopts "$OPT_SHORT" "${OPT_LONG[@]}" -- "$@" || exit 1
   set -- "${OPTRET[@]}" ; unset OPT_SHORT OPT_LONG OPTRET
