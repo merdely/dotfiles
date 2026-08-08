@@ -51,7 +51,8 @@ binds {
     Mod+Apostrophe       hotkey-overlay-title="Idle Inhibit"      { spawn-sh "dms ipc call inhibit toggle"; }
     Mod+Ctrl+Alt+Shift+H hotkey-overlay-title=null                { focus-column-or-monitor-left; }
     Mod+Ctrl+Alt+Shift+L hotkey-overlay-title=null                { focus-column-or-monitor-right; }
-    Mod+Semicolon        hotkey-overlay-title="Open RBW"          { spawn-sh "pgrep -u $LOGNAME -f '^(/?.*[p]ython .*)?[r]ofi(-rbw| -markup-rows -dmenu)' && pkill -u $LOGNAME -f '^(/?.*[p]ython .*)?[r]ofi(-rbw| -markup-rows -dmenu)' || rofi-rbw --use-notify-send"; }
+    // Mod+Semicolon        hotkey-overlay-title="Open RBW"          { spawn-sh "pgrep -u $LOGNAME -f '^(/?.*[p]ython .*)?[r]ofi(-rbw| -markup-rows -dmenu)' && pkill -u $LOGNAME -f '^(/?.*[p]ython .*)?[r]ofi(-rbw| -markup-rows -dmenu)' || rofi-rbw --use-notify-send"; }
+    Mod+Semicolon        hotkey-overlay-title="Open RBW"          { spawn-sh "rofi-rbw --use-notify-send"; }
     Mod+Shift+A          hotkey-overlay-title="Open Signal"       { spawn-sh "$HOME/.config/niri/scratchpad org.signal.Signal"; }
     // Must create a termfm.desktop in $HOME/.local/share/applications
     Mod+Shift+BracketLeft  hotkey-overlay-title="Term File Mgr"   { spawn-sh "$HOME/.config/niri/scratchpad termfm"; }
