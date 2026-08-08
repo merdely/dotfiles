@@ -132,6 +132,8 @@ if [[ "${SSH_CLIENT%% *}" == "192.168.25.38" || "${SSH_CLIENT%% *}" == "192.168.
   alias remain='echo SSH to carme'
 fi
 
+[[ -e /.dockerenv ]] && export APPIMAGE_EXTRACT_AND_RUN=1
+
 # Make sure ~/.ssh/ctl is pointing to a temporary directory
 # shellcheck disable=2174
 [[ -d "$HOME"/.ssh ]] || mkdir -pm 700 "$HOME"/.ssh
