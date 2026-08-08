@@ -1,0 +1,35 @@
+version: 2
+root-markers:
+  - .git/
+  - .
+tools:
+  shellcheck: &shellcheck
+    lint-command: 'shellcheck -f gcc -x -'
+    lint-stdin: true
+    lint-ignore-exit-code: true
+    lint-source: 'shellcheck'
+    lint-formats:
+      - '%f:%l:%c: %trror: %m'
+      - '%f:%l:%c: %tarning: %m'
+      - '%f:%l:%c: %tote: %m'
+  shfmt: &shfmt
+    format-command: 'shfmt -i 2 -ci'
+    format-stdin: true
+  yamllint: &yamllint
+    lint-command: 'yamllint -f parsable -'
+    lint-stdin: true
+    lint-ignore-exit-code: true
+    lint-source: 'yamllint'
+  yamlfmt: &yamlfmt
+    format-command: 'yamlfmt -'
+    format-stdin: true
+languages:
+  sh:
+    - <<: *shellcheck
+    - <<: *shfmt
+  bash:
+    - <<: *shellcheck
+    - <<: *shfmt
+  yaml:
+    - <<: *yamllint
+    - <<: *yamlfmt
