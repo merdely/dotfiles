@@ -31,6 +31,7 @@ Example: To install the plugin https://github.com/fake-plugin/fake.nvim:
 |LSP        | LSP_FILE | PACKAGE1 [..PACKAGEn]           |
 |-----------|----------|---------------------------------|
 |Bash       | bashls   | bash-language-server shellcheck |
+|Alt Bash   | efm      | efm-langserver shellcheck shfmt |
 |Dockerfile | dockerls | dockerfile-language-server      |
 |LUA        | lua_ls   | lua-language-server             |
 |Python     | pyright  | python-pynvim pyright           |
