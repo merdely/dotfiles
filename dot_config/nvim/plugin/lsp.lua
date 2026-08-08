@@ -4,8 +4,10 @@
 local lsp_dir = vim.fn.stdpath("config") .. "/lsp"
 local files = vim.fn.globpath(lsp_dir, "*.lua", false, true)
 for _, filepath in ipairs(files) do
-  local lsp_file = string.sub(vim.fn.fnamemodify(filepath, ":t"), 1, -5)
-  vim.lsp.enable({ lsp_file })
+  if vim.uv.fs_stat(filepath) then
+    local lsp_file = string.sub(vim.fn.fnamemodify(filepath, ":t"), 1, -5)
+    vim.lsp.enable({ lsp_file })
+  end
 end
 
 vim.diagnostic.config({ virtual_text = true })
