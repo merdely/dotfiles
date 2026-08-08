@@ -65,30 +65,29 @@ alias vr='sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -L remote_app
 alias vl='sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -L latest'
 alias vd='sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -D -L all'
 
-alias garage='docker compose exec garage /garage'
+alias garage='docker exec garage /garage'
 
-alias naemoncheck='docker compose exec naemon runuser -u naemon -- naemon -v /etc/naemon/naemon.cfg'
-alias naemonreload='docker compose exec naemon pkill -P 1 -x naemon'
+alias naemoncheck='docker exec naemon runuser -u naemon -- naemon -v /etc/naemon/naemon.cfg'
+alias naemonreload='docker exec naemon pkill -P 1 -x naemon'
 
-alias psql='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres env HISTSIZE=10000 HISTFILE=~/.psql_history psql'
-alias pbash='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres bash'
-alias pg_dump='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres pg_dump'
-alias pg_dumpall='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres pg_dumpall'
-alias pg_restore='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres pg_restore'
-alias createuser='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres createuser'
-alias dropuser='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres dropuser'
-alias createdb='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres createdb'
-alias dropdb='docker compose -f $COMPOSE_FILE exec -it -u postgres postgres dropdb'
+alias psql='docker exec -it -u postgres postgres env HISTSIZE=10000 HISTFILE=~/.psql_history psql'
+alias pbash='docker exec -it -u postgres postgres bash'
+alias pg_dump='docker exec -it -u postgres postgres pg_dump'
+alias pg_dumpall='docker exec -it -u postgres postgres pg_dumpall'
+alias pg_restore='docker exec -it -u postgres postgres pg_restore'
+alias createuser='docker exec -it -u postgres postgres createuser'
+alias dropuser='docker exec -it -u postgres postgres dropuser'
+alias createdb='docker exec -it -u postgres postgres createdb'
+alias dropdb='docker exec -it -u postgres postgres dropdb'
 
 alias mariadb="docker compose exec -it -u mysql mysql mariadb"
 alias mariadb-dump="docker compose exec -it -u mysql mysql mariadb-dump"
 
-alias caddycheck='docker compose exec caddy caddy validate --config /etc/caddy/Caddyfile'
-alias caddyfmt='docker compose exec caddy caddy fmt --overwrite --config /etc/caddy/Caddyfile'
-alias caddylogs='docker compose logs -f caddy --since 1m'
-alias caddyreload='docker compose exec caddy caddy reload --config /etc/caddy/Caddyfile'
-alias influxdb3='docker compose exec influxdb env INFLUXDB3_AUTH_TOKEN="$INFLUXDB3_AUTH_TOKEN" influxdb3'
-# alias influxdb3="docker compose exec influxdb env INFLUXDB3_AUTH_TOKEN='$INFLUXDB3_AUTH_TOKEN' influxdb3"
+alias caddycheck='docker exec caddy caddy validate --config /etc/caddy/Caddyfile'
+alias caddyfmt='docker exec caddy caddy fmt --overwrite --config /etc/caddy/Caddyfile'
+alias caddylogs='docker logs -f caddy --since 1m'
+alias caddyreload='docker exec caddy caddy reload --config /etc/caddy/Caddyfile'
+alias influxdb3='docker exec influxdb env INFLUXDB3_AUTH_TOKEN="$INFLUXDB3_AUTH_TOKEN" influxdb3'
 
 alias bat=batcat
 alias nvim-bare='env NVIM_APPNAME=- nvim'
