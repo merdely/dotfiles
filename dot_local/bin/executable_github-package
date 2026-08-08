@@ -47,6 +47,7 @@ usage() {
   echo "  -s|--system        : System install in /usr/local/bin"
   echo "  -u|--user          : User install in \$HOME/.local/bin (default)"
   echo "  -U|--upgrade       : Upgrade existing package (default: do not overwrite)"
+  echo "  -e|--executable    : Search for an executable file"
   echo "  -t|--tar           : Search for a tarball archive (default)"
   echo "  -z|--zip           : Search for a zipfile archive"
   echo "  -d|--deb           : Search for a Debian package"
@@ -210,8 +211,13 @@ main() {
         echo "Error: Could not find $binfile from tarball" >&2
         exit 1
       fi
-      echo "Copying $binfile to $destdir"
-      "${testmode[@]}" "${sudo[@]}" install -m 755 "$srcfile" "$destdir"/"$binfile"
+      if [[ -n "$altdest" ]]; then
+        echo "Copying $binfile to $altdest"
+        cp "$srcfile" "$altdest"
+      else
+        echo "Copying $binfile to $destdir"
+        "${testmode[@]}" "${sudo[@]}" install -m 755 "$srcfile" "$destdir"/"$binfile"
+      fi
       ;;
     *.zip)
       "$verbose" && echo "Extracting zipfile"
@@ -221,13 +227,23 @@ main() {
         echo "Error: Could not find $binfile from zipfile" >&2
         exit 1
       fi
-      echo "Copying $binfile to $destdir"
-      "${testmode[@]}" "${sudo[@]}" install -m 755 "$srcfile" "$destdir"/"$binfile"
+      if [[ -n "$altdest" ]]; then
+        echo "Copying $binfile to $altdest"
+        cp "$srcfile" "$altdest"
+      else
+        echo "Copying $binfile to $destdir"
+        "${testmode[@]}" "${sudo[@]}" install -m 755 "$srcfile" "$destdir"/"$binfile"
+      fi
       ;;
     *.appimage|*.AppImage)
-      echo "Copying $binfile to $destdir"
-      "${testmode[@]}" "${sudo[@]}" install -m 755 "$download_file" "$destdir"/"${download_file##*/}"
-      "${testmode[@]}" "${sudo[@]}" ln -sf "${download_file##*/}" "$destdir"/"$binfile"
+      if [[ -n "$altdest" ]]; then
+        echo "Copying $binfile to $altdest"
+        cp "$srcfile" "$altdest"
+      else
+        echo "Copying $binfile to $destdir"
+        "${testmode[@]}" "${sudo[@]}" install -m 755 "$download_file" "$destdir"/"${download_file##*/}"
+        "${testmode[@]}" "${sudo[@]}" ln -sf "${download_file##*/}" "$destdir"/"$binfile"
+      fi
       ;;
     *.deb|*.deb.gz|*.deb.bz2)
       [[ "${download_file##*/}" == *.deb.gz ]] && { gunzip "${download_file##*/}" ; download_file=${download_file%.gz} ; }
@@ -260,6 +276,16 @@ main() {
         "${testmode[@]}" sudo dnf install -y "${download_file}"
       fi
       ;;
+    *)
+      if [[ -n "$altdest" ]]; then
+        echo "Copying ${download_file##*/} to $altdest"
+        cp "$download_file" "$altdest"
+      else
+        echo "Copying ${download_file##*/} to $destdir"
+        "${testmode[@]}" "${sudo[@]}" install -m 755 "$download_file" "$destdir"/"$binfile"
+      fi
+      ;;
+
   esac
 }
 
