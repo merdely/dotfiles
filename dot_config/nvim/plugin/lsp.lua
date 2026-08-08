@@ -22,31 +22,31 @@ vim.api.nvim_create_autocmd("LspAttach", {
 vim.lsp.config("efm", {
   filetypes = { 'sh', 'bash', 'yaml' },
   init_options = { documentFormatting = true, documentRangeFormatting = true },
-  settings = {
-    -- logFile = '/tmp/efm.log',
-    -- logLevel = 5,
-    rootMarkers = { '.git/', '.' },
-    languages = {
-      sh = {
-        {
-          lintCommand = 'shellcheck -f gcc -x -',
-          lintStdin = true,
-          lintIgnoreExitCode = true,
-          lintSource = 'shellcheck',
-          lintFormats = {
-            '%f:%l:%c: %trror: %m',
-            '%f:%l:%c: %tarning: %m',
-            '%f:%l:%c: %tote: %m',
-          },
-        },
-        { formatCommand = 'shfmt -i 2 -ci', formatStdin = true },
-      },
-      yaml = {
-        { lintCommand = 'yamllint -f parsable -', lintStdin = true, lintIgnoreExitCode = true, lintSource = 'yamllint' },
-        { formatCommand = 'yamlfmt -', formatStdin = true },
-      },
-    },
-  },
+  -- settings = {
+  --   -- logFile = '/tmp/efm.log',
+  --   -- logLevel = 5,
+  --   rootMarkers = { '.git/', '.' },
+  --   languages = {
+  --     sh = {
+  --       {
+  --         lintCommand = 'shellcheck -f gcc -x -',
+  --         lintStdin = true,
+  --         lintIgnoreExitCode = true,
+  --         lintSource = 'shellcheck',
+  --         lintFormats = {
+  --           '%f:%l:%c: %trror: %m',
+  --           '%f:%l:%c: %tarning: %m',
+  --           '%f:%l:%c: %tote: %m',
+  --         },
+  --       },
+  --       { formatCommand = 'shfmt -i 2 -ci', formatStdin = true },
+  --     },
+  --     yaml = {
+  --       { lintCommand = 'yamllint -f parsable -', lintStdin = true, lintIgnoreExitCode = true, lintSource = 'yamllint' },
+  --       { formatCommand = 'yamlfmt -', formatStdin = true },
+  --     },
+  --   },
+  -- },
 })
 vim.lsp.config("lua_ls", {
 	settings = {
