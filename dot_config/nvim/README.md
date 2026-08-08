@@ -45,7 +45,7 @@ Example: To install the plugin https://github.com/fake-plugin/fake.nvim:
 ### Installing bash-language-server, yaml-language-server on Debian
 
 ```
-corepack config set prefix ~/.local
+corepack npm config set prefix ~/.local
 corepack npm install -g bash-language-server
 corepack npm install -g yaml-language-server
 ```
