@@ -3,7 +3,7 @@
 // Use: chezmoi edit ~/.config/niri/uranus.kdl
 // Or after editing, run: chezmoi re-add ~/.config/niri/uranus.kdl
 
-spawn-sh-at-startup "foot"
+spawn-sh-at-startup "kitty"
 spawn-sh-at-startup "waybar"
 spawn-sh-at-startup "swayidle -w"
 spawn-sh-at-startup "dunst"
@@ -16,7 +16,7 @@ environment {
 
 // To override a previous definition, the same key name must be used (Super/Mod)
 binds {
-    Mod+T                hotkey-overlay-title="Open Terminal"     { spawn-sh "foot"; }
+    Mod+T                hotkey-overlay-title="Open Terminal"     { spawn-sh "kitty"; }
     Mod+Space            hotkey-overlay-title="Fuzzel Apps"       { spawn-sh "fuzzel"; }
     Super+X              hotkey-overlay-title="Power Menu"        { spawn-sh "$HOME/.config/niri/powermenu"; }
     Mod+Shift+Space      hotkey-overlay-title="Clear Notifications" { spawn-sh "dunstctl close-all" ; }
