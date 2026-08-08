@@ -90,6 +90,7 @@ main() {
       -c|--config)   shift ; CONFIG=$1 ;;
       -t|--tar)      ext_regex="(tar\.gz|tgz|tar.bz2|tbz2|tar)" ;;
       -z|--zip)      ext_regex="(zip)" ;;
+      -x|--executable) ext_regex="" ;;
       -d|--deb)      ext_regex="(deb|deb\.gz|deb\.bz2)" ;;
       -r|--rpm)      ext_regex="(rpm|rpm\.gz|rpm\.bz2)" ;;
       -p|--pacman)   ext_regex="(pkg\.tar\.xz|pkg\.tar\.zst)" ;;
