@@ -150,6 +150,8 @@ main() {
   local repo_info="$tmpdir"/curl.out
   mapfile -t files < <(awk -F'"' '$2=="browser_download_url"{print $4}' "$repo_info")
 
+  local ncm=false
+  shopt -q nocasematch && ncm=true ; shopt -s nocasematch
   # If configuration file has an entry for its regex, use it
   if [[ -n "${pkg[$repo]}" ]]; then
     "$debug" && set -x
@@ -192,6 +194,7 @@ main() {
       fi
     fi
   fi
+  ! "$ncm" && shopt -u nocasematch ; ncm=false
 
   if (( ${#matches[@]} != 1 )); then
     echo "Error: Could not narrow down download url (${#matches[@]} matches)" >&2
