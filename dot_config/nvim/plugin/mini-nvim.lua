@@ -60,7 +60,11 @@ do
     plugin_config.setup({
       snippets = {
         require("mini.snippets").gen_loader.from_file(vim.fn.stdpath("config") .. "/snippets/global.json"),
-        require("mini.snippets").gen_loader.from_lang(),
+        require("mini.snippets").gen_loader.from_lang({
+          lang_patterns = {
+            bash = { "sh.json" },
+          },
+        }),
       },
     })
     MiniSnippets.start_lsp_server()
