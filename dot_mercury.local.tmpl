@@ -3,14 +3,12 @@
 # Use: chezmoi edit ~/.mercury.local
 # Or after editing, run: chezmoi re-add ~/.mercury.local
 
-if [[ -n "$COMPOSE_FILE" ]]; then
-  alias caddy='docker compose -f "$COMPOSE_FILE" exec caddy caddy'
-  alias caddyreload='docker compose -f "$COMPOSE_FILE" exec caddy caddy reload -c /etc/caddy/Caddyfile'
-  alias caddycheck='docker compose -f "$COMPOSE_FILE" exec caddy caddy validate -c /etc/caddy/Caddyfile'
-  alias caddyfmt='docker compose -f "$COMPOSE_FILE" exec caddy caddy fmt --overwrite -c /etc/caddy/Caddyfile'
-  alias caddylogs='docker compose -f "$COMPOSE_FILE" logs -f caddy --since 1m'
-  alias ollama='docker compose -f "$COMPOSE_FILE" exec ollama ollama'
-fi
+  alias caddy='docker exec caddy caddy'
+  alias caddyreload='docker exec caddy caddy reload -c /etc/caddy/Caddyfile'
+  alias caddycheck='docker exec caddy caddy validate -c /etc/caddy/Caddyfile'
+  alias caddyfmt='docker exec caddy caddy fmt --overwrite -c /etc/caddy/Caddyfile'
+  alias caddylogs='docker logs -f caddy --since 1m'
+  alias ollama='docker exec ollama ollama'
 
 alias ap=ansible-playbook
 alias apv='ansible-playbook --ask-vault-pass'
@@ -18,8 +16,8 @@ alias apkv='ANSIBLE_SSH_ARGS="-o GlobalKnownHostsFile=/dev/null -o UserKnownHost
 alias apk='ANSIBLE_SSH_ARGS="-o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" ansible-playbook'
 
 alias dmesg='sudo dmesg'
-alias archbuild='ssh -t earth docker compose -f /srv/docker/compose.yaml exec archbuild bash -l'
-alias archarmbuild='ssh -t earth docker compose -f /srv/docker/compose.yaml exec archarmbuild bash -l'
+alias archbuild='ssh -t earth docker exec -it archbuild bash -l'
+alias archarmbuild='ssh -t earth docker exec -it archarmbuild bash -l'
 
 alias remain='echo SSH to carme'
 alias suvcheck='sudo su -s /bin/bash -l vcheck'
