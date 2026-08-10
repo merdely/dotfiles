@@ -3,6 +3,10 @@
 # Use: chezmoi edit ~/.earth.local
 # Or after editing, run: chezmoi re-add ~/.earth.local
 
+alias fd=fdfind
+alias bat=batcat
+alias cat=batcat
+
 alias intel_gpu_top='sudo intel_gpu_top'
 alias itop='sudo /usr/bin/intel_gpu_top'
 alias nvtop='sudo nvtop'
