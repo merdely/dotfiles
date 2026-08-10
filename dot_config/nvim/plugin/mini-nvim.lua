@@ -59,12 +59,16 @@ do
   if ok then
     plugin_config.setup({
       snippets = {
-        require("mini.snippets").gen_loader.from_file(vim.fn.stdpath("config") .. "/snippets/global.json"),
-        require("mini.snippets").gen_loader.from_lang({
-          lang_patterns = {
-            bash = { "sh.json" },
-          },
-        }),
+        -- plugin_config.gen_loader.from_file(vim.fn.stdpath("config") .. "/snippets/global.json"),
+        plugin_config.gen_loader.from_runtime("global.json"),
+        plugin_config.gen_loader.from_lang(
+          {
+            lang_patterns = {
+              bash = { "**/sh.json", "**/shell.json", "**/bash.json" },
+              sh = { "**/sh.json", "**/shell.json", "**/bash.json" },
+            },
+          }
+        ),
       },
     })
     MiniSnippets.start_lsp_server()
