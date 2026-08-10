@@ -94,3 +94,5 @@ alias viq='sudoedit /srv/docker/qbittorrent/config/qBittorrent/qBittorrent.conf'
 
 # shellcheck disable=2154
 alias get_jitsi='u=$(curl -s https://api.github.com/repos/jitsi/docker-jitsi-meet/releases/latest | jq -r .tarball_url) && (cd /tmp; curl -LO "$u"); unset u'
+
+unset COMPOSE_FILE
