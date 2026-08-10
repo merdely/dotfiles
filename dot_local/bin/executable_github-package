@@ -132,8 +132,8 @@ main() {
   [[ -r "$CONFIG" ]] && source "$CONFIG"
 
   [[ -n "${alias[$repo]}" ]] && repo=${alias[$repo]}
-  [[ -n "${types[$repo]}" ]] && type=${types[$repo]}
   [[ "$repo" != */* ]] && repo=$repo/$repo
+  [[ -n "${types[$repo]}" ]] && type=${types[$repo]}
   local regex=${pkg[$repo]}
   local srcbinfile=${srcbin[$repo]}
   local binfile=${bin[$repo]}
