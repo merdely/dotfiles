@@ -97,4 +97,5 @@ alias bat=batcat
 alias nvim-bare='env NVIM_APPNAME=- nvim'
 alias nvim-test='env NVIM_APPNAME=nvim-test nvim'
 
-export COMPOSE_FILE=/srv/docker/all/compose.yaml
+# export COMPOSE_FILE=/srv/docker/all/compose.yaml
+unset COMPOSE_FILE
