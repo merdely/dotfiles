@@ -77,8 +77,16 @@ main() {
   parseopts "$OPT_SHORT" "${OPT_LONG[@]}" -- "$@" || exit 1
   set -- "${OPTRET[@]}" ; unset OPT_SHORT OPT_LONG OPTRET
 
+  declare -A ext_regex
+  ext_regex[tar]="(tar\.gz|tgz|tar.bz2|tbz2|tar)"
+  ext_regex[zip]="(zip)"
+  ext_regex[exec]=""
+  ext_regex[deb]="(deb|deb\.gz|deb\.bz2)"
+  ext_regex[rpm]="(rpm|rpm\.gz|rpm\.bz2)"
+  ext_regex[pacman]="(pkg\.tar\.xz|pkg\.tar\.zst)"
+  ext_regex[appimage]="(appimage|AppImage|APPIMAGE)"
   local destdir="$HOME"/.local/bin sudo=() debug=false
-  local verbose=false ext_regex="(tar\.gz|tgz|tar.bz2|tbz2|tar)" testmode=() upgrade=false
+  local verbose=false type=tar testmode=() upgrade=false
   local altarch="" altdest="" altstdlib=""
   while true; do
     case $1 in
@@ -88,13 +96,13 @@ main() {
       -u|--user)     destdir="$HOME"/.local/bin ; sudo=() ;;
       -U|--upgrade)  upgrade=true ;;
       -c|--config)   shift ; CONFIG=$1 ;;
-      -t|--tar)      ext_regex="(tar\.gz|tgz|tar.bz2|tbz2|tar)" ;;
-      -z|--zip)      ext_regex="(zip)" ;;
-      -x|--executable) ext_regex="" ;;
-      -d|--deb)      ext_regex="(deb|deb\.gz|deb\.bz2)" ;;
-      -r|--rpm)      ext_regex="(rpm|rpm\.gz|rpm\.bz2)" ;;
-      -p|--pacman)   ext_regex="(pkg\.tar\.xz|pkg\.tar\.zst)" ;;
-      -a|--appimage) ext_regex="(appimage|AppImage|APPIMAGE)" ;;
+      -t|--tar)      type=tar ;;
+      -z|--zip)      type=zip ;;
+      -x|--executable) type="exec" ;;
+      -d|--deb)      type=deb ;;
+      -r|--rpm)      type=rpm ;;
+      -p|--pacman)   type=pacman ;;
+      -a|--appimage) type=appimage ;;
          --arch)     shift ; altarch=$1 ;;
          --stdlib)   shift ; altstdlib=$1 ;;
          --dest)     shift ; altdest=$1 ;;
@@ -115,7 +123,7 @@ main() {
     *) echo "Error: $ARCH not implemented" >&2 ; exit 1 ;;
   esac
 
-  declare -A alias pkg bin srcbin
+  declare -A alias pkg bin srcbin types
   local repo=$1 tmpdir="" url="" srcbinfile="" files=() matches=()
   tmpdir=$(mktemp -d)
   TMPFILES=("$tmpdir")
@@ -124,6 +132,7 @@ main() {
   [[ -r "$CONFIG" ]] && source "$CONFIG"
 
   [[ -n "${alias[$repo]}" ]] && repo=${alias[$repo]}
+  [[ -n "${types[$repo]}" ]] && type=${types[$repo]}
   [[ "$repo" != */* ]] && repo=$repo/$repo
   local regex=${pkg[$repo]}
   local srcbinfile=${srcbin[$repo]}
@@ -164,8 +173,8 @@ main() {
   else
     "$debug" && set -x
     for url in "${files[@]}"; do
-      [[ "$url" =~ ${SYSTEM}.*${ARCH}.*\.${ext_regex}$ ||
-        "$url" =~ ${ARCH}.*${SYSTEM}.*\.${ext_regex}$ ]] && matches+=("$url")
+      [[ "$url" =~ ${SYSTEM}.*${ARCH}.*\.${ext_regex[$type]}$ ||
+        "$url" =~ ${ARCH}.*${SYSTEM}.*\.${ext_regex[$type]}$ ]] && matches+=("$url")
     done
     set +x
     if (( ${#matches[@]} == 0 )); then
@@ -177,12 +186,12 @@ main() {
       files=("${matches[@]}")
       matches=()
       for url in "${files[@]}"; do
-        [[ "$url" =~ ${SYSTEM}.*${ARCH}.*${STDLIB}.*\.${ext_regex}$ ||
-          "$url" =~ ${SYSTEM}.*${STDLIB}.*${ARCH}.*\.${ext_regex}$ ||
-          "$url" =~ ${STDLIB}.*${SYSTEM}.*${ARCH}.*\.${ext_regex}$ ||
-          "$url" =~ ${STDLIB}.*${ARCH}.*${SYSTEM}.*\.${ext_regex}$ ||
-          "$url" =~ ${ARCH}.*${SYSTEM}.*${STDLIB}.*\.${ext_regex}$ ||
-          "$url" =~ ${ARCH}.*${STDLIB}.*${SYSTEM}.*\.${ext_regex}$ ]] && matches+=("$url")
+        [[ "$url" =~ ${SYSTEM}.*${ARCH}.*${STDLIB}.*\.${ext_regex[$type]}$ ||
+          "$url" =~ ${SYSTEM}.*${STDLIB}.*${ARCH}.*\.${ext_regex[$type]}$ ||
+          "$url" =~ ${STDLIB}.*${SYSTEM}.*${ARCH}.*\.${ext_regex[$type]}$ ||
+          "$url" =~ ${STDLIB}.*${ARCH}.*${SYSTEM}.*\.${ext_regex[$type]}$ ||
+          "$url" =~ ${ARCH}.*${SYSTEM}.*${STDLIB}.*\.${ext_regex[$type]}$ ||
+          "$url" =~ ${ARCH}.*${STDLIB}.*${SYSTEM}.*\.${ext_regex[$type]}$ ]] && matches+=("$url")
       done
       if (( ${#matches[@]} == 0 )); then
         echo "Error: Narrowing with STDLIB gave zero results" >&2
