@@ -90,7 +90,7 @@ case "$ID" in
       # tesseract-data-eng is required by tesseract, required by ripgrep/libmupdf
       packages="base-devel python git openssh neovim man-db apparmor cronie \
         firejail rsync inetutils archlinux-contrib pacman-contrib tree-sitter-cli \
-        networkmanager openresolv htop btop jq 7zip unzip bat fd sd xh \
+        networkmanager openresolv htop btop jq 7zip unzip bat fd sd xh dust dog \
         zsh git-zsh-completion zsh-autocomplete zsh-autosuggestions \
         zsh-completions zsh-syntax-highlighting ripgrep tesseract-data-eng \
         bash-completion bind fzf gum nvtop tmux yazi python-pipx"
