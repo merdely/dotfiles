@@ -14,6 +14,7 @@ bw_api_key="API Key"
 bw_api_secret="API Secret"
 
 [adguard]
-bw_entry="++++Home Apps - Authelia, etc"
+bw_entry="++++Home Apps - Authelia, atuin, etc"
 bw_uri="AdGuard DNS List"
+
 
