@@ -26,6 +26,7 @@ https://archwiki.erdely.in
 https://askubuntu.com
 https://ata192.erdely.in
 https://atlas.erdely.in
+https://atuin.erdely.in
 https://audiobooks.erdelynet.com
 https://audiobooks.erdelynet.com:23422
 https://august-wifi-gateway.erdely.in
@@ -53,6 +54,7 @@ https://cameras.erdely.in
 https://*.carme.erdely.in
 https://carme.erdely.in
 https://carpo.erdely.in
+https://ceres.erdely.in
 https://chatbot.erdely.in
 https://chatgpt.com
 https://chat.mistral.ai
@@ -88,11 +90,13 @@ https://dns.erdely.in
 https://dns.erdelynet.com
 https://dnsmasq.dnsmasq
 https://docker.erdely.in
+https://dockge.erdely.in
 https://docs.docker.com
 https://docs.erdely.in
 https://docs.openwebui.com
 https://docs.splunk.com
 https://dozzle.erdely.in
+https://draw.erdely.in
 https://drive.google.com
 https://duckduckgo.com
 https://*.earth.erdely.in
