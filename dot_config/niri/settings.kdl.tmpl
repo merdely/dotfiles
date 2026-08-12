@@ -59,7 +59,7 @@ binds {
     Mod+Shift+BracketLeft  hotkey-overlay-title="Term File Mgr"   { spawn-sh "$HOME/.config/niri/scratchpad termfm"; }
     Mod+Shift+BracketRight hotkey-overlay-title="GUI File Mgr"    { spawn-sh "$HOME/.config/niri/scratchpad org.gnome.Nautilus"; }
     Mod+Shift+C          hotkey-overlay-title="Open Galculator"   { spawn-sh "pgrep -u $LOGNAME -x galculator && pkill -u $LOGNAME -x galculator || gtk-launch galculator"; }
-    Mod+Shift+Q          hotkey-overlay-title="Open Logseq"       { spawn-sh "$HOME/.config/niri/scratchpad com.logseq.Logseq Logseq"; }
+    Mod+Shift+Q          hotkey-overlay-title="Open Logseq"       { spawn-sh "$HOME/.config/niri/scratchpad logseq logseq Logseq"; }
     // Must create a term-scratchpad.desktop in $HOME/.local/share/applications
     Mod+Shift+Return     hotkey-overlay-title="Scratch Terminal"  { spawn-sh "$HOME/.config/niri/scratchpad term-scratchpad"; }
     Mod+Shift+Apostrophe hotkey-overlay-title="Bluetooth Manager" { spawn-sh "$HOME/.config/niri/scripts/minimize blueman-manager"; }
@@ -114,14 +114,14 @@ window-rule {
 
 // Open scratchpad apps floating
 window-rule {
-    match app-id=r#"^Bitwarden|com\.logseq\.Logseq|Logseq|org\.gnome\.Nautilus|org\.kde\.kdeconnect\.sms|org\.signal\.Signal|signal|htop|htop-.*|nvtop|nvtop-.*|term-scratchpad|termfm$"#
+    match app-id=r#"^Bitwarden|com\.logseq\.Logseq|logseq|Logseq|org\.gnome\.Nautilus|org\.kde\.kdeconnect\.sms|org\.signal\.Signal|signal|htop|htop-.*|nvtop|nvtop-.*|term-scratchpad|termfm$"#
     open-maximized false
     open-floating true
 }
 
 // Start scratchpad apps in scratchpad workspace
 window-rule {
-    match app-id=r#"^Bitwarden|com\.logseq\.Logseq|Logseq|org\.kde\.kdeconnect\.sms|org\.signal\.Signal|signal|htop|htop-.*|nvtop|nvtop-.*|term-scratchpad|termfm$"# at-startup=true
+    match app-id=r#"^Bitwarden|com\.logseq\.Logseq|logseq|Logseq|org\.kde\.kdeconnect\.sms|org\.signal\.Signal|signal|htop|htop-.*|nvtop|nvtop-.*|term-scratchpad|termfm$"# at-startup=true
     open-on-workspace "🗒️"
     open-maximized true
     open-floating false
