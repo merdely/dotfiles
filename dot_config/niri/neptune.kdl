@@ -40,6 +40,10 @@ input {
     focus-follows-mouse max-scroll-amount="49%"
 }
 
+binds {
+    Mod+Shift+A hotkey-overlay-title="Open Signal" { spawn-sh "$HOME/.config/niri/scratchpad signal-desktop signal Signal"; }
+}
+
 window-rule {
     match app-id=r#"imv"# title=r#"niri_help"#
     open-floating true
