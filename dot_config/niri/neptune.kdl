@@ -41,7 +41,7 @@ input {
 }
 
 binds {
-    Mod+Shift+A hotkey-overlay-title="Open Signal" { spawn-sh "$HOME/.config/niri/scratchpad signal-desktop signal Signal"; }
+    Mod+Shift+A hotkey-overlay-title="Open Signal" { spawn-sh "$HOME/.config/niri/scratchpad signal signal Signal"; }
 }
 
 window-rule {
