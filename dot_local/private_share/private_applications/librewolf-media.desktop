@@ -1,0 +1,14 @@
+[Desktop Entry]
+Name=LibreWolf Media
+Exec=librewolf --name librewolf_media -P Media %u
+Comment=Browse the World Wide Web
+Icon=librewolf-red
+Type=Application
+MimeType=text/html;text/xml;application/xhtml+xml;x-scheme-handler/http;x-scheme-handler/https;application/x-xpinstall;application/pdf;application/json;
+StartupWMClass=librewolf
+Categories=Network;WebBrowser;
+StartupNotify=true
+Terminal=false
+X-MultipleArgs=false
+Keywords=Internet;WWW;Browser;Web;Explorer
+Actions=new-window;new-private-window;profilemanager;
