@@ -1,0 +1,37 @@
+{
+  "timeStamp": 1786560974054,
+  "version": "1.73.0",
+  "userSettings": {
+    "advancedUserEnabled": true,
+    "importedLists": [],
+    "popupPanelSections": 31
+  },
+  "selectedFilterLists": [
+    "user-filters",
+    "ublock-filters",
+    "ublock-badware",
+    "ublock-privacy",
+    "ublock-unbreak",
+    "ublock-quick-fixes",
+    "easylist",
+    "adguard-spyware-url",
+    "easyprivacy",
+    "urlhaus-1",
+    "curben-phishing",
+    "plowe-0",
+    "LegitimateURLShortener"
+  ],
+  "hiddenSettings": {},
+  "whitelist": [
+    "app.gifthealth.com",
+    "beacon.labor.maryland.gov",
+    "chrome-extension-scheme",
+    "meet.erdelynet.com",
+    "moz-extension-scheme",
+    "tennislink.usta.com"
+  ],
+  "dynamicFilteringString": "behind-the-scene * * noop\nbehind-the-scene * inline-script noop\nbehind-the-scene * 1p-script noop\nbehind-the-scene * 3p-script noop\nbehind-the-scene * 3p-frame noop\nbehind-the-scene * image noop\nbehind-the-scene * 3p noop\n* * 3p-frame block\noce.americanexpress.com * 3p-frame noop\njobs.ashbyhq.com * 3p-frame noop\nwww.axonius.com * 3p-frame noop\nsecure.backblaze.com * 3p-frame noop\nblank.about-scheme * 3p-frame noop\nonline.citi.com * 3p-frame noop\ncribl.io * 3p-frame noop\nwww.cvs.com * 3p-frame noop\ndaemonforums.org * 3p-frame noop\napp.docker.com * 3p-frame noop\nwww.docker.com * 3p-frame noop\nwww.doordash.com * 3p-frame noop\nwww.eaters365.com * 3p-frame noop\nsignin.ebay.com * 3p-frame noop\nwww.ebay.com * 3p-frame noop\nhub.emteria.com * 3p-frame noop\nopencloud.erdely.in * 3p-frame noop\nmeet.erdelynet.com * 3p-frame noop\nwww.flexjobs.com * 3p-frame noop\napp.gifthealth.com * 3p-frame noop\ngitlab.com * 3p-frame noop\njob-boards.greenhouse.io * 3p-frame noop\nheatonist.com * 3p-frame noop\nheatonist.com acsbapp.com * noop\nheatonist.com cloudflare.com * noop\nheatonist.com shopifysvc.com * noop\nheatonist.com xp2023-pix.s3.amazonaws.com * noop\nhetrixtools.com * 3p-frame noop\napp.hireart.com * 3p-frame noop\nwww.hubspot.com * 3p-frame noop\ncareers-softtechconsulting.icims.com * 3p-frame noop\ncareers-unisonglobal.icims.com * 3p-frame noop\nwww.ifit.com * 3p-frame noop\nsecure.indeed.com * 3p-frame noop\nsmartapply.indeed.com * 3p-frame noop\nwww.indeed.com * 3p-frame noop\nkillercoda.com * 3p-frame noop\ntraining.knowbe4.com * 3p-frame noop\ncareers.leidos.com * 3p-frame noop\nlemmy.world * 3p-frame noop\nwww.linuxquestions.org * 3p-frame noop\nsecure.login.gov * 3p-frame noop\nbeacon.labor.maryland.gov * 3p-frame noop\ngov.teams.microsoft.us * 3p-frame noop\nwww.monster.com * 3p-frame noop\nmobile-checkin.mydentistlink.com * 3p-frame noop\nfinra.wd1.myworkdayjobs.com * 3p-frame noop\ncareers.nebius.com * 3p-frame noop\nwww.netskope.com * 3p-frame noop\nwww.nexhealth.com * 3p-frame noop\nauth.openai.com * 3p-frame noop\ncloud.oracle.com * 3p-frame noop\ncloud.oracle.com oracleinfinity.io * noop\nsignup.cloud.oracle.com * 3p-frame noop\nwww.oracle.com * 3p-frame noop\nehpv.fa.em2.oraclecloud.com * 3p-frame noop\nhcm.paycor.com * 3p-frame noop\nwww.paypal.com * 3p-frame noop\norder.peblla.com * 3p-frame noop\nprogramming.dev * 3p-frame noop\nforums.raspberrypi.com * 3p-frame noop\nsensereo.com * 3p-frame noop\nshop.sensereo.com * 3p-frame noop\nshop.app * 3p-frame noop\nlogin.splunk.com * 3p-frame noop\ndomains.squarespace.com * 3p-frame noop\nlogin.squarespace.com * 3p-frame noop\nsecure.squarespace.com * 3p-frame noop\npaypal.syf.com * 3p-frame noop\npaypal.syf.com newrelic.com * noop\nwww.theladders.com * 3p-frame noop\nauth.ticketmaster.com * 3p-frame noop\nqueue.ticketmaster.com * 3p-frame noop\nwww.ticketmaster.com * 3p-frame noop\nwww.valant.io * 3p-frame noop\nid.venmo.com * 3p-frame noop\ndeveloper.withings.com * 3p-frame noop\nwww.ziprecruiter.com * 3p-frame noop\nwww.flexjobs.com segment.com * noop\nwww.flexjobs.com newrelic.com * noop\ncareers-govcio.icims.com * 3p-frame noop\nexplore.jobs.netflix.net * 3p-frame noop\nmdmontgomeryctyweb.myvscloud.com * 3p-frame noop\nwww.usta.com * 3p-frame noop\npatient.mygenesight.com * 3p-frame noop\ncancareers-yelp.icims.com * 3p-frame noop\nkeybank.wd5.myworkdayjobs.com * 3p-frame noop\nwww.five9.com * 3p-frame noop\njobs.lever.co * 3p-frame noop\nwww.gwog.com * 3p-frame noop\njobs.smartrecruiters.com * 3p-frame noop\nwww.kentik.com * 3p-frame noop\nwww.fortressinfosec.com * 3p-frame noop\npremisehealth2.avature.net * 3p-frame noop\nwww.x-sense.com * 3p-frame noop\nats.rippling.com * 3p-frame noop\nwww.pathai.com * 3p-frame noop\nwww.vultr.com * 3p-frame noop\ncrowdstrike.wd5.myworkdayjobs.com * 3p-frame noop\ncrowdstrike.wd5.myworkdayjobs.com workday.com * noop\njobs.dayforcehcm.com * 3p-frame noop\ngdit.wd5.myworkdayjobs.com * 3p-frame noop\njobgether.com * 3p-frame noop\nwww.medstarhealth.org * 3p-frame noop\nwww.pinterestcareers.com * 3p-frame noop\ncellebrite.com * 3p-frame noop\njoin.jfrog.com * 3p-frame noop\ncareers-amd.icims.com * 3p-frame noop\nitcareersapply.apexsystems.com * 3p-frame noop\nwww.americanexpress.com * 3p-frame noop\nlearn.dotb.sh * 3p-frame noop\njob-boards.eu.greenhouse.io * 3p-frame noop\nnuki.io * 3p-frame noop\ncareers-peraton.icims.com * 3p-frame noop\npantheon.io * 3p-frame noop\nbitwarden.com * 3p-frame noop\naltinity.com * 3p-frame noop\nwellfound.com * 3p-frame noop\nwww.kubecraft.dev * 3p-frame noop\nlogin.brevo.com * 3p-frame noop",
+  "urlFilteringString": "",
+  "hostnameSwitchesString": "no-large-media: behind-the-scene false\nno-csp-reports: * true",
+  "userFilters": "! Feb 16, 2026 https://tennislink.usta.com\n! ||tennislink.usta.com/Dashboard/common/widgets/PlayTennisBanner/images/yellow.png$image\ntennislink.usta.com##.play-tennis-widget-32363\n\n! Jul 5, 2026 https://www.startpage.com\nwww.startpage.com##.css-f20yi5\n\n! Jul 10, 2026 https://www.startpage.com\nwww.startpage.com##.css-mhoni7"
+}
