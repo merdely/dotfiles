@@ -36,4 +36,7 @@ binds {
 }
 
 // Fix for nvidia card
-debug { wait-for-frame-completion-before-queueing; }
+debug {
+    wait-for-frame-completion-before-queueing
+    render-drm-device "/dev/dri/renderD129"
+}
