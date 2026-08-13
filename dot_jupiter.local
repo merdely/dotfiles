@@ -55,7 +55,7 @@ alias upgrade_meilisearch='docker compose -f /srv/docker/jupiter_meilisearch/com
 alias pa='docker exec -it ytdlp-shell /home/mike/bin/ytdl.py --print-album'
 alias ytdl.py='docker exec -it ytdlp-shell /home/mike/bin/ytdl.py'
 
-alias forgejo_settings='sudoedit /srv/docker/forgejo/data/custom/conf/app.ini'
+alias forgejo_settings='sudoedit /srv/docker/jupiter_forgejo/data/custom/conf/app.ini'
 
 alias suvcheck='sudo su - -s /bin/bash vcheck'
 alias sudockuser='sudo su - -s /bin/bash dockuser'
@@ -79,18 +79,18 @@ alias navidrome='docker exec -it navidrome /app/navidrome'
 alias nginx='docker exec -it nginx nginx'
 alias redis-cli='docker exec -it redis redis-cli'
 
-alias authconfig='sudoedit /srv/docker/authelia/config/configuration.yml'
+alias authconfig='sudoedit /srv/docker/jupiter_authelia/config/configuration.yml'
 alias authgen='docker run --rm -it authelia/authelia:latest authelia crypto hash generate pbkdf2 --random'
 alias authlog='docker logs -f authelia --since 2m'
-alias authusers='sudoedit /srv/docker/authelia/config/users.yml'
+alias authusers='sudoedit /srv/docker/jupiter_authelia/config/users.yml'
 
 alias caddycheck='docker exec -it caddy caddy validate --config /etc/caddy/Caddyfile'
 alias caddyfmt='docker exec -it caddy caddy fmt --overwrite --config /etc/caddy/Caddyfile'
 alias caddylogs='docker exec -it -f caddy --since 1m'
 alias caddyreload='docker exec -it caddy caddy reload --config /etc/caddy/Caddyfile'
 
-alias vif='sudoedit /srv/docker/forgejo/data/custom/conf/app.ini'
-alias viq='sudoedit /srv/docker/qbittorrent/config/qBittorrent/qBittorrent.conf'
+alias vif='sudoedit /srv/docker/jupiter_forgejo/data/custom/conf/app.ini'
+alias viq='sudoedit /srv/docker/jupiter_qbittorrent/config/qBittorrent/qBittorrent.conf'
 
 # shellcheck disable=2154
 alias get_jitsi='u=$(curl -s https://api.github.com/repos/jitsi/docker-jitsi-meet/releases/latest | jq -r .tarball_url) && (cd /tmp; curl -LO "$u"); unset u'
