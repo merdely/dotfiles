@@ -17,43 +17,43 @@ unset psql pbash createdb dropdb createuser dropuser pg_dump pg_dumpall pg_resto
 postgres_container=postgres-vchord
 #postgres_container=database
 # shellcheck disable=2139
-alias psql="docker compose exec -it -u postgres $postgres_container psql"
+alias psql="docker exec -it -u postgres $postgres_container psql"
 # shellcheck disable=2139
-alias pbash="docker compose exec -it -u postgres $postgres_container bash"
+alias pbash="docker exec -it -u postgres $postgres_container bash"
 # shellcheck disable=2139
-alias createdb="docker compose exec -it -u postgres $postgres_container createdb"
+alias createdb="docker exec -it -u postgres $postgres_container createdb"
 # shellcheck disable=2139
-alias dropdb="docker compose exec -it -u postgres $postgres_container dropdb"
+alias dropdb="docker exec -it -u postgres $postgres_container dropdb"
 # shellcheck disable=2139
-alias createuser="docker compose exec -it -u postgres $postgres_container createuser"
+alias createuser="docker exec -it -u postgres $postgres_container createuser"
 # shellcheck disable=2139
-alias dropuser="docker compose exec -it -u postgres $postgres_container dropuser"
+alias dropuser="docker exec -it -u postgres $postgres_container dropuser"
 # shellcheck disable=2139
-alias pg_dump="docker compose exec -it -u postgres $postgres_container pg_dump"
+alias pg_dump="docker exec -it -u postgres $postgres_container pg_dump"
 # shellcheck disable=2139
-alias pg_dumpall="docker compose exec -it -u postgres $postgres_container pg_dumpall"
+alias pg_dumpall="docker exec -it -u postgres $postgres_container pg_dumpall"
 # shellcheck disable=2139
-alias pg_restore="docker compose exec -it -u postgres $postgres_container pg_restore"
-#psql() { docker compose exec -it -u postgres postgres psql "$@"; }
-#pbash() { docker compose exec -it -u postgres postgres bash; }
-#createdb() { docker compose exec -it -u postgres postgres createdb "$@"; }
-#dropdb() { docker compose exec -it -u postgres postgres dropdb "$@"; }
-#createuser() { docker compose exec -it -u postgres postgres createuser "$@"; }
-#dropuser() { docker compose exec -it -u postgres postgres dropuser "$@"; }
-#pg_dump() { docker compose exec -it -u postgres postgres pg_dump "$@"; }
-#pg_dumpall() { docker compose exec -it -u postgres postgres pg_dumpall "$@"; }
-#pg_restore() { docker compose exec -it -u postgres postgres pg_restore "$@"; }
+alias pg_restore="docker exec -it -u postgres $postgres_container pg_restore"
+#psql() { docker exec -it -u postgres postgres psql "$@"; }
+#pbash() { docker exec -it -u postgres postgres bash; }
+#createdb() { docker exec -it -u postgres postgres createdb "$@"; }
+#dropdb() { docker exec -it -u postgres postgres dropdb "$@"; }
+#createuser() { docker exec -it -u postgres postgres createuser "$@"; }
+#dropuser() { docker exec -it -u postgres postgres dropuser "$@"; }
+#pg_dump() { docker exec -it -u postgres postgres pg_dump "$@"; }
+#pg_dumpall() { docker exec -it -u postgres postgres pg_dumpall "$@"; }
+#pg_restore() { docker exec -it -u postgres postgres pg_restore "$@"; }
 
-alias mysql="docker compose exec -it -u mysql mysql mariadb"
-alias mariadb="docker compose exec -it -u mysql mysql mariadb"
-alias mysqldump="docker compose exec -it -u mysql mysql mariadb-dump"
-alias mariadb-dump="docker compose exec -it -u mysql mysql mariadb-dump"
+alias mysql="docker exec -it -u mysql mysql mariadb"
+alias mariadb="docker exec -it -u mysql mysql mariadb"
+alias mysqldump="docker exec -it -u mysql mysql mariadb-dump"
+alias mariadb-dump="docker exec -it -u mysql mysql mariadb-dump"
 
 # alias upgrade_meilisearch='docker run --rm -v /srv/docker/meilisearch:/meili_data getmeili/meilisearch:latest meilisearch --experimental-dumpless-upgrade'
-alias upgrade_meilisearch='docker compose pull meilisearch;docker compose rm -sf meilisearch;echo;echo "**********************************************************";echo "* Press Ctrl+C to exiting the upgrade-run of meilisearch *";echo "**********************************************************";echo;docker run --rm -v /srv/docker/meilisearch:/meili_data getmeili/meilisearch:latest meilisearch --upgrade-db;docker compose up -d meilisearch; info2mqtt -n meilisearch; docker compose logs meilisearch'
+alias upgrade_meilisearch='docker compose -f /srv/docker/jupiter_meilisearch/compose.yaml pull meilisearch;docker compose -f /srv/docker/jupiter_meilisearch/compose.yaml rm -sf meilisearch;echo;echo "**********************************************************";echo "* Press Ctrl+C to exiting the upgrade-run of meilisearch *";echo "**********************************************************";echo;docker run --rm -v /srv/docker/meilisearch:/meili_data getmeili/meilisearch:latest meilisearch --upgrade-db;docker compose -f /srv/docker/jupiter_meilisearch/compose.yaml up -d meilisearch; info2mqtt -n meilisearch; docker compose -f /srv/docker/jupiter_meilisearch/compose.yaml logs meilisearch'
 
-alias pa='docker compose -f /srv/docker/compose.yaml exec ytdlp-shell /home/mike/bin/ytdl.py --print-album'
-alias ytdl.py='docker compose -f /srv/docker/compose.yaml exec ytdlp-shell /home/mike/bin/ytdl.py'
+alias pa='docker exec -it ytdlp-shell /home/mike/bin/ytdl.py --print-album'
+alias ytdl.py='docker exec -it ytdlp-shell /home/mike/bin/ytdl.py'
 
 alias forgejo_settings='sudoedit /srv/docker/forgejo/data/custom/conf/app.ini'
 
@@ -65,29 +65,29 @@ alias vc='vcheck'
 alias v='sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -L all'
 alias vd='sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -D -L all'
 
-alias ytdlpshell='docker compose exec ytdlp-shell bash -l'
+alias ytdlpshell='docker exec -it ytdlp-shell bash -l'
 alias ytdlpsh=ytdlpshell
 alias ys=ytdlpshell
 
 # Container commands
-alias authelia='docker compose -f /srv/docker/compose.yaml exec authelia authelia'
-alias gitea='docker compose -f /srv/docker/compose.yaml exec forgejo gitea'
-alias forgejo='docker compose -f /srv/docker/compose.yaml exec forgejo gitea'
-alias mariadb='docker compose -f /srv/docker/compose.yaml exec mariadb mariadb'
-alias mysql='docker compose -f /srv/docker/compose.yaml exec mariadb mariadb'
-alias navidrome='docker compose -f /srv/docker/compose.yaml exec navidrome /app/navidrome'
-alias nginx='docker compose -f /srv/docker/compose.yaml exec nginx nginx'
-alias redis-cli='docker compose -f /srv/docker/compose.yaml exec redis redis-cli'
+alias authelia='docker exec -it authelia authelia'
+alias gitea='docker exec -it forgejo gitea'
+alias forgejo='docker exec -it forgejo gitea'
+alias mariadb='docker exec -it mariadb mariadb'
+alias mysql='docker exec -it mariadb mariadb'
+alias navidrome='docker exec -it navidrome /app/navidrome'
+alias nginx='docker exec -it nginx nginx'
+alias redis-cli='docker exec -it redis redis-cli'
 
 alias authconfig='sudoedit /srv/docker/authelia/config/configuration.yml'
 alias authgen='docker run --rm -it authelia/authelia:latest authelia crypto hash generate pbkdf2 --random'
-alias authlog='docker compose logs -f authelia --since 2m'
+alias authlog='docker logs -f authelia --since 2m'
 alias authusers='sudoedit /srv/docker/authelia/config/users.yml'
 
-alias caddycheck='docker compose exec caddy caddy validate --config /etc/caddy/Caddyfile'
-alias caddyfmt='docker compose exec caddy caddy fmt --overwrite --config /etc/caddy/Caddyfile'
-alias caddylogs='docker compose logs -f caddy --since 1m'
-alias caddyreload='docker compose exec caddy caddy reload --config /etc/caddy/Caddyfile'
+alias caddycheck='docker exec -it caddy caddy validate --config /etc/caddy/Caddyfile'
+alias caddyfmt='docker exec -it caddy caddy fmt --overwrite --config /etc/caddy/Caddyfile'
+alias caddylogs='docker exec -it -f caddy --since 1m'
+alias caddyreload='docker exec -it caddy caddy reload --config /etc/caddy/Caddyfile'
 
 alias vif='sudoedit /srv/docker/forgejo/data/custom/conf/app.ini'
 alias viq='sudoedit /srv/docker/qbittorrent/config/qBittorrent/qBittorrent.conf'
