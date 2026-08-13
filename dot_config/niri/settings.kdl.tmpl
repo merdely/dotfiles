@@ -54,7 +54,7 @@ binds {
     Mod+Semicolon        hotkey-overlay-title="Open RBW"          { spawn-sh "pgrep -u $LOGNAME -f '^(/?.*[p]ython .*)?[r]ofi(-rbw| -markup-rows -dmenu)' && pkill -u $LOGNAME -f '^(/?.*[p]ython .*)?[r]ofi(-rbw| -markup-rows -dmenu)' || rofi-rbw --use-notify-send"; }
     // Mod+Semicolon        hotkey-overlay-title="Open RBW"          { spawn-sh "rofi-rbw --use-notify-send"; }
     // Mod+Shift+A          hotkey-overlay-title="Open Signal"       { spawn-sh "$HOME/.config/niri/scratchpad org.signal.Signal"; }
-    Mod+Shift+A          hotkey-overlay-title="Open Signal"       { spawn-sh "$HOME/.config/niri/scratchpad signal signal Signal"; }
+    Mod+Shift+A          hotkey-overlay-title="Open Signal"       { spawn-sh "$HOME/.config/niri/scratchpad signal"; }
     // Must create a termfm.desktop in $HOME/.local/share/applications
     Mod+Shift+BracketLeft  hotkey-overlay-title="Term File Mgr"   { spawn-sh "$HOME/.config/niri/scratchpad termfm"; }
     Mod+Shift+BracketRight hotkey-overlay-title="GUI File Mgr"    { spawn-sh "$HOME/.config/niri/scratchpad org.gnome.Nautilus"; }
