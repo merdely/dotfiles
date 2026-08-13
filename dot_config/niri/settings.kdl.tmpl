@@ -59,7 +59,7 @@ binds {
     Mod+Shift+BracketLeft  hotkey-overlay-title="Term File Mgr"   { spawn-sh "$HOME/.config/niri/scratchpad termfm"; }
     Mod+Shift+BracketRight hotkey-overlay-title="GUI File Mgr"    { spawn-sh "$HOME/.config/niri/scratchpad org.gnome.Nautilus"; }
     Mod+Shift+C          hotkey-overlay-title="Open Galculator"   { spawn-sh "pgrep -u $LOGNAME -x galculator && pkill -u $LOGNAME -x galculator || gtk-launch galculator"; }
-    Mod+Shift+Q          hotkey-overlay-title="Open Logseq"       { spawn-sh "$HOME/.config/niri/scratchpad logseq logseq Logseq"; }
+    Mod+Shift+Q          hotkey-overlay-title="Open Logseq"       { spawn-sh "$HOME/.config/niri/scratchpad logseq"; }
     // Must create a term-scratchpad.desktop in $HOME/.local/share/applications
     Mod+Shift+Return     hotkey-overlay-title="Scratch Terminal"  { spawn-sh "$HOME/.config/niri/scratchpad term-scratchpad"; }
     Mod+Shift+Apostrophe hotkey-overlay-title="Bluetooth Manager" { spawn-sh "$HOME/.config/niri/scripts/minimize blueman-manager"; }
