@@ -59,7 +59,7 @@ alias update_latest='e=$(mktemp);o=/srv/docker/nginx/www/html/latest_versions/la
 #alias vl='sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -v -o /var/lib/vcheck/latest.json latest'
 #alias vlu='sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -U -v -o /var/lib/vcheck/latest.json'
 
-alias vif='sudoedit /srv/docker/forgejo/data/custom/conf/app.ini'
+alias vif='sudoedit /srv/docker/$(hostname -s)_forgejo/data/custom/conf/app.ini'
 
 alias suvcheck='sudo su - -s /bin/bash vcheck'
 alias vcheck='sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck'

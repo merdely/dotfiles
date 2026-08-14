@@ -89,7 +89,7 @@ alias caddyfmt='docker exec -it caddy caddy fmt --overwrite --config /etc/caddy/
 alias caddylogs='docker logs -f caddy --since 1m'
 alias caddyreload='docker exec -it caddy caddy reload --config /etc/caddy/Caddyfile'
 
-alias vif='sudoedit /srv/docker/jupiter_forgejo/data/custom/conf/app.ini'
+alias vif='sudoedit /srv/docker/$(hostname -s)_forgejo/data/custom/conf/app.ini'
 alias viq='sudoedit /srv/docker/jupiter_qbittorrent/config/qBittorrent/qBittorrent.conf'
 
 # shellcheck disable=2154
