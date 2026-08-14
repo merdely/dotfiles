@@ -174,7 +174,7 @@
 ## whereas tab will put the command in the prompt for editing.
 ## If set to false, both enter and tab will place the command in the prompt for editing.
 ## This applies for new installs. Old installs will keep the old behaviour unless configured otherwise.
-enter_accept = true
+enter_accept = false
 {{ if not (eq .chezmoi.os "openbsd") -}}
 search_mode = "daemon-fuzzy"
 {{ end -}}
