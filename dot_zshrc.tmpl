@@ -87,11 +87,6 @@ __shell_specific() {
   bindkey -v
   alias reprofile='. $HOME/.zshrc'
 
-  if command -v fzf >/dev/null 2>&1; then
-    . <(fzf --zsh)
-    bindkey -M viins '^p' history-search-backward
-    bindkey -M viins '^n' history-search-forward
-  fi
   # Install zoxide on OpenBSD with: cargo install zoxide --locked
   if command -v zoxide >/dev/null 2>&1; then
     eval "$(zoxide init zsh)"
@@ -103,6 +98,10 @@ __shell_specific() {
   # fi
   if command -v atuin >/dev/null 2>&1; then
     eval "$(atuin init --disable-ai --disable-up-arrow zsh)"
+  elif command -v fzf >/dev/null 2>&1; then
+    . <(fzf --zsh)
+    bindkey -M viins '^p' history-search-backward
+    bindkey -M viins '^n' history-search-forward
   fi
 }
 
