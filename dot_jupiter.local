@@ -86,7 +86,7 @@ alias authusers='sudoedit /srv/docker/jupiter_authelia/config/users.yml'
 
 alias caddycheck='docker exec -it caddy caddy validate --config /etc/caddy/Caddyfile'
 alias caddyfmt='docker exec -it caddy caddy fmt --overwrite --config /etc/caddy/Caddyfile'
-alias caddylogs='docker exec -it -f caddy --since 1m'
+alias caddylogs='docker logs -f caddy --since 1m'
 alias caddyreload='docker exec -it caddy caddy reload --config /etc/caddy/Caddyfile'
 
 alias vif='sudoedit /srv/docker/jupiter_forgejo/data/custom/conf/app.ini'
