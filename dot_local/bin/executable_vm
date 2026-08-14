@@ -806,7 +806,7 @@ sub_menu() {
             options=()
             [[ -n "$answer" ]] && options=(--description "$answer")
             for vm_name in "${vms[@]}"; do
-              vm snapshot "${options[@]}" "$vm_name" "$snapshot"
+              vm snapshot "${options[@]}" --name "$snapshot" "$vm_name"
             done
             ;;
           "List Snapshots")
