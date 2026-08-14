@@ -474,8 +474,8 @@ snapshot_usage() {
   echo "  -d|--description DESCR : Snapshot description (default: none)"
   echo "  -l|--list           : List snapshots for VM_NAME"
   echo "  -t|--list-tree      : List snapshots for VM_NAME (tree)"
-  echo "  -D|--delete         : Delete SNAPSHOT_NAME snapshot for VM_NAME"
-  echo "  -R|--revert         : Revert/restore VM_NAME to SNAPSHOT_NAME"
+  echo "  -D|--delete         : Delete SNAPSHOT_NAME snapshot for VM_NAME (requires --name)"
+  echo "  -R|--revert         : Revert/restore VM_NAME to SNAPSHOT_NAME (requires --name)"
   echo "Note: For -l, -t, -D, and -R, only one VM will be processed"
   exit "${1:-0}"
 }
@@ -498,7 +498,7 @@ snapshot() {
       -h|--help) snapshot_usage ;;
       -u|--user|--session) connect=qemu:///session ;;
       -c|--connect) shift ; connect=$1 ;;
-      -n|--snapshot) shift ; snapshot_default=$1 ;;
+      -n|--name) shift ; snapshot=$1 ;;
       -d|--description) shift ; description=$1 ;;
       -f|--force) force=true ;;
       -l|--list) mode=list ;;
@@ -511,6 +511,7 @@ snapshot() {
     shift
   done
 
+  [[ -z "$snapshot" ]] && snapshot=$snapshot_default
   (( $# < 1 )) && { main_menu snapshot ; exit ; }
 
   if [[ "$mode" == list ]]; then
@@ -565,8 +566,6 @@ snapshot() {
       echo "Error: Could not determine disks for $vm" >&2
       exit 1
     fi
-
-    [[ -z "$snapshot" ]] && snapshot=$snapshot_default
 
     if [[ -n "$description" ]]; then
       desc=(--description "$description")
@@ -837,7 +836,7 @@ sub_menu() {
             esac
             answer=$(gum choose --header="Really ${1^} $snapshot Snapshot for ${vms[0]}" Yes No)
             case $? in 130) exit ;; 0) ;; *) return 11 ;; esac
-            [[ "$answer" == "Yes" ]] && vm "$1" --"$mode" --force "${vms[0]}" "$snapshot"
+            [[ "$answer" == "Yes" ]] && vm "$1" --"$mode" --force --name "$snapshot" "${vms[0]}"
             ;;
           *) return 13 ;;
         esac
@@ -987,7 +986,7 @@ main_usage() {
   echo "  list     = List VMs            : ${0##*/} list [-h] [-a] [-A] [-r] [-o] [-p] [-s] [-S] [-i] NETWORK]"
   echo "  reboot   = Reboot guest        : ${0##*/} reboot [-h]"
   echo "  reset    = Forceably reset VM  : ${0##*/} reset [-h]"
-  echo "  snapshot = Manage VM snapshots : ${0##*/} snapshot [-h] [-f] [-d DESC] [-l] [-t] [-D] [-R] VM_NAME [SNAPSHOT_NAME]"
+  echo "  snapshot = Manage VM snapshots : ${0##*/} snapshot [-h] [-f] [-n SNAPSHOT_NAME] [-d DESC] [-l] [-t] [-D] [-R] VM_NAME.."
   echo "  start    = Start VM            : ${0##*/} start [-h] [-c] VM_NAME"
   echo "  stop     = Stop VM             : ${0##*/} stop [-h] [-f] VM_NAME"
   echo "  help     = This help"
