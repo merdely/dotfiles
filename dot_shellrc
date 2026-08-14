@@ -154,7 +154,7 @@ fi
 if [[ "$ID" == arch || "$ID_LIKE" == *arch* ]]; then
   alias ls_orphans='pacman -Qdtq'
   # shellcheck disable=2154
-  alias rm_orphans='o=$(pacman -Qdtq); [ -n "$o" ] && echo Removing "$o" && sudo pacman -Rcns "$o"; unset o'
+  alias rm_orphans='o=($(pacman -Qdtq)); (( ${#o[@]} > 0 )) && echo "Removing ${o[@]}" && sudo pacman -Rcns "${o[@]}"; unset o'
   alias updates='echo Using pacman; sudo pacman -S --needed archlinux-keyring ; sudo pacman -Syu --noconfirm'
   alias banner='figlet -d $HOME/.config/figlet -f banner'
 elif [[ "$ID" == debian || "$ID_LIKE" == *debian* ]]; then
