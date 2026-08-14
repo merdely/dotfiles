@@ -463,37 +463,42 @@ reboot() {
 }
 
 snapshot_usage() {
-  echo "usage: ${0##*/} snapshot [Options] VM_NAME [SNAPSHOT_NAME]"
+  echo "usage: ${0##*/} snapshot [Options] VM_NAME.."
   echo
   echo "Options:"
   echo "  -h|--help           : This help text"
   echo "  -u|--user|--session : Connect to hypervisor with libvirt user/session URI (default: system URI)"
   echo "  -c|--connect URI    : Connect to hypervisor with libvirt URI (e.g.: -c qemu:///otherhost.example.com)"
   echo "  -f|--force          : Force delete with -D"
+  echo "  -n|--name           : Snapshot name (default: 'Snapshot yyyy-mm-dd HH:MM:SS')"
   echo "  -d|--description DESCR : Snapshot description (default: none)"
   echo "  -l|--list           : List snapshots for VM_NAME"
   echo "  -t|--list-tree      : List snapshots for VM_NAME (tree)"
   echo "  -D|--delete         : Delete SNAPSHOT_NAME snapshot for VM_NAME"
   echo "  -R|--revert         : Revert/restore VM_NAME to SNAPSHOT_NAME"
+  echo "Note: For -l, -t, -D, and -R, only one VM will be processed"
   exit "${1:-0}"
 }
 
 snapshot() {
-  local mode=create vm="" snapshot_default="snapshot1" description="" force=false REPLY=""
+  local mode=create vm="" snapshot_default="" description="" force=false REPLY=""
   local desc=() disks=() disk_opt=() disk="" mem_opt=()
   local connect=$CONNECT_URI
-  local OPT_SHORT="huc:fd:ltDR"
+  local OPT_SHORT="huc:fn:d:ltDR"
   local OPT_LONG=(
-    "help" "user" "session" "connect:" "force" "description:" "list" "list-tree" "delete" "revert"
+    "help" "user" "session" "connect:" "force" "name:" "description:"
+    "list" "list-tree" "delete" "revert"
   )
   declare -a OPTRET
   parseopts "$OPT_SHORT" "${OPT_LONG[@]}" -- "$@" || exit 1
   set -- "${OPTRET[@]}" ; unset OPT_SHORT OPT_LONG OPTRET
+  snapshot_default="Snapshot $(date +"%Y-%m-%d %H:%M:%S")"
   while true; do
     case $1 in
       -h|--help) snapshot_usage ;;
       -u|--user|--session) connect=qemu:///session ;;
       -c|--connect) shift ; connect=$1 ;;
+      -n|--snapshot) shift ; snapshot_default=$1 ;;
       -d|--description) shift ; description=$1 ;;
       -f|--force) force=true ;;
       -l|--list) mode=list ;;
@@ -506,16 +511,13 @@ snapshot() {
     shift
   done
 
-  vm=$1
-  snapshot=$2
-
-  [[ -z "$vm" ]] && { main_menu snapshot ; exit ; }
+  (( $# < 1 )) && { main_menu snapshot ; exit ; }
 
   if [[ "$mode" == list ]]; then
-    virsh --connect "${connect:-$CONNECT_URI}" snapshot-list "$vm"
+    virsh --connect "${connect:-$CONNECT_URI}" snapshot-list "$1"
     return
   elif [[ "$mode" == list-tree ]]; then
-    virsh --connect "${connect:-$CONNECT_URI}" snapshot-list "$vm" --tree
+    virsh --connect "${connect:-$CONNECT_URI}" snapshot-list "$1" --tree
     return
   fi
 
@@ -525,14 +527,14 @@ snapshot() {
       exit 1
     fi
     if ! "$force"; then
-      read -rp "Really delete snapshot '$snapshot' for $vm? [yN] "
+      read -rp "Really delete snapshot '$snapshot' for $1? [yN] "
       if [[ ! "$REPLY" =~ ^(YES|Yes|yes|Y|y|1)$ ]]; then
-        echo "Not deleting '$snapshot' for $vm"
+        echo "Not deleting '$snapshot' for $1"
         exit
       fi
       echo
     fi
-    virsh --connect "${connect:-$CONNECT_URI}" snapshot-delete "$vm" "$snapshot"
+    virsh --connect "${connect:-$CONNECT_URI}" snapshot-delete "$1" "$snapshot"
     return
   fi
 
@@ -544,41 +546,43 @@ snapshot() {
     if ! "$force"; then
       read -rp "Really revert $vm to snapshot '$snapshot'? [yN] "
       if [[ ! "$REPLY" =~ ^(YES|Yes|yes|Y|y|1)$ ]]; then
-        echo "Not reverting $vm to '$snapshot'"
+        echo "Not reverting $1 to '$snapshot'"
         exit
       fi
       echo
     fi
-    virsh --connect "${connect:-$CONNECT_URI}" snapshot-revert "$vm" "$snapshot"
+    virsh --connect "${connect:-$CONNECT_URI}" snapshot-revert "$1" "$snapshot"
     return
   fi
 
-  mapfile -t disks < <(virsh --connect "${connect:-$CONNECT_URI}" domblklist "$vm" --details | awk '$1=="file" && $2=="disk" {print $3}')
+  for vm in "$@"; do
+    mapfile -t disks < <(virsh --connect "${connect:-$CONNECT_URI}" domblklist "$vm" --details | awk '$1=="file" && $2=="disk" {print $3}')
 
-  for disk in "${disks[@]}"; do
-    disk_opt+=(--diskspec "$disk,snapshot=external")
+    for disk in "${disks[@]}"; do
+      disk_opt+=(--diskspec "$disk,snapshot=external")
+    done
+    if (( ${#disk_opt[@]} == 0 )); then
+      echo "Error: Could not determine disks for $vm" >&2
+      exit 1
+    fi
+
+    [[ -z "$snapshot" ]] && snapshot=$snapshot_default
+
+    if [[ -n "$description" ]]; then
+      desc=(--description "$description")
+    fi
+
+    # shellcheck disable=SC2174
+    [[ ! -d /var/lib/libvirt/qemu/snapshot/"$vm" ]] &&
+      mkdir -m 775 -p /var/lib/libvirt/qemu/snapshot/"$vm"
+
+    if ! grep -q "shut off" < <(virsh --connect "${connect:-$CONNECT_URI}" domstate "$vm"); then
+      mem_opt=(--memspec "/var/lib/libvirt/qemu/snapshot/$vm/$snapshot-memory,snapshot=external")
+    fi
+
+    virsh --connect "${connect:-$CONNECT_URI}" snapshot-create-as "$vm" --name "$snapshot" "${desc[@]}" \
+      --atomic "${disk_opt[@]}" "${mem_opt[@]}"
   done
-  if (( ${#disk_opt[@]} == 0 )); then
-    echo "Error: Could not determine disks for $vm" >&2
-    exit 1
-  fi
-
-  [[ -z "$snapshot" ]] && snapshot=$snapshot_default
-
-  if [[ -n "$description" ]]; then
-    desc=(--description "$description")
-  fi
-
-  # shellcheck disable=SC2174
-  [[ ! -d /var/lib/libvirt/qemu/snapshot/"$vm" ]] &&
-    mkdir -m 775 -p /var/lib/libvirt/qemu/snapshot/"$vm"
-
-  if ! grep -q "shut off" < <(virsh --connect "${connect:-$CONNECT_URI}" domstate "$vm"); then
-    mem_opt=(--memspec "/var/lib/libvirt/qemu/snapshot/$vm/$snapshot-memory,snapshot=external")
-  fi
-
-  virsh --connect "${connect:-$CONNECT_URI}" snapshot-create-as "$vm" --name "$snapshot" "${desc[@]}" \
-    --atomic "${disk_opt[@]}" "${mem_opt[@]}"
 }
 
 start_usage() {
@@ -690,7 +694,7 @@ sub_menu() {
         mapfile -t menu < <(virsh --connect "${connect:-$CONNECT_URI}" list "${states[@]}" --name|grep .)
         if (( ${#menu[@]} == 0 )); then
           if [[ "$back" == Quit ]]; then
-            echo "There are no VMs top ${1^}"
+            echo "There are no VMs to ${1^}"
             exit
           fi
           return 2
@@ -761,74 +765,82 @@ sub_menu() {
         [[ "$answer" == "Yes" ]] && vm clone "$choice" "$vm_name" "${opts[@]}"
         ;;
       snapshot)
-        while : ; do
-          vms=() ; choice="" ; mode="" ; vm_name="" ; answer=""
-          mapfile -t vms < <(virsh --connect "${connect:-$CONNECT_URI}" list --all --name|grep .)
-          (( ${#vms[@]} == 0 )) && return 2
-          vms=("$back" "${vms[@]}")
-          height=${#vms[@]}
-          (( height > 15 )) && height=15
-          vm_name=$(gum filter "${GUM_STYLE[@]}" --placeholder="Choose a VM to ${1^}..." --header="VM Snapshot Management" --no-fuzzy-sort --height=$(( height + padding )) "${vms[@]}")
-          case $? in 130) exit ;; 0) ;; *) return 4 ;; esac
-          case "$vm_name" in
-            "$back") return ;;
-            '') echo "Error: Menu failure" >&2 ; exit 1 ;;
-            *) ;;
-          esac
-          while : ; do
-            menu=(
-              "$back" "Create Snapshot" "List Snapshots"
-              "List Snapshots (tree)" "Revert Snapshot" "Delete Snapshots"
-            )
+        vms=() ; options=() ; choice="" ; mode="" ; vm_name="" ; answer=""
+        menu=(
+          "$back" "Create Snapshot" "List Snapshots"
+          "List Snapshots (tree)" "Revert Snapshot" "Delete Snapshots"
+        )
+        height=${#menu[@]}
+        (( height > 15 )) && height=15
+        choice=$(gum filter "${GUM_STYLE[@]}" --placeholder="Choose an Snapshot action..." --header="VM Snapshot Management" --no-fuzzy-sort --height=$(( height + padding )) "${menu[@]}")
+        case $? in 130) exit ;; 0) ;; *) return 13 ;; esac
+        [[ "$choice" == "$back" ]] && return
+        [[ "$choice" == "Create Snapshot" ]] && options=(--no-limit)
+        mapfile -t menu < <(virsh --connect "${connect:-$CONNECT_URI}" list --all --name|grep .)
+        if (( ${#menu[@]} == 0 )); then
+          if [[ "$back" == Quit ]]; then
+            echo "There are no VMs to ${1^}"
+            exit
+          fi
+          return 2
+        fi
+        menu=("$back" "${menu[@]}")
+        height=${#menu[@]}
+        (( height > 15 )) && height=15
+        mapfile -t vms < <(gum filter "${GUM_STYLE[@]}" --placeholder="Choose VMs to ${1^}..." --header="VM Snapshot Management" --no-fuzzy-sort "${options[@]}" --height=$(( height + padding )) "${menu[@]}"; echo "$ret=$?")
+        ret=${vms[-1]##*=}
+        case $? in 130) exit ;; 0) ;; *) return 4 ;; esac
+        vms=("${vms[@]:0:${#vms[@]}-1}")
+        case "${vms[@]}" in
+          "$back") return ;;
+          '') echo "Error: Menu failure" >&2 ; exit 1 ;;
+          *) ;;
+        esac
+        case "$choice" in
+          "$back") return 2 ;;
+          '') echo "Error: Menu failure" >&2 ; exit 1 ;;
+          "Create Snapshot")
+            snapshot=$(gum input "${GUM_STYLE[@]}" --placeholder="New ${1^} Name" --header="Enter a name for the new ${1^} for VMs...")
+            case $? in 130) exit ;; 0) ;; *) return 14 ;; esac
+            answer=$(gum input "${GUM_STYLE[@]}" --placeholder="New ${1^} Name" --header="Enter a description for the new ${1^} for VMs...")
+            case $? in 130) exit ;; 0) ;; *) return 15 ;; esac
+            options=()
+            [[ -n "$answer" ]] && options=(--description "$answer")
+            for vm_name in "${vms[@]}"; do
+              vm snapshot "${options[@]}" "$vm_name" "$snapshot"
+            done
+            ;;
+          "List Snapshots")
+            vm snapshot --list "${vms[0]}"
+            printf '\nPress Enter to continue'
+            read -r
+            ;;
+          "List Snapshots (tree)")
+            vm snapshot --list-tree "${vms[0]}"
+            printf '\nPress Enter to continue'
+            read -r
+            ;;
+          "Revert Snapshot"|"Delete Snapshots")
+            mode=revert
+            [[ "$choice" == "Delete Snapshots" ]] && mode=delete
+            mapfile -t menu < <(virsh --connect "${connect:-$CONNECT_URI}" snapshot-list --name "${vms[0]}"|grep .)
+            (( ${#menu[@]} == 0 )) && return 2
+            menu=("$back" "${menu[@]}")
             height=${#menu[@]}
             (( height > 15 )) && height=15
-            choice=$(gum filter "${GUM_STYLE[@]}" --placeholder="Choose an Snapshot action..." --header="VM Snapshot Management" --no-fuzzy-sort --height=$(( height + padding )) "${menu[@]}")
-            case $? in 130) exit ;; 0) ;; *) return 13 ;; esac
-            case "$choice" in
-              "$back") break ;;
+            snapshot=$(gum filter "${GUM_STYLE[@]}" --placeholder="Choose a Snapshot to ${mode^}..." --header="VM Snapshot Management" --no-fuzzy-sort --height=$(( height + padding )) "${menu[@]}")
+            case $? in 130) exit ;; 0) ;; *) return 4 ;; esac
+            case "$snapshot" in
+              "$back") return ;;
               '') echo "Error: Menu failure" >&2 ; exit 1 ;;
-              "Create Snapshot")
-                snapshot=$(gum input "${GUM_STYLE[@]}" --placeholder="New ${1^} Name" --header="Enter a name for the new ${1^} for $vm_name...")
-                case $? in 130) exit ;; 0) ;; *) return 14 ;; esac
-                answer=$(gum input "${GUM_STYLE[@]}" --placeholder="New ${1^} Name" --header="Enter a description for the new ${1^} for $vm_name...")
-                case $? in 130) exit ;; 0) ;; *) return 15 ;; esac
-                options=()
-                [[ -n "$answer" ]] && options=(--description "$answer")
-                vm snapshot "${options[@]}" "$vm_name" "$snapshot"
-                ;;
-              "List Snapshots")
-                vm snapshot --list "$vm_name"
-                printf '\nPress Enter to continue'
-                read -r
-                ;;
-              "List Snapshots (tree)")
-                vm snapshot --list-tree "$vm_name"
-                printf '\nPress Enter to continue'
-                read -r
-                ;;
-              "Revert Snapshot"|"Delete Snapshots")
-                mode=revert
-                [[ "$choice" == "Delete Snapshots" ]] && mode=delete
-                mapfile -t menu < <(virsh --connect "${connect:-$CONNECT_URI}" snapshot-list --name "$vm_name"|grep .)
-                (( ${#menu[@]} == 0 )) && return 2
-                menu=("$back" "${menu[@]}")
-                height=${#menu[@]}
-                (( height > 15 )) && height=15
-                snapshot=$(gum filter "${GUM_STYLE[@]}" --placeholder="Choose a Snapshot to ${mode^}..." --header="VM Snapshot Management" --no-fuzzy-sort --height=$(( height + padding )) "${menu[@]}")
-                case $? in 130) exit ;; 0) ;; *) return 4 ;; esac
-                case "$snapshot" in
-                  "$back") return ;;
-                  '') echo "Error: Menu failure" >&2 ; exit 1 ;;
-                  *) ;;
-                esac
-                answer=$(gum choose --header="Really ${1^} $snapshot Snapshot for $vm_name" Yes No)
-                case $? in 130) exit ;; 0) ;; *) return 11 ;; esac
-                [[ "$answer" == "Yes" ]] && vm "$1" --"$mode" --force "$vm_name" "$snapshot"
-                ;;
-              *) return 13 ;;
+              *) ;;
             esac
-          done
-        done
+            answer=$(gum choose --header="Really ${1^} $snapshot Snapshot for ${vms[0]}" Yes No)
+            case $? in 130) exit ;; 0) ;; *) return 11 ;; esac
+            [[ "$answer" == "Yes" ]] && vm "$1" --"$mode" --force "${vms[0]}" "$snapshot"
+            ;;
+          *) return 13 ;;
+        esac
         ;;
       create)
         vm_type="" ; vm_name="" ; vm_ram="" ; vm_vcpus="" ; vm_disk="" ; vm_iso="" ; height=""
