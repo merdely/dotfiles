@@ -25,10 +25,10 @@ alias smtpctl='docker compose exec smtpd smtpctl'
 export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
 
 alias authgen='docker run --rm -it authelia/authelia:latest authelia crypto hash generate pbkdf2 --random'
-alias authconfig='sudoedit /srv/docker/$(hostname -s)_authelia/config/configuration.yml'
-alias authusers='sudoedit /srv/docker/$(hostname -s)_authelia/config/users.yml'
+alias authconfig='sudoedit /srv/docker/authelia/config/configuration.yml'
+alias authusers='sudoedit /srv/docker/authelia/config/users.yml'
 alias authlogs='docker logs -f authelia --since 2m'
-alias forgejo_settings='sudoedit /srv/docker/$(hostname -s)_forgejo/data/custom/conf/app.ini'
+alias forgejo_settings='sudoedit /srv/docker/forgejo/data/custom/conf/app.ini'
 
 alias archbuild='docker exec -it -u mike archbuild bash -l'
 alias buildpkgs='docker exec -t -u mike archbuild buildpkgs'
@@ -58,7 +58,7 @@ alias update_latest='e=$(mktemp);o=/srv/www/html/latest_versions/latest_versions
 #alias vl='sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -v -o /var/lib/vcheck/latest.json latest'
 #alias vlu='sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -U -v -o /var/lib/vcheck/latest.json'
 
-# alias vif='sudoedit /srv/docker/$(hostname -s)_forgejo/data/custom/conf/app.ini'
+# alias vif='sudoedit /srv/docker/forgejo/data/custom/conf/app.ini'
 alias vif='sudoedit /ext/forgejo/data/custom/conf/app.ini'
 
 alias suvcheck='sudo su - -s /bin/bash vcheck'
