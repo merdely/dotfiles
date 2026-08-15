@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=LibreWolf LinkedIn
-Exec=librewolf --name librewolf_linkedin -P LinkedIn %u
+Exec=librewolf --name librewolf-purple -P LinkedIn %u
 Comment=Browse the World Wide Web
 Icon=librewolf-purple
 Type=Application

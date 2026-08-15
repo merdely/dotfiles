@@ -1,8 +1,8 @@
 [Desktop Entry]
 Name=LibreWolf Media
-Exec=librewolf --name librewolf_media -P Media %u
+Exec=librewolf --name librewolf-brown -P Media %u
 Comment=Browse the World Wide Web
-Icon=librewolf-red
+Icon=librewolf-brown
 Type=Application
 MimeType=text/html;text/xml;application/xhtml+xml;x-scheme-handler/http;x-scheme-handler/https;application/x-xpinstall;application/pdf;application/json;
 StartupWMClass=librewolf
