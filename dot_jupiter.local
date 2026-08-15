@@ -78,7 +78,7 @@ alias redis-cli='docker exec -it redis redis-cli'
 
 alias authconfig='sudoedit /srv/docker/$(hostname -s)_authelia/config/configuration.yml'
 alias authgen='docker run --rm -it authelia/authelia:latest authelia crypto hash generate pbkdf2 --random'
-alias authlog='docker logs -f authelia --since 2m'
+alias authlogs='docker logs -f authelia --since 2m'
 alias authusers='sudoedit /srv/docker/$(hostname -s)_authelia/config/users.yml'
 
 alias caddycheck='docker exec -t caddy caddy validate --config /etc/caddy/Caddyfile'

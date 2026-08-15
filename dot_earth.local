@@ -27,7 +27,7 @@ export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
 alias authgen='docker run --rm -it authelia/authelia:latest authelia crypto hash generate pbkdf2 --random'
 alias authconfig='sudoedit /srv/docker/$(hostname -s)_authelia/config/configuration.yml'
 alias authusers='sudoedit /srv/docker/$(hostname -s)_authelia/config/users.yml'
-alias authlog='docker compose logs -f authelia --since 2m'
+alias authlogs='docker logs -f authelia --since 2m'
 alias forgejo_settings='sudoedit /srv/docker/$(hostname -s)_forgejo/data/custom/conf/app.ini'
 
 alias archbuild='docker exec -it -u mike archbuild bash -l'
