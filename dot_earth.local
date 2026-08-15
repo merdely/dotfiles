@@ -14,7 +14,6 @@ alias dmesg='sudo dmesg'
 alias cag='adguardcli clear'
 alias ral='adguardcli refresh'
 
-alias docker-build='docker compose exec -it docker-build /srv/docker/build/build'
 alias fixvpn='docker compose exec -it media-gateway /scripts/fixvpn'
 alias gwping='echo pinging from gateway; docker compose exec -it media-gateway ping 9.9.9.9'
 alias proxyping='echo pinging from proxy; docker compose exec -it media-proxy ping 9.9.9.9'
@@ -26,17 +25,17 @@ alias smtpctl='docker compose exec smtpd smtpctl'
 export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
 
 alias authgen='docker run --rm -it authelia/authelia:latest authelia crypto hash generate pbkdf2 --random'
-alias authconfig='sudoedit /srv/docker/authelia/config/configuration.yml'
-alias authusers='sudoedit /srv/docker/authelia/config/users.yml'
+alias authconfig='sudoedit /srv/docker/$(hostname -s)_authelia/config/configuration.yml'
+alias authusers='sudoedit /srv/docker/$(hostname -s)_authelia/config/users.yml'
 alias authlog='docker compose logs -f authelia --since 2m'
-alias forgejo_settings='sudoedit /srv/docker/forgejo/data/custom/conf/app.ini'
+alias forgejo_settings='sudoedit /srv/docker/$(hostname -s)_forgejo/data/custom/conf/app.ini'
 
-alias archbuild='docker compose -f /srv/docker/compose.yaml exec -u mike archbuild bash -l'
-alias buildpkgs='docker compose -f /srv/docker/compose.yaml exec -u mike archbuild buildpkgs'
-alias cleanlock='docker compose -f /srv/docker/compose.yaml exec -u mike archbuild rm -f /home/mike/.gnupg/public-keys.d/pubring.db.lock'
+alias archbuild='docker exec -it -u mike archbuild bash -l'
+alias buildpkgs='docker exec -t -u mike archbuild buildpkgs'
+alias cleanlock='docker exec -t -u mike archbuild rm -f /home/mike/.gnupg/public-keys.d/pubring.db.lock'
 
-alias archarmbuild='docker compose -f /srv/docker/compose.yaml exec -u mike archarmbuild bash -l'
-alias buildarmpkgs='docker compose -f /srv/docker/compose.yaml exec -u mike archarmbuild buildpkgs'
+alias archarmbuild='docker exec -it -u mike archarmbuild bash -l'
+alias buildarmpkgs='docker exec -t -u mike archarmbuild buildpkgs'
 
 # alias find_conflicts='sudo -u syncthing find /srv/syncthing -name "*sync-conflict*"'
 alias find_conflicts='sudo -u syncthing fdfind -HIg -t file "*sync-conflict*" /srv/syncthing'
@@ -47,7 +46,7 @@ if [ "${SHELL##*/}" = "zsh" ]; then
 fi
 
 # shellcheck disable=2154
-alias update_latest='e=$(mktemp);o=/srv/docker/nginx/www/html/latest_versions/latest_versions.json; /usr/bin/flock -n $HOME/.cache/flock/info2mqtt_latest_json /srv/scripts/bin/info2mqtt -qjN latest > $o.new 2> $e; [ -s "$o.new" ] && mv "$o.new" "$o"; cat $e; rm -f $e $o.new; unset e o'
+alias update_latest='e=$(mktemp);o=/srv/www/html/latest_versions/latest_versions.json; /usr/bin/flock -n $HOME/.cache/flock/info2mqtt_latest_json /srv/scripts/bin/info2mqtt -qjN latest > $o.new 2> $e; [ -s "$o.new" ] && mv "$o.new" "$o"; cat $e; rm -f $e $o.new; unset e o'
 
 #alias vcheck='sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck'
 #alias vc='vcheck'
@@ -98,5 +97,4 @@ alias bat=batcat
 alias nvim-bare='env NVIM_APPNAME=- nvim'
 alias nvim-test='env NVIM_APPNAME=nvim-test nvim'
 
-# export COMPOSE_FILE=/srv/docker/all/compose.yaml
 unset COMPOSE_FILE
