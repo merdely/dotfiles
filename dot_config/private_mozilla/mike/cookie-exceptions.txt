@@ -91,6 +91,7 @@ https://dns.erdelynet.com
 https://dnsmasq.dnsmasq
 https://docker.erdely.in
 https://dockge.erdely.in
+https://dockhand.erdely.in
 https://docs.docker.com
 https://docs.erdely.in
 https://docs.openwebui.com
@@ -118,6 +119,7 @@ https://fkbmbr.erdely.in
 https://fkbmbr-motog7.erdely.in
 https://flamesolverr.erdely.in
 https://forum.opnsense.org
+https://freshrss.erdely.in
 https://frigate.erdely.in
 https://frontdoor2cam.erdely.in
 https://frontdoorcam2.erdely.in
@@ -200,6 +202,8 @@ https://login.microsoftonline.us
 https://login.splunk.com
 https://logseq-browser.erdely.in
 https://logseq.erdely.in
+https://logseq-sync.erdely.in
+https://logseq-web.erdely.in
 https://loki.erdely.in
 https://loops.video
 https://m5atom-bluetooth-proxy.erdely.in
@@ -307,6 +311,7 @@ https://roku-travel.erdely.in
 https://roku-travel-plus.erdely.in
 https://saturn.erdely.in
 https://scale-withings.erdely.in
+https://search.erdely.in
 https://secure.chase.com
 https://seerr.erdely.co
 https://seerr.erdelynet.com
