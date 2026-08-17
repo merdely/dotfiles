@@ -123,10 +123,9 @@ zshp=$(command -v zsh)
 [[ -n "$zshp" ]] && alias runzsh="env PRE_PROMPT=\"(zsh) \" SHELL=$zshp $zshp -l"
 GPG_TTY=$(tty)
 VIRSH_DEFAULT_CONNECT_URI=qemu:///system
-COMPOSE_FILE=/srv/docker/compose.yaml
 ANSIBLE_CONFIG=$HOME/.config/ansible/ansible.cfg
 ANSIBLE_NOCOWS=1
-export GPG_TTY VIRSH_DEFAULT_CONNECT_URI COMPOSE_FILE ANSIBLE_CONFIG ANSIBLE_NOCOWS
+export GPG_TTY VIRSH_DEFAULT_CONNECT_URI ANSIBLE_CONFIG ANSIBLE_NOCOWS
 alias remain='tmux -f "$HOME"/.config/tmux/tmux.conf.remain new-session -A -s main'
 if [[ "${SSH_CLIENT%% *}" == "192.168.25.38" || "${SSH_CLIENT%% *}" == "192.168.25.38" ]]; then
   alias remain='echo SSH to carme'
