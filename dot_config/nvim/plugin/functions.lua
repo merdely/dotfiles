@@ -220,3 +220,86 @@ end
 
 vim.api.nvim_create_user_command("UpdatePlugins", update_plugins, {})
 vim.keymap.set("n", "<leader>up", ":UpdatePlugins<CR>", { desc = "Update Plugins" })
+
+-- Smart terminal function
+
+local function open_terminal(cmd, cwd)
+  local has_snacks = pcall(function() return Snacks and Snacks.terminal end)
+
+  if has_snacks then
+    Snacks.terminal(cmd, { win = { position = "bottom" }, cwd = cwd })
+    return
+  end
+
+  local full_cmd = cmd
+  if cwd then
+    full_cmd = string.format("cd %s && %s", vim.fn.shellescape(cwd), cmd or vim.o.shell)
+  end
+  vim.cmd('botright split | terminal ' .. (full_cmd or ''))
+  vim.cmd('startinsert')
+end
+
+local function do_smart_terminal(opts)
+  opts = opts or {}
+  local use_cwd = opts.cwd
+  if use_cwd == nil then use_cwd = true end -- default: true (normal pwd)
+
+  local bufname = vim.api.nvim_buf_get_name(0)
+
+  -- Try oil-ssh://
+  local user, host, path = bufname:match('^oil%-ssh://([^@/]+)@([^/]+)/(.*)$')
+  if not host then
+    user, host, path = nil, bufname:match('^oil%-ssh://([^@/]+)/(.*)$')
+  end
+
+  -- Fall back to scp://
+  if not host then
+    user, host, path = bufname:match('^scp://([^@/]+)@([^/]+)/(.*)$')
+    if not host then
+      user, host, path = nil, bufname:match('^scp://([^@/]+)/(.*)$')
+    end
+  end
+
+  -- Local file
+  if not host then
+    if use_cwd == false then
+      -- use the buffer's directory instead of pwd
+      local dir = (bufname ~= '' and vim.bo.buftype == '')
+        and vim.fn.fnamemodify(bufname, ':p:h')
+        or vim.fn.getcwd()
+      open_terminal(nil, dir)
+    else
+      -- normal cwd behavior (let Snacks use its default)
+      open_terminal(nil, nil)
+    end
+    return
+  end
+
+  -- Remote (oil-ssh / scp): cwd opt doesn't apply, we cd via ssh directly
+  local remote_path = '/' .. path
+  if not bufname:match('/$') then
+    remote_path = remote_path:match('^(.*)/[^/]*$') or remote_path
+  end
+
+  local dest = user and (user .. '@' .. host) or host
+  local cmd = string.format("ssh -t %s 'cd %s && exec $SHELL -l'", dest, vim.fn.shellescape(remote_path))
+
+  open_terminal(cmd)
+end
+
+-- smart_terminal can be used two ways:
+--   1. Passed directly as a keymap callback: vim.keymap.set('n', '<leader>fT', smart_terminal, ...)
+--      -> called with no args by nvim -> defaults to cwd = true
+--   2. Called with an opts table to produce a configured callback:
+--      vim.keymap.set('n', '<leader>ft', smart_terminal({ cwd = false }), ...)
+local function smart_terminal(opts)
+  if opts ~= nil then
+    return function()
+      do_smart_terminal(opts)
+    end
+  end
+  do_smart_terminal({})
+end
+
+vim.keymap.set('n', '<leader>ft', smart_terminal({ cwd = false }), { desc = 'Smart terminal (buffer dir/oil-ssh/scp aware)' })
+vim.keymap.set('n', '<leader>fT', smart_terminal, { desc = 'Smart terminal (cwd/oil-ssh/scp aware)' })

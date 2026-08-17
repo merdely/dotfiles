@@ -100,7 +100,7 @@ if ok then
   vim.keymap.set("n", "<leader>cl", function() Snacks.picker.lsp_config() end, { desc = "Lsp Info" })
 
   vim.keymap.set('n', '<leader>gg', function() Snacks.lazygit() end, { desc = 'Start LazyGit' })
-  vim.keymap.set('n', '<leader>ft', function() Snacks.terminal() end, { desc = 'Start a Terminal' })
+  -- vim.keymap.set('n', '<leader>ft', function() Snacks.terminal() end, { desc = 'Start a Terminal' })
 
   vim.keymap.set("n", "]r", function() Snacks.words.jump(vim.v.count1) end, { desc = "Next Reference" })
   vim.keymap.set("n", "[r", function() Snacks.words.jump(-vim.v.count1) end, { desc = "Prev Reference" })

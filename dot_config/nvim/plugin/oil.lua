@@ -1,6 +1,7 @@
 local ok, plugin_config = pcall(require, "oil")
 if ok then
   plugin_config.setup({
+    default_file_explorer = false,
     skip_confirm_for_simple_edits = true,
     view_options = {
       show_hidden = true,
@@ -39,6 +40,13 @@ if ok then
       ["gV"] = { function() plugin_config.open(vim.fn.expand("$HOME/.config/vim")) end, desc = "Change to vim directory" },
       ["gX"] = { function() plugin_config.open(vim.fn.expand("$HOME/.local/share/Syncthing")) end, desc = "Change to Syncthing directory" },
       ["gO"] = { function() plugin_config.open(vim.fn.expand("/home/mike.old/.config/nvim-test")) end, desc = "Change to nvim directory" },
+      ["geD"] = { function() plugin_config.open(vim.fn.expand("oil-ssh://earth.erdely.in//srv/docker/")) end, desc = "Change to nvim directory" },
+      ["geH"] = { function() plugin_config.open(vim.fn.expand("oil-ssh://earth.erdely.in//home/mike/")) end, desc = "Change to nvim directory" },
+      ["gjD"] = { function() plugin_config.open(vim.fn.expand("oil-ssh://jupiter.erdely.in//srv/docker/")) end, desc = "Change to nvim directory" },
+      ["gjH"] = { function() plugin_config.open(vim.fn.expand("oil-ssh://jupiter.erdely.in//home/mike/")) end, desc = "Change to nvim directory" },
+      ["gpH"] = { function() plugin_config.open(vim.fn.expand("oil-ssh://pluto.erdelynet.com//home/mike/")) end, desc = "Change to nvim directory" },
+      ["gcD"] = { function() plugin_config.open(vim.fn.expand("oil-ssh://ceres.erdelynet.com//srv/docker/")) end, desc = "Change to nvim directory" },
+      ["gcH"] = { function() plugin_config.open(vim.fn.expand("oil-ssh://ceres.erdelynet.com//home/mike/")) end, desc = "Change to nvim directory" },
       ["go"] = {
         desc = "Prompt for directory to change to",
         function()
