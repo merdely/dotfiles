@@ -51,6 +51,8 @@ vim.keymap.set("n", "<leader>cr", vim.lsp.buf.rename, { desc = "Rename" })
 
 vim.keymap.set("n", "<leader>;", ":e #<CR>", { desc = "Alternate Buffer" })
 vim.keymap.set("n", "<leader>bc", ":let @+=expand('%:p')<CR>", { desc = "Copy Buffer Path" })
+vim.keymap.set("n", "<leader>bC", ":let @+=expand('%:p:h')<CR>", { desc = "Copy Buffer Directory Path" })
+vim.keymap.set("n", "<leader>bE", ":cd %:p:h<CR>", { desc = "Copy Buffer Directory Path" })
 vim.keymap.set("n", "<leader>bD", ":bdelete", { desc = "Delete Buffer and Window" })
 vim.keymap.set("n", "<leader>bp", ":bprev", { desc = "Next Buffer" })
 vim.keymap.set("n", "<leader>bn", ":bnext", { desc = "Next Buffer" })

@@ -32,6 +32,13 @@ function utils.get_window_size(winid)
   }
 end
 
+---@param winid? integer
+---@return boolean
+function _.is_window_valid(winid)
+  -- a non-nil `winid` does not mean the window still exists
+  return winid ~= nil and vim.api.nvim_win_is_valid(winid)
+end
+
 function utils.defaults(v, default_value)
   return type(v) == "nil" and default_value or v
 end
@@ -381,6 +388,18 @@ if _.feature.v0_11 then
       return "none"
     end
     return style
+  end
+end
+
+---@generic T
+---@param list T[]
+---@param item T
+---@return nil|integer index
+function _.find_index(list, item)
+  for idx = 1, #list do
+    if list[idx] == item then
+      return idx
+    end
   end
 end
 

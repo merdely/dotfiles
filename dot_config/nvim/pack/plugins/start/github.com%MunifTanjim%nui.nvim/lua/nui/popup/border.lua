@@ -496,7 +496,7 @@ function Border:init(popup, options)
 end
 
 function Border:_open_window()
-  if self.winid or not self.bufnr then
+  if _.is_window_valid(self.winid) or not self.bufnr then
     return
   end
 
@@ -519,11 +519,7 @@ function Border:_open_window()
 end
 
 function Border:_close_window()
-  if not self.winid then
-    return
-  end
-
-  if vim.api.nvim_win_is_valid(self.winid) then
+  if _.is_window_valid(self.winid) then
     vim.api.nvim_win_close(self.winid, true)
   end
 
@@ -584,12 +580,16 @@ function Border:unmount()
   self:_close_window()
 end
 
-function Border:_relayout()
+---@param size_only? boolean
+function Border:_relayout(size_only)
   local internal = self._
 
   if internal.type ~= "complex" then
     return
   end
+
+  local old_row = self.win_config.row
+  local old_col = self.win_config.col
 
   if self.popup.win_config.anchor and self.popup.win_config.anchor ~= self.win_config.anchor then
     self.win_config.anchor = self.popup.win_config.anchor
@@ -611,8 +611,16 @@ function Border:_relayout()
 
   internal.lines = calculate_buf_lines(internal)
 
-  if self.winid then
-    vim.api.nvim_win_set_config(self.winid, self.win_config)
+  if _.is_window_valid(self.winid) then
+    if size_only and old_row == self.win_config.row and old_col == self.win_config.col then
+      -- Only size got updated, so let's not reposition the border
+      vim.api.nvim_win_set_config(self.winid, {
+        width = self.win_config.width,
+        height = self.win_config.height,
+      })
+    else
+      vim.api.nvim_win_set_config(self.winid, self.win_config)
+    end
   end
 
   if self.bufnr then
@@ -663,12 +671,12 @@ function Border:set_highlight(highlight)
   local winhighlight_data = _.parse_winhighlight(self.popup._.win_options.winhighlight)
   winhighlight_data["FloatBorder"] = highlight
   self.popup._.win_options.winhighlight = _.serialize_winhighlight(winhighlight_data)
-  if self.popup.winid then
+  if _.is_window_valid(self.popup.winid) then
     _.set_win_option(self.popup.winid, "winhighlight", self.popup._.win_options.winhighlight)
   end
 
   internal.winhighlight = calculate_winhighlight(internal, self.popup._.win_options.winhighlight)
-  if self.winid then
+  if _.is_window_valid(self.winid) then
     _.set_win_option(self.winid, "winhighlight", internal.winhighlight)
   end
 end

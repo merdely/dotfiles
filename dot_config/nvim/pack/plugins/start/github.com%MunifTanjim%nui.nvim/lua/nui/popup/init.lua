@@ -160,7 +160,7 @@ function Popup:init(options)
 end
 
 function Popup:_open_window()
-  if self.winid or not self.bufnr then
+  if _.is_window_valid(self.winid) or not self.bufnr then
     return
   end
 
@@ -181,11 +181,7 @@ function Popup:_open_window()
 end
 
 function Popup:_close_window()
-  if not self.winid then
-    return
-  end
-
-  if vim.api.nvim_win_is_valid(self.winid) then
+  if _.is_window_valid(self.winid) then
     vim.api.nvim_win_close(self.winid, true)
   end
 
@@ -385,19 +381,33 @@ end
 function Popup:update_layout(config)
   config = config or {}
 
+  local size_only = config.size ~= nil and vim.tbl_count(config) == 1
+
+  local old_row = self.win_config.row
+  local old_col = self.win_config.col
+
   u.update_layout_config(self._, config)
 
-  self.border:_relayout()
+  self.border:_relayout(size_only)
 
   self._.layout_ready = true
 
-  if self.winid then
-    -- upstream issue: https://github.com/neovim/neovim/issues/20370
-    local win_config_style = self.win_config.style
-    ---@diagnostic disable-next-line: assign-type-mismatch
-    self.win_config.style = ""
-    vim.api.nvim_win_set_config(self.winid, self.win_config)
-    self.win_config.style = win_config_style
+  if _.is_window_valid(self.winid) then
+    if size_only and old_row == self.win_config.row and old_col == self.win_config.col then
+      -- Only size got updated, so let's not reposition the popup
+      vim.api.nvim_win_set_config(self.winid, {
+        style = "", -- https://github.com/neovim/neovim/issues/20370
+        width = self.win_config.width,
+        height = self.win_config.height,
+      })
+    else
+      -- https://github.com/neovim/neovim/issues/20370
+      local win_config_style = self.win_config.style
+      ---@diagnostic disable-next-line: assign-type-mismatch
+      self.win_config.style = ""
+      vim.api.nvim_win_set_config(self.winid, self.win_config)
+      self.win_config.style = win_config_style
+    end
   end
 end
 
