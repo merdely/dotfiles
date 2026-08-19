@@ -62,8 +62,8 @@ binds {
     Mod+Shift+Q          hotkey-overlay-title="Open Logseq"       { spawn-sh "$HOME/.config/niri/scratchpad logseq"; }
     // Must create a term-scratchpad.desktop in $HOME/.local/share/applications
     Mod+Shift+Return     hotkey-overlay-title="Scratch Terminal"  { spawn-sh "$HOME/.config/niri/scratchpad term-scratchpad"; }
-    Mod+Shift+Apostrophe hotkey-overlay-title="Bluetooth Manager" { spawn-sh "$HOME/.config/niri/scripts/minimize blueman-manager"; }
-    Mod+Shift+Semicolon  hotkey-overlay-title="Audio Mixer"       { spawn-sh "$HOME/.config/niri/scripts/minimize org.pulseaudio.pavucontrol pavucontrol"; }
+    Mod+Shift+Apostrophe hotkey-overlay-title="Bluetooth Manager" { spawn-sh "$HOME/.config/niri/scratchpad blueman-manager"; }
+    Mod+Shift+Semicolon  hotkey-overlay-title="Audio Mixer"       { spawn-sh "$HOME/.config/niri/scratchpad org.pulseaudio.pavucontrol pavucontrol"; }
     Mod+Shift+Comma      hotkey-overlay-title="System Monitor"    { spawn-sh "$HOME/.config/niri/scratchpad htop"; }
     Mod+Shift+Period     hotkey-overlay-title="GPU Monitor"       { spawn-sh "$HOME/.config/niri/scratchpad nvtop"; }
     Mod+Shift+Space hotkey-overlay-title="Clear Notifications"    { spawn-sh "dms ipc call notifications clearAll;dms ipc call notifications close"; }
