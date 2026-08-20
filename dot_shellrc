@@ -174,12 +174,15 @@ alias chemzoi=chezmoi
 
 # Copy contents of a file to the clipboard
 copy () {
-  input=$1
-  [ -z "$1" ] || [ ! -r "$1" ] && input=-
+  input="${1:--}"
+  [ "$input" != "-" ] && [ ! -r "$input" ] && input=-
+
+  b64=$(base64 -w0 "$input" | tr -d '\n')
+
   if [ -n "$SSH_CONNECTION" ]; then
-	  cat "$input" | printf '\033]52;c;%s\a' "$(base64 -w0 | tr -d '\n')"
+    printf '\033]52;c;%s\a' "$b64"
   else
-    cat "$input" | wl-copy
+    printf '%s' "$b64" | base64 -d | wl-copy
   fi
 }
 
