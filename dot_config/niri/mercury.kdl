@@ -33,7 +33,7 @@ binds {
     Mod+Ctrl+Period     hotkey-overlay-title="Earth nvtop"      { spawn-sh "$HOME/.config/niri/scratchpad nvtop-earth"; }
     Mod+Alt+Comma       hotkey-overlay-title="Jupiter htop"     { spawn-sh "$HOME/.config/niri/scratchpad htop-jupiter"; }
     Mod+Alt+Period      hotkey-overlay-title="Jupiter nvtop"    { spawn-sh "$HOME/.config/niri/scratchpad nvtop-jupiter"; }
-    Mod+Semicolon        hotkey-overlay-title="Open RBW"          { spawn-sh "pgrep -u $LOGNAME -f -- '[r]ofi -markup-rows -dmenu -format' && pkill -u $LOGNAME -f -- '[r]ofi -markup-rows -dmenu -format' || $HOME/.local/bin/rofi-rbw --use-notify-send"; }
+    Mod+Semicolon        hotkey-overlay-title="Open RBW"          { spawn-sh "pgrep -u $LOGNAME -f -- '[r]ofi -markup-rows -dmenu -format' && pkill -u $LOGNAME -f -- '[r]ofi -markup-rows -dmenu -format' || rofi-rbw --use-notify-send"; }
 }
 
 // Fix for nvidia card
