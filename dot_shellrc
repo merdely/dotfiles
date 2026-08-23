@@ -110,6 +110,8 @@ alias apk='ANSIBLE_SSH_ARGS="-o GlobalKnownHostsFile=/dev/null -o UserKnownHosts
 alias dos_rsync='rsync -rtcvP'
 alias which='command -v'
 alias d='docker compose'
+alias docker_up='for f in /srv/docker/*/compose.yaml; do docker compose -f "$f" up -d; done'
+alias docker_down='for f in /srv/docker/*/compose.yaml; do docker compose -f "$f" down; done'
 alias c='chezmoi'
 alias c_up='ansible chezmoi -oa "{{chezmoi}} update";ansible chezmoi_ro -oa "~/.local/bin/sync_home"'
 alias chezmoi_updates='ansible chezmoi -oa "{{chezmoi}} update";ansible chezmoi_ro -oa "~/.local/bin/sync_home"'
