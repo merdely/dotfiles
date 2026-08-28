@@ -13,3 +13,4 @@ alias authconfig='sudoedit /srv/docker/authelia/config/configuration.yml'
 alias authusers='sudoedit /srv/docker/authelia/config/users.yml'
 alias authlogs='docker logs -f authelia --since 2m'
 
+alias headscale='docker exec -it headscale headscale'
