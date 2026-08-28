@@ -1,0 +1,374 @@
+127.0.0.1, Personal
+*.1800flowers.com, Shopping
+1800flowers.com, Shopping
+*.activecommunities.com, Tennis
+activecommunities.com, Tennis
+*.adafruit.com, Shopping
+adafruit.com, Shopping
+*.jobs.akamai.com, Job Hunting
+jobs.akamai.com, Job Hunting
+*.aliexpress.com, Aliexpress
+aliexpress.com, Aliexpress
+*.amazon.com, Amazon
+amazon.com, Amazon
+*.americanexpress.com, AmericanExpress
+americanexpress.com, AmericanExpress
+*.anthropic.com, Claude
+anthropic.com, Claude
+tv.apple.com, Media
+aur.archlinux.org, Forums
+bbs.archlinux.org, Forums
+wiki.archlinux.org, Forums
+*.ashbyhq.com, Job Hunting
+ashbyhq.com, Job Hunting
+*.audiobooksnow.com, Shopping
+audiobooksnow.com, Shopping
+*.august.com, August
+august.com, August
+*.backblaze.com, Backblaze
+backblaze.com, Backblaze
+*.banggood.com, Banggood
+banggood.com, Banggood
+*.barclaycardus.com, Barclays
+barclaycardus.com, Barclays
+*.bestbuy.com, Shopping
+bestbuy.com, Shopping
+*.bhphotovideo.com, Shopping
+bhphotovideo.com, Shopping
+*.bill.com, Banking
+bill.com, Banking
+*.breezy.hr, Job Hunting
+breezy.hr, Job Hunting
+*.brevo.com, Services
+brevo.com, Services
+*.bsd.network, Lemmy
+bsd.network, Lemmy
+*.bsky.app, Bluesky
+bsky.app, Bluesky
+*.callcentric.com, Services
+callcentric.com, Services
+*.capitalone.com, CapitalOne
+capitalone.com, CapitalOne
+*careers*, Job Hunting
+*.chase.com, Chase
+chase.com, Chase
+*.chatgpt.com, ChatGPT
+chatgpt.com, ChatGPT
+*.cisco.com, Cisco
+cisco.com, Cisco
+*.citi.com, CitiBank
+citi.com, CitiBank
+*.citibank.com, CitiBank
+citibank.com, CitiBank
+*.citibankonline.com, CitiBank
+citibankonline.com, CitiBank
+*.citizensbank.com, Citizens
+citizensbank.com, Citizens
+*.claude.ai, Claude
+claude.ai, Claude
+*.claude.com, Claude
+claude.com, Claude
+bethesdacounselingservices.clientsecure.me, Medical
+*.cloudflare.com, Cloudflare
+cloudflare.com, Cloudflare
+*.clubautomation.com, Tennis
+clubautomation.com, Tennis
+*.codeberg.org, Codeberg
+codeberg.org, Codeberg
+*.costco.com, Shopping
+costco.com, Shopping
+*.courtreserve.com, Tennis
+courtreserve.com, Tennis
+*.crucial.com, Shopping
+crucial.com, Shopping
+*.cvs.com, Medical
+cvs.com, Medical
+*.davidplotkinmd.com, Medical
+davidplotkinmd.com, Medical
+*.dice.com, Job Hunting
+dice.com, Job Hunting
+*.disneyplus.com, Media
+disneyplus.com, Media
+*.docker.com, Docker
+docker.com, Docker
+*.doordash.com, DoorDash
+doordash.com, DoorDash
+learn.dotb.sh, Services
+*.driveezmd.com, Shopping
+driveezmd.com, Shopping
+*.ebay.com, Paypal
+ebay.com, Paypal
+*.ecobee.com, Ecobee
+ecobee.com, Ecobee
+*.element.io, Matrix
+element.io, Matrix
+*.equifax.com, CreditReporting
+equifax.com, CreditReporting
+jellyfin.erde.ly, JF HouseGuest
+*.erde.ly, Personal
+erde.ly, Personal
+jellyfin.erdely.co, JF Admin
+jellyfin.erdely.in, JF Holly
+erdely.co, Personal
+*.erdely.in, Personal
+erdely.in, Personal
+*.erdely.co, Personal
+*.erdelynet.com, Personal
+erdelynet.com, Personal
+*.espn.com, Media
+espn.com, Media
+*.etsy.com, Shopping
+etsy.com, Shopping
+*.euronodes.com, euronodes
+euronodes.com, euronodes
+*.exactsciences.com, Medical
+exactsciences.com, Medical
+*.expedia.com, Expedia
+expedia.com, Expedia
+*.experian.com, CreditReporting
+experian.com, CreditReporting
+*.eyeconic.com, Shopping
+eyeconic.com, Shopping
+*.facebook.com, Facebook
+facebook.com, Facebook
+*.fandango.com, Shopping
+fandango.com, Shopping
+*.fastmail.com, Fastmail
+fastmail.com, Fastmail
+*.fepblue.org, Medical
+fepblue.org, Medical
+*.fidelity.com, Fidelity
+fidelity.com, Fidelity
+accounts.firefox.com, Services
+*.flexjobs.com, Job Hunting
+flexjobs.com, Job Hunting
+*.flores247.com, Banking
+flores247.com, Banking
+*.floreshr.com, Banking
+floreshr.com, Banking
+code.forgejo.org, Codeberg
+*.ftd.com, Shopping
+ftd.com, Shopping
+*.gifthealth.com, Medical
+gifthealth.com, Medical
+*.github.com, GitHub
+github.com, GitHub
+*.gitlab.com, Gitlab
+gitlab.com, Gitlab
+*.gmail.com, Google
+gmail.com, Google
+*.gmktec.com, Shopping
+gmktec.com, Shopping
+*.goodreads.com, Services
+goodreads.com, Services
+*.google.com, Google
+google.com, Google
+*.gourmetasianbistro.com, Shopping
+gourmetasianbistro.com, Shopping
+*.greenhouse.io, Job Hunting
+greenhouse.io, Job Hunting
+*.gumroad.com, Shopping
+gumroad.com, Shopping
+*.gwog.com, Medical
+gwog.com, Medical
+*.heatonist.com, Shopping
+heatonist.com, Shopping
+*.hetrixtools.com, HetrixTools
+hetrixtools.com, HetrixTools
+*.hireart.com, HireArt
+hireart.com, HireArt
+*.hmfusa.com, Banking
+hmfusa.com, Banking
+*.homedepot.com, Shopping
+homedepot.com, Shopping
+*.indeed.com, Job Hunting
+indeed.com, Job Hunting
+*.instagram.com, Facebook
+instagram.com, Facebook
+*.sh.itjust.works, Lemmy
+sh.itjust.works, Lemmy
+*.jiangcourtasiancuisine.com, Shopping
+jiangcourtasiancuisine.com, Shopping
+*.jobgether.com, Job Hunting
+jobgether.com, Job Hunting
+*jobs*, Job Hunting
+*.johnhancock.com, JohnHancock
+johnhancock.com, JohnHancock
+*.kohls.com, Shopping
+kohls.com, Shopping
+*.lemon.io, Job Hunting
+lemon.io, Job Hunting
+*.jobs.lever.co, Job Hunting
+jobs.lever.co, Job Hunting
+*.livongo.com, Medical
+livongo.com, Medical
+localhost, Personal
+discuss.logseq.com, Forums
+*.lowes.com, Shopping
+lowes.com, Shopping
+*.luadns.com, LUADNS
+luadns.com, LUADNS
+*.lyft.com, Services
+lyft.com, Services
+*.macys.com, Shopping
+macys.com, Shopping
+*.marriott.com, Marriott
+marriott.com, Marriott
+*.matchtennisteam.com, USTA
+matchtennisteam.com, USTA
+*.matrix.org, Matrix
+matrix.org, Matrix
+*.matrix.to, Matrix
+matrix.to, Matrix
+*.medstarhealth.org, Medical
+medstarhealth.org, Medical
+*.melloninvestor.com, MellonInvestor
+melloninvestor.com, MellonInvestor
+*.metapixl.com, Lemmy
+metapixl.com, Lemmy
+*.microcenter.com, Shopping
+microcenter.com, Shopping
+*.mistral.ai, Mistral
+mistral.ai, Mistral
+*.monoprice.com, Shopping
+monoprice.com, Shopping
+*.monster.com, Job Hunting
+monster.com, Job Hunting
+*.msi.com, Services
+msi.com, Services
+*.mydentistlink.com, Medical
+mydentistlink.com, Medical
+gwog.myezyaccess.com, Medical
+*.mygenesight.com, Medical
+mygenesight.com, Medical
+*.myradarconnect.com, Medical
+myradarconnect.com, Medical
+mdmontgomeryctyweb.myvscloud.com, Tennis
+mdpgparksweb.myvscloud.com, Tennis
+*.myworkdayjobs.com, Job Hunting
+myworkdayjobs.com, Job Hunting
+*.nebula.app, Media
+nebula.app, Media
+*.nebula.tv, Media
+nebula.tv, Media
+*.netflix.com, Media
+netflix.com, Media
+*.nuts.com, Shopping
+nuts.com, Shopping
+*.nytimes.com, Media
+nytimes.com, Media
+*.odysee.com, Odysee
+odysee.com, Odysee
+*.openai.com, ChatGPT
+openai.com, ChatGPT
+*.opencode.ai, OpenCode
+opencode.ai, OpenCode
+*.openstreetmap.org, OpenStreetMap
+openstreetmap.org, OpenStreetMap
+*.oracle.com, Oracle
+oracle.com, Oracle
+*.oraclecloud.com, Oracle
+oraclecloud.com, Oracle
+*.panera.com, Shopping
+panera.com, Shopping
+*.parrishmed.com, Medical
+parrishmed.com, Medical
+*.pathai.com, Job Hunting
+pathai.com, Job Hunting
+*.peblla.com, Shopping
+peblla.com, Shopping
+*.piefed.world, Lemmy
+piefed.world, Lemmy
+*.pinterestcareers.com, Job Hunting
+pinterestcareers.com, Job Hunting
+*.pishop.us, Shopping
+pishop.us, Shopping
+*.plan2play.com, Tennis
+plan2play.com, Tennis
+*.principal.com, Principal
+principal.com, Principal
+*.protectli.com, Shopping
+protectli.com, Shopping
+*.proton.me, Proton
+proton.me, Proton
+*.protonmail.com, Proton
+protonmail.com, Proton
+*.questdiagnostics.com, Medical
+questdiagnostics.com, Medical
+*recruiting*, Job Hunting
+*.reddit.com, Reddit
+reddit.com, Reddit
+*.register.ly, Registerly
+register.ly, Registerly
+*.rotech.com, Medical
+rotech.com, Medical
+*.rxinform.org, Medical
+rxinform.org, Medical
+*.secumd.org, SECU
+secumd.org, SECU
+video.simplepractice.com, Medical
+*.skechers.com, Shopping
+skechers.com, Shopping
+*.southwest.com, Southwest
+southwest.com, Southwest
+*.splunk.com, Services
+splunk.com, Services
+*.squarespace.com, Services
+squarespace.com, Services
+*.squareup.com, Banking
+squareup.com, Banking
+*.steamcommunity.com, Steam
+steamcommunity.com, Steam
+*.steampowered.com, Steam
+steampowered.com, Steam
+*.strapsco.com, Shopping
+strapsco.com, Shopping
+*.stubhub.com, Stubhub
+stubhub.com, Stubhub
+paypal.syf.com, Paypal
+*.t-mobile.com, TMobile
+t-mobile.com, TMobile
+*.tailscale.com, Tailscale
+tailscale.com, Tailscale
+*.teladochealth.com, Medical
+teladochealth.com, Medical
+*.tennis-warehouse.com, Shopping
+tennis-warehouse.com, Shopping
+*.tennischannel.com, Media
+tennischannel.com, Media
+*.tennischanneleverywhere.com, Media
+tennischanneleverywhere.com, Media
+*.theladders.com, Job Hunting
+theladders.com, Job Hunting
+*.thetvdb.com, Services
+thetvdb.com, Services
+*.ticketmaster.com, Ticketmaster
+ticketmaster.com, Ticketmaster
+*.tmobile.com, TMobile
+tmobile.com, TMobile
+*.transunion.com, CreditReporting
+transunion.com, CreditReporting
+*.tuta.com, Tuta
+tuta.com, Tuta
+*.ups.com, Services
+ups.com, Services
+*.usta.com, USTA
+usta.com, USTA
+*.valant.io, Valant
+valant.io, Valant
+*.venmo.com, Paypal
+venmo.com, Paypal
+*.vultr.com, Services
+vultr.com, Services
+*.waymo.com, Services
+waymo.com, Services
+*.wellfound.com, Job Hunting
+wellfound.com, Job Hunting
+*.withings.com, Services
+withings.com, Services
+*.youtube.com, Google
+youtube.com, Google
+*.zappos.com, Shopping
+zappos.com, Shopping
+*.ziprecruiter.com, Job Hunting
+ziprecruiter.com, Job Hunting

@@ -1,0 +1,11 @@
+auth.erdely.in, Personal, Admin
+music.erdely.in, Personal, Admin
+code.erdely.in, Personal, Admin
+src.erdely.in, Personal, Admin
+cloudauth.erdelynet.com, Personal, Admin
+auth.erdelynet.com, Personal, Admin
+netbird.erdelynet.com, Personal, Admin
+books.erdelynet.com, Personal, Admin
+audiobooks.erdelynet.com, Personal, Admin
+navidrome.erdelynet.com, Personal, Admin
+photos.erdelynet.com, Personal, Admin
