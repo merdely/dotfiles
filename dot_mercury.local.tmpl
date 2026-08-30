@@ -27,6 +27,8 @@ alias vcheck='sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck'
 alias vc='vcheck'
 alias v='sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -L all'
 alias vd='sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -D -L all'
+alias ve='ssh earth   sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -L all -D'
+alias vj='ssh jupiter sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -L all -D'
 
 if [[ "$EDITOR" == nvim ]]; then
   alias lazyvim='env NVIM_APPNAME=nvim-lazyvim nvim'
