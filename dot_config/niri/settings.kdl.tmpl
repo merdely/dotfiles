@@ -114,14 +114,14 @@ window-rule {
 
 // Open scratchpad apps floating
 window-rule {
-    match app-id=r#"^Bitwarden|com\.logseq\.Logseq|logseq|Logseq|org\.gnome\.Nautilus|org\.kde\.kdeconnect\.sms|org\.signal\.Signal|signal|htop|htop-.*|nvtop|nvtop-.*|term-scratchpad|termfm$"#
+    match app-id=r#"^Bitwarden|com\.logseq\.Logseq|logseq|Logseq|org\.gnome\.Nautilus|org\.kde\.kdeconnect\.sms|org\.signal\.Signal|signal|htop|htop-.*|nvtop|nvtop-.*|term-scratchpad|termfm|pavucontrol|blueman-manager$"#
     open-maximized false
     open-floating true
 }
 
 // Start scratchpad apps in scratchpad workspace
 window-rule {
-    match app-id=r#"^Bitwarden|com\.logseq\.Logseq|logseq|Logseq|org\.kde\.kdeconnect\.sms|org\.signal\.Signal|signal|htop|htop-.*|nvtop|nvtop-.*|term-scratchpad|termfm$"# at-startup=true
+    match app-id=r#"^Bitwarden|com\.logseq\.Logseq|logseq|Logseq|org\.kde\.kdeconnect\.sms|org\.signal\.Signal|signal|htop|htop-.*|nvtop|nvtop-.*|term-scratchpad|termfm|pavucontrol|blueman-manager$"# at-startup=true
     open-on-workspace "🗒️"
     open-maximized true
     open-floating false
