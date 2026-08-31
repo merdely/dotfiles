@@ -185,9 +185,22 @@ main() {
     echo "sudo_cmd=${sudo_cmd[*]}"
   fi
 
-  if ! http_code=$(curl -w "%{http_code}" -sfLo "$tmpdir"/curl.out "https://api.github.com/repos/${repo[$pkg]}/releases/latest"); then
-    echo "Error: Could not download latest release info from GitHub" >&2
-    exit 1
+  if [[ -z "${release_search[$pkg]}" ]]; then
+    if ! http_code=$(curl -w "%{http_code}" -sfLo "$tmpdir"/curl.out "https://api.github.com/repos/${repo[$pkg]}/releases/latest"); then
+      echo "Error: Could not download latest release info from GitHub" >&2
+      exit 1
+    fi
+  else
+    if ! http_code=$(curl -w "%{http_code}" -sfLo "$tmpdir"/curl.out "https://api.github.com/repos/${repo[$pkg]}/releases"); then
+      echo "Error: Could not download release info from GitHub" >&2
+      exit 1
+    fi
+    newest_tag=$(awk -v m="${release_search[$pkg]}" '{while ( where = match($0, "\"tag_name\": *\"(" m ")\"", a) ) { print a[1] ; exit }}' "$tmpdir"/curl.out)
+    [[ -z "$newest_tag" ]] && { echo "Error: Could not determine newest tag for ${release_search[$pkg]}" >&2 ; exit 1 ; }
+    if ! http_code=$(curl -w "%{http_code}" -sfLo "$tmpdir"/curl.out "https://api.github.com/repos/${repo[$pkg]}/releases/tags/$newest_tag"); then
+      echo "Error: Could not download release info from GitHub" >&2
+      exit 1
+    fi
   fi
   [[ "$http_code" != 2* ]] && { echo "Error: HTTP Error $http_code downloading release information" >&2 ; exit 1 ; }
   local repo_info="$tmpdir"/curl.out
