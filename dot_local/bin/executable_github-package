@@ -6,7 +6,7 @@
 # For repos that need help, a configuration file (~/.config/software.conf by default)
 # can contain settings:
 # alias[ALIAS] allows running 'github-package ALIAS' (the rest of the settings point to the real repo)
-# pkg[REPO] gives a regex search string to find file amongst assets
+# regex[REPO] gives a regex search string to find file amongst assets
 # srcbin[REPO] gives a regex search string to find the binary to copy in the archive file
 # bin[REPO] gives a filename for the destination file
 # Variables in these settings can be expanded from {ARCH}, {SYSTEM}, and {STDLIB}
@@ -17,10 +17,10 @@
 # Example:
 #   alias[atuin]=atuinsh/atuin
 #   alias[alloy]=grafana/alloy
-#   pkg[atuinsh/atuin]='/atuin-{ARCH}-unknown-{SYSTEM}-{STDLIB}\.tar\.gz$'
-#   pkg[grafana/alloy]='/alloy-{SYSTEM}-{ARCH}\.zip$'
+#   regex[atuinsh/atuin]='/atuin-{ARCH}-unknown-{SYSTEM}-{STDLIB}\.tar\.gz$'
+#   regex[grafana/alloy]='/alloy-{SYSTEM}-{ARCH}\.zip$'
 #   srcbin[grafana/alloy]='alloy-{SYSTEM}-{ARCH}'
-#   bin[neovim/neovim]=nvim
+#   type[neovim/neovim]=appimage
 
 CONFIG="$HOME"/.config/software.conf
 ARCH=$(uname -m)
@@ -85,15 +85,15 @@ main() {
   ext_regex[rpm]="(rpm|rpm\.gz|rpm\.bz2)"
   ext_regex[pacman]="(pkg\.tar\.xz|pkg\.tar\.zst)"
   ext_regex[appimage]="(appimage|AppImage|APPIMAGE)"
-  local destdir="$HOME"/.local/bin sudo=() debug=false
-  local verbose=false type=tar testmode=() upgrade=false
+  local destdir="$HOME"/.local/bin use_sudo=false debug=false
+  local verbose=false default_type=tar testmode=() upgrade=false
   local altarch="" altdest="" altstdlib=""
   while true; do
     case $1 in
       -h|--help)     usage ;;
       -v|--verbose)  verbose=true ;;
-      -s|--system)   destdir=/usr/local/bin ; sudo=("sudo") ;;
-      -u|--user)     destdir="$HOME"/.local/bin ; sudo=() ;;
+      -s|--system)   destdir=/usr/local/bin ; use_sudo=true ;;
+      -u|--user)     destdir="$HOME"/.local/bin ; use_sudo=false ;;
       -U|--upgrade)  upgrade=true ;;
       -c|--config)   shift ; CONFIG=$1 ;;
       -t|--tar)      type=tar ;;
@@ -123,58 +123,105 @@ main() {
     *) echo "Error: $ARCH not implemented" >&2 ; exit 1 ;;
   esac
 
-  declare -A alias pkg bin srcbin types
-  local repo=$1 tmpdir="" url="" srcbinfile="" files=() matches=()
+  declare -A repo alias regex bin srcbin type dest sudo
+  local pkg=$1 tmpdir="" url="" files=() matches=()
   tmpdir=$(mktemp -d)
   TMPFILES=("$tmpdir")
+
+  # Set defaults for a package
+  type[$pkg]=$default_type
+  bin[$pkg]=${pkg##*/}
+  dest[$pkg]=$destdir
+  sudo[$pkg]=false
+  "$use_sudo" && sudo[$pkg]=true
 
   # shellcheck disable=1090
   [[ -r "$CONFIG" ]] && source "$CONFIG"
 
-  [[ -n "${alias[$repo]}" ]] && repo=${alias[$repo]}
-  [[ "$repo" != */* ]] && repo=$repo/$repo
-  [[ -n "${types[$repo]}" ]] && type=${types[$repo]}
-  local regex=${pkg[$repo]}
-  local srcbinfile=${srcbin[$repo]}
-  local binfile=${bin[$repo]}
-  [[ -z "$srcbinfile" ]] && srcbinfile=${repo##*/}
-  [[ -z "$binfile" ]] && binfile=${repo##*/}
-  [[ -n "$altdest" ]] && destdir=$altdest
-  [[ "$altstdlib" =~ ^gnu|glibc|musl$ ]] && ARCH=$altstdlib
+  # If an alias is defined, use it
+  if [[ -n "${alias[$pkg]}" ]]; then
+    repo[$pkg]=${alias[$pkg]}
+  else
+    repo[$pkg]=$pkg
+    # If a package was given as "neovim", look for "neovim/neovim"
+    [[ "$pkg" != */* ]] && repo[$pkg]=$pkg/$pkg
+  fi
+  local sudo_cmd=()
+  sudo[$pkg]=$(tr '[:upper:]' '[:lower:]' <<< "${sudo[$pkg]}")
+  if [[ "${sudo[$pkg]}" == true || "${sudo[$pkg]}" == yes ]]; then
+    sudo_cmd=("sudo")
+  fi
 
-  if ! "$upgrade" && [[ -e "$destdir"/"$binfile" ]]; then
-    echo "Error: $binfile is already installed" >&2
+  if ! "$upgrade" && [[ -e "${dest[$pkg]}"/"${bin[$pkg]}" ]]; then
+    echo "Error: ${bin[$pkg]} is already installed" >&2
     exit 1
   fi
 
-  regex=${regex//{STDLIB\}/"$STDLIB"}
-  regex=${regex//{ARCH\}/"$ARCH"}
-  regex=${regex//{SYSTEM\}/"$SYSTEM"}
+  # Do substitution for regex, if defined
+  if [[ -n "${regex[$pkg]}" ]]; then
+    regex[$pkg]=${regex[$pkg]//{STDLIB\}/"$STDLIB"}
+    regex[$pkg]=${regex[$pkg]//{ARCH\}/"$ARCH"}
+    regex[$pkg]=${regex[$pkg]//{SYSTEM\}/"$SYSTEM"}
+  fi
 
-  srcbinfile=${srcbinfile//{STDLIB\}/"$STDLIB"}
-  srcbinfile=${srcbinfile//{ARCH\}/"$ARCH"}
-  srcbinfile=${srcbinfile//{SYSTEM\}/"$SYSTEM"}
+  # Do substitution for srcbin
+  [[ -z "${srcbin[$pkg]}" ]] && srcbin[$pkg]=${bin[$pkg]}
+  srcbin[$pkg]=${srcbin[$pkg]//{STDLIB\}/"$STDLIB"}
+  srcbin[$pkg]=${srcbin[$pkg]//{ARCH\}/"$ARCH"}
+  srcbin[$pkg]=${srcbin[$pkg]//{SYSTEM\}/"$SYSTEM"}
 
-  curl -sLo "$tmpdir"/curl.out "https://api.github.com/repos/$repo/releases/latest"
+  if "$debug"; then
+    echo "pkg=$pkg"
+    echo "repo=${repo[$pkg]}"
+    echo "regex=${regex[$pkg]}"
+    echo "srcbin=${srcbin[$pkg]}"
+    echo "bin=${bin[$pkg]}"
+    echo "type=${type[$pkg]}"
+    echo "dest=${dest[$pkg]}"
+    echo "sudo=${sudo[$pkg]}"
+    echo "sudo_cmd=${sudo_cmd[*]}"
+  fi
+
+  if ! http_code=$(curl -w "%{http_code}" -sfLo "$tmpdir"/curl.out "https://api.github.com/repos/${repo[$pkg]}/releases/latest"); then
+    echo "Error: Could not download latest release info from GitHub" >&2
+    exit 1
+  fi
+  [[ "$http_code" != 2* ]] && { echo "Error: HTTP Error $http_code downloading release information" >&2 ; exit 1 ; }
   local repo_info="$tmpdir"/curl.out
-  mapfile -t files < <(awk -F'"' '$2=="browser_download_url"{print $4}' "$repo_info")
+  
+  # Use awk to parse json, even when it's all on one line
+  mapfile -t files < <(awk '
+    {
+      while ( where = match($0, "\"browser_download_url\": *\"([^\"]*)\"", a) ) {
+        print a[1]
+        sub(/"browser_download_url": *"[^"]*"/,"")
+      }
+    }' "$repo_info")
+
+  if (( ${#files[@]} == 0 )); then
+    echo "Error: Could not get a list of files from GitHub for ${repo[$pkg]}" >&2
+    cat "$tmpdir"/curl.out >&2
+    exit 1
+  fi
 
   local ncm=false
   shopt -q nocasematch && ncm=true ; shopt -s nocasematch
   # If configuration file has an entry for its regex, use it
-  if [[ -n "${pkg[$repo]}" ]]; then
+  if [[ -n "${regex[$pkg]}" ]]; then
+    "$debug" && echo "DEBUG: Using configured regex: ${regex[$pkg]}" >&2
     "$debug" && set -x
     for url in "${files[@]}"; do
-      [[ "$url" =~ ${regex} ]] && { matches+=("$url") ; break ; }
+      [[ "$url" =~ ${regex[$pkg]} ]] && { matches+=("$url") ; break ; }
     done
     set +x
 
   # If no config entry, try to find it first with SYSTEM and ARCH, then adding STDLIB
   else
+    "$debug" && echo "DEBUG: Using default regex" >&2
     "$debug" && set -x
     for url in "${files[@]}"; do
-      [[ "$url" =~ ${SYSTEM}.*${ARCH}.*\.${ext_regex[$type]}$ ||
-        "$url" =~ ${ARCH}.*${SYSTEM}.*\.${ext_regex[$type]}$ ]] && matches+=("$url")
+      [[ "$url" =~ ${SYSTEM}.*${ARCH}.*\.${ext_regex[${type[$pkg]}]}$ ||
+        "$url" =~ ${ARCH}.*${SYSTEM}.*\.${ext_regex[${type[$pkg]}]}$ ]] && matches+=("$url")
     done
     set +x
     if (( ${#matches[@]} == 0 )); then
@@ -186,12 +233,12 @@ main() {
       files=("${matches[@]}")
       matches=()
       for url in "${files[@]}"; do
-        [[ "$url" =~ ${SYSTEM}.*${ARCH}.*${STDLIB}.*\.${ext_regex[$type]}$ ||
-          "$url" =~ ${SYSTEM}.*${STDLIB}.*${ARCH}.*\.${ext_regex[$type]}$ ||
-          "$url" =~ ${STDLIB}.*${SYSTEM}.*${ARCH}.*\.${ext_regex[$type]}$ ||
-          "$url" =~ ${STDLIB}.*${ARCH}.*${SYSTEM}.*\.${ext_regex[$type]}$ ||
-          "$url" =~ ${ARCH}.*${SYSTEM}.*${STDLIB}.*\.${ext_regex[$type]}$ ||
-          "$url" =~ ${ARCH}.*${STDLIB}.*${SYSTEM}.*\.${ext_regex[$type]}$ ]] && matches+=("$url")
+        [[ "$url" =~ ${SYSTEM}.*${ARCH}.*${STDLIB}.*\.${ext_regex[${type[$pkg]}]}$ ||
+          "$url" =~ ${SYSTEM}.*${STDLIB}.*${ARCH}.*\.${ext_regex[${type[$pkg]}]}$ ||
+          "$url" =~ ${STDLIB}.*${SYSTEM}.*${ARCH}.*\.${ext_regex[${type[$pkg]}]}$ ||
+          "$url" =~ ${STDLIB}.*${ARCH}.*${SYSTEM}.*\.${ext_regex[${type[$pkg]}]}$ ||
+          "$url" =~ ${ARCH}.*${SYSTEM}.*${STDLIB}.*\.${ext_regex[${type[$pkg]}]}$ ||
+          "$url" =~ ${ARCH}.*${STDLIB}.*${SYSTEM}.*\.${ext_regex[${type[$pkg]}]}$ ]] && matches+=("$url")
       done
       if (( ${#matches[@]} == 0 )); then
         echo "Error: Narrowing with STDLIB gave zero results" >&2
@@ -210,53 +257,54 @@ main() {
     exit 1
   fi
   url=${matches[0]}
-  [[ -z "$url" ]] && { echo "Error: Could not determine download_url for $repo" >&2 ; exit 1 ; }
+  [[ -z "$url" ]] && { echo "Error: Could not determine download_url for $pkg" >&2 ; exit 1 ; }
 
   local download_file="$tmpdir"/"${url##*/}"
   curl -sLo "$download_file" "$url"
-  echo "Installing $repo $binfile"
+  echo "Installing ${repo[$pkg]} ${bin[$pkg]}"
 
   case "${download_file##*/}" in
     *.tar|*.tar.gz|.tgz|*.tar.bz2|*.tbz2)
       "$verbose" && echo "Extracting tarball"
       tar -C "$tmpdir" -xf "$download_file"
-      srcfile=$(find "$tmpdir" -type f | grep -E "$srcbinfile$")
+      srcfile=$(find "$tmpdir" -type f | grep -E "${srcbin[$pkg]}$")
       if [[ -z "$srcfile" ]]; then
-        echo "Error: Could not find $binfile from tarball" >&2
+        echo "Error: Could not find ${bin[$pkg]} from tarball" >&2
+        find "$tmpdir" >&2
         exit 1
       fi
       if [[ -n "$altdest" ]]; then
-        echo "Copying $binfile to $altdest"
+        echo "Copying ${bin[$pkg]} to $altdest"
         cp "$srcfile" "$altdest"
       else
-        echo "Copying $binfile to $destdir"
-        "${testmode[@]}" "${sudo[@]}" install -m 755 "$srcfile" "$destdir"/"$binfile"
+        echo "Copying ${bin[$pkg]} to ${dest[$pkg]}"
+        "${testmode[@]}" "${sudo_cmd[@]}" install -m 755 "$srcfile" "${dest[$pkg]}"/"${bin[$pkg]}"
       fi
       ;;
     *.zip)
       "$verbose" && echo "Extracting zipfile"
       unzip -q -d "$tmpdir" "$download_file"
-      srcfile=$(find "$tmpdir" -type f | grep -E "$srcbinfile$")
+      srcfile=$(find "$tmpdir" -type f | grep -E "${srcbin[$pkg]}$")
       if [[ -z "$srcfile" ]]; then
-        echo "Error: Could not find $binfile from zipfile" >&2
+        echo "Error: Could not find ${bin[$pkg]} from zipfile" >&2
         exit 1
       fi
       if [[ -n "$altdest" ]]; then
-        echo "Copying $binfile to $altdest"
+        echo "Copying ${bin[$pkg]} to $altdest"
         cp "$srcfile" "$altdest"
       else
-        echo "Copying $binfile to $destdir"
-        "${testmode[@]}" "${sudo[@]}" install -m 755 "$srcfile" "$destdir"/"$binfile"
+        echo "Copying ${bin[$pkg]} to ${dest[$pkg]}"
+        "${testmode[@]}" "${sudo_cmd[@]}" install -m 755 "$srcfile" "${dest[$pkg]}"/"${bin[$pkg]}"
       fi
       ;;
     *.appimage|*.AppImage)
       if [[ -n "$altdest" ]]; then
-        echo "Copying $binfile to $altdest"
+        echo "Copying ${bin[$pkg]} to $altdest"
         cp "$srcfile" "$altdest"
       else
-        echo "Copying $binfile to $destdir"
-        "${testmode[@]}" "${sudo[@]}" install -m 755 "$download_file" "$destdir"/"${download_file##*/}"
-        "${testmode[@]}" "${sudo[@]}" ln -sf "${download_file##*/}" "$destdir"/"$binfile"
+        echo "Copying ${bin[$pkg]} to ${dest[$pkg]}"
+        "${testmode[@]}" "${sudo_cmd[@]}" install -m 755 "$download_file" "${dest[$pkg]}"/"${download_file##*/}"
+        "${testmode[@]}" "${sudo_cmd[@]}" ln -sf "${download_file##*/}" "${dest[$pkg]}"/"${bin[$pkg]}"
       fi
       ;;
     *.deb|*.deb.gz|*.deb.bz2)
@@ -295,8 +343,8 @@ main() {
         echo "Copying ${download_file##*/} to $altdest"
         cp "$download_file" "$altdest"
       else
-        echo "Copying ${download_file##*/} to $destdir"
-        "${testmode[@]}" "${sudo[@]}" install -m 755 "$download_file" "$destdir"/"$binfile"
+        echo "Copying ${download_file##*/} to ${dest[$pkg]}"
+        "${testmode[@]}" "${sudo_cmd[@]}" install -m 755 "$download_file" "${dest[$pkg]}"/"${bin[$pkg]}"
       fi
       ;;
 
