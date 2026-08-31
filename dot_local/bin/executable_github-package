@@ -114,6 +114,9 @@ main() {
     shift
   done
 
+  local debug_on=false
+  [[ "$(set -o | awk '$1=="xtrace"{print $2}')" == on ]] && debug_on=true
+
   # If --arch was given, use it as the architecture
   [[ -n "$altarch" ]] && ARCH=$altarch
 
@@ -213,7 +216,7 @@ main() {
     for url in "${files[@]}"; do
       [[ "$url" =~ ${regex[$pkg]} ]] && { matches+=("$url") ; break ; }
     done
-    set +x
+    ! "$debug_on" && set +x
 
   # If no config entry, try to find it first with SYSTEM and ARCH, then adding STDLIB
   else
@@ -223,7 +226,7 @@ main() {
       [[ "$url" =~ ${SYSTEM}.*${ARCH}.*\.${ext_regex[${type[$pkg]}]}$ ||
         "$url" =~ ${ARCH}.*${SYSTEM}.*\.${ext_regex[${type[$pkg]}]}$ ]] && matches+=("$url")
     done
-    set +x
+    ! "$debug_on" && set +x
     if (( ${#matches[@]} == 0 )); then
       echo "Error: Could not find a file matching $SYSTEM + $ARCH" >&2
       exit 1
@@ -264,7 +267,7 @@ main() {
   echo "Installing ${repo[$pkg]} ${bin[$pkg]}"
 
   case "${download_file##*/}" in
-    *.tar|*.tar.gz|.tgz|*.tar.bz2|*.tbz2)
+    *.tar|*.tar.gz|*.tgz|*.tar.bz2|*.tbz2)
       "$verbose" && echo "Extracting tarball"
       tar -C "$tmpdir" -xf "$download_file"
       srcfile=$(find "$tmpdir" -type f | grep -E "${srcbin[$pkg]}$")
