@@ -54,6 +54,7 @@ usage() {
   echo "  -r|--rpm           : Search for a Red Hat package"
   echo "  -p|--pacman        : Search for a Arch Linux package"
   echo "  -a|--appimage      : Search for a App Image"
+  echo "     --server SERVER : Install/update app on SERVER"
   echo "     --arch ARCH     : Specify an alternate architecture"
   echo "     --stdlib STDLIB : Specify an alternate standard library (gnu/glibc or musl)"
   echo "     --dest DEST     : Specify an alternate destination directory (use --system if sudo needed)"
@@ -72,7 +73,7 @@ main() {
   local OPT_SHORT="hvc:suUtzxdrpa"
   local OPT_LONG=("help" "verbose" "system" "user" "upgrade" "test" "debug"
     "config:" "tar" "zip" "executable" "deb" "rpm" "pacman" "appimage"
-    "arch:" "stdlib:" "dest:")
+    "server:" "arch:" "stdlib:" "dest:")
   declare -a OPTRET
   parseopts "$OPT_SHORT" "${OPT_LONG[@]}" -- "$@" || exit 1
   set -- "${OPTRET[@]}" ; unset OPT_SHORT OPT_LONG OPTRET
@@ -87,7 +88,7 @@ main() {
   ext_regex[appimage]="(appimage|AppImage|APPIMAGE)"
   local destdir="$HOME"/.local/bin use_sudo=false debug=false
   local verbose=false default_type=tar testmode=() upgrade=false
-  local altarch="" altdest="" altstdlib=""
+  local altarch="" altdest="" altstdlib="" altserver=""
   while true; do
     case $1 in
       -h|--help)     usage ;;
@@ -103,6 +104,7 @@ main() {
       -r|--rpm)      type=rpm ;;
       -p|--pacman)   type=pacman ;;
       -a|--appimage) type=appimage ;;
+         --server)   shift ; altserver=$1 ;;
          --arch)     shift ; altarch=$1 ;;
          --stdlib)   shift ; altstdlib=$1 ;;
          --dest)     shift ; altdest=$1 ;;
