@@ -617,6 +617,17 @@ H.apply_palette = function(palette, use_cterm)
   hi('gitcommitUntracked',     {link='Comment'})
   hi('gitcommitUntrackedFile', {fg=p.base0A, bg=nil, attr=nil,    sp=nil})
 
+  -- Quickfix/location list
+  hi('qfError',      {link='DiagnosticError'})
+  hi('qfFileName',   {link='Title'})
+  hi('qfInfo',       {link='DiagnosticInfo'})
+  hi('qfLineNr',     {link='Comment'})
+  hi('qfNote',       {link='DiagnosticHint'})
+  hi('qfSeparator1', {link='Delimiter'})
+  hi('qfSeparator2', {link='Delimiter'})
+  hi('qfText',       {link='Normal'})
+  hi('qfWarning',    {link='DiagnosticWarn'})
+
   -- Built-in diagnostic
   hi('DiagnosticError', {fg=p.base08, bg=nil, attr=nil, sp=nil})
   hi('DiagnosticHint',  {fg=p.base0D, bg=nil, attr=nil, sp=nil})
@@ -826,6 +837,11 @@ H.apply_palette = function(palette, use_cterm)
     hi('MiniStarterItemPrefix', {fg=p.base08, bg=nil, attr='bold', sp=nil})
     hi('MiniStarterSection',    {fg=p.base0F, bg=nil, attr=nil,    sp=nil})
     hi('MiniStarterQuery',      {fg=p.base0B, bg=nil, attr='bold', sp=nil})
+
+    hi('MiniStatuscolumnDim',       {fg=p.base02, bg=p.base01, attr=nil, sp=nil})
+    hi('MiniStatuscolumnDimCursor', {link='CursorLineNr'})
+    hi('MiniStatuscolumnSep',       {link='LineNr'})
+    hi('MiniStatuscolumnSepCursor', {link='CursorLineNr'})
 
     hi('MiniStatuslineDevinfo',     {fg=p.base04, bg=p.base02, attr=nil,    sp=nil})
     hi('MiniStatuslineFileinfo',    {link='MiniStatuslineDevinfo'})

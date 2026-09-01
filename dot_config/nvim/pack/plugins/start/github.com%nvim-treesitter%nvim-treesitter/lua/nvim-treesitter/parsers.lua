@@ -28,7 +28,7 @@ return {
   apex = {
     install_info = {
       location = 'apex',
-      revision = '27a3091a1a444ce19d6099e00cd3788f019d0c2b',
+      revision = 'da568eee10ce4724a40f368b2b7e795dacb4f1ba',
       url = 'https://github.com/aheber/tree-sitter-sfapex',
     },
     maintainers = { '@aheber', '@xixiafinland' },
@@ -388,8 +388,7 @@ return {
       revision = '759a61896ccb2200a4becec4443e768638a21d58',
       url = 'https://github.com/treeman/tree-sitter-djot',
     },
-    maintainers = { '@NoahTheDuke' },
-    tier = 2,
+    tier = 3,
   },
   dockerfile = {
     install_info = {
@@ -567,7 +566,7 @@ return {
   },
   fish = {
     install_info = {
-      revision = 'f435b0bd772578c70e5d158b85267bb886316f88',
+      revision = 'b7f1d682941e0c62dfcd6bf9ef481638351bab16',
       url = 'https://github.com/ram02z/tree-sitter-fish',
     },
     maintainers = { '@ram02z' },
@@ -683,7 +682,7 @@ return {
   },
   gitcommit = {
     install_info = {
-      revision = '49715a9e6f19ce3d33b875aacdd6ad8ddaee0ffe',
+      revision = 'a87878a27b78f75ba59df5bb2fbe36ce88c319ab',
       url = 'https://github.com/gbprod/tree-sitter-gitcommit',
     },
     maintainers = { '@gbprod' },
@@ -1119,7 +1118,7 @@ return {
   },
   json = {
     install_info = {
-      revision = '001c28d7a29832b06b0e831ec77845553c89b56d',
+      revision = '254c42a6476413b776221e03982ac8ae159eeb72',
       url = 'https://github.com/tree-sitter/tree-sitter-json',
     },
     maintainers = { '@steelsojka' },
@@ -1276,7 +1275,7 @@ return {
   },
   liquidsoap = {
     install_info = {
-      revision = '0169d92b0a93e9f32289533ef23abdafca579e56',
+      revision = 'fa565a337b673050ba4f1131d21a1d259153140b',
       url = 'https://github.com/savonet/tree-sitter-liquidsoap',
     },
     maintainers = { '@toots' },
@@ -1363,7 +1362,7 @@ return {
   },
   matlab = {
     install_info = {
-      revision = 'c9ef947ec67fb6b500d5def4f5e09b56990a9f91',
+      revision = 'f03d0347acd8bb05d4edd8c845ac1718729e1fad',
       url = 'https://github.com/acristoffers/tree-sitter-matlab',
     },
     maintainers = { '@acristoffers' },
@@ -1395,7 +1394,7 @@ return {
   mlir = {
     install_info = {
       generate = true,
-      revision = '50857672166f6ba1efceb05c4ec82877d72b4043',
+      revision = '7b122fe9c346bd5826c8a53e344435bd2036de44',
       url = 'https://github.com/artagnon/tree-sitter-mlir',
     },
     maintainers = { '@artagnon' },
@@ -1598,7 +1597,7 @@ return {
   },
   pkl = {
     install_info = {
-      revision = '3486521eb1c2fcb3c9a5e88300215930ee515693',
+      revision = '65f4483b9e8a5960a4d8948421ef3a8992013517',
       url = 'https://github.com/apple/tree-sitter-pkl',
     },
     maintainers = { '@ribru17' },
@@ -1791,7 +1790,7 @@ return {
   },
   racket = {
     install_info = {
-      revision = 'e2b8064b32ab1dfa30532aeac1577ae4c1cc3df5',
+      revision = 'b3cbbde75ce2de3079e33c7fe90bd41b1d45be48',
       url = 'https://github.com/6cdh/tree-sitter-racket',
     },
     tier = 2,
@@ -1854,7 +1853,7 @@ return {
   },
   rego = {
     install_info = {
-      revision = '7f8a43138951a13832919312290147bd175180cd',
+      revision = 'da2a1f63cd877efb05d56de61fe516e90012b9a7',
       url = 'https://github.com/FallenAngel97/tree-sitter-rego',
     },
     maintainers = { '@FallenAngel97' },
@@ -1957,7 +1956,7 @@ return {
   },
   scala = {
     install_info = {
-      revision = '4799cfc8543145b5ad79fdb81a6e6996cca97af2',
+      revision = 'db390f312a54b04b13790e1767bfac32665c17ac',
       url = 'https://github.com/tree-sitter/tree-sitter-scala',
     },
     maintainers = { '@stevanmilic' },
@@ -1990,7 +1989,7 @@ return {
   sflog = {
     install_info = {
       location = 'sflog',
-      revision = '27a3091a1a444ce19d6099e00cd3788f019d0c2b',
+      revision = 'da568eee10ce4724a40f368b2b7e795dacb4f1ba',
       url = 'https://github.com/aheber/tree-sitter-sfapex',
     },
     maintainers = { '@aheber', '@xixiaofinland' },
@@ -2066,7 +2065,7 @@ return {
   soql = {
     install_info = {
       location = 'soql',
-      revision = '27a3091a1a444ce19d6099e00cd3788f019d0c2b',
+      revision = 'da568eee10ce4724a40f368b2b7e795dacb4f1ba',
       url = 'https://github.com/aheber/tree-sitter-sfapex',
     },
     maintainers = { '@aheber', '@xixiafinland' },
@@ -2075,7 +2074,7 @@ return {
   sosl = {
     install_info = {
       location = 'sosl',
-      revision = '27a3091a1a444ce19d6099e00cd3788f019d0c2b',
+      revision = 'da568eee10ce4724a40f368b2b7e795dacb4f1ba',
       url = 'https://github.com/aheber/tree-sitter-sfapex',
     },
     maintainers = { '@aheber', '@xixiafinland' },
@@ -2083,7 +2082,7 @@ return {
   },
   sourcepawn = {
     install_info = {
-      revision = 'fdf31136774c5d182344305e7f3605d77fa4084f',
+      revision = '2ef2d389c29b952f8b23909783f7d3c7972046f5',
       url = 'https://github.com/nilshelmig/tree-sitter-sourcepawn',
     },
     maintainers = { '@Sarrus1' },
@@ -2199,7 +2198,7 @@ return {
   swift = {
     install_info = {
       generate = true,
-      revision = '85d1773baf6e53de3722f2035fd3a9e7b03bf8d9',
+      revision = '45e8dcdf09d67e63b6e1f7d47e9ac7d123a34269',
       url = 'https://github.com/alex-pinkus/tree-sitter-swift',
     },
     maintainers = { '@alex-pinkus' },
@@ -2373,7 +2372,7 @@ return {
   },
   twig = {
     install_info = {
-      revision = 'f9cb122b42894a38bef0fb2783be1ad9885f2ed7',
+      revision = '123604ae41362be81061ddf9dc984757a7b1bd38',
       url = 'https://github.com/gbprod/tree-sitter-twig',
     },
     maintainers = { '@gbprod' },
@@ -2480,7 +2479,7 @@ return {
   },
   vhdl = {
     install_info = {
-      revision = '68dc07f69d9571c2ebea6b32f995925905d09741',
+      revision = '645e85656bf3885311ba3b9b2498e50dee27886f',
       url = 'https://github.com/jpt13653903/tree-sitter-vhdl',
     },
     maintainers = { '@jpt13653903' },
@@ -2561,7 +2560,7 @@ return {
   },
   wxml = {
     install_info = {
-      revision = '7b821c748dc410332f59496c0dea2632168c4e5a',
+      revision = '1cc1761c8c11cacab5516dbe64e20ee689aa4428',
       url = 'https://github.com/BlockLune/tree-sitter-wxml',
     },
     maintainers = { '@BlockLune' },

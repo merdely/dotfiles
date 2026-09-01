@@ -633,6 +633,17 @@ MiniHues.apply_palette = function(palette, plugins, opts)
   hi('gitcommitUntracked',     { link='Comment' })
   hi('gitcommitUntrackedFile', { fg=p.cyan,   bg=nil })
 
+  -- Quickfix/location list
+  hi('qfError',      { link='DiagnosticError' })
+  hi('qfFileName',   { link='Title' })
+  hi('qfInfo',       { link='DiagnosticInfo' })
+  hi('qfLineNr',     { link='Comment' })
+  hi('qfNote',       { link='DiagnosticHint' })
+  hi('qfSeparator1', { link='Delimiter' })
+  hi('qfSeparator2', { link='Delimiter' })
+  hi('qfText',       { link='Normal' })
+  hi('qfWarning',    { link='DiagnosticWarn' })
+
   -- Built-in diagnostic
   -- Logic:
   -- - Error is red.
@@ -975,6 +986,11 @@ MiniHues.apply_palette = function(palette, plugins, opts)
     hi('MiniStarterItemPrefix', { fg=p.yellow,  bg=nil, bold=true })
     hi('MiniStarterSection',    { fg=p.purple,  bg=nil })
     hi('MiniStarterQuery',      { fg=p.green,   bg=nil, bold=true })
+
+    hi('MiniStatuscolumnDim',       { fg=p.bg_mid, bg=nil })
+    hi('MiniStatuscolumnDimCursor', { link='CursorLineNr' })
+    hi('MiniStatuscolumnSep',       { link='LineNr' })
+    hi('MiniStatuscolumnSepCursor', { link='CursorLineNr' })
 
     hi('MiniStatuslineDevinfo',     { fg=p.fg_mid, bg=p.bg_mid })
     hi('MiniStatuslineFileinfo',    { link='MiniStatuslineDevinfo' })

@@ -694,6 +694,13 @@ MiniStarter.sections.telescope()	mini-starter.txt	/*MiniStarter.sections.telesco
 MiniStarter.set_query()	mini-starter.txt	/*MiniStarter.set_query()*
 MiniStarter.setup()	mini-starter.txt	/*MiniStarter.setup()*
 MiniStarter.update_current_item()	mini-starter.txt	/*MiniStarter.update_current_item()*
+MiniStatuscolumn	mini-statuscolumn.txt	/*MiniStatuscolumn*
+MiniStatuscolumn-hl-groups	mini-statuscolumn.txt	/*MiniStatuscolumn-hl-groups*
+MiniStatuscolumn.config	mini-statuscolumn.txt	/*MiniStatuscolumn.config*
+MiniStatuscolumn.default_click()	mini-statuscolumn.txt	/*MiniStatuscolumn.default_click()*
+MiniStatuscolumn.gen_content	mini-statuscolumn.txt	/*MiniStatuscolumn.gen_content*
+MiniStatuscolumn.gen_content.main()	mini-statuscolumn.txt	/*MiniStatuscolumn.gen_content.main()*
+MiniStatuscolumn.setup()	mini-statuscolumn.txt	/*MiniStatuscolumn.setup()*
 MiniStatusline	mini-statusline.txt	/*MiniStatusline*
 MiniStatusline-example-content	mini-statusline.txt	/*MiniStatusline-example-content*
 MiniStatusline-hl-groups	mini-statusline.txt	/*MiniStatusline-hl-groups*
@@ -856,6 +863,7 @@ mini.sessions	mini-sessions.txt	/*mini.sessions*
 mini.snippets	mini-snippets.txt	/*mini.snippets*
 mini.splitjoin	mini-splitjoin.txt	/*mini.splitjoin*
 mini.starter	mini-starter.txt	/*mini.starter*
+mini.statuscolumn	mini-statuscolumn.txt	/*mini.statuscolumn*
 mini.statusline	mini-statusline.txt	/*mini.statusline*
 mini.surround	mini-surround.txt	/*mini.surround*
 mini.tabline	mini-tabline.txt	/*mini.tabline*

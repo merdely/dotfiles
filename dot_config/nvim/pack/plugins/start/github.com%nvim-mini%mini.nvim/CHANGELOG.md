@@ -32,11 +32,21 @@ There are following change types:
 
         Use `'\n'` or `{ '' }` to set a single empty line as a reference text.
 
+## mini.statuscolumn
+
+- Introduction of a new module.
+
 ## mini.surround
 
 ### Evolve
 
 - Set `{}` as `config.custom_surroundings` default (instead of `nil`). This is more consistent with other modules and should not have visible side effects.
+
+## mini.test
+
+### Evolve
+
+- Executing `run()` with zero test cases now goes through the reporter instead of early return with a `No cases to execute` message.
 
 
 # Version 0.18.0 (2026-06-21)
