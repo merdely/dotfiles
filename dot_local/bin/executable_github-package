@@ -67,9 +67,9 @@ main() {
   source "$PARSEOPTS" ; unset _LIB _LIBDIR
 
   local OPT_SHORT="hvc:suUtzxdrpa"
-  local OPT_LONG=("help" "verbose" "system" "user" "upgrade" "test" "debug"
+  local OPT_LONG=("help" "verbose" "system" "user" "update" "upgrade" "test" "debug"
     "config:" "tar" "zip" "executable" "deb" "rpm" "pacman" "appimage"
-    "host:" "arch:" "stdlib:" "dest:")
+    "host:" "hosts:" "arch:" "stdlib:" "dest:")
   declare -a OPTRET
   parseopts "$OPT_SHORT" "${OPT_LONG[@]}" -- "$@" || exit 1
   set -- "${OPTRET[@]}" ; unset OPT_SHORT OPT_LONG OPTRET
@@ -91,7 +91,7 @@ main() {
       -v|--verbose)  verbose=true ;;
       -s|--system)   destdir=/usr/local/bin ; use_sudo=true ;;
       -u|--user)     destdir="$HOME"/.local/bin ; use_sudo=false ;;
-      -U|--upgrade)  upgrade=true ;;
+      -U|--upgrade|--update) upgrade=true ;;
       -c|--config)   shift ; CONFIG=$1 ;;
       -t|--tar)      type=tar ;;
       -z|--zip)      type=zip ;;
@@ -100,7 +100,16 @@ main() {
       -r|--rpm)      type=rpm ;;
       -p|--pacman)   type=pacman ;;
       -a|--appimage) type=appimage ;;
-         --host)     shift ; hosts+=("$1") ;;
+         --host|--hosts)
+           shift
+           if [[ "$1" == *,* ]]; then
+             local tmparr=()
+             IFS=, read -ra tmparr <<< "$1"
+             hosts=("${hosts[@]}" "${tmparr[@]}")
+           else
+             hosts+=("$1")
+           fi
+           ;;
          --arch)     shift ; altarch=$1 ;;
          --stdlib)   shift ; altstdlib=$1 ;;
          --dest)     shift ; altdest=$1 ;;
