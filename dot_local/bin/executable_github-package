@@ -23,10 +23,6 @@
 #   type[neovim/neovim]=appimage
 
 CONFIG="$HOME"/.config/software.conf
-ARCH=$(uname -m)
-SYSTEM=$(uname -s | tr '[:upper:]' '[:lower:]')
-STDLIB="(glibc|gnu)"
-ldd --version 2>&1 | grep -qi "musl" && STDLIB=musl
 
 TMPFILES=()
 cleanup() {
@@ -55,7 +51,7 @@ usage() {
   echo "  -p|--pacman        : Search for a Arch Linux package"
   echo "  -a|--appimage      : Search for a App Image"
   echo "     --server SERVER : Install/update app on SERVER"
-  echo "     --arch ARCH     : Specify an alternate architecture"
+  echo "     --arch ARCH     : Specify an alternate architecture (x86_64, amd64, arm64, aarch64)"
   echo "     --stdlib STDLIB : Specify an alternate standard library (gnu/glibc or musl)"
   echo "     --dest DEST     : Specify an alternate destination directory (use --system if sudo needed)"
   echo "     --test          : Print what would happen instead of installing"
@@ -73,7 +69,7 @@ main() {
   local OPT_SHORT="hvc:suUtzxdrpa"
   local OPT_LONG=("help" "verbose" "system" "user" "upgrade" "test" "debug"
     "config:" "tar" "zip" "executable" "deb" "rpm" "pacman" "appimage"
-    "server:" "arch:" "stdlib:" "dest:")
+    "host:" "arch:" "stdlib:" "dest:")
   declare -a OPTRET
   parseopts "$OPT_SHORT" "${OPT_LONG[@]}" -- "$@" || exit 1
   set -- "${OPTRET[@]}" ; unset OPT_SHORT OPT_LONG OPTRET
@@ -88,7 +84,7 @@ main() {
   ext_regex[appimage]="(appimage|AppImage|APPIMAGE)"
   local destdir="$HOME"/.local/bin use_sudo=false debug=false
   local verbose=false default_type=tar testmode=() upgrade=false
-  local altarch="" altdest="" altstdlib="" altserver=""
+  local altarch="" altdest="" altstdlib="" althost=""
   while true; do
     case $1 in
       -h|--help)     usage ;;
@@ -104,7 +100,7 @@ main() {
       -r|--rpm)      type=rpm ;;
       -p|--pacman)   type=pacman ;;
       -a|--appimage) type=appimage ;;
-         --server)   shift ; altserver=$1 ;;
+         --host)     shift ; althost=$1 ;;
          --arch)     shift ; altarch=$1 ;;
          --stdlib)   shift ; altstdlib=$1 ;;
          --dest)     shift ; altdest=$1 ;;
@@ -118,14 +114,30 @@ main() {
 
   local debug_on=false
   [[ "$(set -o | awk '$1=="xtrace"{print $2}')" == on ]] && debug_on=true
+  
+  local arch="" system="" stdlib=""
+
+  if [[ -z "$althost" ]]; then
+    arch=$(uname -m)
+    system=$(uname -s | tr '[:upper:]' '[:lower:]')
+    stdlib="(glibc|gnu)"
+    ldd --version 2>&1 | grep -qi "musl" && stdlib=musl
+  else
+    arch=$(ssh "$althost" uname -m)
+    system=$(ssh "$althost" uname -s | tr '[:upper:]' '[:lower:]')
+    stdlib="(glibc|gnu)"
+    ssh "$althost" ldd --version 2>&1 | grep -qi "musl" && stdlib=musl
+  fi
 
   # If --arch was given, use it as the architecture
-  [[ -n "$altarch" ]] && ARCH=$altarch
+  [[ -n "$altarch" ]] && arch=$altarch
+  # If --stdlib was given, use it as the stdlib
+  [[ -n "$altstdlib" ]] && arch=$altstdlib
 
-  case "$ARCH" in
-    arm64|aarch64)  ARCH="(arm64|aarch64)" ;;
-    amd64|x86_64|x64|'') ARCH="(amd64|x86_64|x64)" ;;
-    *) echo "Error: $ARCH not implemented" >&2 ; exit 1 ;;
+  case "$arch" in
+    arm64|aarch64)  arch="(arm64|aarch64)" ;;
+    amd64|x86_64|x64|'') arch="(amd64|x86_64|x64)" ;;
+    *) echo "Error: $arch not implemented" >&2 ; exit 1 ;;
   esac
 
   declare -A repo alias regex bin srcbin type dest sudo
@@ -157,23 +169,29 @@ main() {
     sudo_cmd=("sudo")
   fi
 
-  if ! "$upgrade" && [[ -e "${dest[$pkg]}"/"${bin[$pkg]}" ]]; then
-    echo "Error: ${bin[$pkg]} is already installed" >&2
-    exit 1
+  ## TODO: Make work with ssh
+  if ! "$upgrade"; then
+    if [[ -z "$althost" ]] && [[ -e "${dest[$pkg]}"/"${bin[$pkg]}" ]]; then
+      echo "Error: ${bin[$pkg]} is already installed" >&2
+      exit 1
+    elif [[ -n "$althost" ]] && ssh "$althost" test -e "${dest[$pkg]}"/"${bin[$pkg]}"; then
+      echo "Error: ${bin[$pkg]} is already installed on $althost" >&2
+      exit 1
+    fi
   fi
 
   # Do substitution for regex, if defined
   if [[ -n "${regex[$pkg]}" ]]; then
-    regex[$pkg]=${regex[$pkg]//{STDLIB\}/"$STDLIB"}
-    regex[$pkg]=${regex[$pkg]//{ARCH\}/"$ARCH"}
-    regex[$pkg]=${regex[$pkg]//{SYSTEM\}/"$SYSTEM"}
+    regex[$pkg]=${regex[$pkg]//{STDLIB\}/"$stdlib"}
+    regex[$pkg]=${regex[$pkg]//{ARCH\}/"$arch"}
+    regex[$pkg]=${regex[$pkg]//{SYSTEM\}/"$system"}
   fi
 
   # Do substitution for srcbin
   [[ -z "${srcbin[$pkg]}" ]] && srcbin[$pkg]=${bin[$pkg]}
-  srcbin[$pkg]=${srcbin[$pkg]//{STDLIB\}/"$STDLIB"}
-  srcbin[$pkg]=${srcbin[$pkg]//{ARCH\}/"$ARCH"}
-  srcbin[$pkg]=${srcbin[$pkg]//{SYSTEM\}/"$SYSTEM"}
+  srcbin[$pkg]=${srcbin[$pkg]//{STDLIB\}/"$stdlib"}
+  srcbin[$pkg]=${srcbin[$pkg]//{ARCH\}/"$arch"}
+  srcbin[$pkg]=${srcbin[$pkg]//{SYSTEM\}/"$system"}
 
   if "$debug"; then
     echo "pkg=$pkg"
@@ -185,6 +203,11 @@ main() {
     echo "dest=${dest[$pkg]}"
     echo "sudo=${sudo[$pkg]}"
     echo "sudo_cmd=${sudo_cmd[*]}"
+    echo "althost=$althost"
+    echo "stdlib=$stdlib"
+    echo "arch=$arch"
+    echo "system=$system"
+    exit
   fi
 
   if [[ -z "${release_search[$pkg]}" ]]; then
@@ -233,33 +256,33 @@ main() {
     done
     ! "$debug_on" && set +x
 
-  # If no config entry, try to find it first with SYSTEM and ARCH, then adding STDLIB
+  # If no config entry, try to find it first with system and arch, then adding stdlib
   else
     "$debug" && echo "DEBUG: Using default regex" >&2
     "$debug" && set -x
     for url in "${files[@]}"; do
-      [[ "$url" =~ ${SYSTEM}.*${ARCH}.*\.${ext_regex[${type[$pkg]}]}$ ||
-        "$url" =~ ${ARCH}.*${SYSTEM}.*\.${ext_regex[${type[$pkg]}]}$ ]] && matches+=("$url")
+      [[ "$url" =~ ${system}.*${arch}.*\.${ext_regex[${type[$pkg]}]}$ ||
+        "$url" =~ ${arch}.*${system}.*\.${ext_regex[${type[$pkg]}]}$ ]] && matches+=("$url")
     done
     ! "$debug_on" && set +x
     if (( ${#matches[@]} == 0 )); then
-      echo "Error: Could not find a file matching $SYSTEM + $ARCH" >&2
+      echo "Error: Could not find a file matching $system + $arch" >&2
       exit 1
     elif (( ${#matches[@]} > 1 )); then
-      "$verbose" && { echo "Warning: Found multiple matches ${#matches[@]}, narrowing with STDLIB ($STDLIB)" >&2 ; \
+      "$verbose" && { echo "Warning: Found multiple matches ${#matches[@]}, narrowing with stdlib ($stdlib)" >&2 ; \
         printf 'multiple: %s\n' "${matches[@]}" ; }
       files=("${matches[@]}")
       matches=()
       for url in "${files[@]}"; do
-        [[ "$url" =~ ${SYSTEM}.*${ARCH}.*${STDLIB}.*\.${ext_regex[${type[$pkg]}]}$ ||
-          "$url" =~ ${SYSTEM}.*${STDLIB}.*${ARCH}.*\.${ext_regex[${type[$pkg]}]}$ ||
-          "$url" =~ ${STDLIB}.*${SYSTEM}.*${ARCH}.*\.${ext_regex[${type[$pkg]}]}$ ||
-          "$url" =~ ${STDLIB}.*${ARCH}.*${SYSTEM}.*\.${ext_regex[${type[$pkg]}]}$ ||
-          "$url" =~ ${ARCH}.*${SYSTEM}.*${STDLIB}.*\.${ext_regex[${type[$pkg]}]}$ ||
-          "$url" =~ ${ARCH}.*${STDLIB}.*${SYSTEM}.*\.${ext_regex[${type[$pkg]}]}$ ]] && matches+=("$url")
+        [[ "$url" =~ ${system}.*${arch}.*${stdlib}.*\.${ext_regex[${type[$pkg]}]}$ ||
+          "$url" =~ ${system}.*${stdlib}.*${arch}.*\.${ext_regex[${type[$pkg]}]}$ ||
+          "$url" =~ ${stdlib}.*${system}.*${arch}.*\.${ext_regex[${type[$pkg]}]}$ ||
+          "$url" =~ ${stdlib}.*${arch}.*${system}.*\.${ext_regex[${type[$pkg]}]}$ ||
+          "$url" =~ ${arch}.*${system}.*${stdlib}.*\.${ext_regex[${type[$pkg]}]}$ ||
+          "$url" =~ ${arch}.*${stdlib}.*${system}.*\.${ext_regex[${type[$pkg]}]}$ ]] && matches+=("$url")
       done
       if (( ${#matches[@]} == 0 )); then
-        echo "Error: Narrowing with STDLIB gave zero results" >&2
+        echo "Error: Narrowing with stdlib gave zero results" >&2
         exit 1
       elif (( ${#matches[@]} > 1 )); then
         echo "Error: Could not narrow down file to download (${#matches[@]} results)" >&2
