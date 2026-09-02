@@ -84,7 +84,7 @@ main() {
   ext_regex[appimage]="(appimage|AppImage|APPIMAGE)"
   local destdir="$HOME"/.local/bin use_sudo=false debug=false
   local verbose=false default_type=tar testmode=() upgrade=false
-  local altarch="" altdest="" altstdlib="" althost=""
+  local altarch="" altdest="" altstdlib="" hosts=()
   while true; do
     case $1 in
       -h|--help)     usage ;;
@@ -100,7 +100,7 @@ main() {
       -r|--rpm)      type=rpm ;;
       -p|--pacman)   type=pacman ;;
       -a|--appimage) type=appimage ;;
-         --host)     shift ; althost=$1 ;;
+         --host)     shift ; hosts+=("$1") ;;
          --arch)     shift ; altarch=$1 ;;
          --stdlib)   shift ; altstdlib=$1 ;;
          --dest)     shift ; altdest=$1 ;;
@@ -114,19 +114,34 @@ main() {
 
   local debug_on=false
   [[ "$(set -o | awk '$1=="xtrace"{print $2}')" == on ]] && debug_on=true
-  
-  local arch="" system="" stdlib=""
 
-  if [[ -z "$althost" ]]; then
+  [[ "${#hosts}" -gt 1 && -n "$altarch" ]] && { echo "Error: Cannot use --arch with more than one --host" 2>&1 ; exit 1 ; }
+  [[ "${#hosts}" -gt 1 && -n "$altstdlib" ]] && { echo "Error: Cannot use --stdlib with more than one --host" 2>&1 ; exit 1 ; }
+
+  (( ${#hosts} == 0 )) && hosts=("localhost")
+
+  for host in "${hosts[@]}"; do
+    for app in "$@"; do
+      process_update "$host" "$app"
+    done
+  done
+}
+  
+process_update() {
+  local host="$1" app="$2" arch="" system="" stdlib=""
+
+  [[ -z "$host" || -z "$app" ]] && { echo "Error: Function requires two arguments" >&2 ; return 1 ; }
+
+  if [[ "$host" == localhost ]]; then
     arch=$(uname -m)
     system=$(uname -s | tr '[:upper:]' '[:lower:]')
     stdlib="(glibc|gnu)"
     ldd --version 2>&1 | grep -qi "musl" && stdlib=musl
   else
-    arch=$(ssh "$althost" uname -m)
-    system=$(ssh "$althost" uname -s | tr '[:upper:]' '[:lower:]')
+    arch=$(ssh "$host" uname -m)
+    system=$(ssh "$host" uname -s | tr '[:upper:]' '[:lower:]')
     stdlib="(glibc|gnu)"
-    ssh "$althost" ldd --version 2>&1 | grep -qi "musl" && stdlib=musl
+    ssh "$host" ldd --version 2>&1 | grep -qi "musl" && stdlib=musl
   fi
 
   # If --arch was given, use it as the architecture
@@ -171,11 +186,11 @@ main() {
 
   ## TODO: Make work with ssh
   if ! "$upgrade"; then
-    if [[ -z "$althost" ]] && [[ -e "${dest[$pkg]}"/"${bin[$pkg]}" ]]; then
+    if [[ -z "$hosts" ]] && [[ -e "${dest[$pkg]}"/"${bin[$pkg]}" ]]; then
       echo "Error: ${bin[$pkg]} is already installed" >&2
       exit 1
-    elif [[ -n "$althost" ]] && ssh "$althost" test -e "${dest[$pkg]}"/"${bin[$pkg]}"; then
-      echo "Error: ${bin[$pkg]} is already installed on $althost" >&2
+    elif [[ -n "$hosts" ]] && ssh "$hosts" test -e "${dest[$pkg]}"/"${bin[$pkg]}"; then
+      echo "Error: ${bin[$pkg]} is already installed on $hosts" >&2
       exit 1
     fi
   fi
@@ -203,7 +218,7 @@ main() {
     echo "dest=${dest[$pkg]}"
     echo "sudo=${sudo[$pkg]}"
     echo "sudo_cmd=${sudo_cmd[*]}"
-    echo "althost=$althost"
+    echo "hosts=${hosts[*]}"
     echo "stdlib=$stdlib"
     echo "arch=$arch"
     echo "system=$system"
