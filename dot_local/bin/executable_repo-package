@@ -122,7 +122,7 @@ main() {
   done
 
   local debug_on=false
-  [[ "$(set -o | awk '$1=="xtrace"{print $2}')" == on ]] && debug_on=true
+  [[ "$(set -o | awk '$1=="xtrace"{print $2}')" == on || "$debug" == true ]] && debug_on=true
 
   [[ "${#hosts}" -gt 1 && -n "$altarch" ]] && { echo "Error: Cannot use --arch with more than one --host" 2>&1 ; exit 1 ; }
   [[ "${#hosts}" -gt 1 && -n "$altstdlib" ]] && { echo "Error: Cannot use --stdlib with more than one --host" 2>&1 ; exit 1 ; }
