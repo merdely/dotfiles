@@ -348,11 +348,16 @@ process_update() {
   case "${download_file##*/}" in
     *.tar|*.tar.gz|*.tgz|*.tar.bz2|*.tbz2)
       "$verbose" && echo "Extracting tarball"
+      tar -tvf "$download_file"
       tar -C "$tmpdir" -xf "$download_file"
-      srcfile=$(find "$tmpdir" -type f | grep -E "${srcbin[$pkg]}$")
+      echo "srcbin=${srcbin[$pkg]#$}$" >&2
+      echo DEBUG >&2
+      find "$tmpdir" -type f | grep -E "${srcbin[$pkg]#$}$" >&2
+      echo DEBUG >&2
+      srcfile=$(find "$tmpdir" | grep -E "${srcbin[$pkg]#$}$")
       if [[ -z "$srcfile" ]]; then
         echo "Error: Could not find ${bin[$pkg]} from tarball" >&2
-        find "$tmpdir" >&2
+        find "$tmpdir" -type f >&2
         exit 1
       fi
       if "$use_ssh"; then
