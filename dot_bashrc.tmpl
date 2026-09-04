@@ -120,10 +120,12 @@ __shell_specific() {
   # if command -v starship >/dev/null 2>&1; then
   #   eval "$(starship init bash)"
   # fi
-  if command -v atuin >/dev/null 2>&1; then
-    eval "$(atuin init --disable-ai --disable-up-arrow bash)"
-  elif command -v fzf    >/dev/null 2>&1; then
-    type __fzf_history__ >/dev/null 2>&1 || eval "$(fzf --bash)"
+  if [[ -z "$ATUIN_SESSION" ]] && ! typeset -f fzf-history-widget &> /dev/null; then
+    if command -v atuin >/dev/null 2>&1; then
+      eval "$(atuin init --disable-ai --disable-up-arrow bash)"
+    elif command -v fzf    >/dev/null 2>&1; then
+      type __fzf_history__ >/dev/null 2>&1 || eval "$(fzf --bash)"
+    fi
   fi
 }
 
