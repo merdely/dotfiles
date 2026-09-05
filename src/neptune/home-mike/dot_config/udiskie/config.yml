@@ -1,0 +1,47 @@
+program_options:
+  tray: true
+device_config:
+  - id_uuid: 04FA-AE67
+    ignore:  true
+    automount: false
+    skip: true
+  - id_uuid: 2D65-1CA2
+    ignore:  true
+    automount: false
+    skip: true
+  - id_uuid: C787-D1A6
+    ignore:  true
+    automount: false
+    skip: true
+  - id_uuid: E743-50E0
+    ignore:  true
+    automount: false
+    skip: true
+  - id_uuid: 20EE-92F4
+    ignore:  true
+    automount: false
+    skip: true
+  - id_uuid: B40C-8AAF
+    ignore:  true
+    automount: false
+    skip: true
+  - id_uuid: 9A8C-0E3A
+    ignore:  true
+    automount: false
+    skip: true
+  - id_uuid: 3AB0-921B
+    ignore:  true
+    automount: false
+    skip: true
+  - id_uuid: E0AC-B3D2
+    ignore:  true
+    automount: false
+    skip: true
+  - id_type: vfat
+    options: ["uid=1000", "gid=1000", "umask=077"]
+  - id_type: exfat
+    options: ["uid=1000", "gid=1000", "umask=077"]
+notifications:
+  device_added:     false   # device has appeared
+  device_removed:   false   # device has disappeared
+quickmenu_actions: all
