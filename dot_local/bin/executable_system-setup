@@ -154,15 +154,13 @@ case "$ID" in
     if echo " $action_list " | grep -Eq " (crontab|idle-handler|all) "; then
       # Set up $LOGNAME crontab
       if command -v crontab > /dev/null 2>&1; then
-        crontab_vars="PATH MAILFROM COMPOSE_FILE XDG_CACHE_HOME XDG_CONFIG_HOME \
+        crontab_vars="PATH MAILFROM XDG_CACHE_HOME XDG_CONFIG_HOME \
             XDG_DATA_HOME XDG_RUNTIME_DIR XDG_STATE_HOME WAYLAND_DISPLAY \
             DBUS_SESSION_BUS_ADDRESS DOCKER_CONFIG MACHINE_STORAGE_PATH"
         # shellcheck disable=SC2034
         crontab_PATH="$HOME/.local/bin:/srv/scripts/bin:/srv/scripts/sbin:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin"
         # shellcheck disable=SC2034
         crontab_MAILFROM=mike@erdelynet.com
-        # shellcheck disable=SC2034
-        crontab_COMPOSE_FILE=/srv/docker/compose.yaml
         # shellcheck disable=SC2034
         crontab_XDG_CACHE_HOME=$HOME/.cache
         # shellcheck disable=SC2034
