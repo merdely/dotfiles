@@ -14,7 +14,7 @@ if [ "$ID" = OpenBSD ]; then
   ACTIONS="$ACTIONS wtype"
 else
   ACTIONS="$ACTIONS ssh-agent dms idle-handler ydotool keymap-drawer \
-    flatpak flatseal librewolf wlr-cursors greetd"
+    flatpak flatseal wlr-cursors greetd"
 fi
 
 usage() {
