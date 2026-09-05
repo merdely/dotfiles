@@ -311,79 +311,92 @@ case "$ID" in
       fi
 
       if echo " $action_list " | grep -Eq " (greetd|dms|all) "; then
-        if [ -e /etc/greetd/config.toml ]; then
-          if ! grep -qE "^\s*command\s*=.*dms-greeter" /etc/greetd/config.toml; then
-            if ! grep -q "^\[default_session\]" /etc/greetd/config.toml; then
-              echo "Error: greetd config missing default_session section" >&2
-            else
-              echo "Setting up greetd to use dms-greeter with niri"
-              # Comment out any lines with command = 
-              $sudo sed -ri 's/^(\s*)(command.*)$/\1# \2/' /etc/greetd/config.toml
-              # Under the default_session section heading, add a dms-greeter line
-              if $kvm; then
-                $sudo sed -ri 's#^(\[default_session\].*)$#\1\r\ncommand = "/usr/bin/dms-greeter --no-save-username --command niri -p /usr/share/quickshell/dms"#' /etc/greetd/config.toml
-                $kvm && $sudo sed -ri 's#(/usr/bin/dms-greeter)#env WLR_NO_HARDWARE_CURSORS=1 \1#' /etc/greetd/config.toml
+        if [ -x "$HOME"/.local/bin/repo-package ]; then
+          "$HOME"/.local/bin/repo-package --upgrade dms-greeter
+        fi
+        if [ -x /usr/bin/dms-greeter ] || [ -x /usr/local/bin/dms-greeter ]; then
+          if [ -x /usr/bin/dms-greeter ]; then
+            DMS_GREETER=/usr/bin/dms-greeter
+          else
+            DMS_GREETER=/usr/local/bin/dms-greeter
+          fi
+          if [ -e /etc/greetd/config.toml ]; then
+            if ! grep -qE "^\s*command\s*=.*dms-greeter" /etc/greetd/config.toml; then
+              if ! grep -q "^\[default_session\]" /etc/greetd/config.toml; then
+                echo "Error: greetd config missing default_session section" >&2
               else
-                $sudo sed -ri 's#^(\[default_session\].*)$#\1\r\ncommand = "/usr/bin/dms-greeter --no-save-username --command niri -p /usr/share/quickshell/dms"#' /etc/greetd/config.toml
-              fi
-              # Enable the service
-              $sudo systemctl enable greetd
-            fi
-          fi
-
-          if [ ! -e /usr/bin/dms-greeter ]; then
-            echo "Creating link for dms-greeter in /usr/bin"
-            $sudo ln -sf /usr/share/quickshell/dms/Modules/Greetd/assets/dms-greeter /usr/bin/
-          fi
-
-          if [ ! -e /etc/greetd/niri_overrides.kdl ]; then
-            echo "Creating sample niri_overrides.kdl for greetd"
-            {
-              echo '// Example niri_overrides.kdl'
-              echo '//'
-              echo '// output "Virtual-1" {'
-              echo '//     mode "1920x1080@60"'
-              echo '//     position x=0 y=0'
-              echo '//     scale 1'
-              echo '// }'
-              echo ''
-              echo '// output "eDP-1" { off; }'
-              echo '// output "HDMI-A-1" { off; }'
-              echo '// output "DP-1" {'
-              echo '//     focus-at-startup'
-              echo '//     position x=1920 y=0'
-              echo '//     scale 1'
-              echo '// }'
-              echo ''
-              echo '// Fix for nvidia card'
-              echo '// debug { wait-for-frame-completion-before-queueing; }'
-            } | $sudo tee /etc/greetd/niri_overrides.kdl > /dev/null
-          fi
-
-          if getent group greeter > /dev/null 2>&1 && ! groups | sed "s/^$LOGNAME : //" | grep -qw greeter; then
-            echo "Adding $LOGNAME to $group"
-            $sudo usermod -aG greeter "$LOGNAME"
-          fi
-
-          if [ ! -d /var/cache/dms-greeter ]; then
-            $sudo install -d -m 750 -o greeter -g greeter /var/cache/dms-greeter
-          elif [ -n "$(find /var/cache/dms-greeter -maxdepth 0 -mindepth 0 -not -group greeter -type d)" ]; then
-            echo "Fixing permissions on /var/cache/dms-greeter"
-            $sudo chgrp greeter /var/cache/dms-greeter
-          fi
-
-          # Install dms-greeter settings/colors
-          for file in settings colors; do
-            if [ -r "$HOME"/.config/niri/greeter/"$file".json ]; then
-              if [ -r /var/cache/dms-greeter/"$file".json ]; then
-                : # do nothing
-              elif [ ! -x /var/cache/dms-greeter ] || ! $sudo test -r /var/cache/dms-greeter/"$file".json; then
-                echo "Configuring dms-greeter $file"
-                $sudo install -m 644 -o root -g "$(id -gn root)" \
-                  "$HOME"/.config/niri/greeter/"$file".json /var/cache/dms-greeter
+                echo "Setting up greetd to use dms-greeter with niri"
+                # Comment out any lines with command = 
+                $sudo sed -ri 's/^(\s*)(command.*)$/\1# \2/' /etc/greetd/config.toml
+                # Under the default_session section heading, add a dms-greeter line
+                if $kvm; then
+                  $sudo sed -ri 's#^(\[default_session\].*)$#\1\r\ncommand = "/usr/bin/dms-greeter --no-save-username --command niri -p /usr/share/quickshell/dms"#' /etc/greetd/config.toml
+                  if [ "$DMS_GREETER" = /usr/local/bin/dms-greeter ]; then
+                    $sudo sed -i 's#/usr/bin/dms-greeter#/usr/local/bin/dms-greeter#g' /etc/greetd/config.toml
+                  fi
+                  $kvm && $sudo sed -ri 's#(/usr(/local)?/bin/dms-greeter)#env WLR_NO_HARDWARE_CURSORS=1 \1#' /etc/greetd/config.toml
+                else
+                  $sudo sed -ri 's#^(\[default_session\].*)$#\1\r\ncommand = "/usr/bin/dms-greeter --no-save-username --command niri -p /usr/share/quickshell/dms"#' /etc/greetd/config.toml
+                fi
+                # Enable the service
+                $sudo systemctl enable greetd
               fi
             fi
-          done
+
+            if [ ! -e /usr/bin/dms-greeter ]; then
+              echo "Creating link for dms-greeter in /usr/bin"
+              $sudo ln -sf /usr/share/quickshell/dms/Modules/Greetd/assets/dms-greeter /usr/bin/
+            fi
+
+            if [ ! -e /etc/greetd/niri_overrides.kdl ]; then
+              echo "Creating sample niri_overrides.kdl for greetd"
+              {
+                echo '// Example niri_overrides.kdl'
+                echo '//'
+                echo '// output "Virtual-1" {'
+                echo '//     mode "1920x1080@60"'
+                echo '//     position x=0 y=0'
+                echo '//     scale 1'
+                echo '// }'
+                echo ''
+                echo '// output "eDP-1" { off; }'
+                echo '// output "HDMI-A-1" { off; }'
+                echo '// output "DP-1" {'
+                echo '//     focus-at-startup'
+                echo '//     position x=1920 y=0'
+                echo '//     scale 1'
+                echo '// }'
+                echo ''
+                echo '// Fix for nvidia card'
+                echo '// debug { wait-for-frame-completion-before-queueing; }'
+              } | $sudo tee /etc/greetd/niri_overrides.kdl > /dev/null
+            fi
+
+            if getent group greeter > /dev/null 2>&1 && ! groups | sed "s/^$LOGNAME : //" | grep -qw greeter; then
+              echo "Adding $LOGNAME to $group"
+              $sudo usermod -aG greeter "$LOGNAME"
+            fi
+
+            if [ ! -d /var/cache/dms-greeter ]; then
+              $sudo install -d -m 750 -o greeter -g greeter /var/cache/dms-greeter
+            elif [ -n "$(find /var/cache/dms-greeter -maxdepth 0 -mindepth 0 -not -group greeter -type d)" ]; then
+              echo "Fixing permissions on /var/cache/dms-greeter"
+              $sudo chgrp greeter /var/cache/dms-greeter
+            fi
+
+            # Install dms-greeter settings/colors
+            for file in settings colors; do
+              if [ -r "$HOME"/.config/niri/greeter/"$file".json ]; then
+                if [ -r /var/cache/dms-greeter/"$file".json ]; then
+                  : # do nothing
+                elif [ ! -x /var/cache/dms-greeter ] || ! $sudo test -r /var/cache/dms-greeter/"$file".json; then
+                  echo "Configuring dms-greeter $file"
+                  $sudo install -m 644 -o root -g "$(id -gn root)" \
+                    "$HOME"/.config/niri/greeter/"$file".json /var/cache/dms-greeter
+                fi
+              fi
+            done
+          fi
         fi
       fi
     fi
