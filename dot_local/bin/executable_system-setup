@@ -328,13 +328,13 @@ case "$ID" in
                 $sudo sed -ri 's/^(\s*)(command.*)$/\1# \2/' /etc/greetd/config.toml
                 # Under the default_session section heading, add a dms-greeter line
                 if $kvm; then
-                  $sudo sed -ri 's#^(\[default_session\].*)$#\1\r\ncommand = "/usr/bin/dms-greeter --no-save-username --command niri -p /usr/share/quickshell/dms"#' /etc/greetd/config.toml
-                  if [ "$DMS_GREETER" = /usr/local/bin/dms-greeter ]; then
-                    $sudo sed -i 's#/usr/bin/dms-greeter#/usr/local/bin/dms-greeter#g' /etc/greetd/config.toml
-                  fi
+                  $sudo sed -ri 's#^(\[default_session\].*)$#\1\r\ncommand = "/usr/bin/dms-greeter --no-save-username --command niri"#' /etc/greetd/config.toml
                   $kvm && $sudo sed -ri 's#(/usr(/local)?/bin/dms-greeter)#env WLR_NO_HARDWARE_CURSORS=1 \1#' /etc/greetd/config.toml
                 else
-                  $sudo sed -ri 's#^(\[default_session\].*)$#\1\r\ncommand = "/usr/bin/dms-greeter --no-save-username --command niri -p /usr/share/quickshell/dms"#' /etc/greetd/config.toml
+                  $sudo sed -ri 's#^(\[default_session\].*)$#\1\r\ncommand = "/usr/bin/dms-greeter --no-save-username --command niri"#' /etc/greetd/config.toml
+                fi
+                if [ "$DMS_GREETER" = /usr/local/bin/dms-greeter ]; then
+                  $sudo sed -i 's#/usr/bin/dms-greeter#/usr/local/bin/dms-greeter#g' /etc/greetd/config.toml
                 fi
                 # Enable the service
                 $sudo systemctl enable greetd
