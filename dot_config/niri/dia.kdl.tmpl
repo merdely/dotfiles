@@ -4,6 +4,9 @@
 // Or after editing, run: chezmoi re-add ~/.config/niri/uranus.kdl
 
 spawn-sh-at-startup "kitty"
+
+
+{{ if eq .chezmoi.os "openbsd" -}}
 spawn-sh-at-startup "waybar"
 spawn-sh-at-startup "swayidle -w"
 spawn-sh-at-startup "dunst"
@@ -24,6 +27,7 @@ binds {
     Mod+Semicolon        hotkey-overlay-title="Run rbw-menu"      { spawn-sh "~/.local/bin/rbw-menu"; }
     Mod+Apostrophe       hotkey-overlay-title="Toggle Idle Inhibitor" { spawn-sh "~/.config/waybar/scripts/idle-inhibitor toggle"; }
 }
+{{ end -}}
 
 window-rule {
     geometry-corner-radius 8
