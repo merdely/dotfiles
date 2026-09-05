@@ -309,7 +309,7 @@ case "$ID" in
       fi
 
       if echo " $action_list " | grep -Eq " (greetd|dms|all) "; then
-        if [ -x "$HOME"/.local/bin/repo-package ]; then
+        if [ -x "$HOME"/.local/bin/repo-package ] && [ ! -x /usr/local/bin/dms-greeter ]; then
           "$HOME"/.local/bin/repo-package --upgrade dms-greeter
         fi
         if [ -x /usr/bin/dms-greeter ] || [ -x /usr/local/bin/dms-greeter ]; then
