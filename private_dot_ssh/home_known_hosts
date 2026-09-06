@@ -9,29 +9,28 @@ jupiter,jupiter.erdely.in,10.99.99.99 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFBs17
 saturn,saturn.erdely.in,192.168.27.163 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIH606DUWbBOm6K+02pH+4HsIGnRkjdD9+VCfTrAOXlpD
 pluto,pluto.erdely.in,pluto.erdelynet.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMz4I3ILZpEmbfdA/SqHfnU3bNgY2OpXpWBNG2TwCGVA
 ceres,ceres.erdely.in,ceres.erdelynet.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILWBoj60hirKiTH22lkgHdnS+0paxuP4OqZHTk+TUrYj
-
-# PIs
 carme,carme.erdely.in,192.168.25.38 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIByIaAPNu35hM3ARABIj5PxmJZKe9lrgqU2PZ7qOaZBo
 metis,metis.erdely.in,192.168.25.42 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPDUtkoegPfUpTcxJ0EWN/4K1M8x9RulxuzHXaZ8UAsp
 tarvos,tarvos.erdely.in,192.168.25.34 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGnZki2Q6qsRG7sLcDFIzJjlCF2rXXtq//iZ8VyDCy5+
 sinope,sinope.erdely.in,192.168.27.7 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAII03fXD/4nrPs9BKXTpQqzdZTucHTVLIa/ec3dG1I6r0
-neso,neso.erdely.in,192.168.27.99 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGKbJiAqUPnVRytsOXabr6krW9SKFkztTJd99MzjvWU3
-lepotato,lepotato.erdely.in,192.168.25.127 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBch1xTTGAH4TyepsDf+5TpTLaYMSTrdG2f/tQ4oFDnA
+janus,janus.erdely.in,192.168.25.52 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINqxUReCOKxKmiZzKmpP5lTYdbGJvRZkbqJuddtFgODF
+uranus,uranus.erdely.in,192.168.25.53 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAOOERyGBti3A+uZuznPaDB5IrbnnFKBid+BeEHoCbgi
+elara,elara.erdely.in,192.168.25.54 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILajixkwg4QFfJ1PURgKiOPQlJg7nYcsfGKK82eMlUke
+neso,neso.erdely.in,192.168.25.55 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGKbJiAqUPnVRytsOXabr6krW9SKFkztTJd99MzjvWU3
+atlas,atlas.erdely.in,192.168.25.56 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPviWiNfrhSvjQxnWxdBkpmCfjmUZSGd6U9tEHBfTmm9
+thebe,thebe.erdely.in,192.168.25.57 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIP/T5cYt1nPTom3Zd6FaxQl0WifNTcGeSGaOaa33Ubmr
 
 # Clients
 mercury,mercury.erdely.in,mercury-wired,mercury-wired.erdely.in,192.168.25.100,mercury-vpn.erdely.in,mercury-vpn,172.30.225.3,mercury-wifi,mercury-wifi.erdely.in,192.168.25.101 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIB57W7VuBKPL+aamz+mSike5L5OV1mWMDOCQogOagncT
 neptune,neptune.erdely.in,neptune-wired,neptune-wired.erdely.in,192.168.25.24,neptune-vpn.erdely.in,neptune-vpn,172.30.225.10,neptune-wifi,neptune-wifi.erdely.in,192.168.25.25 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOrpcuLO/tfa0vZXOMrj33Lxq8MM5IumpFVnv5IZ7YMR
 styx,styx.erdely.in,192.168.25.123,styx-vpn.erdely.in,styx-vpn,172.30.225.15 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDwGuGeBT3D5PdAQbbRJJvi19kHbeDai/eIoD5rDrY1q
 venus,venus.erdely.in,venus-wired,venus-wired.erdely.in,192.168.25.116 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBkvQnN4h77bWzZ5uij0KzpwU/ajSge4fShWOUcVk9vh
-uranus,uranus.erdely.in,192.168.25.96 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAOOERyGBti3A+uZuznPaDB5IrbnnFKBid+BeEHoCbgi
 ersa,ersa.erdely.in,192.168.25.142 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIM1mrje7VqOblqQsev/MCFKxBabX/L7Ka0+8xNnrvVyt
 dia,dia.erdely.in,192.168.25.125 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGXlvUe49rmta8KSVk6CfhiVuZvmv1N8txMWZ0JjNRKF
 e5530,e5530.erdely.in ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIYZGMuD2wELs0Otpa1uiYIqP7m53rb0tgHqakhBSAj1
 
 # Other systems
 dione,dione.erdely.in,192.168.27.98 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICBhqpl6hibiQhURi2E4K3RUHO9alGsKDJ1sfe9vo9rm
-elara,elara.erdely.in,192.168.25.88 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILajixkwg4QFfJ1PURgKiOPQlJg7nYcsfGKK82eMlUke
-thebe,thebe.erdely.in,192.168.25.64 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIP/T5cYt1nPTom3Zd6FaxQl0WifNTcGeSGaOaa33Ubmr
 carpo,carpo.erdely.in,192.168.25.84 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOe1UKh4aXl3GzH1QjVaOYf2rhme0eV3j7KnxWHfSjq/
 ymir,ymir.erdely.in,192.168.25.96 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINpCkGYI1GdO/hE0RTOkwrvRdnR5RWQ2nqv7dsegedcI
 192.168.122.69 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINApEKF55qYwRSb+wcby0vHTvedhnBtHMu2el79XiSZU
