@@ -4,7 +4,7 @@
 # Or after editing, run: chezmoi re-add ~/.sinope.local
 
 # [ "$(tty)" = "/dev/tty1" ] && sway
-[ "$(tty)" = "/dev/tty1" ] && /usr/local/bin/wait_for_network && xinit /usr/bin/i3
+[ "$(tty)" = "/dev/tty1" ] && /usr/local/bin/wait_for_network && xinit /usr/bin/i3 >> /tmp/$LOGNAME_i3.log 2>&1
 
 [ -S "/run/user/$EUID/wayland-1" ] && export WAYLAND_DISPLAY=wayland-1
 # swaysock=$(find /run/user/$EUID -maxdepth 1 -name "sway-ipc.$EUID.*.sock")
