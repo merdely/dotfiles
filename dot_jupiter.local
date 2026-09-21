@@ -14,7 +14,7 @@ alias dmesg='sudo dmesg'
 
 # Postgres aliases
 unset psql pbash createdb dropdb createuser dropuser pg_dump pg_dumpall pg_restore
-postgres_container=postgres-vchord
+postgres_container=postgres
 #postgres_container=database
 # shellcheck disable=2139
 alias psql="docker exec -it -u postgres $postgres_container psql"
