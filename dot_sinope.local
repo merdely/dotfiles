@@ -5,8 +5,10 @@
 
 if [ "$(tty)" = "/dev/tty1" ]; then
   /usr/local/bin/wait_for_network
-  sleep 5
-  xinit /usr/bin/i3 >> "/tmp/${LOGNAME}_i3.log" 2>&1
+  while true; do
+    sleep 5
+    xinit /usr/bin/i3 >> "/tmp/${LOGNAME}_i3.log" 2>&1
+  done
 fi
 
 [ -S "/run/user/$EUID/wayland-1" ] && export WAYLAND_DISPLAY=wayland-1
