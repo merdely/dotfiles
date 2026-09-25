@@ -163,7 +163,7 @@ if [[ "$ID" == arch || "$ID_LIKE" == *arch* ]]; then
   alias banner='figlet -d $HOME/.config/figlet -f banner'
 elif [[ "$ID" == debian || "$ID_LIKE" == *debian* ]]; then
   alias updates='echo Using apt dist-upgrade; sudo apt update && sudo apt dist-upgrade -y'
-  [[ -x /usr/local/bin/rw ]] && alias updates='echo Using apt dist-upgrade; rw; sudo apt update ; sudo apt dist-upgrade -y ; sudo apt autoremove -y ; sleep 2; sync ; ro'
+  [[ -x /usr/local/bin/rw ]] && alias updates='echo Using apt dist-upgrade; rw / /boot; sudo apt update ; sudo apt dist-upgrade -y ; sudo apt autoremove -y ; sleep 2; sync ; ro'
 elif [[ -x /usr/sbin/syspatch ]]; then
   alias updates="echo running syspatch; doas syspatch; echo running pkg_add -u; doas pkg_add -ui"
   halt_func() { shutdown -h "$@" now; } ; alias halt=halt_func
@@ -171,7 +171,7 @@ elif [[ -x /usr/sbin/syspatch ]]; then
   stty status '^T'
 fi
 if [[ "$ID" == archarm ]] && command -v pikvm-update >/dev/null 2>&1; then
-  alias updates='echo Using pikvm-update; rw; sudo pikvm-update --no-reboot; sleep 2; sync; ro'
+  alias updates='echo Using pikvm-update; rw / /boot; sudo pikvm-update --no-reboot; sleep 2; sync; ro'
 fi
 
 # Handle common typos
