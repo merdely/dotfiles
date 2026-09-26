@@ -87,7 +87,7 @@ if [[ -n "$EDITOR" ]]; then
   export SUDO_EDITOR=$EDITOR
   [[ "$EDITOR" != vi ]] && alias vi='$EDITOR'
 fi
-export PSQL_PAGER='less -XFRS'
+export PSQL_PAGER='less -XFR'
 
 [[ -r /etc/os-release ]] && . /etc/os-release
 
