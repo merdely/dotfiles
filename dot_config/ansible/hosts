@@ -16,9 +16,10 @@ chezmoi:
       chezmoi: $HOME/.local/bin/chezmoi
     saturn:
       chezmoi: $HOME/.local/bin/chezmoi
-    uranus:
+    dia:
     neptune:
-    # pluto:
+    pluto:
+      chezmoi: $HOME/.local/bin/chezmoi
     ceres:
       chezmoi: $HOME/.local/bin/chezmoi
     carme:

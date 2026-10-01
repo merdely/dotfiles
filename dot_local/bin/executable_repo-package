@@ -252,12 +252,12 @@ process_update() {
 
   if [[ -z "${release_search[$pkg]}" ]]; then
     if ! http_code=$(curl -w "%{http_code}" -sfLo "$tmpdir"/curl.out "https://api.github.com/repos/${repo[$pkg]}/releases/latest"); then
-      echo "Error: Could not download latest release info from GitHub" >&2
+      echo "Error: Could not download latest release info from GitHub: $http_code" >&2
       exit 1
     fi
   else
     if ! http_code=$(curl -w "%{http_code}" -sfLo "$tmpdir"/curl.out "https://api.github.com/repos/${repo[$pkg]}/releases"); then
-      echo "Error: Could not download release info from GitHub" >&2
+      echo "Error: Could not download release info from GitHub: $http_code" >&2
       exit 1
     fi
     newest_tag=$(awk -v m="${release_search[$pkg]}" '{while ( where = match($0, "\"tag_name\": *\"(" m ")\"", a) ) { print a[1] ; exit }}' "$tmpdir"/curl.out)
