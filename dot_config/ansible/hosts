@@ -14,6 +14,8 @@ chezmoi:
       chezmoi: $HOME/.local/bin/chezmoi
     jupiter:
       chezmoi: $HOME/.local/bin/chezmoi
+    io:
+      chezmoi: $HOME/.local/bin/chezmoi
     saturn:
       chezmoi: $HOME/.local/bin/chezmoi
     dia:
@@ -26,8 +28,8 @@ chezmoi:
     metis:
     tarvos:
       chezmoi: $HOME/.local/bin/chezmoi
-    sinope:
-      chezmoi: $HOME/.local/bin/chezmoi
+    # sinope:
+    #   chezmoi: $HOME/.local/bin/chezmoi
   vars:
     chezmoi: chezmoi
 
