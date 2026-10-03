@@ -24,7 +24,7 @@ __shell_specific() {
   PROMPT="${PROMPT}]"              # Close bracket
   PROMPT="${PROMPT}${subshell}"    # If in a subshell (chezmoi) show a plus
   # Git stuff
-  command -v __git_ps1 >/dev/null 2>&1 && PROMPT="$PROMPT\$(__git_ps1 \" (%%F{${git_c}}${git_s}%%f %s)\")"
+  command -v __git_ps1 >/dev/null 2>&1 && PROMPT="$PROMPT\$(__git_ps1 \" (%%F{${git_c}}${git_s}%%f %s)\" 2>&1|grep -v 'Permission denied')"
   PROMPT="${PROMPT} %F{blue}%(!.#.${pchar})%f"  # Show prompt in blue
   PROMPT="${PROMPT}%b"             # End bold
   PROMPT="${PROMPT} "              # Trailing space
