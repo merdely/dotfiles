@@ -121,11 +121,9 @@
 --- # Highlight groups ~
 --- *MiniTest-hl-groups*
 ---
---- - `MiniTestEmphasis` - emphasis highlighting. By default it is a bold text.
---- - `MiniTestFail` - highlighting of failed cases. By default it is a bold
----   text with `vim.g.terminal_color_1` color (red).
---- - `MiniTestPass` - highlighting of passed cases. By default it is a bold
----   text with `vim.g.terminal_color_2` color (green).
+--- - `MiniTestEmphasis` - emphasis highlighting.
+--- - `MiniTestFail` - highlighting of failed cases.
+--- - `MiniTestPass` - highlighting of passed cases.
 ---
 --- To change any highlight group, set it directly with |nvim_set_hl()|.
 ---
@@ -726,27 +724,10 @@ end
 ---   Use `nil` or empty string to not test for pattern matching.
 ---@param opts table|nil Options. Possible fields:
 ---   __test_expect_fail_reason
-MiniTest.expect.error = function(f, pattern, opts, ...)
+MiniTest.expect.error = function(f, pattern, opts)
   H.check_type('pattern', pattern, 'string', true)
 
-  -- Provide backward compatibility for `(f, pattern, ...)` signature.
-  -- TODO: Remove after releasing 'mini.nvim' 0.18.0
-  local args = { ... }
-  local is_valid_opts = type(opts) == 'table'
-    and (opts.fail_reason == nil or type(opts.fail_reason) == 'string' or vim.is_callable(opts.fail_reason))
-  if select('#', ...) > 0 or not (opts == nil or is_valid_opts) then
-    table.insert(args, 1, opts)
-    opts = {}
-    vim.notify(
-      '(mini.test) `expect.error` now does not accept extra arguments for tested function.'
-        .. " It will mostly work until the next 'mini.nvim' release, but not after that."
-        .. ' Use them explicitly inside anonymous function: `expect.error(f, "", 1, 2)` ->'
-        .. ' `expect.error(function() f(1, 2) end, "")`.'
-        .. '\nSorry for the inconvenience.',
-      vim.log.levels.WARN
-    )
-  end
-  local ok, err = pcall(f, unpack(args))
+  local ok, err = pcall(f)
 
   err = tostring(err)
   local has_matched_error = not ok and string.find(err, pattern or '') ~= nil
@@ -764,24 +745,8 @@ end
 ---@param f function Function to be tested for not raising error.
 ---@param opts table|nil Options. Possible fields:
 ---   __test_expect_fail_reason
-MiniTest.expect.no_error = function(f, opts, ...)
-  -- Provide backward compatibility for `(f, ...)` signature.
-  -- TODO: Remove after releasing 'mini.nvim' 0.18.0
-  local args = { ... }
-  local is_valid_opts = type(opts) == 'table' and (opts.fail_prefix == nil or type(opts.fail_prefix) == 'string')
-  if select('#', ...) > 0 or not (opts == nil or is_valid_opts) then
-    table.insert(args, 1, opts)
-    opts = {}
-    vim.notify(
-      '(mini.test) `expect.no_error` now does not accept extra arguments for tested function.'
-        .. " It will mostly work until the next 'mini.nvim' release, but not after that."
-        .. ' Use them explicitly inside anonymous function: `expect.no_error(f, 1, 2)` ->'
-        .. ' `expect.no_error(function() f(1, 2) end)`.'
-        .. '\nSorry for the inconvenience.',
-      vim.log.levels.WARN
-    )
-  end
-  local ok, err = pcall(f, unpack(args))
+MiniTest.expect.no_error = function(f, opts)
+  local ok, err = pcall(f)
   if ok then return true end
 
   opts = opts or {}
@@ -1702,14 +1667,15 @@ H.create_autocommands = function()
 end
 
 H.create_default_hl = function()
-  local set_default_hl = function(name, data)
-    data.default = true
-    vim.api.nvim_set_hl(0, name, data)
+  local hi_copy_with_bold = function(to, from)
+    local data = vim.api.nvim_get_hl(0, { name = from, link = false })
+    data.default, data.bold = true, true
+    vim.api.nvim_set_hl(0, to, data)
   end
 
-  set_default_hl('MiniTestFail', { fg = vim.g.terminal_color_1 or '#FF0000', bold = true })
-  set_default_hl('MiniTestPass', { fg = vim.g.terminal_color_2 or '#00FF00', bold = true })
-  set_default_hl('MiniTestEmphasis', { bold = true })
+  hi_copy_with_bold('MiniTestFail', 'DiagnosticError')
+  hi_copy_with_bold('MiniTestPass', 'DiagnosticOk')
+  vim.api.nvim_set_hl(0, 'MiniTestEmphasis', { default = true, bold = true })
 end
 
 H.is_disabled = function() return vim.g.minitest_disable == true or vim.b.minitest_disable == true end
@@ -2091,6 +2057,7 @@ H.buffer_reporter = { ns_id = vim.api.nvim_create_namespace('MiniTestBuffer'), n
 H.buffer_reporter.setup_buf_and_win = function(window_opts)
   local buf_id = vim.api.nvim_create_buf(true, true)
   H.set_buf_name(buf_id, 'buffer-reporter')
+  vim.bo[buf_id].modifiable = true
 
   local win_id
   if vim.is_callable(window_opts) then

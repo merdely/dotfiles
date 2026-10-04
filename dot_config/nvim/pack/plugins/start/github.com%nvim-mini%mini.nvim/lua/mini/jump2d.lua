@@ -489,15 +489,6 @@ MiniJump2d.gen_spotter.pattern = function(pattern, side)
   end
 end
 
--- TODO: Remove after releasing 'mini.nvim' 0.17.0
-MiniJump2d.gen_pattern_spotter = function(pattern, side)
-  local msg = '`gen_pattern_spotter` is moved to `gen_spotter.pattern` for consistency with other modules.'
-    .. ' It still works for now, but will stop working after the next release.'
-    .. ' Sorry for the inconvenience.'
-  H.notify(msg, 'WARN')
-  return MiniJump2d.gen_spotter.pattern(pattern, side)
-end
-
 --- Generate spotter for Vimscript pattern
 ---
 ---@param pattern string|nil Vimscript |pattern|. Default: `\k\+` to match group
@@ -564,15 +555,6 @@ MiniJump2d.gen_spotter.union = function(...)
     end
     return res
   end
-end
-
--- TODO: Remove after releasing 'mini.nvim' 0.17.0
-MiniJump2d.gen_union_spotter = function(...)
-  local msg = '`gen_union_spotter` is moved to `gen_spotter.union` for consistency with other modules.'
-    .. ' It still works for now, but will stop working after the next release.'
-    .. ' Sorry for the inconvenience.'
-  H.notify(msg, 'WARN')
-  return MiniJump2d.gen_spotter.union(...)
 end
 
 --- Default spotter function
@@ -793,21 +775,20 @@ H.create_autocommands = function(config)
   au('ColorScheme', '*', H.create_default_hl, 'Ensure colors')
 end
 
---stylua: ignore
 H.create_default_hl = function()
-  local set_default_hl = function(name, data)
+  local hi = function(name, data)
     data.default = true
     vim.api.nvim_set_hl(0, name, data)
   end
 
   local is_light_bg = vim.o.background == 'light'
-  local bg_color = is_light_bg and 'white' or 'black'
-  local fg_color = is_light_bg and 'black' or 'white'
+  local bg = is_light_bg and 'White' or 'Black'
+  local fg = is_light_bg and 'Black' or 'White'
 
-  set_default_hl('MiniJump2dSpot',       { fg = fg_color, bg = bg_color, bold = true, nocombine = true })
-  set_default_hl('MiniJump2dSpotAhead',  { fg = 'grey',   bg = bg_color, nocombine = true })
-  set_default_hl('MiniJump2dSpotUnique', { link = 'MiniJump2dSpot' })
-  set_default_hl('MiniJump2dDim',        { link = 'Comment' })
+  hi('MiniJump2dSpot', { fg = fg, bg = bg, bold = true, nocombine = true })
+  hi('MiniJump2dSpotAhead', { fg = 'Grey', bg = bg, nocombine = true })
+  hi('MiniJump2dSpotUnique', { link = 'MiniJump2dSpot' })
+  hi('MiniJump2dDim', { link = 'Comment' })
 end
 
 H.is_disabled = function() return vim.g.minijump2d_disable == true or vim.b.minijump2d_disable == true end
@@ -904,8 +885,8 @@ H.spots_show = function(spots, opts)
   for _, extmark in ipairs(H.spots_to_extmarks(spots, opts)) do
     local extmark_opts = {
       hl_mode = 'combine',
-      -- Use very high priority
-      priority = 1000,
+      -- Use very high priority, at least a bit higher than default 4096
+      priority = 4098,
       virt_text = extmark.virt_text,
       virt_text_pos = 'overlay',
     }
@@ -920,7 +901,7 @@ H.spots_show = function(spots, opts)
 
   -- Possibly dim used lines
   if opts.view.dim then
-    local extmark_opts = { end_col = 0, hl_eol = true, hl_group = opts.hl_group_dim, priority = 999 }
+    local extmark_opts = { end_col = 0, hl_eol = true, hl_group = opts.hl_group_dim, priority = 4097 }
     for buf_id, lines in pairs(dim_buf_lines) do
       for _, l_num in ipairs(vim.tbl_keys(lines)) do
         extmark_opts.end_line = l_num + 1

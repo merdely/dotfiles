@@ -1787,6 +1787,10 @@ MiniPick.set_picker_items_from_cli = function(command, opts)
   process, pid = vim.loop.spawn(executable, spawn_opts, function()
     if not process:is_closing() then process:close() end
   end)
+  if process == nil then
+    MiniPick.stop()
+    error('Could not execute system command: ' .. vim.inspect(command))
+  end
   -- NOTE: `cancel` is better name, but go with `vim.system():kill` for future
   local kill = function()
     if stdout:is_active() then stdout:read_stop() end
@@ -2022,14 +2026,6 @@ H.setup_config = function(config)
   local is_table_or_callable = function(x) return x == nil or type(x) == 'table' or vim.is_callable(x) end
   if not is_table_or_callable(config.window.config) then
     H.error('`window.config` should be table or callable, not ' .. type(config.window.config))
-  end
-  -- TODO: Remove after releasing 'mini.nvim' 0.16.0
-  if config.window.prompt_cursor ~= nil then
-    local msg = '`prompt_cursor` in `config.window` is renamed to `prompt_caret` for better naming consistency.'
-      .. ' It works for now, but will stop in the next release. Sorry for the inconvenience.'
-    H.notify(msg, 'WARN')
-    config.window.prompt_caret = config.window.prompt_cursor
-    config.window.prompt_cursor = nil
   end
   H.check_type('window.prompt_caret', config.window.prompt_caret, 'string')
   H.check_type('window.prompt_prefix', config.window.prompt_prefix, 'string')
@@ -3658,6 +3654,7 @@ end
 H.create_scratch_buf = function(name)
   local buf_id = vim.api.nvim_create_buf(false, true)
   H.set_buf_name(buf_id, name)
+  vim.bo[buf_id].modifiable = true
   vim.bo[buf_id].matchpairs = ''
   vim.b[buf_id].minicursorword_disable = true
   vim.b[buf_id].miniindentscope_disable = true

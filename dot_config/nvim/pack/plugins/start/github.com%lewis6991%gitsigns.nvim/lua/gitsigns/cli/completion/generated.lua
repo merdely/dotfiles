@@ -39,6 +39,7 @@ return {
     diffthis = {
       flags = {
         split = { 'aboveleft', 'belowright', 'topleft', 'botright' },
+        unified = false,
         vertical = false,
       },
       positional = {
@@ -148,7 +149,7 @@ return {
         {
           name = 'open',
           required = true,
-          values = { 'vsplit', 'tabnew' },
+          values = { 'diff', 'vsplit', 'tabnew' },
         },
       },
     },

@@ -123,11 +123,9 @@ Some hints for converting from `plenary.nvim` tests to |mini.test|:
 # Highlight groups ~
 *MiniTest-hl-groups*
 
-- `MiniTestEmphasis` - emphasis highlighting. By default it is a bold text.
-- `MiniTestFail` - highlighting of failed cases. By default it is a bold
-  text with `vim.g.terminal_color_1` color (red).
-- `MiniTestPass` - highlighting of passed cases. By default it is a bold
-  text with `vim.g.terminal_color_2` color (green).
+- `MiniTestEmphasis` - emphasis highlighting.
+- `MiniTestFail` - highlighting of failed cases.
+- `MiniTestPass` - highlighting of passed cases.
 
 To change any highlight group, set it directly with |nvim_set_hl()|.
 
@@ -573,7 +571,7 @@ Parameters ~
 
 ------------------------------------------------------------------------------
                                                        *MiniTest.expect.error()*
-             `MiniTest.expect.error`({f}, {pattern}, {opts}, {...})
+                `MiniTest.expect.error`({f}, {pattern}, {opts})
 Expect function call to raise error
 
 Parameters ~
@@ -587,7 +585,7 @@ Parameters ~
 
 ------------------------------------------------------------------------------
                                                     *MiniTest.expect.no_error()*
-                 `MiniTest.expect.no_error`({f}, {opts}, {...})
+                    `MiniTest.expect.no_error`({f}, {opts})
 Expect function call to not raise error
 
 Parameters ~
