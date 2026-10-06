@@ -14,13 +14,13 @@ alias dmesg='sudo dmesg'
 alias cag='adguardcli clear'
 alias ral='adguardcli refresh'
 
-alias fixvpn='docker compose exec -it media-gateway /scripts/fixvpn'
-alias gwping='echo pinging from gateway; docker compose exec -it media-gateway ping 9.9.9.9'
-alias proxyping='echo pinging from proxy; docker compose exec -it media-proxy ping 9.9.9.9'
-alias qbtping='echo pinging from qbt; docker compose exec -it media-torrent ping 9.9.9.9'
-alias log='sudo -u splunk /usr/bin/tail -F /opt/splunk/var/log/splunk/splunkd.log'
+# alias fixvpn='docker compose exec -it media-gateway /scripts/fixvpn'
+# alias gwping='echo pinging from gateway; docker compose exec -it media-gateway ping 9.9.9.9'
+# alias proxyping='echo pinging from proxy; docker compose exec -it media-proxy ping 9.9.9.9'
+# alias qbtping='echo pinging from qbt; docker compose exec -it media-torrent ping 9.9.9.9'
+# alias log='sudo -u splunk /usr/bin/tail -F /opt/splunk/var/log/splunk/splunkd.log'
 
-alias smtpctl='docker compose exec smtpd smtpctl'
+# alias smtpctl='docker compose exec smtpd smtpctl'
 
 export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
 
@@ -84,8 +84,8 @@ alias dropuser='docker exec -it -u postgres postgres dropuser'
 alias createdb='docker exec -it -u postgres postgres createdb'
 alias dropdb='docker exec -it -u postgres postgres dropdb'
 
-alias mariadb="docker compose exec -it -u mysql mysql mariadb"
-alias mariadb-dump="docker compose exec -it -u mysql mysql mariadb-dump"
+alias mariadb="docker exec -it -u mysql mysql mariadb"
+alias mariadb-dump="docker exec -it -u mysql mysql mariadb-dump"
 
 alias caddycheck='docker exec caddy caddy validate --config /etc/caddy/Caddyfile'
 alias caddyfmt='docker exec caddy caddy fmt --overwrite --config /etc/caddy/Caddyfile'
