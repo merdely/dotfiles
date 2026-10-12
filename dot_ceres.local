@@ -14,3 +14,8 @@ alias authusers='sudoedit /srv/docker/authelia/config/users.yml'
 alias authlogs='docker logs -f authelia --since 2m'
 
 alias headscale='docker exec -it headscale headscale'
+
+
+alias suvcheck='sudo su - -s /bin/bash vcheck'
+alias vcheck='sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck'
+alias v='sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -L all'
