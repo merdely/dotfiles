@@ -1,7 +1,7 @@
 [Context]
-sockets=!pcsc
+sockets=!pcsc;session-bus;fallback-x11
 devices=dri
-filesystems=/usr/share/pipewire/client.conf:ro
+filesystems=/etc/fonts:ro;/usr/share/pipewire/client.conf:ro
 
 [Session Bus Policy]
 org.freedesktop.portal.Desktop=talk
