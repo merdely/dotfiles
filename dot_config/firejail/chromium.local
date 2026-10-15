@@ -10,6 +10,9 @@ whitelist ${HOME}/.config/ungoogled-chromium
 noblacklist ${HOME}/.config/ungoogled-chromium-*
 whitelist ${HOME}/.config/ungoogled-chromium-*
 
+# noblacklist /dev/hidraw*
+# ignore private-dev
+
 # noblacklist ${HOME}/.config/ungoogled-chromium-mike
 # whitelist ${HOME}/.config/ungoogled-chromium-mike
 
