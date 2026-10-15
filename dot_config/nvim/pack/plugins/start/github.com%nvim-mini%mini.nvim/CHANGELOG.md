@@ -10,9 +10,19 @@ There are following change types:
 
 ## All
 
+### Evolve
+
+- Update `minischeme` color scheme to use 'mini.hues' and use it in examples as the suggested color scheme instead of `miniwinter`. The previous 'mini.base16' variant is now provided as `miniblue`.
+
 ### Refine
 
 - Stop official support of Neovim 0.9.
+
+- Mark as non modifiable custom buffers that are intended to be focused but arbitrary user modifications might cause problems. Affected modules:
+
+    - 'mini.files' (`show_help`)
+    - 'mini.map'
+    - 'mini.test' (`gen_reporter.buffer`)
 
 ## mini.ai
 

@@ -78,7 +78,6 @@ gitsigns.setloclist()	gitsigns.txt	/*gitsigns.setloclist()*
 gitsigns.setqflist()	gitsigns.txt	/*gitsigns.setqflist()*
 gitsigns.setup()	gitsigns.txt	/*gitsigns.setup()*
 gitsigns.show()	gitsigns.txt	/*gitsigns.show()*
-gitsigns.show_commit()	gitsigns.txt	/*gitsigns.show_commit()*
 gitsigns.stage_buffer()	gitsigns.txt	/*gitsigns.stage_buffer()*
 gitsigns.stage_hunk()	gitsigns.txt	/*gitsigns.stage_hunk()*
 gitsigns.statuscolumn()	gitsigns.txt	/*gitsigns.statuscolumn()*
