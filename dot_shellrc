@@ -115,6 +115,19 @@ alias docker_up='for f in /srv/docker/*/compose.yaml; do docker compose -f "$f" 
 alias docker_down='for f in /srv/docker/*/compose.yaml; do docker compose -f "$f" down; done'
 alias docker_top='watch "docker ps --format \"table {{.Names}}\t{{.Image}}\t{{.Command}}\t{{.RunningFor}}\t{{.Status}}\""'
 alias docker_ps='docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Command}}\t{{.RunningFor}}\t{{.Status}}"'
+
+alias caddy='docker exec caddy caddy'
+alias caddyreload='docker exec caddy caddy reload --config /etc/caddy/Caddyfile --address 127.0.0.1:2019'
+alias caddycheck='docker exec caddy caddy validate -c /etc/caddy/Caddyfile --address 127.0.0.1:2019'
+alias caddyfmt='docker exec caddy caddy fmt --overwrite -c /etc/caddy/Caddyfile --address 127.0.0.1:2019'
+alias caddylogs='docker logs -f caddy --since 1m'
+
+alias vc='ssh ceres   sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -L all'
+alias ve='ssh earth   sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -L all'
+alias vio='ssh io     sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -L all'
+alias vj='ssh jupiter sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -L all'
+alias vm='ssh mercury sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -L all'
+
 alias c='chezmoi'
 alias c_up='ansible chezmoi -l !'"$(hostname)"' -oa "{{chezmoi}} update";ansible chezmoi_ro -oa "~/.local/bin/sync_home"'
 alias chezmoi_updates='ansible chezmoi -oa "{{chezmoi}} update";ansible chezmoi_ro -oa "~/.local/bin/sync_home"'
