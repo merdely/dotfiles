@@ -130,6 +130,8 @@ if not vim.env.NVIM_DISABLE_PLUGINS then
       vim.keymap.set({"x","o"}, "aS", function() ts_select.select_textobject("@local.scope", "locals") end, { desc = "scope" })
       vim.keymap.set({"x","o"}, "aC", function() ts_select.select_textobject("@comment.outer", "textobjects") end, { desc = "comment" })
       vim.keymap.set({"x","o"}, "iC", function() ts_select.select_textobject("@comment.inner", "textobjects") end, { desc = "comment" })
+      vim.keymap.set({"x","o"}, "aD", function() ts_select.select_textobject("@conditional.outer", "textobjects") end, { desc = "conditional" })
+      vim.keymap.set({"x","o"}, "iD", function() ts_select.select_textobject("@conditional.inner", "textobjects") end, { desc = "conditional" })
     end
 
     local tssw_installed, ts_swap = pcall(require, "nvim-treesitter-textobjects.swap")
