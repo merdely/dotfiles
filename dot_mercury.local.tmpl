@@ -3,12 +3,7 @@
 # Use: chezmoi edit ~/.mercury.local
 # Or after editing, run: chezmoi re-add ~/.mercury.local
 
-  alias caddy='docker exec caddy caddy'
-  alias caddyreload='docker exec caddy caddy reload -c /etc/caddy/Caddyfile'
-  alias caddycheck='docker exec caddy caddy validate -c /etc/caddy/Caddyfile'
-  alias caddyfmt='docker exec caddy caddy fmt --overwrite -c /etc/caddy/Caddyfile'
-  alias caddylogs='docker logs -f caddy --since 1m'
-  alias ollama='docker exec ollama ollama'
+alias ollama='docker exec ollama ollama'
 
 alias ap=ansible-playbook
 alias apv='ansible-playbook --ask-vault-pass'
