@@ -82,7 +82,7 @@ alias authusers='sudoedit /srv/docker/authelia/config/users.yml'
 alias caddycheck='docker exec -t caddy caddy validate --config /etc/caddy/Caddyfile'
 alias caddyfmt='docker exec -t caddy caddy fmt --overwrite --config /etc/caddy/Caddyfile'
 alias caddylogs='docker logs -f caddy --since 1m'
-alias caddyreload='docker exec -t caddy caddy reload --config /etc/caddy/Caddyfile'
+alias caddyreload='docker exec caddy caddy reload --config /etc/caddy/Caddyfile --address 127.0.0.1:2019'
 
 alias forgejo_settings='sudoedit /srv/docker/forgejo/data/custom/conf/app.ini'
 alias vif='sudoedit /srv/docker/forgejo/data/custom/conf/app.ini'
