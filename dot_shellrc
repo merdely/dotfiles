@@ -99,7 +99,7 @@ if [[ "$OSTYPE" == linux-gnu ]]; then
 fi
 command -v fdfind >/dev/null 2>&1 alias fd=fdfind
 command -v batcat >/dev/null 2>&1 alias bat=batcat
-command -v bat >/dev/null 2>&1 && alias cat='bat --paging=never --plain'
+# command -v bat >/dev/null 2>&1 && alias cat='bat --paging=never --plain'
 alias check_reboot='sudo /srv/scripts/sbin/check_reboot'
 [[ -e /dev/pf ]] && alias pflog='doas tcpdump -n -e -ttt -i pflog0'
 alias sshk='ssh -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
