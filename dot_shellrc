@@ -118,8 +118,8 @@ alias docker_ps='docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Command}}\
 
 alias caddy='docker exec caddy caddy'
 alias caddyreload='docker exec caddy caddy reload --config /etc/caddy/Caddyfile --address 127.0.0.1:2019'
-alias caddycheck='docker exec caddy caddy validate -c /etc/caddy/Caddyfile --address 127.0.0.1:2019'
-alias caddyfmt='docker exec caddy caddy fmt --overwrite -c /etc/caddy/Caddyfile --address 127.0.0.1:2019'
+alias caddycheck='docker exec caddy caddy validate -c /etc/caddy/Caddyfile'
+alias caddyfmt='docker exec caddy caddy fmt --overwrite -c /etc/caddy/Caddyfile'
 alias caddylogs='docker logs -f caddy --since 1m'
 
 alias vc='ssh ceres   sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -L all'
