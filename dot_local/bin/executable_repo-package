@@ -342,7 +342,11 @@ process_update() {
 
   local download_file="$tmpdir"/"${url##*/}"
   curl -sLo "$download_file" "$url"
-  echo "Installing ${repo[$pkg]} ${bin[$pkg]}"
+  if [[ "$host" == localhost ]]; then
+    echo "Installing ${repo[$pkg]} ${bin[$pkg]}"
+  else
+    echo "Installing ${repo[$pkg]} ${bin[$pkg]} on $host"
+  fi
 
   local tmpfile=""
   case "${download_file##*/}" in
