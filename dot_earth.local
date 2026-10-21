@@ -24,7 +24,8 @@ alias ral='adguardcli refresh'
 
 export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
 
-alias authgen='docker run --rm -it authelia/authelia:latest authelia crypto hash generate pbkdf2 --random'
+alias authgen='docker run --rm -it authelia/authelia:$(docker inspect --format="{{index .Config.Labels \"org.opencontainers.image.version\"}}" authelia) authelia crypto hash generate pbkdf2 --random'
+alias authusergen='docker run --rm -it authelia/authelia:$(docker inspect --format="{{index .Config.Labels \"org.opencontainers.image.version\"}}" authelia) authelia crypto hash generate argon2'
 alias authconfig='sudoedit /srv/docker/authelia/config/configuration.yml'
 alias authusers='sudoedit /srv/docker/authelia/config/users.yml'
 alias authlogs='docker logs -f authelia --since 2m'
