@@ -74,8 +74,9 @@ alias navidrome='docker exec -it navidrome /app/navidrome'
 alias nginx='docker exec -it nginx nginx'
 alias redis-cli='docker exec -it redis redis-cli'
 
+alias authgen='docker run --rm -it authelia/authelia:$(docker inspect --format="{{index .Config.Labels \"org.opencontainers.image.version\"}}" authelia) authelia crypto hash generate pbkdf2 --random'
+alias authusergen='docker run --rm -it authelia/authelia:$(docker inspect --format="{{index .Config.Labels \"org.opencontainers.image.version\"}}" authelia) authelia crypto hash generate argon2'
 alias authconfig='sudoedit /srv/docker/authelia/config/configuration.yml'
-alias authgen='docker run --rm -it authelia/authelia:latest authelia crypto hash generate pbkdf2 --random'
 alias authlogs='docker logs -f authelia --since 2m'
 alias authusers='sudoedit /srv/docker/authelia/config/users.yml'
 
