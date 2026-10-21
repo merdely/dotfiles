@@ -195,11 +195,12 @@ alias chemzoi=chezmoi
 copy () {
   input="${1:--}"
   [ "$input" != "-" ] && [ ! -r "$input" ] && input=-
-  text=$(cat "${input%$'\n'}")
+  text=$(cat "$input")
 
   if [ -n "$SSH_CONNECTION" ]; then
     b64=$(base64 -w0 "$text" | tr -d '\n')
-    printf '\033]52;c;%s\a' "$b64"
+    out=$(printf '\033]52;c;%s\a' "$b64")
+    printf '%s' "${out%$'\n'}"
   else
     printf '%s' "${text%$'\n'}" | wl-copy
   fi
