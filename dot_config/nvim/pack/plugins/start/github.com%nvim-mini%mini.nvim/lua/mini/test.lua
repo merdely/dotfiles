@@ -929,7 +929,7 @@ MiniTest.gen_reporter.buffer = function(opts)
     H.buffer_reporter.set_lines(buf_id, lines, -n_replace - 1, -1)
 
     -- Throttle redraw to reduce flicker
-    local cur_time = vim.loop.hrtime()
+    local cur_time = vim.uv.hrtime()
     local is_enough_time_passed = (cur_time - latest_draw_time) > opts.throttle_delay * 1000000
     if is_enough_time_passed or force then
       vim.cmd('redraw')
@@ -1143,7 +1143,7 @@ MiniTest.new_child_neovim = function()
     -- Using 'jobstart' for creating a job is crucial for getting this to work
     -- in Github Actions. Other approaches:
     -- - Using `{ pty = true }` seems crucial to make this work on GitHub CI.
-    -- - Using `vim.loop.spawn()` is doable, but has some issues:
+    -- - Using `vim.uv.spawn()` is doable, but has some issues:
     --     - https://github.com/neovim/neovim/issues/21630
     --     - https://github.com/neovim/neovim/issues/21886
     job.id = vim.fn.jobstart(full_args)
@@ -1152,7 +1152,7 @@ MiniTest.new_child_neovim = function()
     local connected, i, max_tries = nil, 0, math.floor(opts.connection_timeout / step)
     repeat
       i = i + 1
-      vim.loop.sleep(step)
+      vim.uv.sleep(step)
       connected, job.channel = pcall(vim.fn.sockconnect, 'pipe', job.address, { rpc = true })
     until connected or i >= max_tries
 
@@ -1262,7 +1262,7 @@ MiniTest.new_child_neovim = function()
   --stylua: ignore
   local supported_vim_tables = {
     -- Collections
-    'diagnostic', 'fn', 'highlight', 'hl', 'json', 'loop', 'lsp', 'mpack', 'spell', 'treesitter', 'ui', 'fs',
+    'diagnostic', 'fn', 'highlight', 'hl', 'json', 'loop', 'lsp', 'mpack', 'spell', 'treesitter', 'ui', 'uv', 'fs',
     -- Variables
     'g', 'b', 'w', 't', 'v', 'env',
     -- Options (no 'opt' because not really useful due to use of metatables)
@@ -1310,7 +1310,7 @@ MiniTest.new_child_neovim = function()
       end
 
       -- Possibly wait
-      if has_wait and wait > 0 then vim.loop.sleep(wait) end
+      if has_wait and wait > 0 then vim.uv.sleep(wait) end
     end
   end
 
@@ -1470,10 +1470,10 @@ end
 ---
 ---@field diagnostic table Redirection table for |vim.diagnostic|.
 ---@field fn table Redirection table for |vim.fn|.
+---@field fs table Redirection table for |vim.fs|.
 ---@field highlight table Redirection table for |vim.highlight|.
 ---@field hl table Redirection table for |vim.hl|.
 ---@field json table Redirection table for `vim.json`.
----@field loop table Redirection table for |vim.loop|.
 ---@field lsp table Redirection table for `vim.lsp` (|lsp-core|).
 ---@field mpack table Redirection table for |vim.mpack|.
 ---@field spell table Redirection table for |vim.spell|.
@@ -1481,7 +1481,7 @@ end
 ---@field ui table Redirection table for |vim.ui|. Currently of no
 ---   use because it requires sending function through RPC, which is impossible
 ---   at the moment.
----@field fs table Redirection table for |vim.fs|.
+---@field uv table Redirection table for |vim.uv|.
 ---
 ---@field g table Redirection table for |vim.g|.
 ---@field b table Redirection table for |vim.b|.
