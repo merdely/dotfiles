@@ -31,7 +31,7 @@ dia,dia.erdely.in,192.168.25.125 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGXlvUe49rm
 e5530,e5530.erdely.in ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIYZGMuD2wELs0Otpa1uiYIqP7m53rb0tgHqakhBSAj1
 
 # Work computers
-cordelia,cordelia.erdely.in,192.168.27.30 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGFXDOj4p//JGtw8OpUlXoYi7wSctyO5+g7rfJgPfO8n root@cordelia
+cordelia,cordelia.erdely.in,192.168.27.30 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGFXDOj4p//JGtw8OpUlXoYi7wSctyO5+g7rfJgPfO8n
 
 # Other systems
 dione,dione.erdely.in,192.168.27.98 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICBhqpl6hibiQhURi2E4K3RUHO9alGsKDJ1sfe9vo9rm
