@@ -6,3 +6,5 @@
 noblacklist ${HOME}/.config/librewolf
 mkdir ${HOME}/.config/librewolf
 whitelist ${HOME}/.config/librewolf
+
+dbus-user.talk org.freedesktop.portal.Desktop
