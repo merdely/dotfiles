@@ -23,8 +23,13 @@ window_padding_width      2
 update_check_interval     0
 mouse_map                 left click ungrabbed
 mouse_map                 ctrl+left click ungrabbed mouse_handle_click selection link prompt
+scrollback_pager nvim -u NONE -i NONE -M -c 'normal G' -c 'colorscheme vim' -c 'map q :q!<CR>' -c 'set clipboard=unnamedplus laststatus=0 nospell syntax=' -
 
 # Global key bindings
+# Scrollback
+map kitty_mod+h launch --type=overlay --stdin-source=@screen_scrollback nvim -u NONE -i NONE -M -c 'normal G' -c 'colorscheme vim' -c 'map q :q!<CR>' -c 'set clipboard=unnamedplus laststatus=0 nospell syntax=' -
+map ctrl+b>[ launch --type=overlay --stdin-source=@screen_scrollback nvim -u NONE -i NONE -M -c 'normal G' -c 'colorscheme vim' -c 'map q :q!<CR>' -c 'set clipboard=unnamedplus laststatus=0 nospell syntax=' -
+
 ## Split Management
 # Vertical
 map                             ctrl+b>% launch --location=vsplit --cwd=current
