@@ -177,7 +177,7 @@ process_update() {
     *) echo "Error: $arch not implemented" >&2 ; exit 1 ;;
   esac
 
-  declare -A repo alias regex bin srcbin type dest sudo
+  declare -A repo alias regex bin srcbin type dest sudo release_search
   local tmpdir="" url="" files=() matches=()
   tmpdir=$(mktemp -d)
   TMPFILES=("$tmpdir")
