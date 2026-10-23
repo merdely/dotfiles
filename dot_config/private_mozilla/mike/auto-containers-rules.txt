@@ -79,8 +79,12 @@ codeberg.org, Codeberg
 costco.com, Shopping
 *.courtreserve.com, Tennis
 courtreserve.com, Tennis
+*.crowdsec.net, CrowdSec
+crowdsec.net, CrowdSec
 *.crucial.com, Shopping
 crucial.com, Shopping
+customercontrolpanel.de, Netcup
+*.customercontrolpanel.de, Netcup
 *.cvs.com, Medical
 cvs.com, Medical
 *.davidplotkinmd.com, Medical
@@ -110,9 +114,10 @@ erde.ly, Personal
 jellyfin.erdely.co, JF Admin
 jellyfin.erdely.in, JF Holly
 erdely.co, Personal
-*.erdely.in, Personal
 erdely.in, Personal
 *.erdely.co, Personal
+*.erdely.in, Personal
+pangolin-internal.erdelynet.com, Pangolin Admin
 *.erdelynet.com, Personal
 erdelynet.com, Personal
 *.espn.com, Media
@@ -175,14 +180,18 @@ gwog.com, Medical
 heatonist.com, Shopping
 *.hetrixtools.com, HetrixTools
 hetrixtools.com, HetrixTools
+jobs.hii-tsd.com, Job Hunting
 *.hireart.com, HireArt
 hireart.com, HireArt
 *.hmfusa.com, Banking
 hmfusa.com, Banking
 *.homedepot.com, Shopping
 homedepot.com, Shopping
+*.icims.com, Job Hunting
+icims.com, Job Hunting
 *.indeed.com, Job Hunting
 indeed.com, Job Hunting
+*.insperity.com, Work
 *.instagram.com, Facebook
 instagram.com, Facebook
 *.sh.itjust.works, Lemmy
@@ -191,13 +200,20 @@ sh.itjust.works, Lemmy
 jiangcourtasiancuisine.com, Shopping
 *.jobgether.com, Job Hunting
 jobgether.com, Job Hunting
+jobot.com, Job Hunting
+*.jobot.com, Job Hunting
 *jobs*, Job Hunting
 *.johnhancock.com, JohnHancock
 johnhancock.com, JohnHancock
 *.kohls.com, Shopping
 kohls.com, Shopping
+*.labcorp.com, Medical
+learningtree.global, Services
+*.learningtree.global, Services
 *.lemon.io, Job Hunting
 lemon.io, Job Hunting
+*.lenovo.com, Shopping
+lenovo.com, Shopping
 *.jobs.lever.co, Job Hunting
 jobs.lever.co, Job Hunting
 *.livongo.com, Medical
@@ -251,8 +267,11 @@ myworkdayjobs.com, Job Hunting
 nebula.app, Media
 *.nebula.tv, Media
 nebula.tv, Media
+netcup.com, Netcup
+*.netcup.com, Netcup
 *.netflix.com, Media
 netflix.com, Media
+nlu.to, Personal
 *.nuts.com, Shopping
 nuts.com, Shopping
 *.nytimes.com, Media
@@ -275,6 +294,8 @@ panera.com, Shopping
 parrishmed.com, Medical
 *.pathai.com, Job Hunting
 pathai.com, Job Hunting
+*.paypal.com, Paypal
+paypal.com, Paypal
 *.peblla.com, Shopping
 peblla.com, Shopping
 *.piefed.world, Lemmy
@@ -285,6 +306,8 @@ pinterestcareers.com, Job Hunting
 pishop.us, Shopping
 *.plan2play.com, Tennis
 plan2play.com, Tennis
+*.porkbun.com, Shopping
+porkbun.com, Shopping
 *.principal.com, Principal
 principal.com, Principal
 *.protectli.com, Shopping
@@ -306,9 +329,12 @@ rotech.com, Medical
 rxinform.org, Medical
 *.secumd.org, SECU
 secumd.org, SECU
+servercontrolpanel.de, Netcup
+*.servercontrolpanel.de, Netcup
 video.simplepractice.com, Medical
 *.skechers.com, Shopping
 skechers.com, Shopping
+*.slack.com, slack
 *.southwest.com, Southwest
 southwest.com, Southwest
 *.splunk.com, Services
@@ -325,6 +351,7 @@ steampowered.com, Steam
 strapsco.com, Shopping
 *.stubhub.com, Stubhub
 stubhub.com, Stubhub
+career4.successfactors.com, Job Hunting
 paypal.syf.com, Paypal
 *.t-mobile.com, TMobile
 t-mobile.com, TMobile
@@ -350,6 +377,7 @@ tmobile.com, TMobile
 transunion.com, CreditReporting
 *.tuta.com, Tuta
 tuta.com, Tuta
+*.tuya.com, Tuya
 *.ups.com, Services
 ups.com, Services
 *.usta.com, USTA
