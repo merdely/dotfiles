@@ -17,7 +17,9 @@ output "HDMI-A-1" {
 }
 
 workspace "1"       { open-on-output "DP-1";  }
+{{ if not (eq .chezmoi.hostname "cordelia") -}}
 workspace "Cameras" { open-on-output "eDP-1"; }
+{{ end -}}
 workspace "🗒️"      { open-on-output "eDP-1"; }
 
 input {
