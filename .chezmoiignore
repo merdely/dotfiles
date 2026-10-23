@@ -2,3 +2,12 @@
 .config/nvim/pack/plugins/start/*/test
 .config/nvim/pack/plugins/opt/*/tests
 .config/nvim/pack/plugins/opt/*/test
+{{ if eq .chezmoi.hostname "cordelia" -}}
+.local/share/applications/htop-earth.desktop
+.local/share/applications/htop-jupiter.desktop
+.local/share/applications/librewolf-linkedin.desktop
+.local/share/applications/librewolf-media.desktop
+.local/share/applications/nvtop.desktop
+.local/share/applications/nvtop-earth.desktop
+.local/share/applications/nvtop-jupiter.desktop
+{{ end -}}
