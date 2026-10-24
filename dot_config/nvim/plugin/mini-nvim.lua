@@ -8,7 +8,7 @@ local plugins = {
   "mini.colors",
   "mini.comment",
   "mini.completion",
-  "mini.diff",
+  -- "mini.diff",
   -- "mini.git",
   -- "mini.indentscope",
   "mini.input",
