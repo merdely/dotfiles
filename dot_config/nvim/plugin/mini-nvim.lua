@@ -12,8 +12,8 @@ local plugins = {
   -- "mini.git",
   -- "mini.indentscope",
   "mini.input",
-  "mini.jump",
-  "mini.jump2d",
+  -- "mini.jump",
+  -- "mini.jump2d",
 }
 for _, plugin in ipairs(plugins) do
   local ok, plugin_config = pcall(require, plugin)
