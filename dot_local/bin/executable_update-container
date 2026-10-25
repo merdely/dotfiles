@@ -6,8 +6,8 @@ PARSEOPTS="${_LIBDIR:-"$(dirname "$0")${_LIB:-}"}/parseopts.sh"
 # shellcheck disable=SC1090,SC1091
 source "$PARSEOPTS" ; unset _LIB _LIBDIR
 
-OPT_SHORT="hV:n"
-OPT_LONG=("help" "version:" "dryrun")
+OPT_SHORT="hV:H:n"
+OPT_LONG=("help" "version:" "host:" "hosts:" "dryrun")
 declare -a OPTRET
 parseopts "$OPT_SHORT" "${OPT_LONG[@]}" -- "$@" || exit 1
 set -- "${OPTRET[@]}" ; unset OPT_SHORT OPT_LONG OPTRET
@@ -23,11 +23,22 @@ usage() {
   exit "${1:-0}"
 }
 VER=0 ; VERSION="" ; DRYRUN=""
+LIST=(earth mercury jupiter io pluto ceres)
 while true; do
   case $1 in
     -h|--help) usage ;;
     -V|--version)  VER=1 ; shift ; VERSION=$1 ;;
     -n|--dryrun)   DRYRUN="echo" ;;
+    -H|--host|--hosts)
+      shift
+      if [[ "$1" == *,* ]]; then
+        local tmparr=()
+        IFS=, read -ra tmparr <<< "$1"
+        LIST=("${LIST[@]}" "${tmparr[@]}")
+      else
+        LIST+=("$1")
+      fi
+      ;;
     --) shift ; break ;;
     *) ;;
   esac
@@ -40,7 +51,6 @@ if [[ "$APP" == "" ]]; then
   usage 1
 fi
 
-LIST=(earth mercury jupiter io pluto ceres)
 SERVER=earth
 case "$APP" in
   arcane)
