@@ -23,7 +23,7 @@ usage() {
   exit "${1:-0}"
 }
 VER=0 ; VERSION="" ; DRYRUN=""
-LIST=(earth mercury jupiter io pluto ceres)
+DEF_LIST=(earth mercury jupiter io pluto ceres); LIST=()
 while true; do
   case $1 in
     -h|--help) usage ;;
@@ -32,7 +32,7 @@ while true; do
     -H|--host|--hosts)
       shift
       if [[ "$1" == *,* ]]; then
-        local tmparr=()
+        tmparr=()
         IFS=, read -ra tmparr <<< "$1"
         LIST=("${LIST[@]}" "${tmparr[@]}")
       else
@@ -46,6 +46,8 @@ while true; do
 done
 
 APP=$1
+
+(( ${#LIST[@]} == 0 )) && LIST=("${DEF_LIST[@]}")
 
 if [[ "$APP" == "" ]]; then
   usage 1
