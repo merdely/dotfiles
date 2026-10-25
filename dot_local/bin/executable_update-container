@@ -1,0 +1,110 @@
+#!/usr/bin/env bash
+
+# _LIB="/../lib"            # comment this line out if parseopts.sh is in the same directory as $0
+# _LIBDIR=/srv/scripts/lib  # Use a line like this to override location of parseopts.sh
+PARSEOPTS="${_LIBDIR:-"$(dirname "$0")${_LIB:-}"}/parseopts.sh"
+# shellcheck disable=SC1090,SC1091
+source "$PARSEOPTS" ; unset _LIB _LIBDIR
+
+OPT_SHORT="hV:n"
+OPT_LONG=("help" "version:" "dryrun")
+declare -a OPTRET
+parseopts "$OPT_SHORT" "${OPT_LONG[@]}" -- "$@" || exit 1
+set -- "${OPTRET[@]}" ; unset OPT_SHORT OPT_LONG OPTRET
+
+usage() {
+  echo "usage: ${0##*/} [Options] APP"
+  echo
+  echo "Options:"
+  echo "  -h|--help         : this help text"
+  echo "  -V|--version VER  : required argument"
+  echo "  -n|--dryrun       : dry run"
+  echo "Note: Supported apps are: arcane dozzle"
+  exit "${1:-0}"
+}
+VER=0 ; VERSION="" ; DRYRUN=""
+while true; do
+  case $1 in
+    -h|--help) usage ;;
+    -V|--version)  VER=1 ; shift ; VERSION=$1 ;;
+    -n|--dryrun)   DRYRUN="echo" ;;
+    --) shift ; break ;;
+    *) ;;
+  esac
+  shift
+done
+
+APP=$1
+
+if [[ "$APP" == "" ]]; then
+  usage 1
+fi
+
+LIST=(earth mercury jupiter io pluto ceres)
+SERVER=earth
+case "$APP" in
+  arcane)
+    PROJECT=getarcaneapp/arcane
+    MANAGER=arcane
+    MANAGER_DIR=$MANAGER
+    AGENT=$MANAGER-agent
+    AGENT_DIR=$AGENT
+    ;;
+  dozzle)
+    PROJECT=amir20/dozzle
+    MANAGER=dozzle
+    MANAGER_DIR=$MANAGER
+    AGENT=$MANAGER-agent
+    AGENT_DIR=$MANAGER
+    ;;
+  *)
+    : ;;
+esac
+
+if [[ "$VER" = 0 ]]; then
+  if CURL_OUT=$(curl -sfL https://api.github.com/repos/"$PROJECT"/releases/latest 2>&1); then
+    VERSION=$(awk -F '"' '/^  "tag_name": "/ {print $4}' <<< "$CURL_OUT")
+  fi
+fi
+
+if [[ -z "$VERSION" ]]; then
+  echo "Error: Could not determine new version for $PROJECT" >&2
+  exit 1
+fi
+
+for host in "${LIST[@]}"; do
+  if [[ "$host" == "$SERVER" ]]; then
+    CONTAINER=$MANAGER
+    CONTAINER_DIR=$MANAGER_DIR
+  else
+    CONTAINER=$AGENT
+    CONTAINER_DIR=$AGENT_DIR
+  fi
+  # shellcheck disable=2086
+  CUR_VERSION=$(ssh "$host" "docker inspect --format='{{index .Config.Labels \"org.opencontainers.image.version\"}}'" $CONTAINER)
+  # shellcheck disable=1078,1079,2027,2086
+  if [[ "$CUR_VERSION" == "$VERSION" ]]; then
+    echo "$CONTAINER on $host already running $VERSION"
+  else
+    echo "Upgrading $CONTAINER on $host from $CUR_VERSION to $VERSION"
+    ssh "$host" "
+      tmpfile=\$(mktemp);
+      awk '
+        r == 1 && /^[[:space:]]+image: .*getarcaneapp\/(manager|agent):/ {
+          sub(/:"$CUR_VERSION"\$/, \":"$VERSION"\");
+          print;
+          next
+        }
+        {
+          print
+        }
+        /^[[:space:]]+arcane(-agent)?:/ {
+          r = 1
+        }' /srv/docker/"$CONTAINER_DIR"/compose.yaml > \$tmpfile;
+      "$DRYRUN" cat \$tmpfile > /srv/docker/"$CONTAINER_DIR"/compose.yaml;
+      rm -f \$tmpfile;
+      "$DRYRUN" docker compose -f /srv/docker/"$CONTAINER_DIR"/compose.yaml pull -q "$CONTAINER";
+      "$DRYRUN" docker compose -f /srv/docker/"$CONTAINER_DIR"/compose.yaml up -d "$CONTAINER";
+      "$DRYRUN" sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -L all "$APP
+  fi
+done
