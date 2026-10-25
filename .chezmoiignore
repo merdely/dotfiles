@@ -11,3 +11,6 @@
 .local/share/applications/nvtop-earth.desktop
 .local/share/applications/nvtop-jupiter.desktop
 {{ end -}}
+{{ if not (eq .chezmoi.hostname "mercury" "neptune" "dia" "earth") -}}
+.local/bin/update-container
+{{ end -}}
