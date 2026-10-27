@@ -39,3 +39,8 @@ chezmoi_ro:
     metis:
     tarvos:
     # sinope:
+
+rpi:
+  hosts:
+    pandia:
+      ansible_python_interpreter: /usr/bin/python3
