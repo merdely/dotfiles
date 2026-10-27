@@ -20,6 +20,7 @@ elara,elara.erdely.in,192.168.25.54 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILajixkw
 neso,neso.erdely.in,192.168.25.55 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGKbJiAqUPnVRytsOXabr6krW9SKFkztTJd99MzjvWU3
 atlas,atlas.erdely.in,192.168.25.56 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPviWiNfrhSvjQxnWxdBkpmCfjmUZSGd6U9tEHBfTmm9
 thebe,thebe.erdely.in,192.168.25.57 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIP/T5cYt1nPTom3Zd6FaxQl0WifNTcGeSGaOaa33Ubmr
+pandia,pandia.erdely.in,192.168.26.238 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFdMS9jfpPlWrFvUr3nJd+PXEc9f3qYlMDnsu0cbuvdu
 
 # Clients
 mercury,mercury.erdely.in,mercury-wired,mercury-wired.erdely.in,192.168.25.100,mercury-vpn.erdely.in,mercury-vpn,172.30.225.3,mercury-wifi,mercury-wifi.erdely.in,192.168.25.101 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIB57W7VuBKPL+aamz+mSike5L5OV1mWMDOCQogOagncT
