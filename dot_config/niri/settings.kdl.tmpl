@@ -115,6 +115,13 @@ window-rule {
     }
 }
 
+// Open certain windows floating
+window-rule {
+    match app-id=r#"^com\.gabm\.satty$"#
+    open-maximized false
+    open-floating true
+}
+
 // Open scratchpad apps floating
 window-rule {
     match app-id=r#"^Bitwarden|com\.logseq\.Logseq|logseq|Logseq|org\.gnome\.Nautilus|org\.kde\.kdeconnect\.sms|org\.signal\.Signal|signal|com.slack.Slack|Slack|slack|htop|htop-.*|nvtop|nvtop-.*|term-scratchpad|termfm|pavucontrol|blueman-manager$"#
