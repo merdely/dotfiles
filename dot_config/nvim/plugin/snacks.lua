@@ -199,8 +199,8 @@ end, { desc = "Git Browse (copy)" })
   Snacks.toggle.scroll():map("<leader>uS")
   Snacks.toggle.profiler():map("<leader>dpp")
   Snacks.toggle.profiler_highlights():map("<leader>dph")
-  Snacks.toggle.zoom():map("<leader>wm"):map("<leader>uZ")
-  Snacks.toggle.zen():map("<leader>uz")
+  Snacks.toggle.zoom():map("<leader>wm"):map("<leader>uz")
+  Snacks.toggle.zen():map("<leader>uZ")
 
   if vim.lsp.inlay_hint then
     Snacks.toggle.inlay_hints():map("<leader>uh")
