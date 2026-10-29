@@ -18,6 +18,8 @@ binds {
 //     Mod+Shift+d  hotkey-overlay-title="Terminal File Manager"  { spawn-sh "$HOME/.config/niri/new_scratchpad termfm"; }
     Mod+Semicolon       hotkey-overlay-title="Open rofi-1pass"   { spawn-sh "pgrep -u $LOGNAME -f -- '^((/usr(/local)?)?/bin/)?[r]ofi -modi 1pass:' && pkill -u $LOGNAME -f -- '^((/usr(/local)?)?/bin/)?[r]ofi -modi 1pass:' || rofi -modi 1pass:~/.local/bin/rofi-1pass -show 1pass >> /tmp/r 2>&1"; }
     Mod+Shift+A          hotkey-overlay-title="Open Slack"       { spawn-sh "$HOME/.config/niri/scratchpad slack"; }
+    Mod+Shift+O          hotkey-overlay-title="Open Outlook"     { spawn-sh "$HOME/.config/niri/scratchpad prospect-mail"; }
+    Mod+Ctrl+O           hotkey-overlay-title="Open Outlook Keybinds" { spawn-sh "imv ~/Pictures/Outlook Keybinds.png"; }
 }
 
 window-rule {
@@ -28,4 +30,20 @@ window-rule {
 window-rule {
     match app-id="prospect-mail"
     open-maximized true
+}
+
+// Open scratchpad apps floating
+window-rule {
+    match app-id=r#"^(prospect-mail)"#
+    open-maximized false
+    open-floating true
+}
+
+// Start scratchpad apps in scratchpad workspace
+window-rule {
+    match app-id=r#"^(prospect-mail)$"# at-startup=true
+    open-on-workspace "🗒️"
+    open-maximized true
+    open-floating false
+    open-focused false
 }
