@@ -47,6 +47,8 @@ layout {
 // a = the app_id (niri msg windows)
 // b = the name of the launcher (ls /usr/share/applications)
 
+spawn-sh-at-startup "systemctl --user start wl-clip-persist.service"
+
 binds {
     Mod+Return hotkey-overlay-title=null { spawn "true"; }
     Mod+D      hotkey-overlay-title=null { spawn "true"; }
