@@ -28,6 +28,7 @@ declare -A resize_app
 resize_height=90%
 resize_width=$resize_height
 resize_app[galculator]="640|480"
+resize_app[outlook-help]="948|1140"
 # shellcheck disable=SC1091
 [[ -r "$HOME"/.config/wm-minimize.conf ]] && source "$HOME"/.config/wm-minimize.conf
 
