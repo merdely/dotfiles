@@ -35,6 +35,7 @@ window-rule {
 window-rule {
     match app-id="outlook-help"
     open-floating true
+    min-height=1148
 }
 
 // Open scratchpad apps floating
