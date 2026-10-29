@@ -379,6 +379,8 @@ def main():
             print(f"warning: {msg}", file=sys.stderr)
 
     if args.json_file == "-":
+        if sys.stdin.isatty():
+            ap.error("no JSON file given and nothing piped to stdin")
         raw = sys.stdin.read()
     else:
         raw = Path(args.json_file).read_text()
