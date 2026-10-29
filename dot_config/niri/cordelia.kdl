@@ -19,7 +19,7 @@ binds {
     Mod+Semicolon       hotkey-overlay-title="Open rofi-1pass"   { spawn-sh "pgrep -u $LOGNAME -f -- '^((/usr(/local)?)?/bin/)?[r]ofi -modi 1pass:' && pkill -u $LOGNAME -f -- '^((/usr(/local)?)?/bin/)?[r]ofi -modi 1pass:' || rofi -modi 1pass:~/.local/bin/rofi-1pass -show 1pass >> /tmp/r 2>&1"; }
     Mod+Shift+A          hotkey-overlay-title="Open Slack"       { spawn-sh "$HOME/.config/niri/scratchpad slack"; }
     Mod+Shift+O          hotkey-overlay-title="Open Outlook"     { spawn-sh "$HOME/.config/niri/scratchpad prospect-mail"; }
-    Mod+Ctrl+O           hotkey-overlay-title="Open Outlook Keybinds" { spawn-sh "pgrep -u $LOGNAME -f -- '[i]mv .*-i outlook-help' && pkill -u $LOGNAME -f -- '[i]mv .*-i outlook-help' || imv -W 944 -H 1136 -i outlook-help ~/Pictures/'Outlook Keybinds.png'"; }
+    Mod+Ctrl+O           hotkey-overlay-title="Open Outlook Keybinds" { spawn-sh "pgrep -u $LOGNAME -f -- '[i]mv -i outlook-help' && pkill -u $LOGNAME -f -- '[i]mv -i outlook-help' || imv -i outlook-help -W 820 -H 1110 ~/Pictures/'Outlook Keybinds.png'"; }
 }
 
 window-rule {
