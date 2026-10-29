@@ -64,7 +64,7 @@ binds {
     Mod+Shift+BracketRight hotkey-overlay-title="GUI File Mgr"    { spawn-sh "$HOME/.config/niri/scratchpad org.gnome.Nautilus"; }
     Mod+Shift+C          hotkey-overlay-title="Open Galculator"   { spawn-sh "pgrep -u $LOGNAME -x galculator && pkill -u $LOGNAME -x galculator || gtk-launch galculator"; }
     Mod+Shift+Q          hotkey-overlay-title="Open Logseq"       { spawn-sh "$HOME/.config/niri/scratchpad logseq"; }
-    Mod+Shift+S          hotkey-overlay-title="Screenshot Region" { spawn-sh "dms screenshot --stdout | satty --filename -"; }
+    Mod+Shift+S          hotkey-overlay-title="Screenshot Region" { spawn-sh "dms screenshot --stdout | satty --filename - --early-exit all"; }
     // Must create a term-scratchpad.desktop in $HOME/.local/share/applications
     Mod+Shift+Return     hotkey-overlay-title="Scratch Terminal"  { spawn-sh "$HOME/.config/niri/scratchpad term-scratchpad"; }
     Mod+Shift+Apostrophe hotkey-overlay-title="Bluetooth Manager" { spawn-sh "$HOME/.config/niri/scratchpad blueman-manager"; }
@@ -122,6 +122,8 @@ window-rule {
     match app-id=r#"^com\.gabm\.satty$"#
     open-maximized false
     open-floating true
+    min-height 800
+    min-width  1000
 }
 
 // Open scratchpad apps floating
