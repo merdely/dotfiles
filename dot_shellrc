@@ -129,7 +129,7 @@ alias vj='ssh jupiter sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -
 alias vm='ssh mercury sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -L all'
 
 alias c='chezmoi'
-alias c_up='ansible chezmoi -l !'"$(hostname)"' -oa "{{chezmoi}} update";ansible chezmoi_ro -oa "~/.local/bin/sync_home"'
+alias c_up='ansible chezmoi -l !'"$(hostname)"' -oa "{{chezmoi}} --error-on-conflict update";ansible chezmoi_ro -oa "~/.local/bin/sync_home"'
 alias chezmoi_updates='ansible chezmoi -oa "{{chezmoi}} update";ansible chezmoi_ro -oa "~/.local/bin/sync_home"'
 bashp=$(command -v bash)
 # shellcheck disable=2139
