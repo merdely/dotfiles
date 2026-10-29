@@ -467,7 +467,7 @@ process_update() {
           "${testmode[@]}" ssh "$host" "${sudo_cmd[@]}" install -m 755 "$tmpfile"/"${download_file##*/}" "$altdest"
         else
           echo "Installing ${download_file##*/}"
-          "${testmode[@]}" ssh "$host" sudo pacman -U "$tmpfile"/"${download_file##*/}"
+          "${testmode[@]}" ssh "$host" sudo pacman --noconfirm -U "$tmpfile"/"${download_file##*/}"
         fi
         ssh "$host" rm -Rf "$tmpfile"
       else
