@@ -18,6 +18,7 @@ chezmoi:
       chezmoi: $HOME/.local/bin/chezmoi
     saturn:
       chezmoi: $HOME/.local/bin/chezmoi
+    dia:
     cordelia:
     neptune:
     pluto:
