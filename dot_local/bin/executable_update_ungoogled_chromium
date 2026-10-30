@@ -1,0 +1,127 @@
+#!/usr/bin/env bash
+
+CHROMIUM_PARENT=/opt
+CHROMIUM_HOME="$CHROMIUM_PARENT/ungoogled-chromium"
+
+prereq_msg() {
+  echo "Run: sudo pacman -S --needed curl jq sudo alsa-lib at-spi2-core cairo libcups mesa pango nss nspr libxkbcommon libxcomposite libxdamage libxrandr" >&2
+  exit "${1:-1}"
+}
+
+! command -v curl &> /dev/null && { echo "Error: curl is required" >&2 ; prereq_msg 1 ; }
+! command -v jq &> /dev/null && { echo "Error: jq is required" >&2 ; prereq_msg 1 ; }
+! command -v sudo &> /dev/null && { echo "Error: sudo is required" >&2 ; prereq_msg 1 ; }
+[[ ! -e /usr/lib/libasound.so.2 ]] && { echo "Error: alsa-lib package required" >&2 ; prereq_msg 1 ; }
+[[ ! -e /usr/lib/libatk-1.0.so.0 ]] && { echo "Error: at-spi2-core package required" >&2 ; prereq_msg 1 ; }
+[[ ! -e /usr/lib/libcairo.so.2 ]] && { echo "Error: cairo package required" >&2 ; prereq_msg 1 ; }
+[[ ! -e /usr/lib/libcups.so.2 ]] && { echo "Error: libcups package required" >&2 ; prereq_msg 1 ; }
+[[ ! -e /usr/lib/libgbm.so.1 ]] && { echo "Error: mesa package required" >&2 ; prereq_msg 1 ; }
+[[ ! -e /usr/lib/libpango-1.0.so.0 ]] && { echo "Error: pango package required" >&2 ; prereq_msg 1 ; }
+[[ ! -e /usr/lib/libnss3.so ]] && { echo "Error: nss package required" >&2 ; prereq_msg 1 ; }
+[[ ! -e /usr/lib/libnspr4.so ]] && { echo "Error: nspr package required" >&2 ; prereq_msg 1 ; }
+[[ ! -e /usr/lib/libxkbcommon.so.0 ]] && { echo "Error: libxkbcommon package required" >&2 ; prereq_msg 1 ; }
+[[ ! -e /usr/lib/libXcomposite.so.1 ]] && { echo "Error: libxcomposite package required" >&2 ; prereq_msg 1 ; }
+[[ ! -e /usr/lib/libXdamage.so.1 ]] && { echo "Error: libxdamage package required" >&2 ; prereq_msg 1 ; }
+[[ ! -e /usr/lib/libXrandr.so.2 ]] && { echo "Error: libxrandr package required" >&2 ; prereq_msg 1 ; }
+
+[[ -z "$DEBUG" && -n "$debug" ]] && DEBUG=$debug
+case "${DEBUG:-false}" in
+  TRUE|True|true|T|t|ON|On|YES|Yes|yes|Y|y|1)
+    DEBUG=true ;;
+  *)
+    DEBUG=false ;;
+esac
+
+TMPFILES=()
+cleanup() {
+  local exit_code=$?
+  rm -Rf -- "${TMPFILES[@]}"
+  exit "$exit_code"
+}
+trap "cleanup" EXIT
+trap "exit 1" INT TERM
+
+usage() {
+  echo "usage: ${0##*/}"
+  echo
+  echo "Options:"
+  echo "  -h     : this help text"
+  echo "  -f     : Force download"
+  exit "${1:-0}"
+}
+
+FORCE=false
+INSTALL=false
+while getopts ":hfi" opt; do
+  case $opt in
+    f) FORCE=true ;;
+    i) INSTALL=true ;;
+    h) usage ;;
+    :) echo "-$OPTARG requires an argument" ; exit 1 ;;
+    \?) echo "Unknown option: -$OPTARG" ; exit 1 ;;
+  esac
+done
+shift $(( OPTIND - 1 ))
+
+GH_OUT=$(mktemp)
+TMPFILES+=("$GH_OUT")
+
+if ! CODE=$(curl -sfLo "$GH_OUT" -w "%{http_code}" https://api.github.com/repos/ungoogled-software/ungoogled-chromium-portablelinux/releases/latest); then
+  echo "Error: Could not download information from GitHub ($CODE)" >&2
+  exit 1
+fi
+
+# cat "$GH_OUT" | jq -r .
+# exit
+
+ARCH=x86_64
+TARBALL=$(jq -r ".assets[] | select (.browser_download_url | contains(\"-${ARCH}_linux.tar.xz\")).browser_download_url" "$GH_OUT")
+TARFILE=$(mktemp)
+NEW_VER=$(jq -r .tag_name "$GH_OUT")
+NEW_VER=${NEW_VER%-1}
+
+if [[ ! -e $CHROMIUM_HOME/chrome || "$INSTALL" == true ]]; then
+  printf "Installing Ungoogled Chromium $NEW_VER"
+  "$DEBUG" && echo "Downloading $TARBALL" >&2
+  if ! CODE=$(curl -sfLo "$TARFILE" -w "%{http_code}" "$TARBALL"); then
+    echo "Error: Could not download tarball from GitHub ($CODE)" >&2
+    exit 1
+  fi
+  printf "."
+  CHROMIUM_DIR=$(tar -tvf "$TARFILE" | awk '$NF ~ "^ungoogled-chromium-[0-9][^/]+/chrome$"{sub(/\/chrome$/,"",$NF);print $NF}')
+  printf "."
+  sudo tar -C "$CHROMIUM_PARENT" -xf "$TARFILE"
+  printf "."
+  sudo rm -f "$CHROMIUM_HOME"
+  printf "."
+  sudo ln -s "$CHROMIUM_DIR" "$CHROMIUM_HOME"
+  printf "."
+  sudo rm -f /usr/bin/ungoogled-chromium
+  printf "."
+  sudo ln -s "$CHROMIUM_HOME/chrome" /usr/bin/ungoogled-chromium
+  printf "\n"
+else
+  CUR_VER=$($CHROMIUM_HOME/chrome --version | cut -d ' ' -f 2)
+
+  if [[ "$CUR_VER" == "$NEW_VER" && "$FORCE" != true ]]; then
+    "${DEBUG}" && echo "Note: Ungoogled Chromium is at the latest version ($CUR_VER)"
+    exit
+  fi
+  printf "Upgrading Ungoogled Chromium to $NEW_VER"
+  "$DEBUG" && echo "Downloading $TARBALL" >&2
+  if ! CODE=$(curl -sfLo "$TARFILE" -w "%{http_code}" "$TARBALL"); then
+    echo "Error: Could not download tarball from GitHub ($CODE)" >&2
+    exit 1
+  fi
+  printf "."
+  CHROMIUM_DIR=$(tar -tvf "$TARFILE" | awk '$NF ~ "^ungoogled-chromium-[0-9][^/]+/chrome$"{sub(/\/chrome$/,"",$NF);print $NF}')
+  printf "."
+  sudo tar -C "$CHROMIUM_PARENT" -xf "$TARFILE"
+  printf "."
+  sudo rm -f "$CHROMIUM_HOME"
+  printf "."
+  sudo ln -s "$CHROMIUM_DIR" "$CHROMIUM_HOME"
+  printf "."
+  [[ ! -e /usr/bin/ungoogled-chromium ]] && sudo ln -s "$CHROMIUM_HOME/chrome" /usr/bin/ungoogled-chromium
+  printf "\n"
+fi
