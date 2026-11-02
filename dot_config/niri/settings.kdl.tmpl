@@ -73,7 +73,6 @@ binds {
     Mod+Shift+Period     hotkey-overlay-title="GPU Monitor"       { spawn-sh "$HOME/.config/niri/scratchpad nvtop"; }
     Mod+Shift+Space hotkey-overlay-title="Clear Notifications"    { spawn-sh "dms ipc call notifications clearAll;dms ipc call notifications close"; }
     Mod+Shift+W          hotkey-overlay-title="Open SMS"          { spawn-sh "$HOME/.config/niri/scratchpad org.kde.kdeconnect.sms"; }
-    Mod+Shift+X          hotkey-overlay-title="Cam Chooser"       { spawn-sh "pgrep -u $LOGNAME -f '[r]ofi -p View Camera' && pkill -u $LOGNAME -f '[r]ofi -p View Camera' || $HOME/.local/bin/cam-chooser"; }
     Mod+Shift+Z          hotkey-overlay-title="Open Bitwarden"    { spawn-sh "$HOME/.config/niri/scratchpad bitwarden Bitwarden"; }
     Mod+T                hotkey-overlay-title="Open Terminal"     { spawn-sh "${TERMINAL:-kitty}"; }
     XF86Tools            hotkey-overlay-title="Lock Screen"       { spawn-sh "dms ipc call lock lock && niri msg action power-off-monitors"; }
@@ -126,14 +125,26 @@ window-rule {
     // min-width  1000
 }
 
+// Start scratchpad apps in scratchpad workspace (Frigate apptabs)
+window-rule {
+    match app-id=r#"^librewolf-grey.webapp-28caa658-314f-41ec-b22e-6ccdca2d6d15$"#
+    open-maximized false
+    open-floating true
+}
+window-rule {
+    match app-id=r#"^librewolf-grey.webapp-28caa658-314f-41ec-b22e-6ccdca2d6d15$"# at-startup=true
+    open-on-workspace "🗒️"
+    open-maximized true
+    open-floating false
+    open-focused false
+}
+
 // Open scratchpad apps floating
 window-rule {
     match app-id=r#"^Bitwarden|com\.logseq\.Logseq|logseq|Logseq|org\.gnome\.Nautilus|org\.kde\.kdeconnect\.sms|org\.signal\.Signal|signal|com.slack.Slack|Slack|slack|htop|htop-.*|nvtop|nvtop-.*|term-scratchpad|termfm|pavucontrol|blueman-manager$"#
     open-maximized false
     open-floating true
 }
-
-// Start scratchpad apps in scratchpad workspace
 window-rule {
     match app-id=r#"^Bitwarden|com\.logseq\.Logseq|logseq|Logseq|org\.kde\.kdeconnect\.sms|org\.signal\.Signal|signal|com.slack.Slack|Slack|slack|htop|htop-.*|nvtop|nvtop-.*|term-scratchpad|termfm|pavucontrol|blueman-manager$"# at-startup=true
     open-on-workspace "🗒️"
@@ -141,107 +152,6 @@ window-rule {
     open-floating false
     open-focused false
 }
-
-{{ if not (eq .chezmoi.hostname "cordelia") -}}
-// Camera rules
-window-rule {
-    match app-id=r#"^mpvcam"#
-    match title=r#"^mpvcam"#
-    // open-fullscreen true
-    // open-focused false
-    open-maximized true
-    open-on-workspace "Cameras"
-}
-
-window-rule {
-    match app-id=r#"^mpvcammulti garagecam"#
-    match title=r#"^mpvcammulti garagecam"#
-    open-maximized false
-    open-on-workspace "Cameras"
-    open-floating true
-    default-column-width { proportion 0.50; }
-    default-window-height { proportion 0.50; }
-    default-floating-position x=0 y=0 relative-to="top-left"
-}
-
-window-rule {
-    match app-id=r#"^mpvcammulti garagedoorcam"#
-    match title=r#"^mpvcammulti garagedoorcam"#
-    open-maximized false
-    open-on-workspace "Cameras"
-    open-floating true
-    default-column-width { proportion 0.50; }
-    default-window-height { proportion 0.50; }
-    default-floating-position x=0 y=0 relative-to="bottom-left"
-}
-
-window-rule {
-    match app-id=r#"^mpvcammulti frontdoorcam"#
-    match title=r#"^mpvcammulti frontdoorcam"#
-    open-maximized false
-    open-on-workspace "Cameras"
-    open-floating true
-    default-column-width { proportion 0.50; }
-    default-window-height { proportion 0.50; }
-    default-floating-position x=0 y=0 relative-to="bottom-right"
-}
-
-// must go after the rule for frontdoorcam
-window-rule {
-    match app-id=r#"^mpvcammulti frontdoor2cam"#
-    match title=r#"^mpvcammulti frontdoor2cam"#
-    open-maximized false
-    open-on-workspace "Cameras"
-    open-floating true
-    default-column-width { proportion 0.50; }
-    default-window-height { proportion 0.50; }
-    default-floating-position x=0 y=0 relative-to="top-right"
-}
-
-window-rule {
-    match app-id=r#"^mpvcammulti backyardcam"#
-    match title=r#"^mpvcammulti backyardcam"#
-    open-maximized false
-    open-on-workspace "Cameras"
-    open-floating true
-    default-column-width { proportion 0.50; }
-    default-window-height { proportion 0.50; }
-    default-floating-position x=0 y=0 relative-to="bottom-left"
-}
-
-window-rule {
-    match app-id=r#"^mpvcammulti backyard2cam"#
-    match title=r#"^mpvcammulti backyard2cam"#
-    open-maximized false
-    open-on-workspace "Cameras"
-    open-floating true
-    default-column-width { proportion 0.50; }
-    default-window-height { proportion 0.50; }
-    default-floating-position x=0 y=0 relative-to="bottom-right"
-}
-
-window-rule {
-    match app-id=r#"^mpvcammulti chimneycam"#
-    match title=r#"^mpvcammulti chimneycam"#
-    open-maximized false
-    open-on-workspace "Cameras"
-    open-floating true
-    default-column-width { proportion 0.50; }
-    default-window-height { proportion 0.50; }
-    default-floating-position x=0 y=0 relative-to="top-left"
-}
-
-window-rule {
-    match app-id=r#"^mpvcammulti shedcam"#
-    match title=r#"^mpvcammulti shedcam"#
-    open-maximized false
-    open-on-workspace "Cameras"
-    open-floating true
-    default-column-width { proportion 0.50; }
-    default-window-height { proportion 0.50; }
-    default-floating-position x=0 y=0 relative-to="top-right"
-}
-{{ end -}}
 
 // If a file named $hostname.kdl exists, load it
 {{ if not (eq .chezmoi.os "openbsd") -}}
