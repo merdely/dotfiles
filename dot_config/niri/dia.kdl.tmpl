@@ -31,6 +31,12 @@ window-rule {
     clip-to-geometry true
 }
 
+window-rule {
+    match app-id=r#"^chromium|io\.github\.ungoogled_software\.ungoogled_chromium$"#
+    match app-id=r#"^(firefox|librewolf)"#
+    open-maximized false
+}
+
 layout {
     focus-ring { off; }
     border {
