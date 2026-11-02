@@ -35,22 +35,6 @@ binds {
     Mod+Alt+Period      hotkey-overlay-title="Jupiter nvtop"    { spawn-sh "$HOME/.config/niri/scratchpad nvtop-jupiter"; }
     Mod+Semicolon       hotkey-overlay-title="Open RBW"         { spawn-sh "pgrep -u $LOGNAME -f -- '[r]ofi -markup-rows -dmenu -format' && pkill -u $LOGNAME -f -- '[r]ofi -markup-rows -dmenu -format' || rofi-rbw --use-notify-send"; }
     Mod+Ctrl+A          hotkey-overlay-title="Open Slack"       { spawn-sh "$HOME/.config/niri/scratchpad Slack com.slack.Slack"; }
-    Mod+Shift+X         hotkey-overlay-title="Open Cameras"     { spawn-sh "$HOME/.config/niri/scratchpad librewolf-frigate librewolf-grey.webapp-28caa658-314f-41ec-b22e-6ccdca2d6d15"; }
-}
-
-window-rule {
-    match app-id=r#"^librewolf-grey.webapp-28caa658-314f-41ec-b22e-6ccdca2d6d15$"#
-    open-maximized false
-    open-floating true
-}
-
-// Start scratchpad apps in scratchpad workspace
-window-rule {
-    match app-id=r#"^librewolf-grey.webapp-28caa658-314f-41ec-b22e-6ccdca2d6d15$"# at-startup=true
-    open-on-workspace "🗒️"
-    open-maximized true
-    open-floating false
-    open-focused false
 }
 
 // Fix for nvidia card
