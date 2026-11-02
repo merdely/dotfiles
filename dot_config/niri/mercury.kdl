@@ -38,6 +38,21 @@ binds {
     Mod+Shift+X         hotkey-overlay-title="Open Cameras"     { spawn-sh "$HOME/.config/niri/scratchpad librewolf-grey.webapp-28caa658-314f-41ec-b22e-6ccdca2d6d15 librewolf-frigate"; }
 }
 
+window-rule {
+    match app-id=r#"^librewolf-grey.webapp-28caa658-314f-41ec-b22e-6ccdca2d6d15$"#
+    open-maximized false
+    open-floating true
+}
+
+// Start scratchpad apps in scratchpad workspace
+window-rule {
+    match app-id=r#"^librewolf-grey.webapp-28caa658-314f-41ec-b22e-6ccdca2d6d15$"# at-startup=true
+    open-on-workspace "🗒️"
+    open-maximized true
+    open-floating false
+    open-focused false
+}
+
 // Fix for nvidia card
 debug {
     wait-for-frame-completion-before-queueing
