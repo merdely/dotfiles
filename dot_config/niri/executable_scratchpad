@@ -56,9 +56,9 @@ toggle_minimize() {
   niri_floating_ws=$(niri msg -j workspaces | \
     jq -r --arg n "$niri_floating_ws_name" '.[] | select(.name==$n) | .id')
   if [[ -z "$2" ]]; then
-    win_info=$(niri msg -j windows | jq -r --arg c "$1" '.[] | select(.app_id==$c)')
+    win_info=$(niri msg -j windows | jq -r --arg c "$1" 'map(select(.app_id==$c)) | min_by(.id)')
   else
-    win_info=$(niri msg -j windows | jq -r --arg c "$1" --arg t "$2" '.[] | select(.app_id==$c and .title==$t)')
+    win_info=$(niri msg -j windows | jq -r --arg c "$1" --arg t "$2" 'map(select(.app_id==$c and (.title | contains($t)))) | min_by(.id)')
   fi
   app_id=$(echo "$win_info" | jq -r '.id')
   is_focused=$(echo "$win_info" | jq -r '.is_focused')
