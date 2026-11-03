@@ -20,6 +20,7 @@ binds {
     Mod+Shift+A          hotkey-overlay-title="Open Slack"       { spawn-sh "$HOME/.config/niri/scratchpad slack"; }
     Mod+Shift+O          hotkey-overlay-title="Open Outlook"     { spawn-sh "$HOME/.config/niri/scratchpad prospect-mail"; }
     Mod+Ctrl+O           hotkey-overlay-title="Open Outlook Keybinds" { spawn-sh "pgrep -u $LOGNAME -f -- '^/usr/bin/imv-wayland -i outlook-help' && pkill -u $LOGNAME -f -- '^/usr/bin/imv-wayland -i outlook-help' || imv -i outlook-help -W 820 -H 1110 ~/Pictures/'Outlook Keybinds.png'"; }
+    Mod+Ctrl+W           hotkey-overlay-title="Open Outlook Keybinds" { spawn-sh "pgrep -u $LOGNAME -f -- '^/usr/bin/imv-wayland -i outlook-help' && pkill -u $LOGNAME -f -- '^/usr/bin/imv-wayland -i outlook-help' || imv -i outlook-help -W 820 -H 1110 ~/Pictures/'Outlook Keybinds.png'"; }
 }
 
 window-rule {
