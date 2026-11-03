@@ -34,6 +34,11 @@ window-rule {
 // }
 
 window-rule {
+    match app-id="zoom"
+    open-floating false
+}
+
+window-rule {
     match app-id="outlook-help"
     open-floating true
     // min-height 1148
