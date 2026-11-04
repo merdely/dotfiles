@@ -58,6 +58,7 @@ binds {
     Mod+Shift+A          hotkey-overlay-title="Open Signal"       { spawn-sh "$HOME/.config/niri/scratchpad signal"; }
     // Must create a termfm.desktop in $HOME/.local/share/applications
     Mod+Shift+BracketLeft  hotkey-overlay-title="Term File Mgr"   { spawn-sh "$HOME/.config/niri/scratchpad termfm"; }
+    // Mod+Shift+BracketRight hotkey-overlay-title="GUI File Mgr"    { spawn-sh "$HOME/.config/niri/scratchpad org.gnome.Nautilus"; }
     Mod+Shift+BracketRight hotkey-overlay-title="GUI File Mgr"    { spawn-sh "$HOME/.config/niri/scratchpad dev.duxlabs.files"; }
     Mod+Shift+C          hotkey-overlay-title="Open Galculator"   { spawn-sh "pgrep -u $LOGNAME -x galculator && pkill -u $LOGNAME -x galculator || gtk-launch galculator"; }
     Mod+Shift+Q          hotkey-overlay-title="Open Logseq"       { spawn-sh "$HOME/.config/niri/scratchpad logseq"; }
@@ -66,7 +67,7 @@ binds {
     Mod+Shift+Return     hotkey-overlay-title="Scratch Terminal"  { spawn-sh "$HOME/.config/niri/scratchpad term-scratchpad"; }
     Mod+Shift+Apostrophe hotkey-overlay-title="Bluetooth Manager" { spawn-sh "$HOME/.config/niri/scratchpad blueman-manager"; }
     Mod+Shift+Semicolon  hotkey-overlay-title="Audio Mixer"       { spawn-sh "$HOME/.config/niri/scratchpad org.pulseaudio.pavucontrol pavucontrol"; }
-    Mod+Shift+Comma      hotkey-overlay-title="System Monitor"    { spawn-sh "$HOME/.config/niri/scratchpad htop"; }
+    Mod+Shift+Comma      hotkey-overlay-title="System Monitor"    { spawn-sh "$HOME/.config/niri/scratchpad dgop"; }
     Mod+Shift+Period     hotkey-overlay-title="GPU Monitor"       { spawn-sh "$HOME/.config/niri/scratchpad nvtop"; }
     Mod+Shift+Space hotkey-overlay-title="Clear Notifications"    { spawn-sh "dms ipc call notifications clearAll;dms ipc call notifications close"; }
     Mod+Shift+W          hotkey-overlay-title="Open SMS"          { spawn-sh "$HOME/.config/niri/scratchpad org.kde.kdeconnect.sms"; }
@@ -79,8 +80,8 @@ binds {
 
 // Open many apps maximized
 window-rule {
-    match app-id=r#"^(code-oss|chromium|com\.notion\.app\.desktop\.notion|fr\.handbrake\.ghb|FreeTube|io\.github\.celluloid_player\.Celluloid|io\.github\.ungoogled_software\.ungoogled_chromium|gimp|labwc|LM Studio|obsidian|vlc|Tor Browser)$"#
-    match app-id=r#"^(firefox|librewolf)"#
+    match app-id=r#"^code-oss|chromium|com\.notion\.app\.desktop\.notion|fr\.handbrake\.ghb|FreeTube|io\.github\.celluloid_player\.Celluloid|io\.github\.ungoogled_software\.ungoogled_chromium|gimp|labwc|LM Studio|obsidian|vlc|Tor Browser$"#
+    match app-id=r#"^firefox|librewolf"#
     open-maximized true
 }
 
@@ -115,6 +116,12 @@ window-rule {
 
 // Open certain windows floating
 window-rule {
+    match title=r#"· duxlabs-dev/dux-files — "#
+    match app-id="dev.duxlabs.files"
+    open-maximized false
+    open-floating true
+}
+window-rule {
     match app-id=r#"^com\.gabm\.satty$"#
     open-maximized false
     open-floating true
@@ -138,12 +145,12 @@ window-rule {
 
 // Open scratchpad apps floating
 window-rule {
-    match app-id=r#"^Bitwarden|com\.logseq\.Logseq|logseq|Logseq|org\.gnome\.Nautilus|org\.kde\.kdeconnect\.sms|org\.signal\.Signal|signal|com.slack.Slack|Slack|slack|htop|htop-.*|nvtop|nvtop-.*|term-scratchpad|termfm|pavucontrol|blueman-manager$"#
+    match app-id=r#"^Bitwarden|com\.logseq\.Logseq|logseq|Logseq|dev\.duxlabs\.files|org\.gnome\.Nautilus|org\.kde\.kdeconnect\.sms|org\.signal\.Signal|signal|com.slack.Slack|Slack|slack|dgop|dgop-.*htop|htop-.*|nvtop|nvtop-.*|term-scratchpad|termfm|pavucontrol|blueman-manager$"#
     open-maximized false
     open-floating true
 }
 window-rule {
-    match app-id=r#"^Bitwarden|com\.logseq\.Logseq|logseq|Logseq|org\.kde\.kdeconnect\.sms|org\.signal\.Signal|signal|com.slack.Slack|Slack|slack|htop|htop-.*|nvtop|nvtop-.*|term-scratchpad|termfm|pavucontrol|blueman-manager$"# at-startup=true
+    match app-id=r#"^Bitwarden|com\.logseq\.Logseq|logseq|Logseq|dev\.duxlabs\.files|org\.kde\.kdeconnect\.sms|org\.signal\.Signal|signal|com.slack.Slack|Slack|slack|dgop|dgop-.*htop|htop-.*|nvtop|nvtop-.*|term-scratchpad|termfm|pavucontrol|blueman-manager$"# at-startup=true
     open-on-workspace "🗒️"
     open-maximized true
     open-floating false
