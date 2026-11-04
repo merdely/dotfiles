@@ -71,6 +71,7 @@ binds {
     Mod+Shift+Period     hotkey-overlay-title="GPU Monitor"       { spawn-sh "$HOME/.config/niri/scratchpad nvtop"; }
     Mod+Shift+Space hotkey-overlay-title="Clear Notifications"    { spawn-sh "dms ipc call notifications clearAll;dms ipc call notifications close"; }
     Mod+Shift+W          hotkey-overlay-title="Open SMS"          { spawn-sh "$HOME/.config/niri/scratchpad org.kde.kdeconnect.sms"; }
+    Mod+Shift+X          hotkey-overlay-title="Cam Viewer"        { spawn-sh "$HOME/.config/niri/scratchpad librewolf-frigate librewolf-grey.webapp-28caa658-314f-41ec-b22e-6ccdca2d6d15"; }
     Mod+Shift+Z          hotkey-overlay-title="Open Bitwarden"    { spawn-sh "$HOME/.config/niri/scratchpad bitwarden Bitwarden"; }
     Mod+T                hotkey-overlay-title="Open Terminal"     { spawn-sh "${TERMINAL:-kitty}"; }
     XF86Tools            hotkey-overlay-title="Lock Screen"       { spawn-sh "dms ipc call lock lock && niri msg action power-off-monitors"; }
