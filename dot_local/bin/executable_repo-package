@@ -505,6 +505,35 @@ process_update() {
         fi
       fi
       ;;
+    *.gz)
+      "$verbose" && echo "Extracting gzip file"
+      gunzip "$download_file"
+      srcfile=${download_file%.gz}
+      if [[ -z "$srcfile" ]]; then
+        echo "Error: Could not find ${bin[$pkg]} from gzip file" >&2
+        exit 1
+      fi
+      if "$use_ssh"; then
+        tmpfile=$(ssh "$host" mktemp)
+        scp "$srcfile" "$host":"$tmpfile"
+        if [[ -n "$altdest" ]]; then
+          echo "Copying ${bin[$pkg]} to $altdest"
+          "${testmode[@]}" ssh "$host" "${sudo_cmd[@]}" install -m 755 "$tmpfile" "$altdest"
+        else
+          echo "Copying ${bin[$pkg]} to ${dest[$pkg]}"
+          "${testmode[@]}" ssh "$host" "${sudo_cmd[@]}" install -m 755 "$tmpfile" "${dest[$pkg]}"/"${bin[$pkg]}"
+        fi
+        ssh "$host" rm -f "$tmpfile"
+      else
+        if [[ -n "$altdest" ]]; then
+          echo "Copying ${bin[$pkg]} to $altdest"
+          "${testmode[@]}" "${sudo_cmd[@]}" install -m 755 "$srcfile" "$altdest"
+        else
+          echo "Copying ${bin[$pkg]} to ${dest[$pkg]}"
+          "${testmode[@]}" "${sudo_cmd[@]}" install -m 755 "$srcfile" "${dest[$pkg]}"/"${bin[$pkg]}"
+        fi
+      fi
+      ;;
     *)
       if "$use_ssh"; then
         tmpfile=$(ssh "$host" mktemp -d)
