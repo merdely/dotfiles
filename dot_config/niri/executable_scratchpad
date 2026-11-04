@@ -8,8 +8,9 @@ progname=${0##*/}
 progname=${progname%.sh}
 usage() {
   echo "usage: $progname [-h] [-R] [-c] [-m] command|ACTIVE [windowclass] [title]"
-  echo "         By default, $progname uses gtk-launch"
+  echo "         By default, $progname uses gtk-launch using 'niri msg action spawn'"
   echo "         With -c, $progname looks for a command string \"foo --bar --baz\""
+  echo "         With -N, $progname does NOT use 'niri msg action spawn' to run command"
   echo "         With -R, $progname will NOT resize windows to 90% when unminimizing"
   echo "         With -m, $progname will start the program minimized"
   echo "Note: -m only works on niri for now"
@@ -32,12 +33,14 @@ resize_app[galculator]="640|480"
 [[ -r "$HOME"/.config/wm-minimize.conf ]] && source "$HOME"/.config/wm-minimize.conf
 
 mode=desktop
+use_niri_msg_action_spawn=true
 resize=true
 start_minimized=false
 
-while getopts ":hcRm" opt; do
+while getopts ":hcNRm" opt; do
   case "$opt" in
     c) mode=cmdline ;;
+    N) use_niri_msg_action_spawn=false ;;
     R) resize=false ;;
     m) start_minimized=true ;;
     *) usage ;;
@@ -115,6 +118,7 @@ run_cmd() {
   if $start_minimized && [[ -n "$2" ]]; then
     tmpconfig=$(mktemp)
     TMPFILES+=("$tmpconfig")
+    # shellcheck disable=2028
     printf "window-rule {\n%b%b%b%b%b}\n" \
       "$([ -n "$2" ] && echo "    match app-id=r#\"$2\"#\n" || echo "")" \
       "$([ -n "$3" ] && echo "    match title=r#\"$3\"#\n" || echo "")" \
@@ -124,7 +128,12 @@ run_cmd() {
     echo "include \"$tmpconfig\"" >> "$HOME"/.config/niri/config.kdl
   fi
   niri_floating_ws=$(niri msg -j workspaces | jq -r --arg n "$niri_floating_ws_name" '.[] | select(.name==$n) | .id')
-  niri msg action spawn -- $(do_exec "$1")
+  if $use_niri_msg_action_spawn; then
+    # shellcheck disable=2046
+    niri msg action spawn -- $(do_exec "$1")
+  else
+    do_exec "$1"
+  fi
   cur_ws=$(niri msg -j focused-window | jq -r '.workspace_id')
   unset app_id
   count=0
