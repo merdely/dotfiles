@@ -58,7 +58,7 @@ binds {
     Mod+Shift+A          hotkey-overlay-title="Open Signal"       { spawn-sh "$HOME/.config/niri/scratchpad signal"; }
     // Must create a termfm.desktop in $HOME/.local/share/applications
     Mod+Shift+BracketLeft  hotkey-overlay-title="Term File Mgr"   { spawn-sh "$HOME/.config/niri/scratchpad termfm"; }
-    Mod+Shift+BracketRight hotkey-overlay-title="GUI File Mgr"    { spawn-sh "$HOME/.config/niri/scratchpad org.gnome.Nautilus"; }
+    Mod+Shift+BracketRight hotkey-overlay-title="GUI File Mgr"    { spawn-sh "$HOME/.config/niri/scratchpad dev.duxlabs.files"; }
     Mod+Shift+C          hotkey-overlay-title="Open Galculator"   { spawn-sh "pgrep -u $LOGNAME -x galculator && pkill -u $LOGNAME -x galculator || gtk-launch galculator"; }
     Mod+Shift+Q          hotkey-overlay-title="Open Logseq"       { spawn-sh "$HOME/.config/niri/scratchpad logseq"; }
     Mod+Shift+S          hotkey-overlay-title="Screenshot Region" { spawn-sh "dms screenshot"; } // --stdout | satty --filename - --early-exit all --input-scale 1.0 --resize 900x600 --floating-hack"; }
