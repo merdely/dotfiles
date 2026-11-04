@@ -132,7 +132,7 @@ run_cmd() {
     # shellcheck disable=2046
     niri msg action spawn -- $(do_exec "$1")
   else
-    do_exec "$1"
+    do_exec $1
   fi
   cur_ws=$(niri msg -j focused-window | jq -r '.workspace_id')
   unset app_id
