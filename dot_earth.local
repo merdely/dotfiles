@@ -99,5 +99,5 @@ unset COMPOSE_FILE
 
 alias a_upg='repo-package --host earth,jupiter,tarvos,io,saturn,ceres,pluto --upgrade atuin'
 # shellcheck disable=2154
-alias a_rs='for h in earth jupiter tarvos io saturn ceres pluto; do ssh "$h" "atuin restart daemon"; done'
+alias a_rs='for h in earth jupiter tarvos io saturn ceres pluto; do ssh "$h" "~/.local/bin/atuin restart daemon"; done'
 alias c_upg='repo-package --host earth,jupiter,tarvos,io,saturn,ceres,pluto --upgrade chezmoi'
