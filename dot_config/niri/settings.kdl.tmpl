@@ -146,12 +146,12 @@ window-rule {
 
 // Open scratchpad apps floating
 window-rule {
-    match app-id=r#"^Bitwarden|com\.logseq\.Logseq|logseq|Logseq|dev\.duxlabs\.files|org\.gnome\.Nautilus|org\.kde\.kdeconnect\.sms|org\.signal\.Signal|signal|com.slack.Slack|Slack|slack|dgop|dgop-.*htop|htop-.*|nvtop|nvtop-.*|term-scratchpad|termfm|pavucontrol|blueman-manager$"#
+    match app-id=r#"^Bitwarden|com\.logseq\.Logseq|logseq|Logseq|dev\.duxlabs\.(calendar|files)|org\.gnome\.Nautilus|org\.kde\.kdeconnect\.sms|org\.signal\.Signal|signal|com.slack.Slack|Slack|slack|dgop|dgop-.*htop|htop-.*|nvtop|nvtop-.*|term-scratchpad|termfm|pavucontrol|blueman-manager$"#
     open-maximized false
     open-floating true
 }
 window-rule {
-    match app-id=r#"^Bitwarden|com\.logseq\.Logseq|logseq|Logseq|dev\.duxlabs\.files|org\.kde\.kdeconnect\.sms|org\.signal\.Signal|signal|com.slack.Slack|Slack|slack|dgop|dgop-.*htop|htop-.*|nvtop|nvtop-.*|term-scratchpad|termfm|pavucontrol|blueman-manager$"# at-startup=true
+    match app-id=r#"^Bitwarden|com\.logseq\.Logseq|logseq|Logseq|dev\.duxlabs\.(calendar|files)|org\.kde\.kdeconnect\.sms|org\.signal\.Signal|signal|com.slack.Slack|Slack|slack|dgop|dgop-.*htop|htop-.*|nvtop|nvtop-.*|term-scratchpad|termfm|pavucontrol|blueman-manager$"# at-startup=true
     open-on-workspace "🗒️"
     open-maximized true
     open-floating false
