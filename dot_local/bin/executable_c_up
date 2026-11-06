@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+
+if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+  echo "usage: ${0##*/} [-h] [host..]"
+  exit 1
+fi
+
+# Determine hostname of system running this script
+if command -v hostname &> /dev/null; then
+  HOSTNAME=$(hostname)
+elif command -v hostnamectl &> /dev/null; then
+  HOSTNAME=$(hostnamectl)
+elif [[ -e /etc/hostname ]]; then
+  HOSTNAME=$(cat /etc/hostname | grep -v ^# | head -n1)
+elif [[ -e /etc/myname ]]; then
+  HOSTNAME=$(cat /etc/myname | grep -v ^# | head -n1)
+fi
+HOSTNAME=${HOSTNAME%%.*}
+
+# By default, exclude this host from the list of hosts to update
+HOSTLIST=(!"$HOSTNAME")
+
+# Generate a list of read-only hosts that should run sync_home
+mapfile -t RO_HOSTS < <(ansible chezmoi_ro --list-hosts | \
+  awk '/^[[:space:]]*hosts \([0-9]+\):/{next}{print $1}')
+
+# If any parameters are passed, use them for the host list
+if (( $# > 0 )); then
+  HOSTLIST=("$@")
+fi
+
+# Generate the host limit (-l) arguments for the ansible command
+ANSIBLE_LIST=()
+if [[ "${#HOSTLIST[@]}" -gt 0 && "${HOSTLIST[0]}" != "-l" ]]; then
+  ANSIBLE_LIST=(-l "$(IFS=, ; echo "${HOSTLIST[*]}")")
+fi
+
+# Run the ansible command to run chezmoi update on each host in HOSTLIST
+ansible chezmoi "${ANSIBLE_LIST[@]}" --one-line \
+  --args "{{chezmoi}} --error-on-conflict update"
+
+# Loop through HOSTLIST to see if any hosts are in the RO_HOSTS list
+RO_LIST=()
+for host in "${HOSTLIST[@]}"; do
+  [[ "$host" == "-l" ]] && continue
+  if [[ " ${RO_HOSTS[*]} " == *" $host "* ]]; then
+    RO_LIST+=("$host")
+  fi
+done
+
+# Generate the host limit (-l) arguments for the ansible command
+ANSIBLE_LIST=()
+if [[ "${#RO_LIST[@]}" -gt 0 && "${RO_LIST[0]}" != "-l" ]]; then
+  ANSIBLE_LIST=(-l "$(IFS=, ; echo "${RO_LIST[*]}")")
+fi
+
+# If either no parameters were given OR at least one parameter matched a host
+# in RO_LIST, run ansible against that list of hosts to run sync_home
+if (( ${#RO_LIST[@]} > 0 || $# == 0 )); then
+  # shellcheck disable=2088
+  ansible chezmoi_ro "${ANSIBLE_LIST[@]}" --one-line \
+    --args '~/.local/bin/sync_home'
+fi
+
