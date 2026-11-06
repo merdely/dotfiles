@@ -146,13 +146,72 @@ zshp=$(command -v zsh)
 [[ -n "$zshp" ]] && alias runzsh="env PRE_PROMPT=\"(zsh) \" SHELL=$zshp $zshp -l"
 GPG_TTY=$(tty)
 VIRSH_DEFAULT_CONNECT_URI=qemu:///system
-ANSIBLE_CONFIG=$HOME/.config/ansible/ansible.cfg
-ANSIBLE_NOCOWS=1
-export GPG_TTY VIRSH_DEFAULT_CONNECT_URI ANSIBLE_CONFIG ANSIBLE_NOCOWS
+ANSIBLE_NOCOWS=1  # Don't use cowsay with ansible, even if installed
+export GPG_TTY VIRSH_DEFAULT_CONNECT_URI ANSIBLE_NOCOWS
 alias remain='tmux -f "$HOME"/.config/tmux/tmux.conf.remain new-session -A -s main'
 if [[ "${SSH_CLIENT%% *}" == "192.168.25.38" || "${SSH_CLIENT%% *}" == "192.168.25.38" ]]; then
   alias remain='echo SSH to carme'
 fi
+
+# Move directories out of $HOME
+export ANSIBLE_ASYNC_DIR="${XDG_CACHE_HOME}/ansible_async"
+export ANSIBLE_CONFIG=$XDG_CONFIG_HOME/ansible/ansible.cfg
+export ANSIBLE_GALAXY_CACHE_DIR="${XDG_CACHE_HOME}/ansible/galaxy_cache"
+export ANSIBLE_HOME="${XDG_CONFIG_HOME}/ansible"
+export ANSIBLE_LOCAL_TEMP="${XDG_CACHE_HOME}/ansible/tmp"
+export ANSIBLE_REMOTE_TEMP="${XDG_CACHE_HOME}/ansible/tmp"
+export ANSIBLE_SSH_CONTROL_PATH_DIR="${XDG_CACHE_HOME}/ansible/cp"
+export ATUIN_CONFIG_DIR=$XDG_CONFIG_HOME/atuin
+export ATUIN_HOME=$XDG_STATE_HOME/atuin
+export BASH_COMPLETION_USER_FILE="$XDG_CONFIG_HOME"/bash-completion/bash_completion
+export BITWARDEN_SSH_AUTH_SOCK="$XDG_RUNTIME_DIR"
+export CARGO_HOME="$XDG_DATA_HOME"/cargo
+export CUDA_CACHE_PATH=$XDG_CACHE_HOME/nv
+export DEAD=$XDG_CACHE_HOME/dead.letter
+export DOCKER_CONFIG="$XDG_CONFIG_HOME"/docker
+export DVDCSS_CACHE=$XDG_STATE_HOME/dvdcss
+export ELECTRUMDIR=$XDG_DATA_HOME/electrum
+export FFMPEG_DATADIR="$XDG_CONFIG_HOME"/ffmpeg
+export GNUPGHOME=$XDG_STATE_HOME/gnupg
+export GOBIN=$GOPATH/bin
+export GOMODCACHE="$XDG_CACHE_HOME"/go/mod
+export GOPATH="$XDG_DATA_HOME"/go
+export GTK_RC_FILES="$XDG_CONFIG_HOME"/gtk-1.0/gtkrc
+export GTK2_RC_FILES=$XDG_CONFIG_HOME/gtk-2.0/gtkrc-2.0
+export INPUTRC="$XDG_CONFIG_HOME"/readline/inputrc
+export K9SCONFIG="$XDG_CONFIG_HOME"/k9s
+export KDEHOME="$XDG_CONFIG_HOME"/kde
+export KUBECONFIG="$XDG_CONFIG_HOME/kube/config"
+export KUBECACHEDIR="$XDG_CACHE_HOME/kube"
+export LEIN_HOME=$XDG_DATA_HOME/lein
+export LESSHISTFILE=$XDG_CACHE_HOME/less-history
+export MACHINE_STORAGE_PATH=$XDG_DATA_HOME/docker-machine
+export MINIKUBE_HOME="$XDG_DATA_HOME"/minikube
+export MPLAYER_HOME="$XDG_CONFIG_HOME"/mplayer
+export MYSQL_HISTFILE=$XDG_CACHE_HOME/mysql_history
+export NODE_REPL_HISTORY="$XDG_DATA_HOME"/node_repl_history
+export NODENV_ROOT="$XDG_DATA_HOME"/nodenv
+export NPM_CONFIG_USERCONFIG=$XDG_CONFIG_HOME/npm/npmrc
+export NVM_DIR="$XDG_DATA_HOME"/nvm
+export PASSWORD_STORE_DIR="$XDG_DATA_HOME"/pass
+export PGPASSFILE="$XDG_CONFIG_HOME/pg/pgpass"
+export PGSERVICEFILE="$XDG_CONFIG_HOME/pg/pg_service.conf"
+export PSQL_HISTORY=$XDG_CACHE_HOME/psql_history
+export PSQLRC=$XDG_CONFIG_HOME/pg/psqlrc
+export PYENV_ROOT=$XDG_DATA_HOME/pyenv
+export PYTHON_HISTORY=$XDG_CACHE_HOME/python-history
+export REDISCLI_HISTFILE="$XDG_DATA_HOME"/redis/rediscli_history
+export REDISCLI_RCFILE="$XDG_CONFIG_HOME"/redis/redisclirc
+export RIPGREP_CONFIG_PATH=$XDG_CONFIG_HOME/ripgrep/config
+export RUSTUP_HOME="$XDG_DATA_HOME"/rustup
+export SCREENDIR=$XDG_RUNTIME_DIR/screen
+export SCREENRC=$XDG_CONFIG_HOME/screen/screenrc
+export SQLITE_HISTORY=$XDG_CACHE_HOME/sqlite_history
+export TERMINFO="$XDG_DATA_HOME"/terminfo
+export TERMINFO_DIRS="$XDG_DATA_HOME"/terminfo:/usr/share/terminfo
+export VSCODE_PORTABLE=$XDG_DATA_HOME/vscode
+export WGETRC=$XDG_CONFIG_HOME/wget/wgetrc
+export ZDOTDIR=$XDG_CONFIG_HOME/zsh
 
 [[ -e /.dockerenv ]] && export APPIMAGE_EXTRACT_AND_RUN=1
 

@@ -65,16 +65,20 @@ __shell_specific() {
   bindkey -M viins '^y' autosuggest-execute
   bindkey " " magic-space
 
-  autoload -Uz compinit && compinit
+  autoload -Uz compinit && compinit -d "$XDG_CACHE_HOME"/zsh/zcompdump-$ZSH_VERSION
   if [ -r "$HOME"/.config/zsh/plugins/fzf-tab/fzf-tab.plugin.zsh ]; then
     . "$HOME"/.config/zsh/plugins/fzf-tab/fzf-tab.plugin.zsh
     zstyle ":fzf-tab:*" use-fzf-default-opts yes
     zstyle ":fzf-tab:complete:cd:*" fzf-preview "ls --color=always \${realpath}"
     zstyle ':fzf-tab:*' query-string input
   fi
+  zstyle ':completion:*' cache-path "$XDG_CACHE_HOME"/zsh/zcompcache
   zstyle ':completion:*' menu select
   zstyle ':completion:*' matcher-list ''
   zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}' 'm:{a-z}={A-Z} r:|[._-]=* r:|=*'
+  zstyle ':compinstall'  filename '$HOME/.zshrc'
+  mkdir -p "$XDG_CONFIG_HOME"/zsh
+  [[ ! -e "$XDG_CONFIG_HOME"/zsh/zshrc ]] && ln -sf "$HOME"/.zshrc "$XDG_CONFIG_HOME"/zsh/zshrc
 
   setopt append_history inc_append_history share_history hist_ignore_space
   setopt auto_cd cd_silent auto_pushd pushd_silent rmstarsilent
