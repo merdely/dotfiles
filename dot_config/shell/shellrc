@@ -286,6 +286,6 @@ if [[ -z "$NO_WAYLAND" && -z "$SUDO_USER" && -z "$DOAS_USER" && -n "$SSH_CONNECT
 fi
 
 # shellcheck disable=1091
-[[ -e "$HOME"/.profile.local ]] && . "$HOME"/.profile.local
+[[ -e "$XDG_CONFIG_HOME"/shell/profile.local ]] && . "$XdG_CONFIG_HOME"/shell/profile.local
 
 true
