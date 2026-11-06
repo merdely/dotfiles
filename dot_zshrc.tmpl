@@ -78,7 +78,7 @@ __shell_specific() {
   zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}' 'm:{a-z}={A-Z} r:|[._-]=* r:|=*'
   zstyle ':compinstall'  filename '$HOME/.zshrc'
   mkdir -p "$XDG_CONFIG_HOME"/zsh
-  [[ ! -e "$XDG_CONFIG_HOME"/zsh/zshrc ]] && ln -sf "$HOME"/.zshrc "$XDG_CONFIG_HOME"/zsh/zshrc
+  [[ ! -e "$XDG_CONFIG_HOME"/zsh/zshrc ]] && ln -sf "$HOME"/.zshrc "$XDG_CONFIG_HOME"/zsh/.zshrc
 
   setopt append_history inc_append_history share_history hist_ignore_space
   setopt auto_cd cd_silent auto_pushd pushd_silent rmstarsilent
