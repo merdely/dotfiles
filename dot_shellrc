@@ -23,14 +23,16 @@ dots="…"
 git_s=""
 git_c=208
 pchar="❱"
-GIT_PS1_COMPRESSSPARSESTATE=true
-GIT_PS1_SHOWDIRTYSTATE=true
-GIT_PS1_SHOWUNTRACKEDFILES=true
-GIT_PS1_SHOWSTASHSTATE=true
-GIT_PS1_SHOWCOLORHINTS=true
-GIT_PS1_SHOWUPSTREAM=auto
 # shellcheck disable=2034
-[[ "$TERM" = "vt220" || "$TERM" = "linux" ]] && { dots="..." ; git_s="§" ; git_c=yellow ; pchar='%%' ; }
+{
+  GIT_PS1_COMPRESSSPARSESTATE=true
+  GIT_PS1_SHOWDIRTYSTATE=true
+  GIT_PS1_SHOWUNTRACKEDFILES=true
+  GIT_PS1_SHOWSTASHSTATE=true
+  GIT_PS1_SHOWCOLORHINTS=true
+  GIT_PS1_SHOWUPSTREAM=auto
+  [[ "$TERM" = "vt220" || "$TERM" = "linux" ]] && { dots="..." ; git_s="§" ; git_c=yellow ; pchar='%%' ; }
+}
 # shellcheck disable=1091
 if [[ -r /usr/share/git/git-prompt.sh ]]; then
   . /usr/share/git/git-prompt.sh
@@ -111,6 +113,7 @@ alias apk='ANSIBLE_SSH_ARGS="-o GlobalKnownHostsFile=/dev/null -o UserKnownHosts
 alias dos_rsync='rsync -rtcvP'
 alias which='command -v'
 alias d='docker compose'
+# shellcheck disable=2154
 alias docker_up='for f in /srv/docker/{caddy,postgres,forgejo,pangolin,authentik,authelia}/compose.yaml /srv/docker/*/compose.yaml; do [ ! -r "$f" ] && continue; docker compose -f "$f" up -d; done'
 alias docker_down='for f in /srv/docker/*/compose.yaml; do docker compose -f "$f" down; done'
 alias docker_top='watch "docker ps --format \"table {{.Names}}\t{{.Image}}\t{{.Command}}\t{{.RunningFor}}\t{{.Status}}\""'
@@ -129,7 +132,8 @@ alias vj='ssh jupiter sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -
 alias vm='ssh mercury sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -L all'
 
 alias c='chezmoi'
-alias c_up='ansible chezmoi -l !'"$(hostname)"' -oa "{{chezmoi}} --error-on-conflict update";ansible chezmoi_ro -oa "~/.local/bin/sync_home"'
+# shellcheck disable=2139
+# alias c_up='ansible chezmoi -l !'"$(hostname)"' -oa "{{chezmoi}} --error-on-conflict update";ansible chezmoi_ro -oa "~/.local/bin/sync_home"'
 alias chezmoi_updates='ansible chezmoi -oa "{{chezmoi}} update";ansible chezmoi_ro -oa "~/.local/bin/sync_home"'
 bashp=$(command -v bash)
 # shellcheck disable=2139
