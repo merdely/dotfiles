@@ -1,0 +1,9 @@
+# alias claude="$HOME/.local/bin/bubblewrap_claude.sh"
+alias claude="$HOME/.local/bin/agent -c"
+alias pi="$HOME/.local/bin/agent -p"
+alias opencode="$HOME/.local/bin/agent -o"
+. <(fzf --zsh)
+
+export GIT_AUTHOR_EMAIL=michael.erdely@corellium.com
+export GIT_COMMITTER_EMAIL=michael.erdely@corellium.com
+export PODMAN_COMPOSE_WARNING_LOGS=false
