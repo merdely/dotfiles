@@ -62,7 +62,7 @@ binds {
     Mod+Shift+BracketRight hotkey-overlay-title="GUI File Mgr"    { spawn-sh "$HOME/.config/niri/scratchpad -c dfiles dev.duxlabs.files"; }
     Mod+Shift+M          hotkey-overlay-title="Calendar"          { spawn-sh "$HOME/.config/niri/scratchpad -c dcal dev.duxlabs.calendar"; }
     Mod+Shift+C          hotkey-overlay-title="Open Galculator"   { spawn-sh "pgrep -u $LOGNAME -x galculator && pkill -u $LOGNAME -x galculator || gtk-launch galculator"; }
-    Mod+Shift+Q          hotkey-overlay-title="Open Logseq"       { spawn-sh "$HOME/.config/niri/scratchpad logseq"; }
+    Mod+Shift+Q          hotkey-overlay-title="Open Logseq"       { spawn-sh "$HOME/.config/niri/scratchpad logseq-desktop"; }
     Mod+Shift+S          hotkey-overlay-title="Screenshot Region" { spawn-sh "dms screenshot"; } // --stdout | satty --filename - --early-exit all --input-scale 1.0 --resize 900x600 --floating-hack"; }
     // Must create a term-scratchpad.desktop in $HOME/.local/share/applications
     Mod+Shift+Return     hotkey-overlay-title="Scratch Terminal"  { spawn-sh "$HOME/.config/niri/scratchpad term-scratchpad"; }
