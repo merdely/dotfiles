@@ -49,6 +49,7 @@ usage() {
   echo "  -d|--deb           : Search for a Debian package"
   echo "  -r|--rpm           : Search for a Red Hat package"
   echo "  -p|--pacman        : Search for a Arch Linux package"
+  echo "  -P|--package       : Install a system package"
   echo "  -a|--appimage      : Search for a App Image"
   echo "     --server SERVER : Install/update app on SERVER"
   echo "     --arch ARCH     : Specify an alternate architecture (x86_64, amd64, arm64, aarch64)"
@@ -59,6 +60,47 @@ usage() {
   exit "${1:-0}"
 }
 
+get_os_distro() {
+  # shellcheck disable=1091
+  if "$use_ssh"; then
+    scp -q "$host":/etc/os-release "$tmpdir"/os-release &> /dev/null
+    [ -r "$tmpdir"/os-release ] && . "$tmpdir"/os-release
+  else
+    [ -r /etc/os-release ] && . /etc/os-release
+  fi
+  OPSYS=${OPSYS:-linux}
+  case "$ID" in
+    arch|archarm|artix|cachyos|garuda|endeavouros|manjaro|parabola|hyperbola|blackarch)  DISTRO=arch ;;
+    debian|ubuntu|linuxmint|pop|elementary|kali|parrot|mx|raspbian|tails|zorin)          DISTRO=debian ;;
+    fedora|rhel|centos|rocky|almalinux|ol|scientific|eurolinux|nobara)                   DISTRO=fedora ;;
+    opensuse*|sles|sled)                                                                 DISTRO=suse ;;
+    alpine)                                                                              DISTRO=alpine ;;
+    void)                                                                                DISTRO=void ;;
+    gentoo|calculate|sabayon|funtoo)                                                     DISTRO=gentoo ;;
+    nixos)                                                                               DISTRO=nixos ;;
+    slackware)                                                                           DISTRO=slackware ;;
+  esac
+  [ -z "$DISTRO" ] && case " $ID_LIKE " in
+    *' arch '*)                           DISTRO=arch ;;
+    *' debian '*|*' ubuntu '*)            DISTRO=debian ;;
+    *' fedora '*|*' rhel '*|*' centos '*) DISTRO=fedora ;;
+    *' suse '*)                           DISTRO=suse ;;
+    *' gentoo '*)                         DISTRO=gentoo ;;
+  esac
+  [ -z "$DISTRO" ] && case "$(uname -s 2>/dev/null)" in
+    Linux)                DISTRO=linux ;;
+    Darwin)               DISTRO=macos     ; OPSYS=$DISTRO ;;
+    FreeBSD)              DISTRO=freebsd   ; OPSYS=$DISTRO ;;
+    OpenBSD)              DISTRO=openbsd   ; OPSYS=$DISTRO ;;
+    NetBSD)               DISTRO=netbsd    ; OPSYS=$DISTRO ;;
+    DragonFly)            DISTRO=dragonfly ; OPSYS=$DISTRO ;;
+    SunOS)                DISTRO=solaris   ; OPSYS=$DISTRO ;;
+    CYGWIN*|MINGW*|MSYS*) DISTRO=windows   ; OPSYS=$DISTRO ;;
+  esac
+  [ -z "$DISTRO" ] && DISTRO=unknown && OPSYS=$DISTRO
+  echo "$DISTRO"
+}
+
 main() {
   # _LIB="/../lib"            # comment this line out if parseopts.sh is in the same directory as $0
   # _LIBDIR=/srv/scripts/lib  # Use a line like this to override location of parseopts.sh
@@ -66,13 +108,23 @@ main() {
   # shellcheck disable=SC1090,SC1091
   source "$PARSEOPTS" ; unset _LIB _LIBDIR
 
-  local OPT_SHORT="hvc:suUtzxdrpa"
+  local OPT_SHORT="hvc:suUtzxdrpPa"
   local OPT_LONG=("help" "verbose" "system" "user" "update" "upgrade" "test" "debug"
-    "config:" "tar" "zip" "executable" "deb" "rpm" "pacman" "appimage"
+    "config:" "tar" "zip" "executable" "deb" "rpm" "pacman" "package" "appimage"
     "host:" "hosts:" "arch:" "stdlib:" "dest:")
   declare -a OPTRET
   parseopts "$OPT_SHORT" "${OPT_LONG[@]}" -- "$@" || exit 1
   set -- "${OPTRET[@]}" ; unset OPT_SHORT OPT_LONG OPTRET
+
+  local distro=unknown pkg_ext=""
+  distro=$(get_os_distro)
+
+  case "$distro" in
+    arch) pkg_ext="\.pkg\.tar\.zst" ;;
+    debian) pkg_ext="\.deb" ;;
+    fedora) pkg_ext="\.rpm" ;;
+    *) ;;
+  esac
 
   declare -A ext_regex
   ext_regex[tar]="(tar\.gz|tgz|tar.bz2|tbz2|tar)"
@@ -81,6 +133,7 @@ main() {
   ext_regex[deb]="(deb|deb\.gz|deb\.bz2)"
   ext_regex[rpm]="(rpm|rpm\.gz|rpm\.bz2)"
   ext_regex[pacman]="(pkg\.tar\.xz|pkg\.tar\.zst)"
+  ext_regex[package]="$pkg_ext"
   ext_regex[appimage]="(appimage|AppImage|APPIMAGE)"
   local destdir="$HOME"/.local/bin use_sudo=false debug=false debug_level=0
   local verbose=false default_type=tar testmode=() upgrade=false
@@ -99,6 +152,7 @@ main() {
       -d|--deb)      type=deb ;;
       -r|--rpm)      type=rpm ;;
       -p|--pacman)   type=pacman ;;
+      -P|--package)  type=package ;;
       -a|--appimage) type=appimage ;;
          --host|--hosts)
            shift
@@ -213,6 +267,7 @@ process_update() {
     regex[$pkg]=${regex[$pkg]//{STDLIB\}/"$stdlib"}
     regex[$pkg]=${regex[$pkg]//{ARCH\}/"$arch"}
     regex[$pkg]=${regex[$pkg]//{SYSTEM\}/"$system"}
+    regex[$pkg]=${regex[$pkg]//{PKG\}/"$pkg_ext"}
   fi
 
   # Do substitution for srcbin
@@ -225,8 +280,10 @@ process_update() {
     echo "host=$host"
     echo "pkg=$pkg"
     echo "use_ssh=$use_ssh"
+    echo "distro=$distro"
     echo "repo=${repo[$pkg]}"
     echo "regex=${regex[$pkg]}"
+    echo "ext_regex=${ext_regex[$pkg]}"
     echo "srcbin=${srcbin[$pkg]}"
     echo "bin=${bin[$pkg]}"
     echo "type=${type[$pkg]}"
@@ -236,6 +293,7 @@ process_update() {
     echo "stdlib=$stdlib"
     echo "arch=$arch"
     echo "system=$system"
+    echo "pkg_ext=$pkg_ext"
     echo
     (( debug_level > 1 )) && return
   fi
@@ -433,78 +491,85 @@ process_update() {
         fi
       fi
       ;;
-    *.deb|*.deb.gz|*.deb.bz2)
-      [[ "${download_file##*/}" == *.deb.gz ]] && { gunzip "${download_file##*/}" ; download_file=${download_file%.gz} ; }
-      [[ "${download_file##*/}" == *.deb.bz2 ]] && { bunzip "${download_file##*/}" ; download_file=${download_file%.bz2} ; }
+    *.deb|*.deb.gz|*.deb.bz2|*.pkg.tar.xz|*.pkg.tar.zst|*.rpm|*.rpm.gz|*.rpm.bz2)
+      case "$distro" in
+        debian)
+          [[ "${download_file##*/}" == *.deb.gz ]] && { gunzip "${download_file##*/}" ; download_file=${download_file%.gz} ; }
+          [[ "${download_file##*/}" == *.deb.bz2 ]] && { bunzip "${download_file##*/}" ; download_file=${download_file%.bz2} ; }
 
-      if "$use_ssh"; then
-        tmpfile=$(ssh "$host" mktemp -d)
-        scp "$srcfile" "$host":"$tmpfile"/
-        if [[ -n "$altdest" ]]; then
-          echo "Copying ${download_file##*/} to $altdest"
-          "${testmode[@]}" ssh "$host" "${sudo_cmd[@]}" install -m 755 "$tmpfile"/"${download_file##*/}" "$altdest"
-        else
-          echo "Installing ${download_file##*/}"
-          "${testmode[@]}" ssh "$host" sudo apt install -y "$tmpfile"/"${download_file##*/}"
-        fi
-        ssh "$host" rm -Rf "$tmpfile"
-      else
-        if [[ -n "$altdest" ]]; then
-          echo "Copying ${download_file##*/} to $altdest"
-          "${testmode[@]}" "${sudo_cmd[@]}" install -m 755 "$download_file" "$altdest"
-        else
-          echo "Installing ${download_file##*/}"
-          "${testmode[@]}" sudo apt install -y "${download_file}"
-        fi
-      fi
-      ;;
-    *.pkg.tar.xz|*.pkg.tar.zst)
-      if "$use_ssh"; then
-        tmpfile=$(ssh "$host" mktemp -d)
-        scp "$srcfile" "$host":"$tmpfile"/
-        if [[ -n "$altdest" ]]; then
-          echo "Copying ${download_file##*/} to $altdest"
-          "${testmode[@]}" ssh "$host" "${sudo_cmd[@]}" install -m 755 "$tmpfile"/"${download_file##*/}" "$altdest"
-        else
-          echo "Installing ${download_file##*/}"
-          "${testmode[@]}" ssh "$host" sudo pacman --noconfirm -U "$tmpfile"/"${download_file##*/}"
-        fi
-        ssh "$host" rm -Rf "$tmpfile"
-      else
-        if [[ -n "$altdest" ]]; then
-          echo "Copying ${download_file##*/} to $altdest"
-          "${testmode[@]}" "${sudo_cmd[@]}" install -m 755 "$download_file" "$altdest"
-        else
-          echo "Installing ${download_file##*/}"
-          "${testmode[@]}" sudo pacman -U "${download_file}"
-        fi
-      fi
-      ;;
-    *.rpm|*.rpm.gz|*.rpm.bz2)
-      [[ "${download_file##*/}" == *.rpm.gz ]] && { gunzip "${download_file##*/}" ; download_file=${download_file%.gz} ; }
-      [[ "${download_file##*/}" == *.rpm.bz2 ]] && { bunzip "${download_file##*/}" ; download_file=${download_file%.bz2} ; }
+          if "$use_ssh"; then
+            tmpfile=$(ssh "$host" mktemp -d)
+            set -x
+            scp "$srcfile" "$host":"$tmpfile"/
+            set +x
+            if [[ -n "$altdest" ]]; then
+              echo "Copying ${download_file##*/} to $altdest"
+              "${testmode[@]}" ssh -t "$host" "${sudo_cmd[@]}" install -m 755 "$tmpfile"/"${download_file##*/}" "$altdest"
+            else
+              echo "Installing ${download_file##*/}"
+              "${testmode[@]}" ssh -t "$host" "${sudo_cmd[@]}" apt install -y "$tmpfile"/"${download_file##*/}"
+            fi
+            ssh "$host" rm -Rf "$tmpfile"
+          else
+            if [[ -n "$altdest" ]]; then
+              echo "Copying ${download_file##*/} to $altdest"
+              "${testmode[@]}" "${sudo_cmd[@]}" install -m 755 "$download_file" "$altdest"
+            else
+              echo "Installing ${download_file##*/}"
+              "${testmode[@]}" "${sudo_cmd[@]}" apt install -y "${download_file}"
+            fi
+          fi
+          ;;
+        arch)
+          if "$use_ssh"; then
+            tmpfile=$(ssh "$host" mktemp -d)
+            set -x
+            scp "$srcfile" "$host":"$tmpfile"/
+            set +x
+            if [[ -n "$altdest" ]]; then
+              echo "Copying ${download_file##*/} to $altdest"
+              "${testmode[@]}" ssh "$host" -t "${sudo_cmd[@]}" install -m 755 "$tmpfile"/"${download_file##*/}" "$altdest"
+            else
+              echo "Installing ${download_file##*/}"
+              "${testmode[@]}" ssh "$host" -t "${sudo_cmd[@]}" pacman --noconfirm -U "$tmpfile"/"${download_file##*/}"
+            fi
+            ssh "$host" rm -Rf "$tmpfile"
+          else
+            if [[ -n "$altdest" ]]; then
+              echo "Copying ${download_file##*/} to $altdest"
+              "${testmode[@]}" "${sudo_cmd[@]}" install -m 755 "$download_file" "$altdest"
+            else
+              echo "Installing ${download_file##*/}"
+              "${testmode[@]}" "${sudo_cmd[@]}" pacman -U "${download_file}"
+            fi
+          fi
+          ;;
+        fedora)
+          [[ "${download_file##*/}" == *.rpm.gz ]] && { gunzip "${download_file##*/}" ; download_file=${download_file%.gz} ; }
+          [[ "${download_file##*/}" == *.rpm.bz2 ]] && { bunzip "${download_file##*/}" ; download_file=${download_file%.bz2} ; }
 
-      if "$use_ssh"; then
-        tmpfile=$(ssh "$host" mktemp -d)
-        scp "$srcfile" "$host":"$tmpfile"
-        if [[ -n "$altdest" ]]; then
-          echo "Copying ${download_file##*/} to $altdest"
-          "${testmode[@]}" ssh "$host" "${sudo_cmd[@]}" install -m 755 "$tmpfile"/"${download_file##*/}" "$altdest"
-        else
-          echo "Installing ${download_file##*/}"
-          "${testmode[@]}" ssh "$host" sudo dnf install -y "$tmpfile"/"${download_file##*/}"
-        fi
-        ssh "$host" rm -Rf "$tmpfile"
-      else
-        if [[ -n "$altdest" ]]; then
-          echo "Copying ${download_file##*/} to $altdest"
-          "${testmode[@]}" "${sudo_cmd[@]}" install -m 755 "$download_file" "$altdest"
-        else
-          echo "Installing ${download_file##*/}"
-          "${testmode[@]}" sudo dnf install -y "${download_file}"
-        fi
-      fi
-      ;;
+          if "$use_ssh"; then
+            tmpfile=$(ssh "$host" mktemp -d)
+            scp "$srcfile" "$host":"$tmpfile"
+            if [[ -n "$altdest" ]]; then
+              echo "Copying ${download_file##*/} to $altdest"
+              "${testmode[@]}" ssh -t "$host" "${sudo_cmd[@]}" install -m 755 "$tmpfile"/"${download_file##*/}" "$altdest"
+            else
+              echo "Installing ${download_file##*/}"
+              "${testmode[@]}" ssh -t "$host" "${sudo_cmd[@]}" dnf install -y "$tmpfile"/"${download_file##*/}"
+            fi
+            ssh "$host" rm -Rf "$tmpfile"
+          else
+            if [[ -n "$altdest" ]]; then
+              echo "Copying ${download_file##*/} to $altdest"
+              "${testmode[@]}" "${sudo_cmd[@]}" install -m 755 "$download_file" "$altdest"
+            else
+              echo "Installing ${download_file##*/}"
+              "${testmode[@]}" "${sudo_cmd[@]}" dnf install -y "${download_file}"
+            fi
+          fi
+          ;;
+      esac ;;
     *.gz)
       "$verbose" && echo "Extracting gzip file"
       gunzip "$download_file"
@@ -518,10 +583,10 @@ process_update() {
         scp "$srcfile" "$host":"$tmpfile"
         if [[ -n "$altdest" ]]; then
           echo "Copying ${bin[$pkg]} to $altdest"
-          "${testmode[@]}" ssh "$host" "${sudo_cmd[@]}" install -m 755 "$tmpfile" "$altdest"
+          "${testmode[@]}" ssh -t "$host" "${sudo_cmd[@]}" install -m 755 "$tmpfile" "$altdest"
         else
           echo "Copying ${bin[$pkg]} to ${dest[$pkg]}"
-          "${testmode[@]}" ssh "$host" "${sudo_cmd[@]}" install -m 755 "$tmpfile" "${dest[$pkg]}"/"${bin[$pkg]}"
+          "${testmode[@]}" ssh -t "$host" "${sudo_cmd[@]}" install -m 755 "$tmpfile" "${dest[$pkg]}"/"${bin[$pkg]}"
         fi
         ssh "$host" rm -f "$tmpfile"
       else
@@ -540,7 +605,7 @@ process_update() {
         scp "$srcfile" "$host":"$tmpfile"
         if [[ -n "$altdest" ]]; then
           echo "Copying ${download_file##*/} to $altdest"
-          "${testmode[@]}" ssh "$host" "${sudo_cmd[@]}" install -m 755 "$tmpfile"/"${download_file##*/}" "$altdest"
+          "${testmode[@]}" ssh -t "$host" "${sudo_cmd[@]}" install -m 755 "$tmpfile"/"${download_file##*/}" "$altdest"
         else
           echo "Copying ${download_file##*/} to ${dest[$pkg]}"
           "${testmode[@]}" "${sudo_cmd[@]}" install -m 755 "$tmpfile"/"${download_file##*/}" "${dest[$pkg]}"/"${bin[$pkg]}"
