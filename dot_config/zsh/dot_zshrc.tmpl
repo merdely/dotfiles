@@ -33,7 +33,7 @@ __shell_specific() {
   vi_cmd="%F{blue}[N]%f"
   vi_mode=$vi_ins
   function zle-line-init zle-keymap-select {
-    vi_mode="${${KEYMAP/vicmd/${vi_cmd}}/(main|viins)/${vi_ins}}"
+    vi_mode=" ${${KEYMAP/vicmd/${vi_cmd}}/(main|viins)/${vi_ins}}"
     zle reset-prompt
   }
   function zle-line-finish {
@@ -45,7 +45,7 @@ __shell_specific() {
   zle -N zle-keymap-select
   zle -N zle-line-finish
   RPROMPT=""
-  RPROMPT="${RPROMPT}%(?..%F{red}(\$?%)%f )"  # Show error exit code in red
+  RPROMPT="${RPROMPT}%(?..%F{red}(\$?%)%f)"  # Show error exit code in red
   RPROMPT="${RPROMPT}\${vi_mode}"             # Show cli vi mode state
 
   autoload -U colors && colors
