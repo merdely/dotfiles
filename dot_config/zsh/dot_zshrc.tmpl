@@ -24,7 +24,8 @@ __shell_specific() {
   PROMPT="${PROMPT}]"              # Close bracket
   PROMPT="${PROMPT}${subshell}"    # If in a subshell (chezmoi) show a plus
   # Git stuff
-  command -v __git_ps1 >/dev/null 2>&1 && PROMPT="$PROMPT\$(__git_ps1 \" (%%F{${git_c}}${git_s}%%f %s)\" 2>&1|grep -v 'Permission denied')"
+  # command -v __git_ps1 >/dev/null 2>&1 && PROMPT="$PROMPT\$(__git_ps1 \" (%%F{${git_c}}${git_s}%%f %s)\" 2>&1|grep -v 'Permission denied')"
+  command -v __git_ps1 >/dev/null 2>&1 && PROMPT="$PROMPT\$(__git_ps1 \" (%%F{${git_c}}${git_s}%%f %s)\" 2>/dev/null)"
   PROMPT="${PROMPT} %F{blue}%(!.#.${pchar})%f"  # Show prompt in blue
   PROMPT="${PROMPT}%b"             # End bold
   PROMPT="${PROMPT} "              # Trailing space
@@ -48,20 +49,12 @@ __shell_specific() {
   RPROMPT="${RPROMPT}%(?..%F{red}(\$?%)%f)"  # Show error exit code in red
   RPROMPT="${RPROMPT}\${vi_mode}"             # Show cli vi mode state
 
+  mkdir -p "${XDG_CONFIG_HOME:=$HOME/.cache}"/zsh
+  autoload -Uz compinit && compinit -d "$XDG_CACHE_HOME"/zsh/zcompdump-$ZSH_VERSION
   autoload -U colors && colors
   autoload -U edit-command-line && zle -N edit-command-line
-  autoload compdef
   autoload zmv
-  if [[ -r /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh ]]; then
-    . /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
-  elif [[ -r /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
-    . /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-  fi
-  if [[ -r /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh ]]; then
-    . /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh
-  elif [[ -r /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
-    . /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-  fi
+  bindkey -v
   bindkey -M vicmd j vi-down-line-or-history
   bindkey -M vicmd k vi-up-line-or-history
   bindkey -v '^?' backward-delete-char       # Allow backspace character to work
@@ -69,7 +62,6 @@ __shell_specific() {
   bindkey -M viins '^y' autosuggest-execute
   bindkey " " magic-space
 
-  autoload -Uz compinit && compinit -d "$XDG_CACHE_HOME"/zsh/zcompdump-$ZSH_VERSION
   if [ -r "$HOME"/.config/zsh/plugins/fzf-tab/fzf-tab.plugin.zsh ]; then
     . "$HOME"/.config/zsh/plugins/fzf-tab/fzf-tab.plugin.zsh
     zstyle ":fzf-tab:*" use-fzf-default-opts yes
@@ -78,26 +70,21 @@ __shell_specific() {
   fi
   zstyle ':completion:*' cache-path "$XDG_CACHE_HOME"/zsh/zcompcache
   zstyle ':completion:*' menu select
-  zstyle ':completion:*' matcher-list ''
   zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}' 'm:{a-z}={A-Z} r:|[._-]=* r:|=*'
-  zstyle ':compinstall'  filename '$XDG_CONFIG_HOME/zsh/.zshrc'
-  mkdir -p "$XDG_CONFIG_HOME"/zsh
 
   setopt append_history inc_append_history share_history hist_ignore_space
   setopt auto_cd cd_silent auto_pushd pushd_silent rmstarsilent
-  setopt no_hup no_check_jobs prompt_subst interactive_comments no_match
+  setopt no_hup no_check_jobs prompt_subst interactive_comments
   setopt correct
   # CORRECT_IGNORE=
   # setopt correct_all
   # CORRECT_IGNORE_FILE=
   stty stop undef
-  bindkey -v
   alias reprofile='. $XDG_CONFIG_HOME/zsh/.zshrc'
 
   # Install zoxide on OpenBSD with: cargo install zoxide --locked
   if command -v zoxide >/dev/null 2>&1; then
-    eval "$(zoxide init zsh)"
-    alias cd=z
+    eval "$(zoxide init zsh --cmd cd)"
   fi
   # . <(niri completions zsh)
   # if command -v starship >/dev/null 2>&1; then
@@ -111,6 +98,17 @@ __shell_specific() {
       bindkey -M viins '^p' history-search-backward
       bindkey -M viins '^n' history-search-forward
     fi
+  fi
+
+  if [[ -r /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh ]]; then
+    . /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
+  elif [[ -r /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
+    . /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+  fi
+  if [[ -r /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh ]]; then
+    . /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh
+  elif [[ -r /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
+    . /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
   fi
 }
 
