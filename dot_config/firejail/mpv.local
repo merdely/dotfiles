@@ -3,6 +3,9 @@
 # Use: chezmoi edit ~/.config/firejail/mpv.local
 # Or after editing, run: chezmoi re-add ~/.config/firejail/mpv.local
 
+noblacklist ${HOME}/.lm
+read-only ${HOME}/.lm
+# whitelist ${HOME}/.lm/
 whitelist ${HOME}/Jellyfin
 ignore dbus-user none
 dbus-user filter
