@@ -40,7 +40,9 @@ local get_help_tag_map = function()
   --stylua: ignore
   local custom_tags = {
     -- Neovim>=0.13
-    'al', 'il', 'vim.hl.hl_op()',
+    'al', 'il', 'vim.hl.hl_op()', 'dot-repeat', 'multicursor', "'follow'", 'q=',
+    -- Neovim<0.13
+    'vim.hl.on_yank()',
     -- Neovim<0.11
     'vim.highlight.on_yank()',
   }

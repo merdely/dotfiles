@@ -643,7 +643,7 @@ end
 ---     go_in_plus = 'l',
 ---   }
 ---
----   -- Don't use `h`/`l` for easier cursor navigation during text edit
+---   -- Don't use `h` / `l` for easier cursor navigation during text edit
 ---   mappings = {
 ---     go_in = 'L',
 ---     go_in_plus = '',
@@ -1536,6 +1536,7 @@ H.explorer_refresh = function(explorer, opts)
       view = H.view_encode_cursor(view)
       -- Force update of shown path ids
       if H.opened_buffers[view.buf_id] then H.opened_buffers[view.buf_id].children_path_ids = nil end
+      H.clear_multicursor(view.buf_id)
       H.buffer_update(view.buf_id, path, explorer.opts, not view.was_focused)
       explorer.views[path] = view
     end
@@ -2131,6 +2132,7 @@ H.view_track_cursor = vim.schedule_wrap(function(data)
 
   -- Ensure cursor doesn't go over path id and icon
   local cur_cursor = H.window_tweak_cursor(win_id, buf_id)
+  H.window_tweak_multicursor(buf_id)
 
   -- Ensure cursor line doesn't contradict window on the right
   local tabpage_id = vim.api.nvim_win_get_tabpage(win_id)
@@ -2605,18 +2607,28 @@ end
 
 H.window_tweak_cursor = function(win_id, buf_id)
   local cursor = vim.api.nvim_win_get_cursor(win_id)
-  local l = H.get_bufline(buf_id, cursor[1])
-
-  local cur_offset = H.match_line_offset(l)
+  local cur_offset = H.match_line_offset(H.get_bufline(buf_id, cursor[1]))
   if cursor[2] < (cur_offset - 1) then
     cursor[2] = cur_offset - 1
     vim.api.nvim_win_set_cursor(win_id, cursor)
     -- Ensure icons are shown (may be not the case after horizontal scroll)
     vim.cmd('normal! 1000zh')
   end
-
   return cursor
 end
+
+H.window_tweak_multicursor = function(buf_id)
+  local ns_id = vim.api.nvim_get_namespaces()['nvim.multicursor']
+  local mc_extmarks = vim.api.nvim_buf_get_extmarks(buf_id, ns_id, 0, -1, {})
+  for _, data in ipairs(mc_extmarks) do
+    local cur_offset = H.match_line_offset(H.get_bufline(buf_id, data[2] + 1))
+    if data[3] < (cur_offset - 1) then
+      data[3] = cur_offset - 1
+      vim.api.nvim_buf_set_extmark(buf_id, ns_id, data[2], data[3], { id = data[1] })
+    end
+  end
+end
+if vim.fn.has('nvim-0.13') == 0 then H.window_tweak_multicursor = function(_) end end
 
 H.window_update_border_hl = function(win_id)
   if not H.is_valid_win(win_id) then return end
@@ -3104,9 +3116,13 @@ H.is_valid_buf = function(buf_id) return type(buf_id) == 'number' and vim.api.nv
 
 H.is_valid_win = function(win_id) return type(win_id) == 'number' and vim.api.nvim_win_is_valid(win_id) end
 
-H.fit_to_width = function(text, width)
-  local t_width = vim.fn.strchars(text)
-  return t_width <= width and text or ('…' .. vim.fn.strcharpart(text, t_width - width + 1, width - 1))
+H.fit_to_width = function(text, width, dir)
+  if vim.api.nvim_strwidth(text) <= width then return text end
+  for w = vim.fn.strchars(text) - 1, 1, -1 do
+    text = vim.fn.strcharpart(text, dir == 'right' and 0 or 1, w)
+    if vim.api.nvim_strwidth(text) < width then return dir == 'right' and (text .. '…') or ('…' .. text) end
+  end
+  return width < 1 and '' or '…'
 end
 
 H.get_bufline = function(buf_id, line) return vim.api.nvim_buf_get_lines(buf_id, line - 1, line, false)[1] end
@@ -3118,6 +3134,13 @@ H.set_buflines = function(buf_id, lines)
 end
 
 H.set_extmark = function(...) pcall(vim.api.nvim_buf_set_extmark, ...) end
+
+H.clear_multicursor = function(buf_id)
+  if buf_id == nil or buf_id == 0 then buf_id = vim.api.nvim_get_current_buf() end
+  local ns_id = vim.api.nvim_get_namespaces()['nvim.multicursor']
+  pcall(vim.api.nvim_buf_clear_namespace, buf_id, ns_id, 0, -1)
+end
+if vim.fn.has('nvim-0.13') == 0 then H.clear_multicursor = function(_) end end
 
 H.win_set_buf = function(win_id, buf_id)
   vim.wo[win_id].winfixbuf = false

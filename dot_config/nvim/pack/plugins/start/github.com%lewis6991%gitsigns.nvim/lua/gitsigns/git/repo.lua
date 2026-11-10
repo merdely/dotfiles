@@ -430,16 +430,6 @@ function M:check_attr(attr, files)
   return ret
 end
 
---- @param encoding string
---- @return boolean
-local function iconv_supported(encoding)
-  -- TODO(lewis6991): needs https://github.com/neovim/neovim/pull/21924
-  if vim.startswith(encoding, 'utf-16') or vim.startswith(encoding, 'utf-32') then
-    return false
-  end
-  return true
-end
-
 --- @async
 --- Get version of file in the index, return array lines
 --- @param object string
@@ -448,10 +438,10 @@ end
 function M:get_show_text(object, encoding)
   local stdout, stderr = self:command({ 'show', object }, { text = false, ignore_error = true })
 
-  if encoding and encoding ~= 'utf-8' and iconv_supported(encoding) then
-    for i, l in ipairs(stdout) do
-      stdout[i] = vim.iconv(l, encoding, 'utf-8')
-    end
+  if encoding and encoding ~= '' and encoding ~= 'utf-8' then
+    -- Decode line endings with the text before splitting into UTF-8 lines.
+    local text = util.iconv(table.concat(stdout, '\n'), encoding, 'utf-8')
+    stdout = vim.split(text, '\n')
   end
 
   return stdout, stderr
@@ -592,6 +582,21 @@ end
 
 --- @async
 --- @param gitdir string
+--- @return string
+local function infer_worktree_root(gitdir)
+  -- Linked worktrees point back to their working tree's .git file.
+  local dotgit = read_first_line(vim.fs.joinpath(gitdir, 'gitdir'))
+  if dotgit then
+    if not Path.is_abs(dotgit) then
+      dotgit = vim.fs.joinpath(gitdir, dotgit)
+    end
+    return vim.fs.dirname(assert(normalize_path(dotgit)))
+  end
+  return vim.fs.dirname(gitdir)
+end
+
+--- @async
+--- @param gitdir string
 --- @param head_str string
 --- @param cwd string
 --- @return string
@@ -649,7 +654,7 @@ function M.get_info(dir, gitdir, worktree)
       worktree = Path.is_abs(core_worktree) and core_worktree
         or vim.fs.joinpath(gitdir, core_worktree)
     else
-      worktree = vim.fs.dirname(gitdir)
+      worktree = infer_worktree_root(gitdir)
     end
   end
 
@@ -742,6 +747,7 @@ function M:ls_tree(path, revision)
   local results, stderr, code = self:command({
     'ls-tree',
     revision,
+    '--',
     path,
   }, { ignore_error = true })
 
@@ -804,6 +810,7 @@ function M:ls_files(file)
       '--others',
       '--exclude-standard',
       has_eol and '--eol',
+      '--',
       file,
     }),
     { ignore_error = true }
@@ -865,6 +872,11 @@ end
 --- @return Gitsigns.Repo.LsFiles.Result? info
 --- @return string? err
 function M:file_info(file, revision)
+  -- Git runs from toplevel. Relative pathspecs avoid MSYS rewriting absolute paths.
+  if Path.is_abs(file) then
+    file = vim.fs.relpath(self.toplevel, assert(normalize_path(file))) or file
+  end
+
   if M.from_tree(revision) then
     local info, err = self:ls_tree(file, assert(revision))
     if err then
