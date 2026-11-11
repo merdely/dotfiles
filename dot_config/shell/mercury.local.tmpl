@@ -72,6 +72,6 @@ alias a_upg='repo-package --host earth,jupiter,tarvos,io,saturn,ceres,pluto --up
 alias a_rs='for h in earth jupiter tarvos io saturn ceres pluto; do ssh "$h" "~/.local/bin/atuin daemon restart"; done'
 alias c_upg='repo-package --host earth,jupiter,tarvos,io,saturn,ceres,pluto --upgrade chezmoi'
 # shellcheck disable=2154
-alias pipx_upgrade='for f in mercury earth jupiter io pluto ceres; do ssh root@"$f" pipx upgrade-all --include-injected; done'
+alias pipx_upgrade='for f in mercury earth jupiter io pluto ceres; do ssh root@"$f" pipx upgrade-all --global --include-injected; done'
 
 export PODMAN_COMPOSE_WARNING_LOGS=false
