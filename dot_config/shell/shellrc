@@ -131,6 +131,7 @@ alias vre='ssh earth  sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -
 alias vio='ssh io     sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -L all'
 alias vj='ssh jupiter sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -L all'
 alias vm='ssh mercury sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -L all'
+alias sudocker='sudo su - -s /bin/bash docker'
 
 alias c='chezmoi'
 # shellcheck disable=2139
