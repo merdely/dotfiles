@@ -75,3 +75,6 @@ alias c_upg='repo-package --host earth,jupiter,tarvos,io,saturn,ceres,pluto --up
 alias pipx_upgrade='for f in mercury earth jupiter io pluto ceres; do echo "$f"; ssh root@"$f" pipx upgrade-all --global --include-injected; ssh root@"$f" su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -L all certbot; done'
 
 export PODMAN_COMPOSE_WARNING_LOGS=false
+
+
+unalias podman
