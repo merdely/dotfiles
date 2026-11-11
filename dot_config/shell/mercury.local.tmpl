@@ -66,4 +66,10 @@ alias floci=floci-cli
 alias arcane=arcane-cli
 eval "$(arcane-cli completion zsh)"
 
+# To update atuin and chezmoi on other systems
+alias a_upg='repo-package --host earth,jupiter,tarvos,io,saturn,ceres,pluto --upgrade atuin'
+# shellcheck disable=2154
+alias a_rs='for h in earth jupiter tarvos io saturn ceres pluto; do ssh "$h" "~/.local/bin/atuin daemon restart"; done'
+alias c_upg='repo-package --host earth,jupiter,tarvos,io,saturn,ceres,pluto --upgrade chezmoi'
+
 export PODMAN_COMPOSE_WARNING_LOGS=false
