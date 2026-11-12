@@ -118,6 +118,10 @@ alias docker_up='for f in /srv/docker/{caddy,postgres,forgejo,pangolin,authentik
 alias docker_down='for f in /srv/docker/*/compose.yaml; do docker compose -f "$f" down; done'
 alias docker_top='watch "docker ps --format \"table {{.Names}}\t{{.Image}}\t{{.Command}}\t{{.RunningFor}}\t{{.Status}}\""'
 alias docker_ps='docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Command}}\t{{.RunningFor}}\t{{.Status}}"'
+alias podman_up='for f in /srv/docker/{caddy,postgres,forgejo,pangolin,authentik,authelia}/compose.yaml /srv/docker/*/compose.yaml; do [ ! -r "$f" ] && continue; podman compose -f "$f" up -d; done'
+alias podman_down='for f in /srv/docker/*/compose.yaml; do podman compose -f "$f" down; done'
+alias podman_top='watch "podman ps --format \"table {{.Names}}\t{{.Image}}\t{{.Command}}\t{{.RunningFor}}\t{{.Status}}\""'
+alias podman_ps='podman ps --format "table {{.Names}}\t{{.Image}}\t{{.Command}}\t{{.RunningFor}}\t{{.Status}}"'
 
 alias caddy='docker exec caddy caddy'
 alias caddyreload='docker exec caddy caddy reload --config /etc/caddy/Caddyfile --address 127.0.0.1:2019'
