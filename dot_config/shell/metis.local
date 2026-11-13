@@ -4,3 +4,4 @@
 # Or after editing, run: chezmoi re-add ~/.metis.local
 
 alias marscon='screen -c ~/.config/screen/screenrc /dev/serial/by-id/usb-FINTEK_USB_TO_UART_BRIDGE_88635600168801-if00-port0 115200'
+export NVIM_DISABLE_PLUGINS=1
