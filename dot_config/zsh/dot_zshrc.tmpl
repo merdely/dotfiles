@@ -101,7 +101,8 @@ __shell_specific() {
   if [[ -z "$ATUIN_SESSION" ]] && command -v atuin &>/dev/null; then
     eval "$(atuin init --disable-ai --disable-up-arrow zsh)"
   fi
-  if ! typeset -f fzf-history-widget &>/dev/null && command -v fzf >/dev/null 2>&1; then
+  if [[ -z "$ATUIN_SESSION" ]] && ! typeset -f fzf-history-widget &>/dev/null &&
+        command -v fzf >/dev/null 2>&1; then
     . <(fzf --zsh)
     bindkey -M viins '^p' history-search-backward
     bindkey -M viins '^n' history-search-forward
