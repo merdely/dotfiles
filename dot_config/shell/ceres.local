@@ -7,4 +7,4 @@ alias suvcheck='sudo su - -s /bin/bash vcheck'
 alias vcheck='sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck'
 alias v='sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -L all'
 
-alias ss=netstat
+alias netstat=ss
