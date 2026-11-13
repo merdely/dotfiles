@@ -7,4 +7,8 @@ alias suvcheck='sudo su - -s /bin/bash vcheck'
 alias vcheck='sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck'
 alias v='sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -L all'
 
+alias caddyreload='sudo machinectl shell docker@ /bin/podman exec -w /etc/caddy caddy caddy reload --address 127.0.0.1:2019'
+alias caddyfmt='sudo machinectl shell docker@ /bin/podman exec -w /etc/caddy caddy caddy fmt --overwrite'
+alias caddylogs='sudo machinectl shell docker@ /bin/podman logs -f caddy --since 1m'
+
 alias netstat=ss
