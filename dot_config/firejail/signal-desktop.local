@@ -5,6 +5,7 @@
 
 # For system tray icon
 dbus-user.talk org.kde.StatusNotifierWatcher
+dbus-user.talk io.gitlab.librewolf.*
 
 # For screen sharing
 dbus-user.talk org.freedesktop.portal.Desktop
@@ -12,6 +13,7 @@ ignore noroot
 
 # For opening links in a browser
 ignore dbus-user filter
+noblacklist ${HOME}/.config/librewolf
 noblacklist ${HOME}/.config/librewolf/librewolf
 whitelist ${HOME}/.config/librewolf/librewolf/profiles.ini
 read-only ${HOME}/.config/librewolf/librewolf/profiles.ini
