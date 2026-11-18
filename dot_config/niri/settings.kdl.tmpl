@@ -3,6 +3,9 @@
 // Use: chezmoi edit ~/.config/niri/settings.kdl
 // Or after editing, run: chezmoi re-add ~/.config/niri/settings.kdl
 
+// If a file named $hostname.kdl exists, load it
+include optional=true "{{ .chezmoi.hostname }}-top.kdl"
+
 output "eDP-1" {
     position x=0 y=0
 }
@@ -160,8 +163,4 @@ window-rule {
 }
 
 // If a file named $hostname.kdl exists, load it
-{{ if not (eq .chezmoi.os "openbsd") -}}
-include "{{ .chezmoi.hostname }}.kdl"
-{{ else -}}
 include optional=true "{{ .chezmoi.hostname }}.kdl"
-{{ end -}}
