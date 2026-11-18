@@ -50,14 +50,14 @@ window-rule {
 
 // Open scratchpad apps floating
 window-rule {
-    match app-id=r#"^(com.onepassword.OnePassword|prospect-mail)"#
+    match app-id=r#"^(btop|htop|com.onepassword.OnePassword|prospect-mail)"#
     open-maximized false
     open-floating true
 }
 
 // Start scratchpad apps in scratchpad workspace
 window-rule {
-    match app-id=r#"^(com.onepassword.OnePassword|prospect-mail)$"# at-startup=true
+    match app-id=r#"^(btop|htop|com.onepassword.OnePassword|prospect-mail)$"# at-startup=true
     open-on-workspace "🗒️"
     open-maximized true
     open-floating false
