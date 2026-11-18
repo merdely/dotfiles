@@ -3,4 +3,5 @@
 // Use: chezmoi edit ~/.config/niri/mercury-top.kdl
 // Or after editing, run: chezmoi re-add ~/.config/niri/mercury-top.kdl
 
+workspace "Media"      { open-on-output "eDP-1"; }
 
