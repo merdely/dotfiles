@@ -39,7 +39,8 @@ binds {
 
 // Fix for nvidia card
 debug {
-    wait-for-frame-completion-before-queueing
     render-drm-device "/dev/dri/renderD129"
+    // wait-for-frame-completion-before-queueing
+    // wait-for-frame-completion-in-pipewire
     // disable-direct-scanout
 }
