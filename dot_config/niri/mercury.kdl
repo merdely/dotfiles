@@ -16,6 +16,8 @@
 //     position x=3840 y=0
 // }
 
+workspace "Media"      { open-on-output "eDP-1"; }
+
 input {
     tablet {
         // off
