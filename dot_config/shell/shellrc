@@ -130,6 +130,7 @@ alias caddyfmt='docker exec caddy caddy fmt --overwrite -c /etc/caddy/Caddyfile'
 alias caddylogs='docker logs -f caddy --since 1m'
 
 alias vc='ssh ceres   sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -L all'
+alias vp='ssh pluto   sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -L all'
 alias ve='ssh earth   sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -L all'
 alias vre='ssh earth  sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -L remote-apps'
 alias vio='ssh io     sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -L all'
