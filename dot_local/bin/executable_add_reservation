@@ -1,0 +1,77 @@
+#!/bin/sh
+
+usage() {
+  echo "usage: $(basename $0) [-n <network>] -P | -I | -V | <vm> <ip>" > /dev/stderr
+  echo "	-n: Which network to use (default: 'default')" > /dev/stderr
+  echo "	-P: Print network info" > /dev/stderr
+  echo "	-I: List unavailable IP addresses" > /dev/stderr
+  echo "	-V: List VM names" > /dev/stderr
+  echo "	vm: name of VM to reserve IP" > /dev/stderr
+  echo "	ip: IP address to reserve or VM" > /dev/stderr
+  exit 1
+}
+
+printnet=0
+listips=0
+listvms=0
+network=default
+while getopts ":hPIVn:" opt; do
+  case ${opt} in
+    h)
+      usage
+      ;;
+    n)
+      network=$OPTARG
+      ;;
+    P)
+      printnet=1
+      ;;
+    I)
+      listips=1
+      ;;
+    V)
+      listvms=1
+      ;;
+  esac
+done
+shift $((OPTIND -1))
+
+if [ $listips = 1 ]; then
+  { virsh net-dumpxml $network | awk -F "'" '$1 ~ /^\s+<host mac=$/ { print $6, "-", $4, "-", $2 }' | sort -n; \
+    virsh net-dhcp-leases $network | awk '$4 == "ipv4" { print substr($5, 0, index($5, "/") - 1), "-", $6, "-", $3 }'; } | sort -n | uniq
+  exit 0
+fi
+
+if [ $listvms = 1 ]; then
+  for vm in $(virsh list --all --name | grep -v "^$"); do
+    virsh dumpxml $vm | awk -F"'" -v vm=$vm "\$1 ~ /^\s+<mac address=$/ { printf \"mac='%s', name='%s'\n\", \$2, vm }"
+  done
+  exit 0
+fi
+
+if [ $printnet = 1 ]; then
+  virsh net-dumpxml $network | awk -F"'" '$1 ~ /^\s+<ip address=$/ { print $2, "/", $4 }'
+  exit 0
+fi
+
+if [ -z "$2" ]; then
+  usage
+fi
+
+vm=$1
+ip=$2
+
+virsh list --all --name | grep -q "^$vm$"
+if [ $? != 0 ]; then
+  echo "Error: $vm is not one of the VMs" > /dev/stderr
+  exit 1
+fi
+
+virsh net-dumpxml default | awk -F"'" -v ip=$ip '$6 == ip { printf "Error: %s is used by %s\n", $6, $4; exit 1 }'
+[ $? != 0 ] && exit 1
+
+mac=$(virsh dumpxml $vm | awk -F"'" '$1 ~ /^\s+<mac address=$/ { print $2 }')
+
+printf "Adding reservation of $ip for $vm: "
+virsh net-update default add-last ip-dhcp-host "<host mac='$mac' name='$vm' ip='$ip'/>" --live --config --parent-index 0
+
