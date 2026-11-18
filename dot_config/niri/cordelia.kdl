@@ -22,6 +22,9 @@ binds {
     Mod+Shift+W          hotkey-overlay-title="Open Outlook"     { spawn-sh "$HOME/.config/niri/scratchpad prospect-mail"; }
     Mod+Shift+Z          hotkey-overlay-title="Open 1password"   { spawn-sh "$HOME/.config/niri/scratchpad com.onepassword.OnePassword"; }
     Mod+Ctrl+O           hotkey-overlay-title="Open Outlook Keybinds" { spawn-sh "pgrep -u $LOGNAME -f -- '^/usr/bin/imv-wayland -i outlook-help' && pkill -u $LOGNAME -f -- '^/usr/bin/imv-wayland -i outlook-help' || imv -i outlook-help -W 820 -H 1110 ~/Pictures/'Outlook Keybinds.png'"; }
+    Mod+Ctrl+Comma       hotkey-overlay-title="Htop"             { spawn "/home/mike/.local/bin/x-terminal-emulator" "-e" "--class" "htop" "htop"; }
+    Mod+Ctrl+Period      hotkey-overlay-title="Btop++"           { spawn "/home/mike/.local/bin/x-terminal-emulator" "-e" "--class" "btop" "btop"; }
+    Mod+Ctrl+Semicolon   hotkey-overlay-title="Rofi RBW"         { spawn "waypipe" "-n" "ssh" "192.168.122.55" "~/.local/bin/rofi-rbw" "--use-notify-send"; }
 }
 
 window-rule {
