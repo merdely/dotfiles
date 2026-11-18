@@ -140,6 +140,7 @@ alias c='chezmoi'
 # shellcheck disable=2139
 # alias c_up='ansible chezmoi -l !'"$(hostname)"' -oa "{{chezmoi}} --error-on-conflict update";ansible chezmoi_ro -oa "~/.local/bin/sync_home"'
 alias chezmoi_updates='ansible chezmoi -oa "{{chezmoi}} update";ansible chezmoi_ro -oa "~/.local/bin/sync_home"'
+alias c_re='(cd;chezmoi re-add $(chezmoi status | awk "/^MM[[:space:]]/{sub(/^MM[[:space:]]+/,\"\");print}"))'
 bashp=$(command -v bash)
 # shellcheck disable=2139
 [[ -n "$bashp" ]] && alias runbash="env PRE_PROMPT=\"(bash) \" SHELL=$bashp $bashp -l"
