@@ -1,5 +1,7 @@
 https://arcane.erdely.in
 https://archwiki.erdely.in
+https://*.ariel.erdely.in
+https://ariel.erdely.in
 https://ata192.erdely.in
 https://*.atlas.erdely.in
 https://atlas.erdely.in
@@ -21,6 +23,7 @@ https://cameras.erdely.in
 https://*.carme.erdely.in
 https://carme.erdely.in
 https://carpo.erdely.in
+https://*.ceres.erdely.in
 https://ceres.erdely.in
 https://chaptarr.erdely.in
 https://chatbot.erdely.in
@@ -189,10 +192,12 @@ https://photos.erdelynet.com
 https://picframe.erdely.in
 https://pikvm.erdely.in
 https://pixelwatch-holly.erdely.in
+https://*.pluto.erdely.in
 https://pluto.erdely.in
 https://porttest.erdely.in
 https://prometheus.erdely.in
 https://prowlarr.erdely.in
+https://proxima.erdely.in
 https://ps5.erdely.in
 https://qbt.erdely.in
 https://qui.erdely.in
@@ -297,8 +302,6 @@ https://tv-god-damn.erdely.in
 https://tv-living-room.erdely.in
 https://unifi.erdely.in
 https://unpackerr.erdely.in
-https://*.uranus.erdely.in
-https://uranus.erdely.in
 https://venus.erdely.in
 https://venus-wifi.erdely.in
 https://vpn.erdely.co
