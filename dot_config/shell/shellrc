@@ -121,6 +121,11 @@ alias docker_up='for f in /srv/docker/{caddy,postgres,forgejo,pangolin,authentik
 alias docker_down='for f in /srv/docker/*/compose.yaml; do docker compose -f "$f" down; done'
 alias docker_top='watch "docker ps --format \"table {{.Names}}\t{{.Image}}\t{{.Command}}\t{{.RunningFor}}\t{{.Status}}\""'
 alias docker_ps='docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Command}}\t{{.RunningFor}}\t{{.Status}}"'
+alias caddy='docker exec caddy caddy'
+alias caddyreload='docker exec caddy caddy reload --config /etc/caddy/Caddyfile --address 127.0.0.1:2019'
+alias caddycheck='docker exec caddy caddy validate -c /etc/caddy/Caddyfile'
+alias caddyfmt='docker exec caddy caddy fmt --overwrite -c /etc/caddy/Caddyfile'
+alias caddylogs='docker logs -f caddy --since 1m'
 
 if "${USE_PODMAN:-false}"; then
   alias podman_up='for f in /srv/docker/{caddy,postgres,forgejo,pangolin,authentik,authelia}/compose.yaml /srv/docker/*/compose.yaml; do [ ! -r "$f" ] && continue; podman compose -f "$f" up -d; done'
@@ -130,13 +135,11 @@ if "${USE_PODMAN:-false}"; then
   alias sudocker='sudo machinectl shell docker@ /bin/bash'
   alias podman='sudo machinectl shell docker@ /bin/podman'
   alias docker='sudo machinectl shell docker@ /bin/docker'
-fi
 
-alias caddy='docker exec caddy caddy'
-alias caddyreload='docker exec caddy caddy reload --config /etc/caddy/Caddyfile --address 127.0.0.1:2019'
-alias caddycheck='docker exec caddy caddy validate -c /etc/caddy/Caddyfile'
-alias caddyfmt='docker exec caddy caddy fmt --overwrite -c /etc/caddy/Caddyfile'
-alias caddylogs='docker logs -f caddy --since 1m'
+  alias caddyreload='sudo machinectl shell docker@ /bin/podman exec -w /etc/caddy caddy caddy reload --address 127.0.0.1:2019'
+  alias caddyfmt='sudo machinectl shell docker@ /bin/podman exec -w /etc/caddy caddy caddy fmt --overwrite'
+  alias caddylogs='sudo machinectl shell docker@ /bin/podman logs -f caddy --since 1m'
+fi
 
 alias vc='ssh ceres   sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -L all'
 alias vp='ssh pluto   sudo su - -s /bin/bash vcheck -- /srv/scripts/bin/vcheck -L all'
