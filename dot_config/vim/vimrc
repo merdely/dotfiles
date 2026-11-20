@@ -1,0 +1,44 @@
+" Vim port of ~/.config/nvim
+"
+" Load order (matters in Vim, unlike Neovim's require()):
+"   1. this vimrc
+"   2. plugin/*.vim           - config that needs no plugins
+"   3. pack/*/start/*         - the plugins themselves
+"   4. after/plugin/*.vim     - config that depends on plugins (guarded)
+"
+" Works from ~/.config/vim (Vim 9.1.0327+ reads ~/.config/vim/vimrc when
+" ~/.vimrc and ~/.vim/ don't exist) or from ~/.vim. The block below makes the
+" config dir usable regardless of where Vim found this file.
+
+set nocompatible
+let g:config_dir = expand('<sfile>:p:h')
+if index(split(&runtimepath, ','), g:config_dir) < 0
+  execute 'set runtimepath^=' . fnameescape(g:config_dir)
+  execute 'set runtimepath+=' . fnameescape(g:config_dir . '/after')
+endif
+if index(split(&packpath, ','), g:config_dir) < 0
+  execute 'set packpath^=' . fnameescape(g:config_dir)
+endif
+
+let mapleader = ' '
+let maplocalleader = '\'
+
+" State dirs (Neovim uses ~/.local/state/nvim; mirror that for Vim)
+let g:state_dir = (empty($XDG_STATE_HOME) ? expand('~/.local/state') : $XDG_STATE_HOME) . '/vim'
+
+" Allow for when user may not be able to write to $HOME
+if !empty($VIM_NO_PERSIST) || !empty($NVIM_NO_PERSIST)
+  set viminfofile=NONE
+  set noswapfile noundofile nobackup nowritebackup
+  let g:no_persist = 1
+else
+  execute 'set viminfofile=' . fnameescape(g:state_dir . '/viminfo')
+endif
+
+" Set to 1 to skip all plugin configuration (like NVIM_DISABLE_PLUGINS)
+if !empty($VIM_DISABLE_PLUGINS)
+  set noloadplugins
+endif
+
+filetype plugin indent on
+syntax enable
