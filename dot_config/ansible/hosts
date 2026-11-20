@@ -7,9 +7,10 @@
 chezmoi:
   hosts:
     mercury:
-    # venus:
-    #   ansible_python_interpreter: /opt/homebrew/bin/python3
-    #   chezmoi: /opt/homebrew/bin/chezmoi
+    venus:
+      ansible_python_interpreter: /opt/homebrew/bin/python3
+      ansible_remote_tmp: /tmp/.ansible-mike/tmp
+      chezmoi: /opt/homebrew/bin/chezmoi
     earth:
       chezmoi: $HOME/.local/bin/chezmoi
     jupiter:
