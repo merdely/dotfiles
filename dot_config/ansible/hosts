@@ -4,6 +4,31 @@
 # ---
 # ansible_connection: localhost
 
+atuin:
+  hosts:
+    mercury:
+    earth:
+      atuin: $HOME/.local/bin/atuin
+    jupiter:
+      atuin: $HOME/.local/bin/atuin
+    io:
+      atuin: $HOME/.local/bin/atuin
+    saturn:
+      atuin: $HOME/.local/bin/atuin
+    dia:
+    cordelia:
+    neptune:
+    pluto:
+      atuin: $HOME/.local/bin/atuin
+    ceres:
+      atuin: $HOME/.local/bin/atuin
+    carme:
+    metis:
+    tarvos:
+      atuin: $HOME/.local/bin/atuin
+  vars:
+    atuin: atuin
+
 chezmoi:
   hosts:
     mercury:
