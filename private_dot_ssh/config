@@ -7,6 +7,11 @@ Host sol mercury venus earth mars jupiter saturn uranus neptune pluto homeassist
 Host ariel atlas elara neso
   User root
 
+Host eris.erdelynet.com eris.erdely.in eris
+  Hostname eris.erdelynet.com
+  User merdely
+  HostKeyAlias eris.erdelynet.com
+
 Host qemu/* 172.29.122.* 192.168.122.*
   GlobalKnownHostsFile /dev/null
   UserKnownHostsFile /dev/null
