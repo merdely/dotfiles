@@ -8,19 +8,25 @@ earth,earth.erdely.in,splunk,splunk.erdely.in,src.erdely.in,[src.erdely.in]:2222
 jupiter,jupiter.erdely.in,code.erdelynet.com,code.erdely.in,10.99.99.99 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFBs17LpxlMJdV3dOxW6oSYlQH4NaM/B4VXMAetrLRq/
 io,io.erdely.in,10.99.99.77 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGa6ZiVQh5FMDjmSi8orhHuEVdcIjRslotA6oFYRUrVR
 saturn,saturn.erdely.in,192.168.27.163 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIH606DUWbBOm6K+02pH+4HsIGnRkjdD9+VCfTrAOXlpD
-pluto,pluto.erdely.in,pluto.erdelynet.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMz4I3ILZpEmbfdA/SqHfnU3bNgY2OpXpWBNG2TwCGVA
-ceres,ceres.erdely.in,ceres.erdelynet.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILWBoj60hirKiTH22lkgHdnS+0paxuP4OqZHTk+TUrYj
 carme,carme.erdely.in,192.168.25.38 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIByIaAPNu35hM3ARABIj5PxmJZKe9lrgqU2PZ7qOaZBo
 metis,metis.erdely.in,192.168.25.42 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPDUtkoegPfUpTcxJ0EWN/4K1M8x9RulxuzHXaZ8UAsp
 tarvos,tarvos.erdely.in,192.168.25.34 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGnZki2Q6qsRG7sLcDFIzJjlCF2rXXtq//iZ8VyDCy5+
 sinope,sinope.erdely.in,192.168.27.7 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAII03fXD/4nrPs9BKXTpQqzdZTucHTVLIa/ec3dG1I6r0
 janus,janus.erdely.in,192.168.25.52 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINqxUReCOKxKmiZzKmpP5lTYdbGJvRZkbqJuddtFgODF
-uranus,uranus.erdely.in,192.168.25.53 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAOOERyGBti3A+uZuznPaDB5IrbnnFKBid+BeEHoCbgi
+ariel.erdely.in,192.168.25.53 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMA6QF6dqJZZfRq58w7DAMZnN3/nTceiIBRBSXiXCNpf
 elara,elara.erdely.in,192.168.25.54 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILajixkwg4QFfJ1PURgKiOPQlJg7nYcsfGKK82eMlUke
 neso,neso.erdely.in,192.168.25.55 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGKbJiAqUPnVRytsOXabr6krW9SKFkztTJd99MzjvWU3
 atlas,atlas.erdely.in,192.168.25.56 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPviWiNfrhSvjQxnWxdBkpmCfjmUZSGd6U9tEHBfTmm9
 thebe,thebe.erdely.in,192.168.25.57 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIP/T5cYt1nPTom3Zd6FaxQl0WifNTcGeSGaOaa33Ubmr
 pandia,pandia.erdely.in,192.168.26.238 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFdMS9jfpPlWrFvUr3nJd+PXEc9f3qYlMDnsu0cbuvdu
+
+# VPS Servers
+ceres,ceres.erdely.in,ceres.erdelynet.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILWBoj60hirKiTH22lkgHdnS+0paxuP4OqZHTk+TUrYj
+eris.erdelynet.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGbwQgM+MhL1wVspgOmUkN591hhiIoYrUFFI9K7K0pJY
+pluto,pluto.erdely.in,pluto.erdelynet.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMz4I3ILZpEmbfdA/SqHfnU3bNgY2OpXpWBNG2TwCGVA
+sedna.erdelynet.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOW/PbNPAn4Lce/sF7lvAakeW7lZ/DhMlstH51VpQgvX
+[server30.openbsd.amsterdam]:31415 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIUW3w7nNzbQgLbV67yRv8fsp6GAyCBciDd5tpfrmhvc
+[wingman1.openbsd.amsterdam]:31415 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKjRi8gECkwLrNFinBoL5p4kF3Ja2U6BWKW/FOB7aSx3
 
 # Clients
 mercury,mercury.erdely.in,mercury-wired,mercury-wired.erdely.in,192.168.25.100,mercury-vpn.erdely.in,mercury-vpn,172.30.225.3,mercury-wifi,mercury-wifi.erdely.in,192.168.25.101 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIB57W7VuBKPL+aamz+mSike5L5OV1mWMDOCQogOagncT
@@ -41,6 +47,7 @@ ymir,ymir.erdely.in,192.168.25.96 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINpCkGYI1G
 192.168.122.69 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINApEKF55qYwRSb+wcby0vHTvedhnBtHMu2el79XiSZU
 leda,leda.erdely.in,192.168.25.61 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDKBr4QSIC9x5MXhR4Vy8bHKV/61y7/aMrUxGKjQFwnD
 loge,leda.erdely.in,192.168.25.63 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJwUk7FZj9uyRxAi/razNrnY8U8StxsSgsS/M7e59uRU
+uranus,uranus.erdely.in ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAOOERyGBti3A+uZuznPaDB5IrbnnFKBid+BeEHoCbgi
 
 # WAPs
 wap-upstairs,wap-upstairs.erdely.in,192.168.25.5 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDKBqllsoKKMPNG4qvGIN1WGFxnvySrBLSzBXIEuyGGa9QTe6PK2GUaJJLyDcAne+yjCdwopE7woS7sZ6e+BOyqxLzC8lKgUixp4DqjQl943rAs1yJd367a5Frd1YTtPRGPT8Y4Jk9RXPwP9Z7aetp7EGtUTNaHqY9iotHT7ErRLl5wZrRKtF3PhjhqUTW5UZ3+Y95GrNSNH6BH7gaBOeS/XC6k3lqyXhJBuLfoZaejr7B54CX2jDMf33le7r0LhDLw7J+wDDJlZ+8malJ8uLhKSrTo0iVbYqPU1BInmD3O+/wUBOPZ1Zqz1AnDvGVqfeDQAeE/mWEnF3qAEy9ckceN
