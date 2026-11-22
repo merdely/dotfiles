@@ -7,6 +7,10 @@ Host sol mercury venus earth mars jupiter saturn uranus neptune pluto homeassist
 Host ariel atlas elara neso
   User root
 
+Host sedna.erdelynet.com sedna.erdely.in sedna
+  Hostname sedna.erdelynet.com
+  HostKeyAlias sedna.erdelynet.com
+
 Host eris.erdelynet.com eris.erdely.in eris
   Hostname eris.erdelynet.com
   User merdely
