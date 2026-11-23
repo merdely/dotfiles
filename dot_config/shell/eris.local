@@ -3,4 +3,4 @@
 # Use: chezmoi edit ~/.eris.local
 # Or after editing, run: chezmoi re-add ~/.eris.local
 
-alias ls=eza
+alias ls='eza --group-directories-first'
