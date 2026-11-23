@@ -11,11 +11,6 @@ Host sedna.erdelynet.com sedna.erdely.in sedna
   Hostname sedna.erdelynet.com
   HostKeyAlias sedna.erdelynet.com
 
-Host eris.erdelynet.com eris.erdely.in eris
-  Hostname eris.erdelynet.com
-  User merdely
-  HostKeyAlias eris.erdelynet.com
-
 Host qemu/* 172.29.122.* 192.168.122.*
   GlobalKnownHostsFile /dev/null
   UserKnownHostsFile /dev/null
