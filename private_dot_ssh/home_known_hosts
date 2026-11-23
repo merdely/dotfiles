@@ -22,9 +22,9 @@ pandia,pandia.erdely.in,192.168.26.238 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFdMS
 
 # VPS Servers
 ceres,ceres.erdely.in,ceres.erdelynet.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILWBoj60hirKiTH22lkgHdnS+0paxuP4OqZHTk+TUrYj
-eris.erdelynet.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGbwQgM+MhL1wVspgOmUkN591hhiIoYrUFFI9K7K0pJY
+eries,eries.erdely.in,eris.erdelynet.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGbwQgM+MhL1wVspgOmUkN591hhiIoYrUFFI9K7K0pJY
 pluto,pluto.erdely.in,pluto.erdelynet.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMz4I3ILZpEmbfdA/SqHfnU3bNgY2OpXpWBNG2TwCGVA
-sedna.erdelynet.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOW/PbNPAn4Lce/sF7lvAakeW7lZ/DhMlstH51VpQgvX
+sedna,sedna.erdely.in,sedna.erdelynet.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOW/PbNPAn4Lce/sF7lvAakeW7lZ/DhMlstH51VpQgvX
 [server30.openbsd.amsterdam]:31415 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIUW3w7nNzbQgLbV67yRv8fsp6GAyCBciDd5tpfrmhvc
 [wingman1.openbsd.amsterdam]:31415 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKjRi8gECkwLrNFinBoL5p4kF3Ja2U6BWKW/FOB7aSx3
 
