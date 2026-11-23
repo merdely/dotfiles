@@ -9,3 +9,4 @@ sn=0:sb=0:nb=0:nk=0:nm=0:ng=0:nt=0:ub=0:uk=0:um=0:ug=0:ut=0:df=0:ds=0:\
 uu=0:uR=0:un=0:gu=0:gR=0:gn=0:lc=0:lm=0:da=0:in=0:bl=0:hd=0:lp=0"
 # alias ls='eza --group-directories-first'
 alias ls='eza'
+alias vi='nvim'
