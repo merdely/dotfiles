@@ -74,10 +74,11 @@ case "$1" in
   onSessionUnlocked)
     case "$2" in
       unlocked)
-        dms ipc call audio status | grep -Eq "^Output:.*\(muted\) " &&
-          [[ -r "$HOME"/.cache/dms_lock_muted_audio ]] &&
-          { dms ipc call audio mute || true ; }
-        rm -f "$HOME"/.cache/dms_lock_muted_audio
+        if dms ipc call audio status | grep -Eq "^Output:.*\(muted\) " &&
+          [[ -r "$HOME"/.cache/dms_lock_muted_audio ]]; then
+          dms ipc call audio mute || true
+          rm -f "$HOME"/.cache/dms_lock_muted_audio
+        fi
         ;;
       *)
         $verbose && echo "Warning: $2 is an unsupported function for $1" >&2
