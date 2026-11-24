@@ -76,7 +76,7 @@ case "$1" in
       unlocked)
         dms ipc call audio status | grep -Eq "^Output:.*\(muted\) " &&
           [[ -r "$HOME"/.cache/dms_lock_muted_audio ]] &&
-          dms ipc call audio mute || true
+          { dms ipc call audio mute || true ; }
         rm -f "$HOME"/.cache/dms_lock_muted_audio
         ;;
       *)
