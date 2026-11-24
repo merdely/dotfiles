@@ -58,7 +58,7 @@ case "$1" in
       locked)
         rbw lock || true
         dms ipc call mpris pause || true
-        if dms ipc call audio status | grep -q "^Output:  (muted) "; then
+        if ! dms ipc call audio status | grep -q "^Output:  (muted) "; then
           touch "$HOME"/.cache/dms_lock_muted_audio
           dms ipc call audio mute || true
         fi
