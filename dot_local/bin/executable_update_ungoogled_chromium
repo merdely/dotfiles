@@ -34,15 +34,15 @@ elif [[ "$ID" == debian || " $ID_LIKE " == *" debian "* ]]; then
   ! command -v curl &> /dev/null && { echo "Error: curl is required" >&2 ; prereq_msg 1 ; }
   ! command -v jq &> /dev/null && { echo "Error: jq is required" >&2 ; prereq_msg 1 ; }
   ! command -v sudo &> /dev/null && { echo "Error: sudo is required" >&2 ; prereq_msg 1 ; }
-  [[ ! -e /usr/lib/libasound.so.2 ]] && { echo "Error: libasound2t64 package required" >&2 ; prereq_msg 1 ; }
-  [[ ! -e /usr/lib/libatk-1.0.so.0 ]] && { echo "Error: libatk1.0-0t64 & libatk-bridge2.0-0t64 packages required" >&2 ; prereq_msg 1 ; }
-  [[ ! -e /usr/lib/libcups.so.2 ]] && { echo "Error: libcups2t64 package required" >&2 ; prereq_msg 1 ; }
-  [[ ! -e /usr/lib/libnss3.so ]] && { echo "Error: libnss3 package required" >&2 ; prereq_msg 1 ; }
-  [[ ! -e /usr/lib/libnspr4.so ]] && { echo "Error: libnspr4 package required" >&2 ; prereq_msg 1 ; }
-  [[ ! -e /usr/lib/libxkbcommon.so.0 ]] && { echo "Error: libxkbcommon-x11-dev package required" >&2 ; prereq_msg 1 ; }
-  [[ ! -e /usr/lib/libXcomposite.so.1 ]] && { echo "Error: libxcomposite1 package required" >&2 ; prereq_msg 1 ; }
-  [[ ! -e /usr/lib/libXdamage.so.1 ]] && { echo "Error: libxdamage1 package required" >&2 ; prereq_msg 1 ; }
-  [[ ! -e /usr/lib/libXrandr.so.2 ]] && { echo "Error: libxrandr2 package required" >&2 ; prereq_msg 1 ; }
+  [[ ! -e /usr/lib/x86_64-linux-gnu/libasound.so.2 ]] && { echo "Error: libasound2t64 package required" >&2 ; prereq_msg 1 ; }
+  [[ ! -e /usr/lib/x86_64-linux-gnu/libatk-1.0.so.0 ]] && { echo "Error: libatk1.0-0t64 & libatk-bridge2.0-0t64 packages required" >&2 ; prereq_msg 1 ; }
+  [[ ! -e /usr/lib/x86_64-linux-gnu/libcups.so.2 ]] && { echo "Error: libcups2t64 package required" >&2 ; prereq_msg 1 ; }
+  [[ ! -e /usr/lib/x86_64-linux-gnu/libnss3.so ]] && { echo "Error: libnss3 package required" >&2 ; prereq_msg 1 ; }
+  [[ ! -e /usr/lib/x86_64-linux-gnu/libnspr4.so ]] && { echo "Error: libnspr4 package required" >&2 ; prereq_msg 1 ; }
+  [[ ! -e /usr/lib/x86_64-linux-gnu/libxkbcommon.so.0 ]] && { echo "Error: libxkbcommon-x11-dev package required" >&2 ; prereq_msg 1 ; }
+  [[ ! -e /usr/lib/x86_64-linux-gnu/libXcomposite.so.1 ]] && { echo "Error: libxcomposite1 package required" >&2 ; prereq_msg 1 ; }
+  [[ ! -e /usr/lib/x86_64-linux-gnu/libXdamage.so.1 ]] && { echo "Error: libxdamage1 package required" >&2 ; prereq_msg 1 ; }
+  [[ ! -e /usr/lib/x86_64-linux-gnu/libXrandr.so.2 ]] && { echo "Error: libxrandr2 package required" >&2 ; prereq_msg 1 ; }
 fi
 
 [[ -z "$DEBUG" && -n "$debug" ]] && DEBUG=$debug
