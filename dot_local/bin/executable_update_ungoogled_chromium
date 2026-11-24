@@ -8,21 +8,38 @@ prereq_msg() {
   exit "${1:-1}"
 }
 
-! command -v curl &> /dev/null && { echo "Error: curl is required" >&2 ; prereq_msg 1 ; }
-! command -v jq &> /dev/null && { echo "Error: jq is required" >&2 ; prereq_msg 1 ; }
-! command -v sudo &> /dev/null && { echo "Error: sudo is required" >&2 ; prereq_msg 1 ; }
-[[ ! -e /usr/lib/libasound.so.2 ]] && { echo "Error: alsa-lib package required" >&2 ; prereq_msg 1 ; }
-[[ ! -e /usr/lib/libatk-1.0.so.0 ]] && { echo "Error: at-spi2-core package required" >&2 ; prereq_msg 1 ; }
-[[ ! -e /usr/lib/libcairo.so.2 ]] && { echo "Error: cairo package required" >&2 ; prereq_msg 1 ; }
-[[ ! -e /usr/lib/libcups.so.2 ]] && { echo "Error: libcups package required" >&2 ; prereq_msg 1 ; }
-[[ ! -e /usr/lib/libgbm.so.1 ]] && { echo "Error: mesa package required" >&2 ; prereq_msg 1 ; }
-[[ ! -e /usr/lib/libpango-1.0.so.0 ]] && { echo "Error: pango package required" >&2 ; prereq_msg 1 ; }
-[[ ! -e /usr/lib/libnss3.so ]] && { echo "Error: nss package required" >&2 ; prereq_msg 1 ; }
-[[ ! -e /usr/lib/libnspr4.so ]] && { echo "Error: nspr package required" >&2 ; prereq_msg 1 ; }
-[[ ! -e /usr/lib/libxkbcommon.so.0 ]] && { echo "Error: libxkbcommon package required" >&2 ; prereq_msg 1 ; }
-[[ ! -e /usr/lib/libXcomposite.so.1 ]] && { echo "Error: libxcomposite package required" >&2 ; prereq_msg 1 ; }
-[[ ! -e /usr/lib/libXdamage.so.1 ]] && { echo "Error: libxdamage package required" >&2 ; prereq_msg 1 ; }
-[[ ! -e /usr/lib/libXrandr.so.2 ]] && { echo "Error: libxrandr package required" >&2 ; prereq_msg 1 ; }
+[[ -r /etc/os-release ]] && source /etc/os-release
+
+if [[ "$ID" == arch || " $ID_LIKE " == *" arch "* ]]; then
+  ! command -v curl &> /dev/null && { echo "Error: curl is required" >&2 ; prereq_msg 1 ; }
+  ! command -v jq &> /dev/null && { echo "Error: jq is required" >&2 ; prereq_msg 1 ; }
+  ! command -v sudo &> /dev/null && { echo "Error: sudo is required" >&2 ; prereq_msg 1 ; }
+  [[ ! -e /usr/lib/libasound.so.2 ]] && { echo "Error: alsa-lib package required" >&2 ; prereq_msg 1 ; }
+  [[ ! -e /usr/lib/libatk-1.0.so.0 ]] && { echo "Error: at-spi2-core package required" >&2 ; prereq_msg 1 ; }
+  [[ ! -e /usr/lib/libcairo.so.2 ]] && { echo "Error: cairo package required" >&2 ; prereq_msg 1 ; }
+  [[ ! -e /usr/lib/libcups.so.2 ]] && { echo "Error: libcups package required" >&2 ; prereq_msg 1 ; }
+  [[ ! -e /usr/lib/libgbm.so.1 ]] && { echo "Error: mesa package required" >&2 ; prereq_msg 1 ; }
+  [[ ! -e /usr/lib/libpango-1.0.so.0 ]] && { echo "Error: pango package required" >&2 ; prereq_msg 1 ; }
+  [[ ! -e /usr/lib/libnss3.so ]] && { echo "Error: nss package required" >&2 ; prereq_msg 1 ; }
+  [[ ! -e /usr/lib/libnspr4.so ]] && { echo "Error: nspr package required" >&2 ; prereq_msg 1 ; }
+  [[ ! -e /usr/lib/libxkbcommon.so.0 ]] && { echo "Error: libxkbcommon package required" >&2 ; prereq_msg 1 ; }
+  [[ ! -e /usr/lib/libXcomposite.so.1 ]] && { echo "Error: libxcomposite package required" >&2 ; prereq_msg 1 ; }
+  [[ ! -e /usr/lib/libXdamage.so.1 ]] && { echo "Error: libxdamage package required" >&2 ; prereq_msg 1 ; }
+  [[ ! -e /usr/lib/libXrandr.so.2 ]] && { echo "Error: libxrandr package required" >&2 ; prereq_msg 1 ; }
+elif [[ "$ID" == debian || " $ID_LIKE " == *" debian "* ]]; then
+  ! command -v curl &> /dev/null && { echo "Error: curl is required" >&2 ; prereq_msg 1 ; }
+  ! command -v jq &> /dev/null && { echo "Error: jq is required" >&2 ; prereq_msg 1 ; }
+  ! command -v sudo &> /dev/null && { echo "Error: sudo is required" >&2 ; prereq_msg 1 ; }
+  [[ ! -e /usr/lib/libasound.so.2 ]] && { echo "Error: libasound2t64 package required" >&2 ; prereq_msg 1 ; }
+  [[ ! -e /usr/lib/libatk-1.0.so.0 ]] && { echo "Error: libatk1.0-0t64 & libatk-bridge2.0-0t64 packages required" >&2 ; prereq_msg 1 ; }
+  [[ ! -e /usr/lib/libcups.so.2 ]] && { echo "Error: libcups2t64 package required" >&2 ; prereq_msg 1 ; }
+  [[ ! -e /usr/lib/libnss3.so ]] && { echo "Error: libnss3 package required" >&2 ; prereq_msg 1 ; }
+  [[ ! -e /usr/lib/libnspr4.so ]] && { echo "Error: libnspr4 package required" >&2 ; prereq_msg 1 ; }
+  [[ ! -e /usr/lib/libxkbcommon.so.0 ]] && { echo "Error: libxkbcommon-x11-dev package required" >&2 ; prereq_msg 1 ; }
+  [[ ! -e /usr/lib/libXcomposite.so.1 ]] && { echo "Error: libxcomposite1 package required" >&2 ; prereq_msg 1 ; }
+  [[ ! -e /usr/lib/libXdamage.so.1 ]] && { echo "Error: libxdamage1 package required" >&2 ; prereq_msg 1 ; }
+  [[ ! -e /usr/lib/libXrandr.so.2 ]] && { echo "Error: libxrandr2 package required" >&2 ; prereq_msg 1 ; }
+fi
 
 [[ -z "$DEBUG" && -n "$debug" ]] && DEBUG=$debug
 case "${DEBUG:-false}" in
