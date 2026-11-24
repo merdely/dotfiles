@@ -119,7 +119,13 @@ if [[ ! -e $CHROMIUM_HOME/chrome || "$INSTALL" == true ]]; then
   printf "."
   sudo rm -f /usr/bin/ungoogled-chromium
   printf "."
-  sudo ln -s "$CHROMIUM_HOME/chrome" /usr/bin/ungoogled-chromium
+  sudo tee /usr/bin/ungoogled-chromium >/dev/null <<'EOF'
+#!/bin/sh
+CONF="${XDG_CONFIG_HOME:-$HOME/.config}/chromium-flags.conf"
+FLAGS=""
+[ -r "$CONF" ] && FLAGS=$(grep -v '^[[:space:]]*#' "$CONF")
+exec /opt/ungoogled-chromium/chrome $FLAGS "$@"
+EOF
   printf "\n"
 else
   CUR_VER=$($CHROMIUM_HOME/chrome --version | cut -d ' ' -f 2)
@@ -143,6 +149,15 @@ else
   printf "."
   sudo ln -s "$CHROMIUM_DIR" "$CHROMIUM_HOME"
   printf "."
-  [[ ! -e /usr/bin/ungoogled-chromium ]] && sudo ln -s "$CHROMIUM_HOME/chrome" /usr/bin/ungoogled-chromium
+  if [[ ! -f /usr/bin/ungoogled-chromium || -L /usr/bin/ungoogled-chromium ]]; then
+    sudo rm -f /usr/bin/ungoogled-chromium
+    sudo tee /usr/bin/ungoogled-chromium >/dev/null <<'EOF'
+#!/bin/sh
+CONF="${XDG_CONFIG_HOME:-$HOME/.config}/chromium-flags.conf"
+FLAGS=""
+[ -r "$CONF" ] && FLAGS=$(grep -v '^[[:space:]]*#' "$CONF")
+exec /opt/ungoogled-chromium/chrome $FLAGS "$@"
+EOF
+  fi
   printf "\n"
 fi
