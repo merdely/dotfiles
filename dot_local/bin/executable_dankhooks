@@ -56,15 +56,15 @@ case "$1" in
   onSessionLocked)
     case "$2" in
       locked)
-        rbw lock
-        dms ipc call mpris pause
+        rbw lock || true
+        dms ipc call mpris pause || true
         if dms ipc call audio status | grep -q "^Output:  (muted) "; then
           touch "$HOME"/.cache/dms_lock_muted_audio
-          dms ipc call audio mute
+          dms ipc call audio mute || true
         fi
         dms ipc call mic status | grep -q "(muted)" ||
-          dms ipc call mic mute
-        dms ipc call inhibit disable
+          dms ipc call mic mute || true
+        dms ipc call inhibit disable || true
         ;;
       *)
         $verbose && echo "Warning: $2 is an unsupported function for $1" >&2
@@ -76,7 +76,7 @@ case "$1" in
       unlocked)
         dms ipc call audio status | grep "^Output:  (muted) " &&
           [[ -r "$HOME"/.cache/dms_lock_muted_audio ]] &&
-          dms ipc call audio mute
+          dms ipc call audio mute || true
         rm -f "$HOME"/.cache/dms_lock_muted_audio
         ;;
       *)
