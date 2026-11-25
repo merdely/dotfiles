@@ -11,8 +11,6 @@ atuin:
       atuin: $HOME/.local/bin/atuin
     jupiter:
       atuin: $HOME/.local/bin/atuin
-    io:
-      atuin: $HOME/.local/bin/atuin
     saturn:
       atuin: $HOME/.local/bin/atuin
     dia:
@@ -39,8 +37,6 @@ chezmoi:
     earth:
       chezmoi: $HOME/.local/bin/chezmoi
     jupiter:
-      chezmoi: $HOME/.local/bin/chezmoi
-    io:
       chezmoi: $HOME/.local/bin/chezmoi
     saturn:
       chezmoi: $HOME/.local/bin/chezmoi
